@@ -1,3 +1,4 @@
+{{ if .Values.agent.node.enabled }}
 {{- with .Values.agent.node.service }}
 apiVersion: v1
 kind: Service
@@ -14,3 +15,4 @@ spec:
   selector:
     name: magpie-agent-node
 {{- end }}
+{{ end }}

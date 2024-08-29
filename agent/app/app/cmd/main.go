@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"k8s.io/client-go/util/homedir"
+	"log"
 	"logather/internal/agent/node"
 	"logather/internal/agent/pods"
 	"logather/internal/transformer"
@@ -12,7 +13,9 @@ import (
 )
 
 func main() {
+	//RunNodeAgentDemo()
 	mode := *flag.String("scrape", "nodes", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
+	flag.Parse()
 
 	if mode == "nodes" {
 		RunNodeAgentDemo()
@@ -31,12 +34,14 @@ func RunNodeAgentDemo() {
 		}
 	}()
 
-	watchedFiles := []string{"test.log", "test2.log"}
+	//watchedFiles := []string{"test.log", "test2.log"}
+	watchedFiles := []string{"/logs/btmp"}
 	RunNodeAgent(watchedFiles)
 }
 
 func RunPodAgentDemo() {
-	dir := "/home/wojtek/playground/golang/logather/logs"
+	//dir := "/var/log"
+	dir := ""
 	RunPodAgent(dir)
 }
 
@@ -52,7 +57,7 @@ func RunNodeAgent(watchedFiles []string) {
 
 	// prints gathered log lines
 	for elem := range c {
-		fmt.Println(elem)
+		log.Println(elem.Content)
 	}
 }
 

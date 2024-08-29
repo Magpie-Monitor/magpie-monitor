@@ -1,3 +1,4 @@
+{{ if .Values.agent.cluster.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,6 +18,7 @@ spec:
     spec:
       containers:
         - name: magpie-agent-cluster
-          image: alpine
-          ports:
-            - containerPort: 80
+          image: woojciech/agent:latest
+          args:
+            - "-scrape=pods"
+{{ end }}

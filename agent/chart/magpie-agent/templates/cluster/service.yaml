@@ -1,3 +1,4 @@
+{{ if .Values.agent.cluster.enabled }}
 {{- with .Values.agent.cluster.service }}
 apiVersion: v1
 kind: Service
@@ -14,3 +15,4 @@ spec:
   selector:
     name: magpie-agent-cluster
 {{- end }}
+{{ end }}
