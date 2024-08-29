@@ -1,0 +1,16 @@
+{{- with .Values.agent.fs.service }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: magpie-svc
+  labels:
+    name: magpie-svc
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      protocol: TCP
+  selector:
+    name: magpie-agent
+  {{- end }}

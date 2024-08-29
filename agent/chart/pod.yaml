@@ -1,0 +1,17 @@
+# TODO - remove, for reference purposes only
+apiVersion: v1
+kind: Pod
+metadata:
+  name: node-fs
+spec:
+  volumes:
+    - name: host-root
+      hostPath:
+        path: /var/log
+  containers:
+    - name: node-fs
+      image: alpine
+      command: ["sleep", "9999999999999"]
+      volumeMounts:
+        - name: host-root
+          mountPath: /host
