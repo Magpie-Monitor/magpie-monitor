@@ -12,8 +12,15 @@ import (
 )
 
 func main() {
-	RunNodeAgentDemo()
-	//RunPodAgentDemo()
+	mode := *flag.String("scrape", "nodes", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
+
+	if mode == "nodes" {
+		RunNodeAgentDemo()
+	} else if mode == "pods" {
+		RunPodAgentDemo()
+	} else {
+		panic(fmt.Sprintf("Mode: %s not supported", mode))
+	}
 }
 
 func RunNodeAgentDemo() {

@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: magpie-agent
-  namespace: {{ .Values.agent.fs.namespace }}
+  name: magpie-agent-node
+  namespace: {{ .Values.agent.namespace }}
   labels:
-    name: magpie-agent
+    name: magpie-agent-node
 spec:
   selector:
     matchLabels:
-      name: magpie-agent
+      name: magpie-agent-node
   template:
     metadata:
       labels:
-        name: magpie-agent
+        name: magpie-agent-node
     spec:
 #      tolerations:
 #        # these tolerations are to have the daemonset runnable on control plane nodes
@@ -24,7 +24,7 @@ spec:
 #          operator: Exists
 #          effect: NoSchedule
       containers:
-        - name: magpie-node-fs
+        - name: magpie-agent-node
           image: alpine
           command: ["sleep", "9999999999999999"]
 #          resources:

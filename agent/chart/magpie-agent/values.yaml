@@ -1,14 +1,17 @@
-# Default values for magpie-app.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
 agent:
-  fs:
-    namespace: test
+  namespace: test
+  node:
     service:
       port: 8080
       targetPort: 8080
-    # resources: TODO - add resources
+    files:
+      - mountPoint: /var/log/test.log
+      - mountPoint: /var/log/test2.log
+  cluster:
+    service:
+      port: 8080
+      targetPort: 8080
+  remoteWriteUrl: https://test.com
 
 serviceAccount:
   # Specifies whether a service account should be created
