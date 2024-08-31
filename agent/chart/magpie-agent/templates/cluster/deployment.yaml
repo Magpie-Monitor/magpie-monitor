@@ -20,5 +20,5 @@ spec:
         - name: magpie-agent-cluster
           image: woojciech/agent:latest
           args:
-            - "-scrape=pods"
+            - "--scrape=pods"
 {{ end }}

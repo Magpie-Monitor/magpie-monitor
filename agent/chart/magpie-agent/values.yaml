@@ -6,8 +6,9 @@ agent:
       port: 8080
       targetPort: 8080
     files:
-      - mountPoint: /var/log/test.log
-      - mountPoint: /var/log/test2.log
+      - /var/log/test.log
+      - /var/log/test2.log
+      - /var/log/test3.log
   cluster:
     enabled: true
     service:

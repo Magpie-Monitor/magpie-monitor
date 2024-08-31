@@ -8,42 +8,60 @@ import (
 	"logather/internal/agent/node"
 	"logather/internal/agent/pods"
 	"logather/internal/transformer"
-	"os/exec"
 	"path/filepath"
 )
 
+type arrayFlags []string
+
+func (i *arrayFlags) String() string {
+	return i.String()
+}
+
+func (i *arrayFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
 func main() {
-	//RunNodeAgentDemo()
 	mode := *flag.String("scrape", "nodes", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
+
+	var watchedFiles arrayFlags
+	flag.Var(&watchedFiles, "file", "Log files that are watched for log collector running in \"nodes\" mode.")
+
 	flag.Parse()
 
+	log.Println("Starting agent in mode: ", mode)
+
 	if mode == "nodes" {
-		RunNodeAgentDemo()
+		log.Println("Watched files: ", watchedFiles)
+		if len(watchedFiles) == 0 {
+			panic("Node agent doesn't have any files configured, please point watched files in the config.")
+		}
+		RunNodeAgent(watchedFiles)
 	} else if mode == "pods" {
-		RunPodAgentDemo()
+		RunPodAgent("/logs")
 	} else {
 		panic(fmt.Sprintf("Mode: %s not supported", mode))
 	}
 }
 
-func RunNodeAgentDemo() {
-	go func() {
-		cmd := exec.Command("bash", "-c", "./generate-logs.sh")
-		if err := cmd.Run(); err != nil {
-			panic(err)
-		}
-	}()
+//func RunNodeAgentDemo(watchedFiles []string) {
+//	go func() {
+//		cmd := exec.Command("bash", "-c", "./generate-logs.sh")
+//		if err := cmd.Run(); err != nil {
+//			panic(err)
+//		}
+//	}()
+//
+//	//watchedFiles := []string{"/logs/btmp"}
+//	RunNodeAgent(watchedFiles)
+//}
 
-	//watchedFiles := []string{"test.log", "test2.log"}
-	watchedFiles := []string{"/logs/btmp"}
-	RunNodeAgent(watchedFiles)
-}
-
-func RunPodAgentDemo() {
-	//dir := "/var/log"
-	dir := ""
-	RunPodAgent(dir)
-}
+//func RunPodAgentDemo() {
+//	//dir := "/var/log"
+//	dir := ""
+//	RunPodAgent(dir)
+//}
 
 func RunNodeAgent(watchedFiles []string) {
 	c := make(chan node.IncrementalFetch)
