@@ -1,0 +1,16 @@
+services:
+  client:
+    container_name: magpie-monitor-client
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+        - VITE_GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+        - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+    ports:
+      - "80:80"
+
+volumes:
+  db-data:
