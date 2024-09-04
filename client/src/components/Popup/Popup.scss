@@ -1,0 +1,24 @@
+@import "@/variables.scss";
+
+.popup {
+  position: absolute;
+  background-color: $quaternary;
+  border-radius: 1rem;
+  border-style: solid;
+  border-width: 1px;
+  border-color: $accent;
+  left: 50vw;
+  top: 50vh;
+  padding: 1rem;
+  padding-top: 0rem;
+  padding-left: 2rem;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  z-index: 2;
+  animation: fadeIn 0.3s;
+  transform: translate(-50%, -50%);
+  transition: all 0.2s;
+}
