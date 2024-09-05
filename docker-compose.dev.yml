@@ -16,3 +16,19 @@ services:
           target: /app/src
         - action: rebuild
           path: ./client/package.json
+
+  management-api:
+    container_name: magpie-monitor-management-api
+    build:
+      context: ./management-api
+      dockerfile: Dockerfile
+    environment:
+      - DB-PASSWORD=${DB_PASSWORD}
+      - DB-URL=${DB_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+      - JWTSECRET=${JWTSECRET}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+    ports:
+      - "8080:8080"
