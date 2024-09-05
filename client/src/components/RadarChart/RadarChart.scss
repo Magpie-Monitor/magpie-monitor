@@ -1,0 +1,33 @@
+@import "@/variables.scss";
+
+.polar-chart {
+  // display: flex;
+  // flex-direction: column;
+  // justify-content: center;
+  // align-items: center;
+  // background-color: $quaternary;
+  // padding: 1rem;
+  // border-radius: 1rem;
+  // border-style: solid;
+  // border-width: 1px;
+  // border-color: $tertiary;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: $quaternary;
+  padding: 1rem;
+  border-radius: 1rem;
+  border-style: solid;
+  border-width: 1px;
+  border-color: $tertiary;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $accent;
+    border-width: 2px;
+    filter: brightness(1.4);
+    transform: scale(1.01);
+  }
+}

@@ -1,0 +1,18 @@
+services:
+  client:
+    container_name: magpie-monitor-client
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      target: development
+    environment:
+      - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - VITE_GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+      - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+    develop:
+      watch:
+        - action: sync
+          path: ./client/src
+          target: /app/src
+        - action: rebuild
+          path: ./client/package.json
