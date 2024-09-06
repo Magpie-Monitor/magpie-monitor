@@ -24,6 +24,7 @@ func (i *arrayFlags) Set(value string) error {
 
 func main() {
 	mode := *flag.String("scrape", "nodes", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
+	redisUrl := *flag.String("redisUrl", "", "Redis URL in cluster DNS format, that is: service.namespace.svc.cluster.local:port")
 
 	var watchedFiles arrayFlags
 	flag.Var(&watchedFiles, "file", "Log files that are watched for log collector running in \"nodes\" mode.")
@@ -31,13 +32,14 @@ func main() {
 	flag.Parse()
 
 	log.Println("Starting agent in mode: ", mode)
+	log.Println("Redis url: ", redisUrl)
 
 	if mode == "nodes" {
 		log.Println("Watched files: ", watchedFiles)
 		if len(watchedFiles) == 0 {
 			panic("Node agent doesn't have any files configured, please point watched files in the config.")
 		}
-		RunNodeAgent(watchedFiles)
+		RunNodeAgent(watchedFiles, redisUrl)
 	} else if mode == "pods" {
 		RunPodAgent("/logs")
 	} else {
@@ -45,37 +47,26 @@ func main() {
 	}
 }
 
-//func RunNodeAgentDemo(watchedFiles []string) {
-//	go func() {
-//		cmd := exec.Command("bash", "-c", "./generate-logs.sh")
-//		if err := cmd.Run(); err != nil {
-//			panic(err)
-//		}
-//	}()
-//
-//	//watchedFiles := []string{"/logs/btmp"}
-//	RunNodeAgent(watchedFiles)
-//}
-
-//func RunPodAgentDemo() {
-//	//dir := "/var/log"
-//	dir := ""
-//	RunPodAgent(dir)
-//}
-
-func RunNodeAgent(watchedFiles []string) {
+func RunNodeAgent(watchedFiles []string, redisUrl string) {
 	c := make(chan node.IncrementalFetch)
 
 	t1 := transformer.DummyTransformer{}
 
 	transformers := []transformer.Transformer{t1}
 
-	agent := node.NewReader(watchedFiles, transformers, nil, c)
+	agent := node.NewReader(watchedFiles, transformers, nil, c, redisUrl)
 	agent.WatchFiles()
 
-	// prints gathered log lines
+	var buffer []node.IncrementalFetch
+	// TODO - revisit remote write when agreed on a specification
+	//remoteWrite := remoteWrite.NewRemoteWriter([]string{"google.com"})
+
 	for elem := range c {
-		log.Println(elem.Content)
+		buffer = append(buffer, elem)
+		if len(buffer) > 500 {
+			//remoteWrite.Write(buffer)
+			buffer = make([]node.IncrementalFetch, 0)
+		}
 	}
 }
 

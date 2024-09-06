@@ -21,4 +21,5 @@ spec:
           image: woojciech/agent:latest
           args:
             - "--scrape=pods"
+            - "--redisUrl=magpie-agent-redis.{{ .Values.agent.namespace }}.svc.cluster.local:6379" #TODO - parametrize
 {{ end }}

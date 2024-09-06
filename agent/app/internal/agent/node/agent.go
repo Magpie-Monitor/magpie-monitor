@@ -3,8 +3,10 @@ package node
 import (
 	"io"
 	"log"
+	"logather/internal/database"
 	"logather/internal/transformer"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -18,13 +20,13 @@ type IncrementalReader struct {
 	transformers    []transformer.Transformer
 	remoteWriteUrls []string
 	results         chan IncrementalFetch
-	progress        map[string]int64
+	redis           database.Redis
 }
 
 func NewReader(files []string, transformers []transformer.Transformer, remoteWriteUrls []string,
-	results chan IncrementalFetch) IncrementalReader {
+	results chan IncrementalFetch, redisUrl string) IncrementalReader {
 	return IncrementalReader{files: files, transformers: transformers, remoteWriteUrls: remoteWriteUrls,
-		results: results, progress: make(map[string]int64)}
+		results: results, redis: database.NewRedis(redisUrl, "", 0)} // TODO - reiterate on Redis password
 }
 
 func (r *IncrementalReader) WatchFiles() {
@@ -48,16 +50,19 @@ func (r *IncrementalReader) prepareFile(dir string) (*os.File, int64) {
 
 	// seek to previous ending spot
 	var currentSize int64
-	// TODO - redis here
-	previousSize, ok := r.progress[dir]
-	if ok {
-		_, err = f.Seek(previousSize, io.SeekStart)
+	previousSize := r.redis.Get(dir)
+	if previousSize != "" {
+		size, _ := strconv.Atoi(previousSize)
+		_, err = f.Seek(int64(size), io.SeekStart)
 		if err != nil {
 			panic(err)
 		}
-		currentSize = previousSize
+		currentSize = int64(size)
 	} else {
-		f.Seek(0, io.SeekEnd)
+		_, err = f.Seek(0, io.SeekEnd)
+		if err != nil {
+			log.Println("Error seeking end of file: ", dir)
+		}
 		currentSize = fi.Size()
 	}
 
@@ -80,7 +85,7 @@ func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan Inc
 		if byteDiff > 0 {
 			buf := make([]byte, byteDiff+1)
 
-			_, err := f.Seek(-byteDiff, io.SeekCurrent)
+			_, err := f.Seek(-byteDiff, io.SeekEnd)
 			if err != nil {
 				log.Println("Error seeking diff for file: ", dir)
 				panic(err)
@@ -96,7 +101,10 @@ func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan Inc
 			log.Println("BYTE DIFF = ", byteDiff)
 
 			currentSize = size
-			r.progress[dir] = size
+			err = r.redis.Set(dir, strconv.FormatInt(currentSize, 10), -1)
+			if err != nil {
+				log.Println("Error persisting read progress for: ", dir)
+			}
 
 			results <- IncrementalFetch{Dir: dir, Content: r.transform(string(buf))}
 		}
@@ -112,11 +120,3 @@ func (r *IncrementalReader) transform(content string) string {
 	}
 	return content
 }
-
-//func RemoteWrite(url string) {
-//
-//}
-
-//func DatabaseWrite() {
-//
-//}
