@@ -7,6 +7,7 @@ import (
 	"log"
 	"logather/internal/agent/node"
 	"logather/internal/agent/pods"
+	"logather/internal/remoteWrite"
 	"logather/internal/transformer"
 	"path/filepath"
 )
@@ -57,13 +58,21 @@ func RunNodeAgent(watchedFiles []string, redisUrl string) {
 	agent := node.NewReader(watchedFiles, transformers, nil, c, redisUrl)
 	agent.WatchFiles()
 
-	var buffer []node.IncrementalFetch
+	var buffer map[string]node.IncrementalFetch
+	writer := remoteWrite.NewRemoteWriter([]string{"google.com"}) // TODO - revisit
 
 	for elem := range c {
-		buffer = append(buffer, elem)
-		if len(buffer) > 500 {
-			//remoteWrite.Write(buffer)
-			buffer = make([]node.IncrementalFetch, 0)
+		content, ok := buffer[elem.Dir]
+		if ok {
+			content.Content = content.Content + elem.Content
+		} else {
+			buffer[elem.Dir] = elem
+			content = elem
+		}
+
+		if len(content.Content) > 100 {
+			writer.Write(content)
+			content.Content = ""
 		}
 	}
 }
