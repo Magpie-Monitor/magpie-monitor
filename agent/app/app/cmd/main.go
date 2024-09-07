@@ -58,8 +58,6 @@ func RunNodeAgent(watchedFiles []string, redisUrl string) {
 	agent.WatchFiles()
 
 	var buffer []node.IncrementalFetch
-	// TODO - revisit remote write when agreed on a specification
-	//remoteWrite := remoteWrite.NewRemoteWriter([]string{"google.com"})
 
 	for elem := range c {
 		buffer = append(buffer, elem)

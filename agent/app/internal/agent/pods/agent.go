@@ -34,7 +34,7 @@ func NewAgent(kubeconfig string, excludedNamespaces []string, collectionInterval
 func (a *Agent) Start() {
 	a.authenticate()
 	a.fetchNamespaces()
-	a.test()
+	//a.test()
 	//a.prepareDirectoryTree()
 	//a.gatherLogs()
 }
