@@ -14,10 +14,4 @@ public class HealthCheckController {
     public ResponseEntity<?> checkHealth() {
         return ResponseEntity.ok().build();
     }
-
-    @Operation(summary = "Check if user credentials are OK")
-    @GetMapping("/api/v1/account/healthcheck")
-    public ResponseEntity<?> userCheckHealth() {
-        return ResponseEntity.ok().build();
-    }
 }
