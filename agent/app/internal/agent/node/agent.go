@@ -84,7 +84,7 @@ func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan Inc
 		if byteDiff > 0 {
 			buf := make([]byte, byteDiff+1)
 
-			_, err := f.Seek(-byteDiff, io.SeekEnd)
+			_, err = f.Seek(-byteDiff, io.SeekEnd)
 			if err != nil {
 				log.Println("Error seeking diff for file: ", dir)
 				panic(err)

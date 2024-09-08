@@ -35,8 +35,8 @@ func (a *Agent) Start() {
 	a.authenticate()
 	a.fetchNamespaces()
 	//a.test()
-	//a.prepareDirectoryTree()
-	//a.gatherLogs()
+	a.prepareDirectoryTree()
+	a.gatherLogs()
 }
 
 func (a *Agent) authenticate() {

@@ -25,6 +25,7 @@ func NewRemoteWriter(urls []string) RemoteWriter {
 	return RemoteWriter{urls: urls, cache: make(map[string]string)}
 }
 
+// TODO - decouple writer from node.IncrementalFetch, make it "struct agnostic"
 func (w *RemoteWriter) Write(content node.IncrementalFetch) {
 	for _, url := range w.urls {
 		content.Content = w.getCachedContent(url) + content.Content
@@ -54,6 +55,7 @@ func (w *RemoteWriter) Write(content node.IncrementalFetch) {
 	}
 }
 
+// TODO - think about cache in redis
 func (w *RemoteWriter) cacheContent(url, content string) {
 	val, ok := w.cache[url]
 	if ok {
