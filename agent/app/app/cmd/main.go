@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"k8s.io/client-go/util/homedir"
-	"log"
 	"logather/internal/agent/node"
 	"logather/internal/agent/pods"
 	"logather/internal/remoteWrite"
@@ -23,23 +22,24 @@ func (i *arrayFlags) Set(value string) error {
 }
 
 func main() {
-	mode := *flag.String("scrape", "nodes", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
-	redisUrl := *flag.String("redisUrl", "", "Redis URL in cluster DNS format, that is: service.namespace.svc.cluster.local:port")
-
-	var watchedFiles arrayFlags
-	flag.Var(&watchedFiles, "file", "Log files that are watched for log collector running in \"nodes\" mode.")
-
-	flag.Parse()
-
-	log.Println("Starting agent in mode: ", mode)
-	log.Println("Redis url: ", redisUrl)
+	//mode := *flag.String("scrape", "nodes", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
+	//redisUrl := *flag.String("redisUrl", "", "Redis URL in cluster DNS format, that is: service.namespace.svc.cluster.local:port")
+	//
+	//var watchedFiles arrayFlags
+	//flag.Var(&watchedFiles, "file", "Log files that are watched for log collector running in \"nodes\" mode.")
+	//
+	//flag.Parse()
+	//
+	//log.Println("Starting agent in mode: ", mode)
+	//log.Println("Redis url: ", redisUrl)
+	mode := "pods"
 
 	if mode == "nodes" {
-		log.Println("Watched files: ", watchedFiles)
-		if len(watchedFiles) == 0 {
-			panic("Node agent doesn't have any files configured, please point watched files in the config.")
-		}
-		RunNodeAgent(watchedFiles, redisUrl)
+		//log.Println("Watched files: ", watchedFiles)
+		//if len(watchedFiles) == 0 {
+		//	panic("Node agent doesn't have any files configured, please point watched files in the config.")
+		//}
+		//RunNodeAgent(watchedFiles, redisUrl)
 	} else if mode == "pods" {
 		RunPodAgent("./logs")
 	} else {
@@ -75,6 +75,7 @@ func RunNodeAgent(watchedFiles []string, redisUrl string) {
 }
 
 func RunPodAgent(logsDir string) {
+	//config, err := rest.InClusterConfig() // TODO - https://github.com/kubernetes/client-go/tree/master/examples/in-cluster-client-configuration
 	var kubeconfig *string
 	if home := homedir.HomeDir(); home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
