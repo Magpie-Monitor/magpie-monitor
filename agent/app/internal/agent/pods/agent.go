@@ -14,6 +14,13 @@ import (
 	"time"
 )
 
+type Chunk struct {
+	kind      string
+	name      string
+	namespace string
+	content   string
+}
+
 type Agent struct {
 	kubeconfig                string
 	excludedNamespaces        []string
@@ -21,6 +28,7 @@ type Agent struct {
 	collectionIntervalSeconds int
 	collectionDirectory       string
 	client                    *kubernetes.Clientset
+	readTimestamps            map[string]int64
 }
 
 func NewAgent(kubeconfig string, excludedNamespaces []string, collectionIntervalSeconds int, collectionDirectory string) *Agent {
@@ -29,6 +37,7 @@ func NewAgent(kubeconfig string, excludedNamespaces []string, collectionInterval
 		excludedNamespaces:        excludedNamespaces,
 		collectionIntervalSeconds: collectionIntervalSeconds,
 		collectionDirectory:       collectionDirectory,
+		readTimestamps:            make(map[string]int64),
 	}
 }
 
@@ -66,9 +75,7 @@ func (a *Agent) fetchNamespaces() {
 	}
 }
 
-// TODO - timestamps from last read from pods
 func (a *Agent) gatherLogs(scrapeInterval int) {
-	sinceSeconds := int64(scrapeInterval)
 	for {
 		for _, namespace := range a.includedNamespaces {
 			log.Println("Fetching logs for namespace: ", namespace)
@@ -78,7 +85,7 @@ func (a *Agent) gatherLogs(scrapeInterval int) {
 				log.Println("Error fetching Deployments: ", err)
 				log.Println("Skipping iteration")
 			} else {
-				a.fetchDeploymentLogsSinceSeconds(namespace, deployments.Items, &sinceSeconds)
+				a.fetchDeploymentLogsSinceSeconds(namespace, deployments.Items)
 			}
 
 			statefulSets, err := a.client.AppsV1().StatefulSets(namespace).List(context.TODO(), metav1.ListOptions{})
@@ -86,7 +93,7 @@ func (a *Agent) gatherLogs(scrapeInterval int) {
 				log.Println("Error fetching StatefulSets: ", err)
 				log.Println("Skipping iteration")
 			} else {
-				a.fetchStatefulSetLogsSinceSeconds(namespace, statefulSets.Items, &sinceSeconds)
+				a.fetchStatefulSetLogsSinceSeconds(namespace, statefulSets.Items)
 			}
 
 			daemonSets, err := a.client.AppsV1().DaemonSets(namespace).List(context.TODO(), metav1.ListOptions{})
@@ -94,44 +101,67 @@ func (a *Agent) gatherLogs(scrapeInterval int) {
 				log.Println("Error fetching DaemonSets: ", err)
 				log.Println("Skipping iteration")
 			} else {
-				a.fetchDaemonSetLogsSinceSeconds(namespace, daemonSets.Items, &sinceSeconds)
+				a.fetchDaemonSetLogsSinceSeconds(namespace, daemonSets.Items)
 			}
 		}
 
 		log.Println("Sleeping for: ", scrapeInterval, " seconds")
-		time.Sleep(time.Duration(scrapeInterval * 1000))
+		time.Sleep(time.Duration(scrapeInterval) * time.Second)
 	}
 }
 
-func (a *Agent) fetchDeploymentLogsSinceSeconds(namespace string, deployments []v2.Deployment, sinceSeconds *int64) {
+func (a *Agent) calculateLastReadTimeDiff(name string) int64 {
+	var readDiff int64 = 10
+	now := time.Now()
+	unix := now.Unix()
+	previousRead, ok := a.readTimestamps[name]
+	if ok {
+		readDiff = unix - previousRead
+	}
+	return readDiff
+}
+
+func (a *Agent) setReadTimestamp(name string) {
+	now := time.Now()
+	a.readTimestamps[name] = now.Unix()
+}
+
+func (a *Agent) fetchDeploymentLogsSinceSeconds(namespace string, deployments []v2.Deployment) {
 	for _, deployment := range deployments {
 		name := deployment.Name
 		selectors := deployment.Spec.Selector
 
 		log.Println("Deployment: ", name)
-		a.fetchLogsSinceSeconds(selectors, namespace, sinceSeconds)
+
+		readDiff := a.calculateLastReadTimeDiff(name)
+		a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
+		a.setReadTimestamp(name)
 	}
 }
 
-func (a *Agent) fetchStatefulSetLogsSinceSeconds(namespace string, statefulSets []v2.StatefulSet, sinceSeconds *int64) {
+func (a *Agent) fetchStatefulSetLogsSinceSeconds(namespace string, statefulSets []v2.StatefulSet) {
 	log.Println("Fetching logs from StatefulSets")
 	for _, statefulSet := range statefulSets {
 		name := statefulSet.Name
 		selectors := statefulSet.Spec.Selector
 
 		log.Println("StatefulSet: ", name)
-		a.fetchLogsSinceSeconds(selectors, namespace, sinceSeconds)
+		readDiff := a.calculateLastReadTimeDiff(name)
+		a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
+		a.setReadTimestamp(name)
 	}
 }
 
-func (a *Agent) fetchDaemonSetLogsSinceSeconds(namespace string, daemonSets []v2.DaemonSet, sinceSeconds *int64) {
+func (a *Agent) fetchDaemonSetLogsSinceSeconds(namespace string, daemonSets []v2.DaemonSet) {
 	log.Println("Fetching logs from DaemonSets")
 	for _, daemonSet := range daemonSets {
 		name := daemonSet.Name
 		selectors := daemonSet.Spec.Selector
 
 		log.Println("DaemonSet: ", name)
-		a.fetchLogsSinceSeconds(selectors, namespace, sinceSeconds)
+		readDiff := a.calculateLastReadTimeDiff(name)
+		a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
+		a.setReadTimestamp(name)
 	}
 }
 
@@ -148,6 +178,7 @@ func (a *Agent) fetchLogsSinceSeconds(selector *metav1.LabelSelector, namespace 
 	}
 }
 
+// TODO - leaving for reference
 //	func (a *Agent) gatherLogs() {
 //		for _, namespace := range a.includedNamespaces {
 //			pods, _ := a.client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
