@@ -16,17 +16,16 @@ type IncrementalFetch struct {
 }
 
 type IncrementalReader struct {
-	files           []string
-	transformers    []transformer.Transformer
-	remoteWriteUrls []string
-	results         chan IncrementalFetch
-	redis           database.Redis
+	files        []string
+	transformers []transformer.Transformer
+	results      chan IncrementalFetch
+	redis        database.Redis
 }
 
-func NewReader(files []string, transformers []transformer.Transformer, remoteWriteUrls []string,
-	results chan IncrementalFetch, redisUrl string) IncrementalReader {
-	return IncrementalReader{files: files, transformers: transformers, remoteWriteUrls: remoteWriteUrls,
-		results: results, redis: database.NewRedis(redisUrl, "", 0)} // TODO - reiterate on Redis password
+func NewReader(files []string, transformers []transformer.Transformer, results chan IncrementalFetch,
+	redisUrl string) IncrementalReader {
+	return IncrementalReader{files: files, transformers: transformers, results: results,
+		redis: database.NewRedis(redisUrl, "", 0)} // TODO - reiterate on Redis password
 }
 
 func (r *IncrementalReader) WatchFiles() {

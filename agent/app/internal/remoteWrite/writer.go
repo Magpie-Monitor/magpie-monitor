@@ -10,8 +10,10 @@ import (
 )
 
 type Content struct {
-	dir     string
-	content string
+	dir         string
+	application string
+	node        string
+	content     string
 }
 
 type RemoteWriter struct {
@@ -20,7 +22,7 @@ type RemoteWriter struct {
 }
 
 func NewRemoteWriter(urls []string) RemoteWriter {
-	return RemoteWriter{urls: urls}
+	return RemoteWriter{urls: urls, cache: make(map[string]string)}
 }
 
 func (w *RemoteWriter) Write(content node.IncrementalFetch) {
@@ -33,18 +35,18 @@ func (w *RemoteWriter) Write(content node.IncrementalFetch) {
 
 		err, code := w.sendRequest(url, string(jsonContent))
 		retries := 0
-		for code >= 400 {
+		for err != nil {
 			log.Println("Error sending request: ", err, ", status code: ", code)
 			log.Println("Retrying request...")
 
 			err, code = w.sendRequest(url, string(jsonContent))
-			if code >= 400 {
+			if err != nil {
 				if retries > 5 {
 					w.cacheContent(url, content.Content)
 					break
 				}
 				retries++
-				time.Sleep(10 * time.Second)
+				time.Sleep(2 * time.Second)
 			}
 		}
 
@@ -57,7 +59,7 @@ func (w *RemoteWriter) cacheContent(url, content string) {
 	if ok {
 		w.cache[url] = val + content
 	} else {
-		w.cache[url] = val
+		w.cache[url] = content
 	}
 }
 
@@ -79,12 +81,12 @@ func (w *RemoteWriter) sendRequest(url string, content string) (error, int) {
 	r.Header.Add("Content-Type", "application/json")
 	client := &http.Client{}
 	res, err := client.Do(r)
-	defer res.Body.Close()
 
 	if err != nil {
 		log.Println("Error sending http request: ", err)
 		return err, 0
 	}
+	defer res.Body.Close()
 
 	return nil, res.StatusCode
 }

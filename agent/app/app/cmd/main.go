@@ -8,7 +8,6 @@ import (
 	"logather/internal/agent/node"
 	"logather/internal/agent/pods"
 	"logather/internal/remoteWrite"
-	"logather/internal/transformer"
 	"path/filepath"
 )
 
@@ -42,37 +41,35 @@ func main() {
 		}
 		RunNodeAgent(watchedFiles, redisUrl)
 	} else if mode == "pods" {
-		RunPodAgent("/logs")
+		RunPodAgent("./logs")
 	} else {
 		panic(fmt.Sprintf("Mode: %s not supported", mode))
 	}
 }
 
 func RunNodeAgent(watchedFiles []string, redisUrl string) {
-	c := make(chan node.IncrementalFetch)
+	logChannel := make(chan node.IncrementalFetch)
 
-	t1 := transformer.DummyTransformer{}
-
-	transformers := []transformer.Transformer{t1}
-
-	agent := node.NewReader(watchedFiles, transformers, nil, c, redisUrl)
+	agent := node.NewReader(watchedFiles, nil, logChannel, redisUrl)
 	agent.WatchFiles()
 
-	var buffer map[string]node.IncrementalFetch
-	writer := remoteWrite.NewRemoteWriter([]string{"google.com"}) // TODO - revisit
+	var buffer = make(map[string]node.IncrementalFetch)
+	writer := remoteWrite.NewRemoteWriter([]string{"http://localhost:8080/api/v1/ingest"}) // TODO - revisit
 
-	for elem := range c {
-		content, ok := buffer[elem.Dir]
+	for incrementalFetch := range logChannel {
+		bufferedIncrementalFetch, ok := buffer[incrementalFetch.Dir]
 		if ok {
-			content.Content = content.Content + elem.Content
+			bufferedContent := bufferedIncrementalFetch.Content
+			incrementalFetch.Content = bufferedContent + incrementalFetch.Content
+			buffer[incrementalFetch.Dir] = incrementalFetch
 		} else {
-			buffer[elem.Dir] = elem
-			content = elem
+			buffer[incrementalFetch.Dir] = incrementalFetch
 		}
 
-		if len(content.Content) > 100 {
-			writer.Write(content)
-			content.Content = ""
+		if len(incrementalFetch.Content) > 100 {
+			writer.Write(incrementalFetch)
+			incrementalFetch.Content = ""
+			buffer[incrementalFetch.Dir] = incrementalFetch
 		}
 	}
 }
