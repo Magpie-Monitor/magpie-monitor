@@ -2,9 +2,7 @@ package remoteWrite
 
 import (
 	"bytes"
-	"encoding/json"
 	"log"
-	"logather/internal/agent/node"
 	"net/http"
 	"time"
 )
@@ -25,25 +23,20 @@ func NewRemoteWriter(urls []string) RemoteWriter {
 	return RemoteWriter{urls: urls, cache: make(map[string]string)}
 }
 
-// TODO - decouple writer from node.IncrementalFetch, make it "struct agnostic"
-func (w *RemoteWriter) Write(content node.IncrementalFetch) {
+func (w *RemoteWriter) Write(content string) {
 	for _, url := range w.urls {
-		content.Content = w.getCachedContent(url) + content.Content
-		jsonContent, err := json.Marshal(content)
-		if err != nil {
-			log.Println("Error converting content to JSON: ", err)
-		}
+		content = w.getCachedContent(url) + content
 
-		err, code := w.sendRequest(url, string(jsonContent))
+		err, code := w.sendRequest(url, content)
 		retries := 0
 		for err != nil {
 			log.Println("Error sending request: ", err, ", status code: ", code)
 			log.Println("Retrying request...")
 
-			err, code = w.sendRequest(url, string(jsonContent))
+			err, code = w.sendRequest(url, content)
 			if err != nil {
 				if retries > 5 {
-					w.cacheContent(url, content.Content)
+					w.cacheContent(url, content)
 					break
 				}
 				retries++

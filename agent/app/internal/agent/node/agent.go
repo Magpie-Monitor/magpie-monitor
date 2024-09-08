@@ -3,6 +3,7 @@ package node
 import (
 	"io"
 	"log"
+	"logather/internal/agent/pods"
 	"logather/internal/database"
 	"logather/internal/transformer"
 	"os"
@@ -10,19 +11,14 @@ import (
 	"time"
 )
 
-type IncrementalFetch struct {
-	Dir     string
-	Content string
-}
-
 type IncrementalReader struct {
 	files        []string
 	transformers []transformer.Transformer
-	results      chan IncrementalFetch
+	results      chan pods.Chunk
 	redis        database.Redis
 }
 
-func NewReader(files []string, transformers []transformer.Transformer, results chan IncrementalFetch,
+func NewReader(files []string, transformers []transformer.Transformer, results chan pods.Chunk,
 	redisUrl string) IncrementalReader {
 	return IncrementalReader{files: files, transformers: transformers, results: results,
 		redis: database.NewRedis(redisUrl, "", 0)} // TODO - reiterate on Redis password
@@ -68,7 +64,7 @@ func (r *IncrementalReader) prepareFile(dir string) (*os.File, int64) {
 	return f, currentSize
 }
 
-func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan IncrementalFetch) {
+func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan pods.Chunk) {
 	f, currentSize := r.prepareFile(dir)
 	defer f.Close()
 
@@ -105,7 +101,8 @@ func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan Inc
 				log.Println("Error persisting read progress for: ", dir)
 			}
 
-			results <- IncrementalFetch{Dir: dir, Content: r.transform(string(buf))}
+			// TODO - fetch real node name
+			results <- pods.Chunk{Kind: "Node", Name: "mock-node-name", Namespace: dir, Content: r.transform(string(buf))}
 		}
 
 		time.Sleep(time.Duration(cooldown * 1000))

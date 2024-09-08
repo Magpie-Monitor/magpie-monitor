@@ -15,10 +15,11 @@ import (
 )
 
 type Chunk struct {
-	kind      string
-	name      string
-	namespace string
-	content   string
+	Cluster   string
+	Kind      string
+	Name      string
+	Namespace string
+	Content   string
 }
 
 type Agent struct {
@@ -139,7 +140,7 @@ func (a *Agent) fetchDeploymentLogsSinceSeconds(namespace string, deployments []
 		a.setReadTimestamp(name)
 
 		if len(logs) > 0 {
-			a.results <- Chunk{kind: "Deployment", name: name, namespace: namespace, content: logs}
+			a.results <- Chunk{Kind: "Deployment", Name: name, Namespace: namespace, Content: logs}
 		}
 	}
 }
@@ -156,7 +157,7 @@ func (a *Agent) fetchStatefulSetLogsSinceSeconds(namespace string, statefulSets 
 		a.setReadTimestamp(name)
 
 		if len(logs) > 0 {
-			a.results <- Chunk{kind: "StatefulSet", name: name, namespace: namespace, content: logs}
+			a.results <- Chunk{Kind: "StatefulSet", Name: name, Namespace: namespace, Content: logs}
 		}
 	}
 }
@@ -173,7 +174,7 @@ func (a *Agent) fetchDaemonSetLogsSinceSeconds(namespace string, daemonSets []v2
 		a.setReadTimestamp(name)
 
 		if len(logs) > 0 {
-			a.results <- Chunk{kind: "StatefulSet", name: name, namespace: namespace, content: logs}
+			a.results <- Chunk{Kind: "StatefulSet", Name: name, Namespace: namespace, Content: logs}
 		}
 	}
 }

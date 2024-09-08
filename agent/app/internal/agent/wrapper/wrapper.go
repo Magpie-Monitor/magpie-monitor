@@ -3,6 +3,7 @@ package wrapper
 import (
 	"flag"
 	"fmt"
+	"k8s.io/apimachinery/pkg/util/json"
 	"k8s.io/client-go/util/homedir"
 	"log"
 	"logather/internal/agent/node"
@@ -13,11 +14,12 @@ import (
 )
 
 type AgentWrapper struct {
-	config config.Config
+	config       config.Config
+	remoteWriter remoteWrite.RemoteWriter
 }
 
 func NewAgentWrapper(config config.Config) AgentWrapper {
-	return AgentWrapper{config: config}
+	return AgentWrapper{config: config, remoteWriter: remoteWrite.NewRemoteWriter(config.RemoteWriteUrls)}
 }
 
 func (a *AgentWrapper) Start() {
@@ -35,29 +37,13 @@ func (a *AgentWrapper) Start() {
 }
 
 func (a *AgentWrapper) startNodeAgent() {
-	logChannel := make(chan node.IncrementalFetch)
+	logChannel := make(chan pods.Chunk)
 
 	agent := node.NewReader(a.config.WatchedFiles, nil, logChannel, a.config.RedisUrl)
-	agent.WatchFiles()
+	go agent.WatchFiles()
 
-	var buffer = make(map[string]node.IncrementalFetch)
-	writer := remoteWrite.NewRemoteWriter(a.config.RemoteWriteUrls)
-
-	for incrementalFetch := range logChannel {
-		bufferedIncrementalFetch, ok := buffer[incrementalFetch.Dir]
-		if ok {
-			bufferedContent := bufferedIncrementalFetch.Content
-			incrementalFetch.Content = bufferedContent + incrementalFetch.Content
-			buffer[incrementalFetch.Dir] = incrementalFetch
-		} else {
-			buffer[incrementalFetch.Dir] = incrementalFetch
-		}
-
-		if len(incrementalFetch.Content) > 100 {
-			writer.Write(incrementalFetch)
-			incrementalFetch.Content = ""
-			buffer[incrementalFetch.Dir] = incrementalFetch
-		}
+	for chunk := range logChannel {
+		a.writeChunk(chunk)
 	}
 }
 
@@ -75,6 +61,15 @@ func (a *AgentWrapper) startPodAgent() {
 	go agent.Start()
 
 	for chunk := range logChannel {
-		fmt.Println(chunk)
+		a.writeChunk(chunk)
+	}
+}
+
+func (a *AgentWrapper) writeChunk(chunk pods.Chunk) {
+	jsonChunk, err := json.Marshal(chunk)
+	if err != nil {
+		log.Println("Error converting chunk to JSON: ", err)
+	} else {
+		a.remoteWriter.Write(string(jsonChunk))
 	}
 }
