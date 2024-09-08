@@ -29,21 +29,23 @@ type Agent struct {
 	collectionDirectory       string
 	client                    *kubernetes.Clientset
 	readTimestamps            map[string]int64
+	results                   chan Chunk
 }
 
-func NewAgent(kubeconfig string, excludedNamespaces []string, collectionIntervalSeconds int) *Agent {
+func NewAgent(kubeconfig string, excludedNamespaces []string, collectionIntervalSeconds int, results chan Chunk) *Agent {
 	return &Agent{
 		kubeconfig:                kubeconfig,
 		excludedNamespaces:        excludedNamespaces,
 		collectionIntervalSeconds: collectionIntervalSeconds,
 		readTimestamps:            make(map[string]int64),
+		results:                   results,
 	}
 }
 
 func (a *Agent) Start() {
 	a.authenticate()
 	a.fetchNamespaces()
-	a.gatherLogs(10)
+	a.gatherLogs()
 }
 
 func (a *Agent) authenticate() {
@@ -74,7 +76,7 @@ func (a *Agent) fetchNamespaces() {
 	}
 }
 
-func (a *Agent) gatherLogs(scrapeInterval int) {
+func (a *Agent) gatherLogs() {
 	for {
 		for _, namespace := range a.includedNamespaces {
 			log.Println("Fetching logs for namespace: ", namespace)
@@ -104,13 +106,13 @@ func (a *Agent) gatherLogs(scrapeInterval int) {
 			}
 		}
 
-		log.Println("Sleeping for: ", scrapeInterval, " seconds")
-		time.Sleep(time.Duration(scrapeInterval) * time.Second)
+		log.Println("Sleeping for: ", a.collectionIntervalSeconds, " seconds")
+		time.Sleep(time.Duration(a.collectionIntervalSeconds) * time.Second)
 	}
 }
 
 func (a *Agent) calculateLastReadTimeDiff(name string) int64 {
-	var readDiff int64 = 10
+	var readDiff = int64(a.collectionIntervalSeconds)
 	now := time.Now()
 	unix := now.Unix()
 	previousRead, ok := a.readTimestamps[name]
@@ -133,8 +135,12 @@ func (a *Agent) fetchDeploymentLogsSinceSeconds(namespace string, deployments []
 		log.Println("Deployment: ", name)
 
 		readDiff := a.calculateLastReadTimeDiff(name)
-		a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
+		logs := a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
 		a.setReadTimestamp(name)
+
+		if len(logs) > 0 {
+			a.results <- Chunk{kind: "Deployment", name: name, namespace: namespace, content: logs}
+		}
 	}
 }
 
@@ -146,8 +152,12 @@ func (a *Agent) fetchStatefulSetLogsSinceSeconds(namespace string, statefulSets 
 
 		log.Println("StatefulSet: ", name)
 		readDiff := a.calculateLastReadTimeDiff(name)
-		a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
+		logs := a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
 		a.setReadTimestamp(name)
+
+		if len(logs) > 0 {
+			a.results <- Chunk{kind: "StatefulSet", name: name, namespace: namespace, content: logs}
+		}
 	}
 }
 
@@ -159,22 +169,31 @@ func (a *Agent) fetchDaemonSetLogsSinceSeconds(namespace string, daemonSets []v2
 
 		log.Println("DaemonSet: ", name)
 		readDiff := a.calculateLastReadTimeDiff(name)
-		a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
+		logs := a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
 		a.setReadTimestamp(name)
+
+		if len(logs) > 0 {
+			a.results <- Chunk{kind: "StatefulSet", name: name, namespace: namespace, content: logs}
+		}
 	}
 }
 
-func (a *Agent) fetchLogsSinceSeconds(selector *metav1.LabelSelector, namespace string, sinceSeconds *int64) {
+func (a *Agent) fetchLogsSinceSeconds(selector *metav1.LabelSelector, namespace string, sinceSeconds *int64) string {
+	var result string
+
 	pods, _ := a.client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: labels.Set(selector.MatchLabels).String()})
 	for _, pod := range pods.Items {
-		log.Println("pod: ", pod.Name)
+		log.Println("Fetching logs for pod: ", pod.Name)
 
-		// todo - all containers
-		logs := a.client.CoreV1().Pods(namespace).GetLogs(pod.Name, &v1.PodLogOptions{Container: pod.Spec.Containers[0].Name, SinceSeconds: sinceSeconds}).Do(context.TODO())
-
-		l, _ := logs.Raw()
-		log.Println("read log chunk: ", string(l))
+		for _, container := range pod.Spec.Containers {
+			log.Println("Fetching logs for container: ", container.Name)
+			logs := a.client.CoreV1().Pods(namespace).GetLogs(pod.Name, &v1.PodLogOptions{Container: container.Name, SinceSeconds: sinceSeconds}).Do(context.TODO())
+			rawLogs, _ := logs.Raw()
+			result += string(rawLogs)
+		}
 	}
+
+	return result
 }
 
 // TODO - leaving for reference

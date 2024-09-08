@@ -70,6 +70,11 @@ func (a *AgentWrapper) startPodAgent() {
 		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	}
 
-	agent := pods.NewAgent(*kubeconfig, nil, 2)
-	agent.Start()
+	logChannel := make(chan pods.Chunk)
+	agent := pods.NewAgent(*kubeconfig, nil, 2, logChannel)
+	go agent.Start()
+
+	for chunk := range logChannel {
+		fmt.Println(chunk)
+	}
 }

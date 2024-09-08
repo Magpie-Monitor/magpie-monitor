@@ -6,7 +6,8 @@ import (
 )
 
 func main() {
-	cfg := config.GetConfig()
+	//cfg := config.GetConfig()
+	cfg := config.Config{Mode: "pods"}
 	agentWrapper := wrapper.NewAgentWrapper(cfg)
 	agentWrapper.Start()
 }
