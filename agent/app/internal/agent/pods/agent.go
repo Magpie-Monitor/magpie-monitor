@@ -31,12 +31,11 @@ type Agent struct {
 	readTimestamps            map[string]int64
 }
 
-func NewAgent(kubeconfig string, excludedNamespaces []string, collectionIntervalSeconds int, collectionDirectory string) *Agent {
+func NewAgent(kubeconfig string, excludedNamespaces []string, collectionIntervalSeconds int) *Agent {
 	return &Agent{
 		kubeconfig:                kubeconfig,
 		excludedNamespaces:        excludedNamespaces,
 		collectionIntervalSeconds: collectionIntervalSeconds,
-		collectionDirectory:       collectionDirectory,
 		readTimestamps:            make(map[string]int64),
 	}
 }
