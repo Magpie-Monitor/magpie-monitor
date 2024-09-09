@@ -7,13 +7,6 @@ import (
 	"time"
 )
 
-type Content struct {
-	dir         string
-	application string
-	node        string
-	content     string
-}
-
 type RemoteWriter struct {
 	urls  []string
 	cache map[string]string

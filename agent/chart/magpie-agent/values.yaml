@@ -6,11 +6,11 @@ agent:
       port: 8080
       targetPort: 8080
     files:
-      - /var/log/test.log
-      - /var/log/test2.log
-      - /var/log/test3.log
+#      - /var/log/btmp
+#      - /var/log/test.log
+      - /var/log/calico/cni/cni.log
   cluster:
-    enabled: true
+    enabled: false
     service:
       port: 8080
       targetPort: 8080

@@ -10,17 +10,10 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"log"
+	"logather/internal/agent/entity"
 	"slices"
 	"time"
 )
-
-type Chunk struct {
-	Cluster   string
-	Kind      string
-	Name      string
-	Namespace string
-	Content   string
-}
 
 type Agent struct {
 	kubeconfig                string
@@ -30,10 +23,10 @@ type Agent struct {
 	collectionDirectory       string
 	client                    *kubernetes.Clientset
 	readTimestamps            map[string]int64
-	results                   chan Chunk
+	results                   chan entity.Chunk
 }
 
-func NewAgent(kubeconfig string, excludedNamespaces []string, collectionIntervalSeconds int, results chan Chunk) *Agent {
+func NewAgent(kubeconfig string, excludedNamespaces []string, collectionIntervalSeconds int, results chan entity.Chunk) *Agent {
 	return &Agent{
 		kubeconfig:                kubeconfig,
 		excludedNamespaces:        excludedNamespaces,
@@ -80,7 +73,7 @@ func (a *Agent) fetchNamespaces() {
 func (a *Agent) gatherLogs() {
 	for {
 		for _, namespace := range a.includedNamespaces {
-			log.Println("Fetching logs for namespace: ", namespace)
+			//log.Println("Fetching logs for namespace: ", namespace)
 
 			deployments, err := a.client.AppsV1().Deployments(namespace).List(context.TODO(), metav1.ListOptions{})
 			if err != nil {
@@ -133,48 +126,48 @@ func (a *Agent) fetchDeploymentLogsSinceSeconds(namespace string, deployments []
 		name := deployment.Name
 		selectors := deployment.Spec.Selector
 
-		log.Println("Deployment: ", name)
+		//log.Println("Deployment: ", name)
 
 		readDiff := a.calculateLastReadTimeDiff(name)
 		logs := a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
 		a.setReadTimestamp(name)
 
 		if len(logs) > 0 {
-			a.results <- Chunk{Kind: "Deployment", Name: name, Namespace: namespace, Content: logs}
+			a.results <- entity.Chunk{Kind: "Deployment", Name: name, Namespace: namespace, Content: logs}
 		}
 	}
 }
 
 func (a *Agent) fetchStatefulSetLogsSinceSeconds(namespace string, statefulSets []v2.StatefulSet) {
-	log.Println("Fetching logs from StatefulSets")
+	//log.Println("Fetching logs from StatefulSets")
 	for _, statefulSet := range statefulSets {
 		name := statefulSet.Name
 		selectors := statefulSet.Spec.Selector
 
-		log.Println("StatefulSet: ", name)
+		//log.Println("StatefulSet: ", name)
 		readDiff := a.calculateLastReadTimeDiff(name)
 		logs := a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
 		a.setReadTimestamp(name)
 
 		if len(logs) > 0 {
-			a.results <- Chunk{Kind: "StatefulSet", Name: name, Namespace: namespace, Content: logs}
+			a.results <- entity.Chunk{Kind: "StatefulSet", Name: name, Namespace: namespace, Content: logs}
 		}
 	}
 }
 
 func (a *Agent) fetchDaemonSetLogsSinceSeconds(namespace string, daemonSets []v2.DaemonSet) {
-	log.Println("Fetching logs from DaemonSets")
+	//log.Println("Fetching logs from DaemonSets")
 	for _, daemonSet := range daemonSets {
 		name := daemonSet.Name
 		selectors := daemonSet.Spec.Selector
 
-		log.Println("DaemonSet: ", name)
+		//log.Println("DaemonSet: ", name)
 		readDiff := a.calculateLastReadTimeDiff(name)
 		logs := a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
 		a.setReadTimestamp(name)
 
 		if len(logs) > 0 {
-			a.results <- Chunk{Kind: "StatefulSet", Name: name, Namespace: namespace, Content: logs}
+			a.results <- entity.Chunk{Kind: "StatefulSet", Name: name, Namespace: namespace, Content: logs}
 		}
 	}
 }
@@ -184,10 +177,10 @@ func (a *Agent) fetchLogsSinceSeconds(selector *metav1.LabelSelector, namespace 
 
 	pods, _ := a.client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: labels.Set(selector.MatchLabels).String()})
 	for _, pod := range pods.Items {
-		log.Println("Fetching logs for pod: ", pod.Name)
+		//log.Println("Fetching logs for pod: ", pod.Name)
 
 		for _, container := range pod.Spec.Containers {
-			log.Println("Fetching logs for container: ", container.Name)
+			//log.Println("Fetching logs for container: ", container.Name)
 			logs := a.client.CoreV1().Pods(namespace).GetLogs(pod.Name, &v1.PodLogOptions{Container: container.Name, SinceSeconds: sinceSeconds}).Do(context.TODO())
 			rawLogs, _ := logs.Raw()
 			result += string(rawLogs)
@@ -197,13 +190,32 @@ func (a *Agent) fetchLogsSinceSeconds(selector *metav1.LabelSelector, namespace 
 	return result
 }
 
+//func (a *Agent) fetchLogsSinceSeconds(selector *metav1.LabelSelector, namespace string, sinceSeconds *int64) string {
+//	var result string
+//
+//	pods, _ := a.client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: labels.Set(selector.MatchLabels).String()})
+//	for _, pod := range pods.Items {
+//		//log.Println("Fetching logs for pod: ", pod.Name)
+//
+//		for _, container := range pod.Spec.Containers {
+//			//log.Println("Fetching logs for container: ", container.Name)
+//			//logs := a.client.CoreV1().Pods(namespace).GetLogs(pod.Name, &v1.PodLogOptions{Container: container.Name, SinceSeconds: sinceSeconds}).Do(context.TODO())
+//			logs := a.client.CoreV1().Pods(namespace).GetLogs(pod.Name, &v1.PodLogOptions{Container: container.Name, SinceSeconds: sinceSeconds}).Do(context.TODO())
+//
+//			rawLogs, _ := logs.Raw()
+//			result += string(rawLogs)
+//		}
+//	}
+//
+//	return result
+//}
+
 // TODO - leaving for reference
 //	func (a *Agent) gatherLogs() {
 //		for _, namespace := range a.includedNamespaces {
 //			pods, _ := a.client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
 //			for _, pod := range pods.Items {
 //				f := a.getLogFileForPod(namespace, pod.Name)
-//				// TODO - gather logs from all containers
 //				logs := a.client.CoreV1().Pods(namespace).GetLogs(pod.Name, &v1.PodLogOptions{Container: pod.Spec.Containers[0].Name}).Do(context.TODO())
 //
 //				res, err := logs.Raw()
@@ -232,7 +244,6 @@ func (a *Agent) fetchLogsSinceSeconds(selector *metav1.LabelSelector, namespace 
 //		return f
 //	}
 
-//// TODO - fix error handling
 //func (a *Agent) prepareDirectoryTree() {
 //	err := os.Mkdir(a.collectionDirectory, 0755)
 //	if err != nil {

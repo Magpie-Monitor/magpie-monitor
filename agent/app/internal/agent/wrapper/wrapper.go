@@ -6,6 +6,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/json"
 	"k8s.io/client-go/util/homedir"
 	"log"
+	"logather/internal/agent/entity"
 	"logather/internal/agent/node"
 	"logather/internal/agent/pods"
 	"logather/internal/config"
@@ -37,12 +38,13 @@ func (a *AgentWrapper) Start() {
 }
 
 func (a *AgentWrapper) startNodeAgent() {
-	logChannel := make(chan pods.Chunk)
+	logChannel := make(chan entity.Chunk)
 
 	agent := node.NewReader(a.config.WatchedFiles, nil, logChannel, a.config.RedisUrl)
 	go agent.WatchFiles()
 
 	for chunk := range logChannel {
+		fmt.Println(chunk)
 		a.writeChunk(chunk)
 	}
 }
@@ -56,16 +58,17 @@ func (a *AgentWrapper) startPodAgent() {
 		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	}
 
-	logChannel := make(chan pods.Chunk)
-	agent := pods.NewAgent(*kubeconfig, nil, 2, logChannel)
+	logChannel := make(chan entity.Chunk)
+	agent := pods.NewAgent(*kubeconfig, nil, 30, logChannel)
 	go agent.Start()
 
 	for chunk := range logChannel {
+		fmt.Println(chunk)
 		a.writeChunk(chunk)
 	}
 }
 
-func (a *AgentWrapper) writeChunk(chunk pods.Chunk) {
+func (a *AgentWrapper) writeChunk(chunk entity.Chunk) {
 	jsonChunk, err := json.Marshal(chunk)
 	if err != nil {
 		log.Println("Error converting chunk to JSON: ", err)

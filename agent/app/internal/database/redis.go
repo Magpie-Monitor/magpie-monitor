@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	redis "github.com/redis/go-redis/v9"
+	"log"
 	"time"
 )
 
@@ -14,6 +15,18 @@ type Redis struct {
 }
 
 func NewRedis(url, password string, db int) Redis {
+	client := redis.NewClient(&redis.Options{
+		Addr:     url,
+		Password: password,
+		DB:       db,
+	})
+
+	_, err := client.Ping(context.TODO()).Result()
+	if err != nil {
+		log.Println(err)
+		panic(err)
+	}
+
 	return Redis{url: url, password: password, db: db, client: redis.NewClient(&redis.Options{
 		Addr:     url,
 		Password: password,

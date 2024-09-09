@@ -5,9 +5,9 @@ import (
 	"logather/internal/config"
 )
 
+// cfg := config.Config{Mode: "pods", RemoteWriteUrls: []string{"http://localhost:8080/api/v1/ingest"}}
 func main() {
-	//cfg := config.GetConfig()
-	cfg := config.Config{Mode: "pods"}
+	cfg := config.GetConfig()
 	agentWrapper := wrapper.NewAgentWrapper(cfg)
 	agentWrapper.Start()
 }

@@ -8,7 +8,7 @@ import (
 type arrayFlags []string
 
 func (i *arrayFlags) String() string {
-	return i.String()
+	return "Array flags"
 }
 
 func (i *arrayFlags) Set(value string) error {
@@ -24,8 +24,8 @@ type Config struct {
 }
 
 func GetConfig() Config {
-	mode := *flag.String("scrape", "nodes", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
-	redisUrl := *flag.String("redisUrl", "", "Redis URL in cluster DNS format, that is: service.namespace.svc.cluster.local:port")
+	mode := flag.String("scrape", "nodes", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
+	redisUrl := flag.String("redisUrl", "", "Redis URL in cluster DNS format, that is: service.namespace.svc.cluster.local:port")
 
 	var watchedFiles arrayFlags
 	flag.Var(&watchedFiles, "file", "Log files that are watched for log collector running in \"nodes\" mode.")
@@ -35,8 +35,8 @@ func GetConfig() Config {
 
 	flag.Parse()
 
-	log.Println("Agent configured to run in mode: ", mode)
-	log.Println("Redis url: ", redisUrl)
+	log.Println("Agent configured to run in mode: ", *mode)
+	log.Println("Redis url: ", *redisUrl)
 
-	return Config{Mode: mode, RedisUrl: redisUrl, WatchedFiles: watchedFiles, RemoteWriteUrls: remoteWriteUrls}
+	return Config{Mode: *mode, RedisUrl: *redisUrl, WatchedFiles: watchedFiles, RemoteWriteUrls: []string{}}
 }

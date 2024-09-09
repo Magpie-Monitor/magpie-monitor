@@ -19,22 +19,28 @@ spec:
         # TODO - add resources, QOS
         - name: magpie-agent-node
           image: woojciech/agent:latest
+          command: [ "./server" ]
           args:
-            - "--scrape=nodes"
-            - "--redisUrl=magpie-agent-redis.{{ .Values.agent.namespace }}.svc.cluster.local:6379" #TODO - parametrize
+            - "--scrape"
+            - "nodes"
+            - "--remoteWriteUrl"
+            - "google.com"
+            - "--redisUrl"
+            - "magpie-agent-redis.{{ .Values.agent.namespace }}.svc.cluster.local:6379" #TODO - parametrize
             {{- range $file := .Values.agent.node.files }}
-            - "--file={{$file}}"
+            - "--file"
+            - "{{$file}}"
             {{- end }}
           volumeMounts:
           {{- range $file := .Values.agent.node.files }}
-            - name: {{ splitList "/" $file | last }}
-              mountPath: /logs
+            - name: {{ splitList "/" $file | last | replace "." "-" }}
+              mountPath: {{ $file }}
               readOnly: true
           {{- end }}
       terminationGracePeriodSeconds: 30
       volumes:
       {{- range $file := .Values.agent.node.files }}
-        - name: {{ splitList "/" $file | last }}
+        - name: {{ splitList "/" $file | last | replace "." "-" }}
           hostPath:
             path: {{$file}}
       {{- end }}
