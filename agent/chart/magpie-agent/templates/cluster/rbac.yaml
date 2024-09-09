@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: magpie-agent-service-account
+  namespace: {{ .Values.agent.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: magpie-agent-cluster-role
+  namespace: {{ .Values.agent.namespace }}
+rules:
+  - apiGroups: [ "", "extensions", "apps" ]
+    resources: [ "pods", "pods/log", "namespaces", "deployments", "statefulsets", "daemonsets" ]
+    verbs: [ "get", "watch", "list" ]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: magpie-agent-cluster-role-binding
+  namespace: {{ .Values.agent.namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: magpie-agent-cluster-role
+subjects:
+  - kind: ServiceAccount
+    name: magpie-agent-service-account
+    namespace: {{ .Values.agent.namespace }}

@@ -1,17 +1,14 @@
 package wrapper
 
 import (
-	"flag"
 	"fmt"
 	"k8s.io/apimachinery/pkg/util/json"
-	"k8s.io/client-go/util/homedir"
 	"log"
 	"logather/internal/agent/entity"
 	"logather/internal/agent/node"
 	"logather/internal/agent/pods"
 	"logather/internal/config"
 	"logather/internal/remoteWrite"
-	"path/filepath"
 )
 
 type AgentWrapper struct {
@@ -50,16 +47,8 @@ func (a *AgentWrapper) startNodeAgent() {
 }
 
 func (a *AgentWrapper) startPodAgent() {
-	//config, err := rest.InClusterConfig() // TODO - https://github.com/kubernetes/client-go/tree/master/examples/in-cluster-client-configuration
-	var kubeconfig *string
-	if home := homedir.HomeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	}
-
 	logChannel := make(chan entity.Chunk)
-	agent := pods.NewAgent(*kubeconfig, nil, 30, logChannel)
+	agent := pods.NewAgent(nil, 30, logChannel)
 	go agent.Start()
 
 	for chunk := range logChannel {

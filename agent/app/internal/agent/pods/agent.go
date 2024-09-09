@@ -2,21 +2,24 @@ package pods
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	v2 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 	"log"
 	"logather/internal/agent/entity"
+	"path/filepath"
 	"slices"
 	"time"
 )
 
 type Agent struct {
-	kubeconfig                string
 	excludedNamespaces        []string
 	includedNamespaces        []string
 	collectionIntervalSeconds int
@@ -26,9 +29,8 @@ type Agent struct {
 	results                   chan entity.Chunk
 }
 
-func NewAgent(kubeconfig string, excludedNamespaces []string, collectionIntervalSeconds int, results chan entity.Chunk) *Agent {
+func NewAgent(excludedNamespaces []string, collectionIntervalSeconds int, results chan entity.Chunk) *Agent {
 	return &Agent{
-		kubeconfig:                kubeconfig,
 		excludedNamespaces:        excludedNamespaces,
 		collectionIntervalSeconds: collectionIntervalSeconds,
 		readTimestamps:            make(map[string]int64),
@@ -43,9 +45,28 @@ func (a *Agent) Start() {
 }
 
 func (a *Agent) authenticate() {
-	config, err := clientcmd.BuildConfigFromFlags("", a.kubeconfig)
-	if err != nil {
-		panic(err.Error())
+	var kubeconfig *string
+	if home := homedir.HomeDir(); home != "" {
+		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	} else {
+		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	}
+
+	var config *rest.Config
+	if len(*kubeconfig) > 0 {
+		c, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+		if err != nil {
+			log.Println("Failed to create kubernetes API client from kubeconfig")
+			panic(err.Error())
+		}
+		config = c
+	} else {
+		c, err := rest.InClusterConfig()
+		if err != nil {
+			log.Println("Failed to create kubernetes API client from ServiceAccount token")
+			panic(err.Error())
+		}
+		config = c
 	}
 
 	client, err := kubernetes.NewForConfig(config)
