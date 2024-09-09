@@ -18,7 +18,7 @@ services:
       context: ./go
       dockerfile: ./docker/reports/Dockerfile
     ports:
-      - "8080:8080"
+      - ${REPORTS_SERVICE_HTTP_PORT}:${REPORTS_SERVICE_HTTP_PORT}
     develop:
       watch:
         - action: rebuild
@@ -45,7 +45,7 @@ services:
       context: ./go
       dockerfile: ./docker/logs-ingestion/Dockerfile
     ports:
-      - "8090:8090"
+      - ${LOGS_INGESTION_SERVICE_HTTP_PORT}:${LOGS_INGESTION_SERVICE_HTTP_PORT}
     develop:
       watch:
         - action: rebuild
@@ -69,8 +69,8 @@ services:
     volumes:
       - db-data:/data/db
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_ROOT_USERNAME: ${REPORTSDB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${REPORTSDB_PASSWORD}
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
       interval: 10s
@@ -87,7 +87,8 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD}
     depends_on:
       - mongodb
-  setup:
+  es-setup:
+    container_name: magpie-monitor-es-setup
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
@@ -142,8 +143,9 @@ services:
       timeout: 5s
       retries: 120
   elasticsearch:
+    container_name: magpie-monitor-elasticsearch
     depends_on:
-      setup:
+      es-setup:
         condition: service_healthy
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     labels:
@@ -185,6 +187,7 @@ services:
       timeout: 10s
       retries: 120
   kibana:
+    container_name: magpie-monitor-kibana
     depends_on:
       elasticsearch:
         condition: service_healthy

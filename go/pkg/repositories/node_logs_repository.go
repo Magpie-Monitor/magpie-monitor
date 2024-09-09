@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// TODO: To be clarified once the contract from agent is agreed upon
 type NodeLogs struct {
 	Timestamp uint
 	Host      string
@@ -20,6 +21,7 @@ type NodeLogs struct {
 
 type NodeLogsRepository interface {
 	CreateIndex(ctx context.Context, indexName string) error
+	//TODO: To be removed after proper implementation of log-ingestion
 	GetAllLogs(ctx context.Context) ([]NodeLogs, error)
 	InsertLogs(ctx context.Context, logs NodeLogs) error
 }
@@ -37,7 +39,8 @@ type ElasticSearchNodeLogsRepository struct {
 }
 
 func (r *ElasticSearchNodeLogsRepository) GetAllLogs(ctx context.Context) ([]NodeLogs, error) {
-	r.logger.Info("Called a Get all NodeLogs!")
+
+	//TODO: Replace with index based on query params
 	res, err := r.esClient.Search().
 		Index("test_index").
 		Request(&search.Request{

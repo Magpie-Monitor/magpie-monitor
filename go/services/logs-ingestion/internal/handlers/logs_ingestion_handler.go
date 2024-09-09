@@ -65,8 +65,8 @@ func (h *LogsIngestionHandler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//TODO: Add checks if index exists and make it based on query parameters
 	err = h.nodeLogsRepository.CreateIndex(ctx, "test_index")
-
 	if err != nil {
 		h.logger.Error("Failed to create index", zap.Error(err))
 		// w.WriteHeader(http.StatusInternalServerError)
