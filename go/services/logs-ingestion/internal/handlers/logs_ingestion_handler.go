@@ -15,6 +15,7 @@ type LogsIngestionRouter struct {
 
 func NewLogsIngestionRouter(logsIngestionHanlder *LogsIngestionHandler) *LogsIngestionRouter {
 	mux := http.NewServeMux()
+	//TODO: Remove once communication with queue is established
 	mux.HandleFunc("POST /", logsIngestionHanlder.Get)
 
 	return &LogsIngestionRouter{
