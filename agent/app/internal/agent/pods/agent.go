@@ -30,6 +30,8 @@ type Agent struct {
 }
 
 func NewAgent(excludedNamespaces []string, collectionIntervalSeconds int, results chan entity.Chunk) *Agent {
+	excludedNamespaces = []string{"argocd", "cnpg-system", "default", "grf", "kube-node-lease", "kube-public", "kube-system", "metrics-server",
+		"minio-operator", "minio-test", "postgres", "test", "vm"}
 	return &Agent{
 		excludedNamespaces:        excludedNamespaces,
 		collectionIntervalSeconds: collectionIntervalSeconds,
@@ -85,7 +87,7 @@ func (a *Agent) fetchNamespaces() {
 	}
 
 	for _, namespace := range namespaces.Items {
-		if !slices.Contains(a.excludedNamespaces, namespace.Namespace) {
+		if !slices.Contains(a.excludedNamespaces, namespace.Name) {
 			a.includedNamespaces = append(a.includedNamespaces, namespace.Name)
 		}
 	}
@@ -202,6 +204,7 @@ func (a *Agent) fetchLogsSinceSeconds(selector *metav1.LabelSelector, namespace 
 
 		for _, container := range pod.Spec.Containers {
 			//log.Println("Fetching logs for container: ", container.Name)
+			// TODO - explore since time and log streaming
 			logs := a.client.CoreV1().Pods(namespace).GetLogs(pod.Name, &v1.PodLogOptions{Container: container.Name, SinceSeconds: sinceSeconds}).Do(context.TODO())
 			rawLogs, _ := logs.Raw()
 			result += string(rawLogs)
