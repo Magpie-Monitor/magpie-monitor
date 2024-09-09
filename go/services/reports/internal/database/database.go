@@ -35,7 +35,7 @@ func NewReportsDbMongoClient(lc fx.Lifecycle, sh fx.Shutdowner, log *zap.Logger)
 	lc.Append(
 		fx.Hook{
 			OnStop: func(ctx context.Context) error {
-				log.Info("Disconnecting from reporsdb", zap.String("uri", mongoDbUri))
+				log.Info("Disconnecting from reportsdb", zap.String("uri", mongoDbUri))
 				return client.Disconnect(ctx)
 			},
 		},

@@ -24,6 +24,13 @@ type NodeLogsRepository interface {
 	InsertLogs(ctx context.Context, logs NodeLogs) error
 }
 
+func ProvideAsNodeLogsRepository(f any) any {
+	return fx.Annotate(
+		f,
+		fx.As(new(NodeLogsRepository)),
+	)
+}
+
 type ElasticSearchNodeLogsRepository struct {
 	esClient *es.TypedClient
 	logger   *zap.Logger

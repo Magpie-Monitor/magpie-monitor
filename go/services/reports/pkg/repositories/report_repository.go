@@ -30,6 +30,9 @@ type Report struct {
 	HostReports []*HostReport `bson:"hostReports"`
 }
 
+var REPORTS_DB_NAME = "reports"
+var REPORTS_COLLECTION = "reports"
+
 type ReportRepository interface {
 	GetAllReports(ctx context.Context) ([]*Report, error)
 	InsertReport(ctx context.Context, report *Report) error
@@ -45,7 +48,7 @@ func (r *MongoDbReportRepository) GetAllReports(ctx context.Context) ([]*Report,
 }
 
 func (r *MongoDbReportRepository) InsertReport(ctx context.Context, report *Report) error {
-	coll := r.mongoDbClient.Database("reports").Collection("reports")
+	coll := r.mongoDbClient.Database(REPORTS_DB_NAME).Collection(REPORTS_COLLECTION)
 	_, err := coll.InsertOne(context.TODO(), report)
 	if err != nil {
 		r.logger.Error("Failed to insert a report", zap.Error(err))
@@ -65,6 +68,13 @@ func NewMongoDbReportRepository(p Params) *MongoDbReportRepository {
 		mongoDbClient: p.ReportsDbMongoClient,
 		logger:        p.Logger,
 	}
+}
+
+func ProvideAsReportRepository(f any) any {
+	return fx.Annotate(
+		f,
+		fx.As(new(ReportRepository)),
+	)
 }
 
 var _ ReportRepository = &MongoDbReportRepository{}
