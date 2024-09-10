@@ -1,6 +1,7 @@
 package elasticsearch
 
 import (
+	"fmt"
 	"github.com/elastic/go-elasticsearch/v8"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -9,31 +10,36 @@ import (
 
 func NewElasticSearchLogsDbClient(sh fx.Shutdowner, log *zap.Logger) *elasticsearch.TypedClient {
 
-	path := "/usr/local/share/ca/ca.crt"
-	caCert, err := os.ReadFile(path)
+	certPath := os.Getenv("LOGSDB_CERT_PATH")
+	caCert, err := os.ReadFile(certPath)
 	if err != nil {
-		log.Error("Failed to read ca-certificates", zap.Error(err))
+		log.Error("Failed to read logsdb certificate", zap.Error(err))
 		sh.Shutdown()
 		return nil
 	}
 
+	esPort := os.Getenv("LOGSDB_PORT")
+	esHost := os.Getenv("LOGSDB_HOST")
+	esUser := os.Getenv("LOGSDB_USER")
+	esPassword := os.Getenv("LOGSDB_PASSWORD")
+
 	cfg := elasticsearch.Config{
 		Addresses: []string{
-			"https://elasticsearch:9200",
+			fmt.Sprintf("https://%s:%s", esHost, esPort),
 		},
-		Username: "elastic",
-		Password: "password",
+		Username: esUser,
+		Password: esPassword,
 		CACert:   caCert,
 	}
 
 	es, err := elasticsearch.NewTypedClient(cfg)
 	if err != nil {
-		log.Error("Failed to connect to elasic search", zap.Error(err))
+		log.Error("Failed to connect logsdb", zap.Error(err))
 		sh.Shutdown()
 		return nil
 	}
 
-	log.Info("Connected to ElasticSearch!")
+	log.Info("Connected to logsdb!")
 
 	return es
 }

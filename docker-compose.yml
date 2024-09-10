@@ -11,6 +11,7 @@ services:
         - VITE_BACKEND_URL=${VITE_BACKEND_URL}
     ports:
       - "80:80"
+
   reports-service:
     user: "0"
     container_name: magpie-monitor-reports-service
@@ -37,6 +38,11 @@ services:
       - REPORTSDB_HOST=${REPORTSDB_HOST}
       - REPORTSDB_PORT=${REPORTSDB_PORT}
       - REPORTS_SERVICE_HTTP_PORT=${REPORTS_SERVICE_HTTP_PORT}
+      - LOGSDB_PORT=${LOGSDB_PORT}
+      - LOGSDB_HOST=${LOGSDB_HOST}
+      - LOGSDB_USER=${LOGSDB_USER}
+      - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
+      - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
   logs-ingestion-service:
     user: "0"
     container_name: magpie-monitor-logs-ingestion-service
@@ -45,6 +51,13 @@ services:
       dockerfile: ./docker/logs-ingestion/Dockerfile
     ports:
       - ${LOGS_INGESTION_SERVICE_HTTP_PORT}:${LOGS_INGESTION_SERVICE_HTTP_PORT}
+    environment:
+      - LOGS_INGESTION_SERVICE_HTTP_PORT=${LOGS_INGESTION_SERVICE_HTTP_PORT}
+      - LOGSDB_PORT=${LOGSDB_PORT}
+      - LOGSDB_HOST=${LOGSDB_HOST}
+      - LOGSDB_USER=${LOGSDB_USER}
+      - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
+      - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
     develop:
       watch:
         - action: rebuild
@@ -60,8 +73,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    environment:
-      - LOGS_INGESTION_SERVICE_HTTP_PORT=${LOGS_INGESTION_SERVICE_HTTP_PORT}
   mongodb:
     container_name: magpie-monitor-mongodb
     image: mongo
@@ -81,7 +92,7 @@ services:
     ports:
       - 8081:8081
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_SERVER: ${REPORTSDB_HOST}
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${REPORTSDB_USER}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${REPORTSDB_PASSWORD}
     depends_on:

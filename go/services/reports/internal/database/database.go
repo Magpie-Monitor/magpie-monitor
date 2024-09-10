@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/mongodb"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -28,7 +27,6 @@ func NewReportsDbMongoClient(lc fx.Lifecycle, sh fx.Shutdowner, log *zap.Logger)
 	if err != nil {
 		log.Error("Failed to connect to reportsdb", zap.String("uri", mongoDbUri))
 		sh.Shutdown()
-		fmt.Print()
 		return nil
 	}
 
