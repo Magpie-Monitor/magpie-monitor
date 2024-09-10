@@ -77,4 +77,6 @@ func ProvideAsReportRepository(f any) any {
 	)
 }
 
+// Compile-time check if MongoDbReportRepository implements
+// the ReportRepository interface
 var _ ReportRepository = &MongoDbReportRepository{}

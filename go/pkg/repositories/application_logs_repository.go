@@ -110,4 +110,6 @@ func NewElasticSearchApplicationLogsRepository(p ApplicationLogsParams) *Elastic
 	}
 }
 
+// Compile-time check if ElasticSearchApplicationLogsRepository implements
+// the ApplicationLogsRepository interface
 var _ ApplicationLogsRepository = &ElasticSearchApplicationLogsRepository{}

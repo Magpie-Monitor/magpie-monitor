@@ -109,4 +109,6 @@ func NewElasticSearchNodeLogsRepository(p NodeLogsParams) *ElasticSearchNodeLogs
 	}
 }
 
+// Compile-time check if ElasticSearchNodeLogsRepository implements
+// the NodeLogsRepository interface
 var _ NodeLogsRepository = &ElasticSearchNodeLogsRepository{}
