@@ -30,8 +30,6 @@ type Agent struct {
 }
 
 func NewAgent(excludedNamespaces []string, collectionIntervalSeconds int, results chan entity.Chunk) *Agent {
-	excludedNamespaces = []string{"argocd", "cnpg-system", "default", "grf", "kube-node-lease", "kube-public", "kube-system", "metrics-server",
-		"minio-operator", "minio-test", "postgres", "test", "vm"}
 	return &Agent{
 		excludedNamespaces:        excludedNamespaces,
 		collectionIntervalSeconds: collectionIntervalSeconds,
@@ -213,73 +211,3 @@ func (a *Agent) fetchLogsSinceSeconds(selector *metav1.LabelSelector, namespace 
 
 	return result
 }
-
-//func (a *Agent) fetchLogsSinceSeconds(selector *metav1.LabelSelector, namespace string, sinceSeconds *int64) string {
-//	var result string
-//
-//	pods, _ := a.client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: labels.Set(selector.MatchLabels).String()})
-//	for _, pod := range pods.Items {
-//		//log.Println("Fetching logs for pod: ", pod.Name)
-//
-//		for _, container := range pod.Spec.Containers {
-//			//log.Println("Fetching logs for container: ", container.Name)
-//			//logs := a.client.CoreV1().Pods(namespace).GetLogs(pod.Name, &v1.PodLogOptions{Container: container.Name, SinceSeconds: sinceSeconds}).Do(context.TODO())
-//			logs := a.client.CoreV1().Pods(namespace).GetLogs(pod.Name, &v1.PodLogOptions{Container: container.Name, SinceSeconds: sinceSeconds}).Do(context.TODO())
-//
-//			rawLogs, _ := logs.Raw()
-//			result += string(rawLogs)
-//		}
-//	}
-//
-//	return result
-//}
-
-// TODO - leaving for reference
-//	func (a *Agent) gatherLogs() {
-//		for _, namespace := range a.includedNamespaces {
-//			pods, _ := a.client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
-//			for _, pod := range pods.Items {
-//				f := a.getLogFileForPod(namespace, pod.Name)
-//				logs := a.client.CoreV1().Pods(namespace).GetLogs(pod.Name, &v1.PodLogOptions{Container: pod.Spec.Containers[0].Name}).Do(context.TODO())
-//
-//				res, err := logs.Raw()
-//				if err != nil {
-//					panic(err)
-//				}
-//
-//				_, err = f.Write(res)
-//				if err != nil {
-//					panic(err)
-//				}
-//
-//				err = f.Close()
-//				if err != nil {
-//					panic(err)
-//				}
-//			}
-//		}
-//	}
-//
-//	func (a *Agent) getLogFileForPod(namespace string, pod string) *os.File {
-//		f, err := os.Create(a.collectionDirectory + "/" + namespace + "/" + pod + ".log")
-//		if err != nil {
-//			fmt.Println(err)
-//		}
-//		return f
-//	}
-
-//func (a *Agent) prepareDirectoryTree() {
-//	err := os.Mkdir(a.collectionDirectory, 0755)
-//	if err != nil {
-//		fmt.Println(err)
-//		//panic(err.Error())
-//	}
-//
-//	for _, namespace := range a.includedNamespaces {
-//		dir := path.Join(a.collectionDirectory, namespace)
-//		err = os.Mkdir(dir, 0755)
-//		if err != nil {
-//			fmt.Println(err)
-//		}
-//	}
-//}
