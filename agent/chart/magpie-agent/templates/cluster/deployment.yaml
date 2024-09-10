@@ -1,0 +1,29 @@
+{{ if .Values.agent.cluster.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: magpie-agent-cluster
+  namespace: {{ .Values.agent.namespace }}
+  labels:
+    name: magpie-agent-cluster
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: magpie-agent-cluster
+  template:
+    metadata:
+      labels:
+        name: magpie-agent-cluster
+    spec:
+      containers:
+        - name: magpie-agent-cluster
+          image: woojciech/agent:latest
+          command: [ "./server" ]
+          args:
+            - "--scrape"
+            - "pods"
+            - "--redisUrl"
+            - "magpie-agent-redis.{{ .Values.agent.namespace }}.svc.cluster.local:6379" #TODO - parametrize
+      serviceAccountName: magpie-agent-service-account
+{{ end }}

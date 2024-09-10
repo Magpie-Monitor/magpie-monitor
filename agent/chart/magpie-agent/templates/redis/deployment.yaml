@@ -1,0 +1,24 @@
+{{ if .Values.agent.redis.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: magpie-agent-redis
+  namespace: {{ .Values.agent.namespace }}
+  labels:
+    name: magpie-agent-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: magpie-agent-redis
+  template:
+    metadata:
+      labels:
+        name: magpie-agent-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:6
+          ports:
+            - containerPort: 6379
+{{ end }}

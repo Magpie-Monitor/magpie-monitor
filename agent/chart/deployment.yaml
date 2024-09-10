@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: command-demo
+  labels:
+    name: command-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: magpie-agent-cluster
+  template:
+    metadata:
+      labels:
+        name: magpie-agent-cluster
+    spec:
+      containers:
+        - name: command-demo-container
+          image: debian
+          command: [ "/bin/bash", "-c" ]
+          args: [ "while true; do echo $(date); sleep 0.3; done" ]
