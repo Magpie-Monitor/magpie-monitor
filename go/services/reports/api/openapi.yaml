@@ -1,0 +1,78 @@
+openapi: 3.0.0
+info:
+  title: Report API
+  version: 1.0.0
+paths:
+  /reports:
+    post:
+      summary: Create a new report
+      operationId: createReport
+      responses:
+        "200":
+          description: A report object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+      requestBody:
+        description: Report creation request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Report"
+components:
+  schemas:
+    Report:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Security Incident Report"
+        startMs:
+          type: integer
+          example: 1634025600000
+        endMs:
+          type: integer
+          example: 1634112000000
+        hostReports:
+          type: array
+          items:
+            $ref: "#/components/schemas/HostReport"
+    HostReport:
+      type: object
+      properties:
+        host:
+          type: string
+          example: "server1.example.com"
+        precision:
+          type: string
+          example: "high"
+        customPrompt:
+          type: string
+          example: "Investigate any unusual activity."
+        incidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/Incident"
+    Incident:
+      type: object
+      properties:
+        category:
+          type: string
+          example: "Network"
+        summary:
+          type: string
+          example: "Suspicious traffic detected."
+        recommendation:
+          type: string
+          example: "Block the IP address."
+        source:
+          type: string
+          example: "IDS"
+        timestamp:
+          type: integer
+          example: 1634108400
