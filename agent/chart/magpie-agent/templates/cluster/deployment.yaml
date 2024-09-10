@@ -25,5 +25,5 @@ spec:
             - "pods"
             - "--redisUrl"
             - "magpie-agent-redis.{{ .Values.agent.namespace }}.svc.cluster.local:6379" #TODO - parametrize
-      serviceAccountName: magpie-agent-serviceaccount
+      serviceAccountName: magpie-agent-service-account
 {{ end }}

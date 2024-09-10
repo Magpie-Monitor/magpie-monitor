@@ -1,11 +1,11 @@
 package node
 
 import (
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/entity"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/database"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/transformer"
 	"io"
 	"log"
-	"logather/internal/agent/entity"
-	"logather/internal/database"
-	"logather/internal/transformer"
 	"os"
 	"strconv"
 	"time"
@@ -26,7 +26,7 @@ func NewReader(files []string, scrapeInterval int, transformers []transformer.Tr
 		scrapeInterval: scrapeInterval,
 		transformers:   transformers,
 		results:        results,
-		redis:          database.NewRedis(redisUrl, "", 0), // TODO - reiterate on Redis password
+		redis:          database.NewRedis(redisUrl, os.Getenv(""), 0), // TODO - reiterate on Redis password
 	}
 }
 

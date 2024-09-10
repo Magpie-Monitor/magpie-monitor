@@ -1,8 +1,8 @@
 package main
 
 import (
-	"logather/internal/agent/wrapper"
-	"logather/internal/config"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/wrapper"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/config"
 )
 
 func main() {

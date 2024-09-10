@@ -1,7 +1,8 @@
 agent:
-  namespace: test
+  name: "test"
+  namespace: test2
   node:
-    enabled: false
+    enabled: true
     service:
       port: 8080
       targetPort: 8080

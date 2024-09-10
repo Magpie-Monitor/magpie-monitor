@@ -2,13 +2,13 @@ package wrapper
 
 import (
 	"fmt"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/entity"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/config"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/remoteWrite"
 	"k8s.io/apimachinery/pkg/util/json"
 	"log"
-	"logather/internal/agent/entity"
-	"logather/internal/agent/node"
-	"logather/internal/agent/pods"
-	"logather/internal/config"
-	"logather/internal/remoteWrite"
 )
 
 type AgentWrapper struct {
@@ -19,7 +19,7 @@ type AgentWrapper struct {
 func NewAgentWrapper(config config.Config) AgentWrapper {
 	return AgentWrapper{
 		config:       config,
-		remoteWriter: remoteWrite.NewRemoteWriter(config.RemoteWriteUrls),
+		remoteWriter: remoteWrite.NewRemoteWriter(config.RemoteWriteUrls, config.RemoteWriteRetryInterval, config.RemoteWriteMaxRetries),
 	}
 }
 
@@ -44,7 +44,7 @@ func (a *AgentWrapper) startNodeAgent() {
 	go agent.WatchFiles()
 
 	for chunk := range logChannel {
-		fmt.Println(chunk)
+		//fmt.Println(chunk)
 		a.writeChunk(chunk)
 	}
 }
@@ -55,7 +55,7 @@ func (a *AgentWrapper) startPodAgent() {
 	go agent.Start()
 
 	for chunk := range logChannel {
-		fmt.Println(chunk)
+		//fmt.Println(chunk)
 		a.writeChunk(chunk)
 	}
 }

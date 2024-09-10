@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/entity"
 	v2 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -13,7 +14,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	"log"
-	"logather/internal/agent/entity"
 	"path/filepath"
 	"slices"
 	"time"
@@ -79,7 +79,9 @@ func (a *Agent) authenticate() {
 
 func (a *Agent) fetchNamespaces() {
 	a.includedNamespaces = make([]string, 0)
-	namespaces, err := a.client.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	namespaces, err := a.client.CoreV1().
+		Namespaces().
+		List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(fmt.Sprintf("Error fetching namespaces: %s", err.Error()))
 	}
@@ -94,9 +96,11 @@ func (a *Agent) fetchNamespaces() {
 func (a *Agent) gatherLogs() {
 	for {
 		for _, namespace := range a.includedNamespaces {
-			//log.Println("Fetching logs for namespace: ", namespace)
+			log.Println("Fetching logs for namespace: ", namespace)
 
-			deployments, err := a.client.AppsV1().Deployments(namespace).List(context.TODO(), metav1.ListOptions{})
+			deployments, err := a.client.AppsV1().
+				Deployments(namespace).
+				List(context.TODO(), metav1.ListOptions{})
 			if err != nil {
 				log.Println("Error fetching Deployments: ", err)
 				log.Println("Skipping iteration")
@@ -147,7 +151,7 @@ func (a *Agent) fetchDeploymentLogsSinceSeconds(namespace string, deployments []
 		name := deployment.Name
 		selectors := deployment.Spec.Selector
 
-		//log.Println("Deployment: ", name)
+		log.Println("Deployment: ", name)
 
 		readDiff := a.calculateLastReadTimeDiff(name)
 		logs := a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
@@ -160,12 +164,12 @@ func (a *Agent) fetchDeploymentLogsSinceSeconds(namespace string, deployments []
 }
 
 func (a *Agent) fetchStatefulSetLogsSinceSeconds(namespace string, statefulSets []v2.StatefulSet) {
-	//log.Println("Fetching logs from StatefulSets")
+	log.Println("Fetching logs from StatefulSets")
 	for _, statefulSet := range statefulSets {
 		name := statefulSet.Name
 		selectors := statefulSet.Spec.Selector
 
-		//log.Println("StatefulSet: ", name)
+		log.Println("StatefulSet: ", name)
 		readDiff := a.calculateLastReadTimeDiff(name)
 		logs := a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
 		a.setReadTimestamp(name)
@@ -177,12 +181,12 @@ func (a *Agent) fetchStatefulSetLogsSinceSeconds(namespace string, statefulSets 
 }
 
 func (a *Agent) fetchDaemonSetLogsSinceSeconds(namespace string, daemonSets []v2.DaemonSet) {
-	//log.Println("Fetching logs from DaemonSets")
+	log.Println("Fetching logs from DaemonSets")
 	for _, daemonSet := range daemonSets {
 		name := daemonSet.Name
 		selectors := daemonSet.Spec.Selector
 
-		//log.Println("DaemonSet: ", name)
+		log.Println("DaemonSet: ", name)
 		readDiff := a.calculateLastReadTimeDiff(name)
 		logs := a.fetchLogsSinceSeconds(selectors, namespace, &readDiff)
 		a.setReadTimestamp(name)
@@ -196,13 +200,19 @@ func (a *Agent) fetchDaemonSetLogsSinceSeconds(namespace string, daemonSets []v2
 func (a *Agent) fetchLogsSinceSeconds(selector *metav1.LabelSelector, namespace string, sinceSeconds *int64) string {
 	var result string
 
-	pods, _ := a.client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: labels.Set(selector.MatchLabels).String()})
+	pods, _ := a.client.CoreV1().
+		Pods(namespace).
+		List(context.TODO(),
+			metav1.ListOptions{
+				LabelSelector: labels.Set(selector.MatchLabels).String(),
+			})
 	for _, pod := range pods.Items {
-		//log.Println("Fetching logs for pod: ", pod.Name)
+		log.Println("Fetching logs for pod: ", pod.Name)
 
 		for _, container := range pod.Spec.Containers {
-			//log.Println("Fetching logs for container: ", container.Name)
+			log.Println("Fetching logs for container: ", container.Name)
 			// TODO - explore since time and log streaming
+			// TODO - explore stdout + stderr
 			logs := a.client.CoreV1().Pods(namespace).GetLogs(pod.Name, &v1.PodLogOptions{Container: container.Name, SinceSeconds: sinceSeconds}).Do(context.TODO())
 			rawLogs, _ := logs.Raw()
 			result += string(rawLogs)
