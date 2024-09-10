@@ -13,7 +13,10 @@ type RemoteWriter struct {
 }
 
 func NewRemoteWriter(urls []string) RemoteWriter {
-	return RemoteWriter{urls: urls, cache: make(map[string]string)}
+	return RemoteWriter{
+		urls:  urls,
+		cache: make(map[string]string),
+	}
 }
 
 func (w *RemoteWriter) Write(content string) {

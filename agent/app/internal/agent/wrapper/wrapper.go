@@ -17,7 +17,10 @@ type AgentWrapper struct {
 }
 
 func NewAgentWrapper(config config.Config) AgentWrapper {
-	return AgentWrapper{config: config, remoteWriter: remoteWrite.NewRemoteWriter(config.RemoteWriteUrls)}
+	return AgentWrapper{
+		config:       config,
+		remoteWriter: remoteWrite.NewRemoteWriter(config.RemoteWriteUrls),
+	}
 }
 
 func (a *AgentWrapper) Start() {
@@ -37,7 +40,7 @@ func (a *AgentWrapper) Start() {
 func (a *AgentWrapper) startNodeAgent() {
 	logChannel := make(chan entity.Chunk)
 
-	agent := node.NewReader(a.config.WatchedFiles, nil, logChannel, a.config.RedisUrl)
+	agent := node.NewReader(a.config.WatchedFiles, a.config.ScrapeInterval, nil, logChannel, a.config.RedisUrl)
 	go agent.WatchFiles()
 
 	for chunk := range logChannel {
@@ -48,7 +51,7 @@ func (a *AgentWrapper) startNodeAgent() {
 
 func (a *AgentWrapper) startPodAgent() {
 	logChannel := make(chan entity.Chunk)
-	agent := pods.NewAgent(nil, 30, logChannel)
+	agent := pods.NewAgent(a.config.ExcludedNamespaces, 30, logChannel)
 	go agent.Start()
 
 	for chunk := range logChannel {

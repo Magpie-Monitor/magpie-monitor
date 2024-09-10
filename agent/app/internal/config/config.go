@@ -17,14 +17,17 @@ func (i *arrayFlags) Set(value string) error {
 }
 
 type Config struct {
-	Mode            string
-	RedisUrl        string
-	WatchedFiles    []string
-	RemoteWriteUrls []string
+	Mode               string
+	ScrapeInterval     int
+	RedisUrl           string
+	WatchedFiles       []string
+	RemoteWriteUrls    []string
+	ExcludedNamespaces []string
 }
 
 func GetConfig() Config {
 	mode := flag.String("scrape", "nodes", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
+	scrapeInterval := flag.Int("scrapeInterval", 10, "Interval between scraping logs from files in \"nodes\" mode or pods in \"pods\" mode.")
 	redisUrl := flag.String("redisUrl", "", "Redis URL in cluster DNS format, that is: service.namespace.svc.cluster.local:port")
 
 	var watchedFiles arrayFlags
@@ -33,10 +36,20 @@ func GetConfig() Config {
 	var remoteWriteUrls arrayFlags
 	flag.Var(&remoteWriteUrls, "remoteWriteUrl", "URL to which logs are pushed using remote write protocol.")
 
+	var excludedNamespaces arrayFlags
+	flag.Var(&excludedNamespaces, "excludedNamespace", "Namespace which is excluded from log scraping when agent runs in \"pods\" mode.")
+
 	flag.Parse()
 
 	log.Println("Agent configured to run in mode: ", *mode)
 	log.Println("Redis url: ", *redisUrl)
 
-	return Config{Mode: *mode, RedisUrl: *redisUrl, WatchedFiles: watchedFiles, RemoteWriteUrls: []string{}}
+	return Config{
+		Mode:               *mode,
+		ScrapeInterval:     *scrapeInterval,
+		RedisUrl:           *redisUrl,
+		WatchedFiles:       watchedFiles,
+		RemoteWriteUrls:    remoteWriteUrls,
+		ExcludedNamespaces: excludedNamespaces,
+	}
 }

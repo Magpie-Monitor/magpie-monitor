@@ -12,16 +12,22 @@ import (
 )
 
 type IncrementalReader struct {
-	files        []string
-	transformers []transformer.Transformer
-	results      chan entity.Chunk
-	redis        database.Redis
+	files          []string
+	scrapeInterval int
+	transformers   []transformer.Transformer
+	results        chan entity.Chunk
+	redis          database.Redis
 }
 
-func NewReader(files []string, transformers []transformer.Transformer, results chan entity.Chunk,
+func NewReader(files []string, scrapeInterval int, transformers []transformer.Transformer, results chan entity.Chunk,
 	redisUrl string) IncrementalReader {
-	return IncrementalReader{files: files, transformers: transformers, results: results,
-		redis: database.NewRedis(redisUrl, "", 0)} // TODO - reiterate on Redis password
+	return IncrementalReader{
+		files:          files,
+		scrapeInterval: scrapeInterval,
+		transformers:   transformers,
+		results:        results,
+		redis:          database.NewRedis(redisUrl, "", 0), // TODO - reiterate on Redis password
+	}
 }
 
 func (r *IncrementalReader) WatchFiles() {
@@ -43,7 +49,7 @@ func (r *IncrementalReader) prepareFile(dir string) (*os.File, int64) {
 		panic(err)
 	}
 
-	// seek to previous ending spot
+	// Seek to previous ending spot.
 	var currentSize int64
 	previousSize := r.redis.Get(dir)
 	if previousSize != "" {
@@ -80,6 +86,7 @@ func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan ent
 		if byteDiff > 0 {
 			buf := make([]byte, byteDiff+1)
 
+			// Move reader cursor for byteDiff bytes (being the size increase since last read) from the end of file.
 			_, err = f.Seek(-byteDiff, io.SeekEnd)
 			if err != nil {
 				log.Println("Error seeking diff for file: ", dir)
