@@ -75,6 +75,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  kafka:
+    image: apache/kafka:3.8.0
+    ports:
+      - "9092:9092"
+
   mongodb:
     container_name: magpie-monitor-mongodb
     image: mongo
