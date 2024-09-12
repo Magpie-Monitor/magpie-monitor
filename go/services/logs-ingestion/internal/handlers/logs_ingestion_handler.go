@@ -21,6 +21,7 @@ func NewLogsIngestionRouter(logsIngestionHanlder *LogsIngestionHandler) *LogsIng
 	return &LogsIngestionRouter{
 		mux: mux,
 	}
+
 }
 
 func (r *LogsIngestionRouter) Pattern() string {
@@ -66,17 +67,9 @@ func (h *LogsIngestionHandler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//TODO: Add checks if index exists and make it based on query parameters
-	err = h.nodeLogsRepository.CreateIndex(ctx, "test_index")
-	if err != nil {
-		h.logger.Error("Failed to create index", zap.Error(err))
-		// w.WriteHeader(http.StatusInternalServerError)
-		// return
-	}
-
 	err = h.nodeLogsRepository.InsertLogs(ctx, logs)
 	if err != nil {
-		h.logger.Error("Failed to index document", zap.Error(err))
+		h.logger.Error("Failed to index logs", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

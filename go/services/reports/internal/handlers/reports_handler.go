@@ -8,6 +8,7 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"net/http"
+	"time"
 )
 
 type ReportsRouter struct {
@@ -55,13 +56,30 @@ func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
 	}
 }
 
+type reportsPostParams struct {
+	Cluster  string `json:"cluster"`
+	FromDate int64  `json:"fromDate"`
+	ToDate   int64  `json:"toDate"`
+}
+
 func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
-
+	var params reportsPostParams
 	ctx := context.Background()
 
-	logs, err := h.nodeLogsRepository.GetAllLogs(ctx)
+	err := json.NewDecoder(r.Body).Decode(&params)
+	if err != nil {
+		h.logger.Error("Failed to parse POST /reports params", zap.Error(err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	logs, err := h.nodeLogsRepository.GetLogs(ctx,
+		params.Cluster,
+		time.Unix(params.FromDate, 0),
+		time.Unix(params.ToDate, 0))
+
 	if err != nil {
 		h.logger.Error("Failed to get logs", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -85,17 +103,15 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(reportJson)
-
-	w.WriteHeader(http.StatusOK)
 }
 
-func generateDummyReportsFromLogs(logs []sharedrepositories.NodeLogs) repositories.Report {
+func generateDummyReportsFromLogs(logs []*sharedrepositories.NodeLogsDocument) repositories.Report {
 
 	hostReports := make([]*repositories.HostReport, 0, len(logs))
 	for _, log := range logs {
 		hostReports = append(hostReports, &repositories.HostReport{
-			Host:         log.Host,
-			CustomPrompt: log.Message,
+			Host:         log.Name,
+			CustomPrompt: log.Kind,
 		})
 	}
 

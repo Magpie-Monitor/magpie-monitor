@@ -12,6 +12,7 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
 	"github.com/Magpie-Monitor/magpie-monitor/services/logs-ingestion/internal/handlers"
 	"go.uber.org/fx"
+	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 )
 
@@ -42,6 +43,10 @@ func NewHTTPServer(lc fx.Lifecycle, mux *http.ServeMux, log *zap.Logger) *http.S
 
 func main() {
 	fx.New(
+
+		fx.WithLogger(func(log *zap.Logger) fxevent.Logger {
+			return &fxevent.ZapLogger{Logger: log}
+		}),
 		fx.Provide(
 			routing.ProvideAsRootServeMux(
 				routing.NewServeMux,
