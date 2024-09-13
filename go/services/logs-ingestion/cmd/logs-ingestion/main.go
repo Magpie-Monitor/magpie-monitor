@@ -2,43 +2,49 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"net"
-	"net/http"
-	"os"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
-	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
-	"github.com/Magpie-Monitor/magpie-monitor/services/logs-ingestion/internal/handlers"
+	logsstream "github.com/Magpie-Monitor/magpie-monitor/services/logs-ingestion/pkg/logs-stream"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 )
 
-func NewHTTPServer(lc fx.Lifecycle, mux *http.ServeMux, log *zap.Logger) *http.Server {
-	port := os.Getenv("LOGS_INGESTION_SERVICE_HTTP_PORT")
+type LogsStreamListener struct {
+	applicationLogsReader *logsstream.ApplicationLogsStreamReader
+	nodeLogsReader        *logsstream.NodeLogsStreamReader
+	logger                *zap.Logger
+}
 
-	srv := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: mux}
+func NewLogsStreamListener(
+	lc fx.Lifecycle,
+	logger *zap.Logger,
+	applicationLogsReader *logsstream.ApplicationLogsStreamReader,
+	nodeLogsReader *logsstream.NodeLogsStreamReader,
+) *LogsStreamListener {
+
+	listener := LogsStreamListener{
+		logger:                logger,
+		applicationLogsReader: applicationLogsReader,
+		nodeLogsReader:        nodeLogsReader,
+	}
+
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			ln, err := net.Listen("tcp", srv.Addr)
 
-			if err != nil {
-				return err
-			}
+			listener.nodeLogsReader.SetHandler(func(logs repositories.NodeLogs) {
+				logger.Info("Recievied", zap.Any("logs", logs))
+			})
 
-			log.Info("Starting HTTP server at", zap.String("addr", srv.Addr))
-			go srv.Serve(ln)
+			logger.Info("Starting listening for logs from", zap.String("addr", "kafka:9094"))
+
+			go listener.nodeLogsReader.Listen()
 			return nil
 		},
-		OnStop: func(ctx context.Context) error {
-
-			log.Info("Shutting down the HTTP server at", zap.String("addr", srv.Addr))
-			return srv.Shutdown(ctx)
-		},
 	})
-	return srv
+
+	return &listener
 }
 
 func main() {
@@ -48,14 +54,10 @@ func main() {
 			return &fxevent.ZapLogger{Logger: log}
 		}),
 		fx.Provide(
-			routing.ProvideAsRootServeMux(
-				routing.NewServeMux,
-			),
 
-			NewHTTPServer,
-
-			routing.ProvideAsRoute(handlers.NewLogsIngestionRouter),
-			handlers.NewLogsIngestionHandler,
+			NewLogsStreamListener,
+			logsstream.NewApplicationLogsStreamReader,
+			logsstream.NewNodeLogsStreamReader,
 
 			elasticsearch.NewElasticSearchLogsDbClient,
 			repositories.ProvideAsApplicationLogsRepository(
@@ -67,6 +69,6 @@ func main() {
 			),
 
 			zap.NewExample),
-		fx.Invoke(func(*http.Server) {}),
+		fx.Invoke(func(*LogsStreamListener) {}),
 	).Run()
 }

@@ -12,7 +12,7 @@ type NodeLogsStreamReader struct {
 func NewNodeLogsStreamReader(logger *zap.Logger) *NodeLogsStreamReader {
 
 	kafkaReader := NewKafkaLogsStream[repositories.NodeLogs](
-		[]string{"kafka:9096"},
+		[]string{"kafka:9094"},
 		"nodes",
 		logger,
 	)
@@ -23,11 +23,12 @@ func NewNodeLogsStreamReader(logger *zap.Logger) *NodeLogsStreamReader {
 }
 
 func (a *NodeLogsStreamReader) Listen() {
-	a.Listen()
+	a.kafkaReader.logger.Info("Starting to listen")
+	a.kafkaReader.Listen()
 }
 
 func (a *NodeLogsStreamReader) Stream() chan repositories.NodeLogs {
-	return a.Stream()
+	return a.kafkaReader.Stream()
 }
 
 func (s *NodeLogsStreamReader) SetHandler(f func(repositories.NodeLogs)) {
