@@ -12,7 +12,7 @@ type ApplicationLogsStreamReader struct {
 func NewApplicationLogsStreamReader(logger *zap.Logger) *ApplicationLogsStreamReader {
 
 	kafkaReader := NewKafkaLogsStream[repositories.ApplicationLogs](
-		[]string{"kafka:9096"},
+		[]string{"kafka:9092"},
 		"applications",
 		logger,
 	)
@@ -23,11 +23,11 @@ func NewApplicationLogsStreamReader(logger *zap.Logger) *ApplicationLogsStreamRe
 }
 
 func (a *ApplicationLogsStreamReader) Listen() {
-	a.Listen()
+	a.kafkaReader.Listen()
 }
 
 func (a *ApplicationLogsStreamReader) Stream() chan repositories.ApplicationLogs {
-	return a.Stream()
+	return a.kafkaReader.Stream()
 }
 
 func (s *ApplicationLogsStreamReader) SetHandler(f func(repositories.ApplicationLogs)) {
