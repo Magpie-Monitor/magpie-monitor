@@ -29,7 +29,7 @@ type NodeLogsDocument = NodeLogs
 type NodeLogsRepository interface {
 	CreateIndex(ctx context.Context, indexName string) error
 	GetLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) ([]*NodeLogsDocument, error)
-	InsertLogs(ctx context.Context, logs NodeLogs) error
+	InsertLogs(ctx context.Context, logs *NodeLogs) error
 }
 
 func ProvideAsNodeLogsRepository(f any) any {
@@ -122,9 +122,9 @@ func (r *ElasticSearchNodeLogsRepository) CreateIndex(ctx context.Context, index
 	return nil
 }
 
-func (r *ElasticSearchNodeLogsRepository) InsertLogs(ctx context.Context, logs NodeLogs) error {
+func (r *ElasticSearchNodeLogsRepository) InsertLogs(ctx context.Context, logs *NodeLogs) error {
 
-	index := getNodeLogsIndexName(&logs)
+	index := getNodeLogsIndexName(logs)
 
 	if !r.doesIndexExists(index) {
 		r.CreateIndex(ctx, index)

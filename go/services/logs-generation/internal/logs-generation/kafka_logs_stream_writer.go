@@ -30,7 +30,7 @@ func NewKafkaLogsStreamWriter(lc fx.Lifecycle, logger *zap.Logger) *KafkaLogsStr
 }
 
 func (w *KafkaLogsStreamWriter) Write(ctx context.Context, key string, value string) error {
-	err := w.writer.WriteMessages(ctx, kafka.Message{
+	err := w.writer.WriteMessages(context.Background(), kafka.Message{
 		Key:   []byte(key),
 		Value: []byte(value),
 	})
