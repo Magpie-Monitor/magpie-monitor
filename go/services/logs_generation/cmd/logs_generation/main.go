@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
-	"github.com/Magpie-Monitor/magpie-monitor/services/logs-generation/internal/logs-generation"
+	"github.com/Magpie-Monitor/magpie-monitor/services/logs_generation/internal/logs_generation"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -35,11 +35,11 @@ func (g *LogsGenerator) WriteNodeLogs(ctx context.Context) {
 
 	for {
 
-		err = g.writer.Write(ctx, time.Now().String(), string(jsonNodeLogs))
+		err = g.writer.WriteNodeLogs(ctx, time.Now().String(), string(jsonNodeLogs))
 		if err != nil {
 			g.logger.Error("Failed to write a message", zap.Error(err))
 		} else {
-			g.logger.Info("Sent a node log")
+			g.logger.Debug("Sent a node log")
 		}
 
 		time.Sleep(time.Second * 2)
@@ -58,8 +58,13 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 				Name: "pod-1",
 				Containers: []*repositories.ContainerLogs{
 					{
-						Name:    "container-1",
-						Image:   "container-1-image",
+						Name:    "container-x",
+						Image:   "container-x-image",
+						Content: "container-logs-content",
+					},
+					{
+						Name:    "container-2",
+						Image:   "container-2-image",
 						Content: "container-logs-content",
 					},
 				},
@@ -71,12 +76,13 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 	if err != nil {
 		g.logger.Error("Failed to encode applicatation logs", zap.Error(err))
 	}
+
 	for {
-		err := g.writer.Write(ctx, time.Now().String(), string(jsonApplicationLogs))
+		err = g.writer.WriteApplicationLogs(ctx, time.Now().String(), string(jsonApplicationLogs))
 		if err != nil {
 			g.logger.Error("Failed to write a message", zap.Error(err))
 		} else {
-			g.logger.Info("Sent an applicatoion log")
+			g.logger.Info("Sent application logs")
 		}
 		time.Sleep(time.Second * 2)
 	}

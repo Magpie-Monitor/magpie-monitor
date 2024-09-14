@@ -5,7 +5,7 @@ import (
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
-	logsstream "github.com/Magpie-Monitor/magpie-monitor/services/logs-ingestion/pkg/logs-stream"
+	logsstream "github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/logs_stream"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -33,9 +33,8 @@ func NewLogsStreamListener(
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 
-			logger.Info("Starting listening for logs from", zap.String("addr", "kafka:9094"))
-
 			go listener.nodeLogsReader.Listen()
+			go listener.applicationLogsReader.Listen()
 			return nil
 		},
 	})

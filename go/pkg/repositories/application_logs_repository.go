@@ -3,6 +3,8 @@ package repositories
 import (
 	"context"
 	"encoding/json"
+	"time"
+
 	"github.com/IBM/fp-go/array"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	es "github.com/elastic/go-elasticsearch/v8"
@@ -11,7 +13,6 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
-	"time"
 )
 
 // TODO: To be clarified once the contract from agent is agreed upon
@@ -143,7 +144,7 @@ func (r *ElasticSearchApplicationLogsRepository) CreateIndex(ctx context.Context
 				Properties: map[string]types.Property{
 					"cluster":         types.NewTextProperty(),
 					"kind":            types.NewTextProperty(),
-					"timestamp":       types.NewPointInTimeReference(),
+					"timestamp":       types.NewIntegerNumberProperty(),
 					"applicationName": types.NewTextProperty(),
 					"namespace":       types.NewTextProperty(),
 					"podName":         types.NewTextProperty(),
@@ -155,7 +156,7 @@ func (r *ElasticSearchApplicationLogsRepository) CreateIndex(ctx context.Context
 		}).Do(ctx)
 
 	if err != nil {
-		r.logger.Error("Failed to create an index", zap.Error(err))
+		r.logger.Error("Failed to create an applicationLogs index", zap.Error(err))
 		return err
 	}
 
@@ -175,18 +176,18 @@ func (r *ElasticSearchApplicationLogsRepository) InsertLogs(ctx context.Context,
 		r.CreateIndex(ctx, index)
 	}
 
-	flattenedLogs := make([]interface{}, 0, len(logs.Flatten()))
+	bulk := r.esClient.Bulk().Index(index)
+
 	for _, log := range logs.Flatten() {
-		flattenedLogs = append(flattenedLogs, log)
+		bulk.IndexOp(*types.NewIndexOperation(), log)
 	}
 
-	//TODO: Replace with index based on query params
-	_, err := r.esClient.Bulk().Index(index).Request(&flattenedLogs).Do(ctx)
+	_, err := bulk.Do(ctx)
+
 	if err != nil {
 		r.logger.Error("Failed to insert application logs", zap.Error(err))
 	}
-
-	return err
+	return nil
 }
 
 type ApplicationLogsParams struct {
