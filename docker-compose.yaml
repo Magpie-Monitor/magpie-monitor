@@ -46,6 +46,9 @@ services:
       - LOGSDB_USER=${LOGSDB_USER}
       - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
       - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_URL=${OPENAI_API_URL}
+      - OPENAI_API_MODEL=${OPENAI_API_MODEL}
   logs-ingestion-service:
     user: "0"
     container_name: magpie-monitor-logs-ingestion-service

@@ -42,7 +42,7 @@ func (g *LogsGenerator) WriteNodeLogs(ctx context.Context) {
 			g.logger.Debug("Sent a node log")
 		}
 
-		time.Sleep(time.Second * 2)
+		time.Sleep(time.Second * 200)
 	}
 }
 
@@ -84,7 +84,7 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 		} else {
 			g.logger.Info("Sent application logs")
 		}
-		time.Sleep(time.Second * 2)
+		time.Sleep(time.Second * 200)
 	}
 }
 
