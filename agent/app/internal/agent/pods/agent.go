@@ -14,9 +14,31 @@ import (
 	"k8s.io/client-go/util/homedir"
 	"log"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 )
+
+type ObjectKind string
+
+const (
+	Deployment  ObjectKind = "Deployment"
+	StatefulSet ObjectKind = "StatefulSet"
+	DaemonSet   ObjectKind = "DaemonSet"
+)
+
+func (o ObjectKind) String() string {
+	switch o {
+	case Deployment:
+		return "Deployment"
+	case StatefulSet:
+		return "StatefulSet"
+	case DaemonSet:
+		return "DaemonSet"
+	default:
+		return "unknown"
+	}
+}
 
 type Agent struct {
 	clusterName               string
@@ -81,20 +103,20 @@ func (a *Agent) authenticate() {
 
 func (a *Agent) fetchNamespaces() {
 	a.includedNamespaces = make([]string, 0)
-	a.includedNamespaces = append(a.includedNamespaces, "mock-ns")
+	//a.includedNamespaces = append(a.includedNamespaces, "mock-ns")
 
-	//namespaces, err := a.client.CoreV1().
-	//	Namespaces().
-	//	List(context.TODO(), metav1.ListOptions{})
-	//if err != nil {
-	//	panic(fmt.Sprintf("Error fetching namespaces: %s", err.Error()))
-	//}
-	//
-	//for _, namespace := range namespaces.Items {
-	//	if !slices.Contains(a.excludedNamespaces, namespace.Name) {
-	//		a.includedNamespaces = append(a.includedNamespaces, namespace.Name)
-	//	}
-	//}
+	namespaces, err := a.client.CoreV1().
+		Namespaces().
+		List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		panic(fmt.Sprintf("Error fetching namespaces: %s", err.Error()))
+	}
+
+	for _, namespace := range namespaces.Items {
+		if !slices.Contains(a.excludedNamespaces, namespace.Name) {
+			a.includedNamespaces = append(a.includedNamespaces, namespace.Name)
+		}
+	}
 }
 
 func (a *Agent) gatherLogs() {
@@ -134,12 +156,11 @@ func (a *Agent) gatherLogs() {
 	}
 }
 
-// TODO - selectors
 func (a *Agent) fetchDeploymentLogsSinceTime(namespace string, deployments []v2.Deployment) {
 	for _, deployment := range deployments {
 		selectors := deployment.Spec.Selector
 		logs := a.fetchPodLogsSinceTime(selectors, namespace)
-		a.sendResult("Deployment", deployment.Name, namespace, logs)
+		a.sendResult(Deployment, deployment.Name, namespace, logs)
 	}
 }
 
@@ -148,7 +169,7 @@ func (a *Agent) fetchStatefulSetLogsSinceTime(namespace string, statefulSets []v
 	for _, statefulSet := range statefulSets {
 		selectors := statefulSet.Spec.Selector
 		logs := a.fetchPodLogsSinceTime(selectors, namespace)
-		a.sendResult("StatefulSet", statefulSet.Name, namespace, logs)
+		a.sendResult(StatefulSet, statefulSet.Name, namespace, logs)
 	}
 }
 
@@ -157,18 +178,7 @@ func (a *Agent) fetchDaemonSetLogsSinceTime(namespace string, daemonSets []v2.Da
 	for _, daemonSet := range daemonSets {
 		selectors := daemonSet.Spec.Selector
 		logs := a.fetchPodLogsSinceTime(selectors, namespace)
-		a.sendResult("DaemonSet", daemonSet.Name, namespace, logs)
-	}
-}
-
-func (a *Agent) sendResult(kind, name, namespace string, pods []Pod) {
-	a.results <- PodChunk{
-		Cluster:   a.clusterName,
-		Kind:      kind,
-		Timestamp: time.Now().UnixNano(),
-		Name:      name,
-		Namespace: namespace,
-		Pods:      pods,
+		a.sendResult(DaemonSet, daemonSet.Name, namespace, logs)
 	}
 }
 
@@ -226,8 +236,19 @@ func (a *Agent) fetchContainerLogsSinceTime(container v1.Container, podName, nam
 		now := after - (after - before)
 		a.setReadTimestamp(podName, container.Name, now)
 
-		rawLogs, _ := logs.Raw()
-		return Container{Name: container.Name, Image: container.Image, Content: a.deduplicate(string(rawLogs))}
+		rawLogs, err := logs.Raw()
+		if err != nil {
+			log.Println("Failed to fetch raw logs for container: ", container.Name)
+			return Container{}
+		}
+
+		deduplicatedLogs, err := a.deduplicate(string(rawLogs))
+		if err != nil {
+			log.Println("Failed to fetch container: ", container.Name, " logs")
+			return Container{}
+		}
+
+		return Container{Name: container.Name, Image: container.Image, Content: deduplicatedLogs}
 	}
 }
 
@@ -247,28 +268,53 @@ func (a *Agent) getTimestampKey(podName, containerName string) string {
 	return fmt.Sprintf("%s-%s", podName, containerName)
 }
 
-// TODO - refactor
-func (a *Agent) deduplicate(logs string) string {
-	split := strings.Split(logs, "\n")
+func (a *Agent) sendResult(kind ObjectKind, name, namespace string, pods []Pod) {
+	a.results <- PodChunk{
+		Cluster:   a.clusterName,
+		Kind:      kind.String(),
+		Timestamp: time.Now().UnixNano(),
+		Name:      name,
+		Namespace: namespace,
+		Pods:      pods,
+	}
+}
 
-	if len(split) > 3 {
-		lastSec := a.getSecondFromTimestamp(split[len(split)-2])
+func (a *Agent) deduplicate(logs string) (string, error) {
+	split := strings.Split(logs, "\n")
+	// Last line is always empty.
+	split = split[:len(split)-1]
+
+	if len(split) >= 2 {
+		lastLogSecond, err := a.getSecondFromLogTimestamp(split[len(split)-2])
+		if err != nil {
+			log.Println("Deduplication failed on last log timestamp extraction")
+			return "", err
+		}
+
 		for i := len(split) - 3; i >= 0; i-- {
-			log := split[i]
-			currSec := a.getSecondFromTimestamp(log)
-			if lastSec > currSec {
-				return strings.Join(split[:i+1], "\n")
+			logLine := split[i]
+			currentLogSecond, err := a.getSecondFromLogTimestamp(logLine)
+			if err != nil {
+				log.Println("Deduplication failed on current log timestamp extraction")
+				return "", err
+			}
+
+			// Logs from the next second were fetched, they have to be removed.
+			// They will be fetched in the next iteration.
+			if lastLogSecond > currentLogSecond {
+				return strings.Join(split[:i+1], "\n"), nil
 			}
 		}
 	}
 
-	return logs
+	return logs, nil
 }
 
-// TODO - refactor
-func (a *Agent) getSecondFromTimestamp(t string) int {
-	split := strings.Split(t, " ")
-	timestamp := split[0]
-	time, _ := time.Parse(time.RFC3339, timestamp)
-	return time.Second()
+func (a *Agent) getSecondFromLogTimestamp(log string) (int, error) {
+	timestamp := strings.Split(log, " ")[0]
+	parsedTime, err := time.Parse(time.RFC3339, timestamp)
+	if err != nil {
+		return 0, err
+	}
+	return parsedTime.Second(), nil
 }
