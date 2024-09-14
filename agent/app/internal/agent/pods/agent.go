@@ -185,12 +185,13 @@ func (a *Agent) fetchDaemonSetLogsSinceTime(namespace string, daemonSets []v2.Da
 func (a *Agent) fetchPodLogsSinceTime(selector *metav1.LabelSelector, namespace string) []Pod {
 	res := make([]Pod, 0)
 
+	// TODO - error handling
 	pods, _ := a.client.CoreV1().
 		Pods(namespace).
-		List(context.TODO(),
-			metav1.ListOptions{
-				LabelSelector: labels.Set(selector.MatchLabels).String(),
-			})
+		List(
+			context.TODO(),
+			metav1.ListOptions{LabelSelector: labels.Set(selector.MatchLabels).String()},
+		)
 	for _, pod := range pods.Items {
 		log.Println("Fetching logs for pod: ", pod.Name)
 
@@ -222,9 +223,13 @@ func (a *Agent) fetchContainerLogsSinceTime(container v1.Container, podName, nam
 	before := time.Now().UnixNano()
 	logs := a.client.CoreV1().
 		Pods(namespace).
-		GetLogs(podName,
-			&v1.PodLogOptions{Container: container.Name, SinceTime: &metav1.Time{Time: sinceTime}, Timestamps: true}).
-		Do(context.TODO())
+		GetLogs(
+			podName,
+			&v1.PodLogOptions{
+				Container:  container.Name,
+				SinceTime:  &metav1.Time{Time: sinceTime},
+				Timestamps: true},
+		).Do(context.TODO())
 	after := time.Now().UnixNano()
 
 	if logs.Error() != nil {
@@ -310,10 +315,11 @@ func (a *Agent) deduplicate(logs string) (string, error) {
 	return logs, nil
 }
 
-func (a *Agent) getSecondFromLogTimestamp(log string) (int, error) {
-	timestamp := strings.Split(log, " ")[0]
+func (a *Agent) getSecondFromLogTimestamp(logLine string) (int, error) {
+	timestamp := strings.Split(logLine, " ")[0]
 	parsedTime, err := time.Parse(time.RFC3339, timestamp)
 	if err != nil {
+		log.Println("Error parsing log timestamp: ", timestamp)
 		return 0, err
 	}
 	return parsedTime.Second(), nil
