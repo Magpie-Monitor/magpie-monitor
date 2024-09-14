@@ -1,4 +1,4 @@
-package entity
+package node
 
 type Chunk struct {
 	Cluster   string `json:"cluster"`

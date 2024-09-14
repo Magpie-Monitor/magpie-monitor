@@ -2,7 +2,6 @@ package wrapper
 
 import (
 	"fmt"
-	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/entity"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/config"
@@ -38,29 +37,29 @@ func (a *AgentWrapper) Start() {
 }
 
 func (a *AgentWrapper) startNodeAgent() {
-	logChannel := make(chan entity.Chunk)
+	logChannel := make(chan node.Chunk)
 
 	agent := node.NewReader(a.config.WatchedFiles, a.config.ScrapeInterval, nil, logChannel, a.config.RedisUrl)
 	go agent.WatchFiles()
 
 	for chunk := range logChannel {
-		//fmt.Println(chunk)
+		log.Println("Collected node chunk: ", chunk)
 		a.writeChunk(chunk)
 	}
 }
 
 func (a *AgentWrapper) startPodAgent() {
-	logChannel := make(chan entity.Chunk)
-	agent := pods.NewAgent(a.config.ExcludedNamespaces, 30, logChannel)
+	logChannel := make(chan pods.PodChunk)
+	agent := pods.NewAgent(a.config.ExcludedNamespaces, a.config.ScrapeInterval, logChannel)
 	go agent.Start()
 
 	for chunk := range logChannel {
-		//fmt.Println(chunk)
+		log.Println("Collected pod chunk: ", chunk)
 		a.writeChunk(chunk)
 	}
 }
 
-func (a *AgentWrapper) writeChunk(chunk entity.Chunk) {
+func (a *AgentWrapper) writeChunk(chunk any) {
 	jsonChunk, err := json.Marshal(chunk)
 	if err != nil {
 		log.Println("Error converting chunk to JSON: ", err)
