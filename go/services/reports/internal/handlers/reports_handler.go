@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
+	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -37,6 +38,7 @@ type ReportsHandler struct {
 	reportRepository          repositories.ReportRepository
 	applicationLogsRepository sharedrepositories.ApplicationLogsRepository
 	nodeLogsRepository        sharedrepositories.NodeLogsRepository
+	openAiClient              *openai.Client
 }
 
 type ReportsHandlerParams struct {
@@ -45,6 +47,7 @@ type ReportsHandlerParams struct {
 	ReportRepository          repositories.ReportRepository
 	ApplicationLogsRepository sharedrepositories.ApplicationLogsRepository
 	NodeLogsRepository        sharedrepositories.NodeLogsRepository
+	OpenAiClient              *openai.Client
 }
 
 func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
@@ -53,6 +56,7 @@ func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
 		reportRepository:          p.ReportRepository,
 		applicationLogsRepository: p.ApplicationLogsRepository,
 		nodeLogsRepository:        p.NodeLogsRepository,
+		openAiClient:              p.OpenAiClient,
 	}
 }
 
@@ -75,7 +79,7 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logs, err := h.nodeLogsRepository.GetLogs(ctx,
+	_, err = h.nodeLogsRepository.GetLogs(ctx,
 		params.Cluster,
 		time.Unix(params.FromDate, 0),
 		time.Unix(params.ToDate, 0))
@@ -86,16 +90,31 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Replace with interface for reports generation based on LLMs response
-	report := generateDummyReportsFromLogs(logs)
-	err = h.reportRepository.InsertReport(ctx, &report)
+	openAiResponse, err := h.openAiClient.Complete([]*openai.Message{
+		{
+			Role:    "user",
+			Content: "Please tell me a joke",
+		},
+	})
+
+	h.logger.Info("Got response from openai", zap.Any("response", openAiResponse))
+
 	if err != nil {
-		h.logger.Error("Failed to generate report", zap.Error(err))
+		h.logger.Error("Failed to get reports from openai client", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	reportJson, err := json.Marshal(report)
+	// TODO: Replace with interface for reports generation based on LLMs response
+	// report := generateDummyReportsFromLogs(logs)
+	// err = h.reportRepository.InsertReport(ctx, &report)
+	// if err != nil {
+	// 	h.logger.Error("Failed to generate report", zap.Error(err))
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	return
+	// }
+
+	reportJson, err := json.Marshal(openAiResponse)
 	if err != nil {
 		h.logger.Error("Failed encode report into json", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

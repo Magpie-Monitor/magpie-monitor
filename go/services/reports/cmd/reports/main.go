@@ -8,6 +8,7 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/database"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/handlers"
+	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
@@ -68,6 +69,7 @@ func main() {
 			sharedrepositories.ProvideAsApplicationLogsRepository(
 				sharedrepositories.NewElasticSearchApplicationLogsRepository,
 			),
+			openai.NewOpenAiClient,
 
 			zap.NewExample),
 		fx.Invoke(func(*http.Server) {}),
