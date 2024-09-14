@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/segmentio/kafka-go"
 	"go.uber.org/zap"
 )
 
-func NewKafkaLogsStream[T any](brokers []string, topic string, logger *zap.Logger) KafkaLogsStreamReader[T] {
+func NewKafkaLogsStream[T any](host string, port string, topic string, logger *zap.Logger) KafkaLogsStreamReader[T] {
 
+	brokers := []string{fmt.Sprintf("%s:%s", host, port)}
 	reader := kafka.NewReader(
 		kafka.ReaderConfig{
 			Brokers:   brokers,
@@ -34,7 +36,7 @@ func (s *KafkaLogsStreamReader[T]) Listen() {
 		m, err := s.reader.ReadMessage(context.Background())
 		if err != nil {
 			s.logger.Error("Failed to read message from Kafka", zap.Error(err))
-			break
+			continue
 		}
 
 		s.logger.Debug("Read message", zap.String("msg", string(m.Key)))
@@ -42,7 +44,7 @@ func (s *KafkaLogsStreamReader[T]) Listen() {
 		err = json.NewDecoder(bytes.NewReader(m.Value)).Decode(&a)
 		if err != nil {
 			s.logger.Error("Failed to decode message from Kafka", zap.Error(err))
-			break
+			continue
 		}
 
 		if s.handler != nil {

@@ -2,10 +2,16 @@ package logsstream
 
 import (
 	"context"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"os"
 )
+
+var APPLICATION_LOGS_QUQUE_HOST_KEY = "LOGS_INGESTION_QUEUE_HOST"
+var APPLICATION_LOGS_QUEUE_PORT_KEY = "LOGS_INGESTION_QUEUE_PORT"
+var APPLICATION_LOGS_TOPIC = "applications"
 
 type ApplicationLogsStreamReader interface {
 	Handle(ctx context.Context, nodeLogs *repositories.ApplicationLogs) error
@@ -27,9 +33,16 @@ type ApplicationLogsStreamReaderParams struct {
 
 func NewKafkaApplicationLogsStreamReader(params ApplicationLogsStreamReaderParams) *KafkaApplicationLogsStreamReader {
 
+	envs.ValidateEnvs("Failed to connect to Kafka for application logs",
+		[]string{APPLICATION_LOGS_QUQUE_HOST_KEY, APPLICATION_LOGS_QUEUE_PORT_KEY})
+
+	kafkaHost := os.Getenv(APPLICATION_LOGS_QUQUE_HOST_KEY)
+	kafkaPort := os.Getenv(APPLICATION_LOGS_QUEUE_PORT_KEY)
+
 	kafkaReader := NewKafkaLogsStream[*repositories.ApplicationLogs](
-		[]string{"kafka:9094"},
-		"nodes",
+		kafkaHost,
+		kafkaPort,
+		APPLICATION_LOGS_TOPIC,
 		params.Logger,
 	)
 

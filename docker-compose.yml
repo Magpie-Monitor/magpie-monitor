@@ -48,6 +48,7 @@ services:
   logs-ingestion-service:
     user: "0"
     container_name: magpie-monitor-logs-ingestion-service
+    restart: on-failure
     build:
       context: ./go
       dockerfile: ./docker/logs-ingestion/Dockerfile
@@ -60,6 +61,8 @@ services:
       - LOGSDB_USER=${LOGSDB_USER}
       - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
       - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
+      - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
+      - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
     develop:
       watch:
         - action: rebuild
