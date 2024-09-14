@@ -12,16 +12,16 @@ import (
 )
 
 type LogsStreamListener struct {
-	applicationLogsReader *logsstream.ApplicationLogsStreamReader
-	nodeLogsReader        *logsstream.NodeLogsStreamReader
+	applicationLogsReader logsstream.ApplicationLogsStreamReader
+	nodeLogsReader        logsstream.NodeLogsStreamReader
 	logger                *zap.Logger
 }
 
 func NewLogsStreamListener(
 	lc fx.Lifecycle,
 	logger *zap.Logger,
-	applicationLogsReader *logsstream.ApplicationLogsStreamReader,
-	nodeLogsReader *logsstream.NodeLogsStreamReader,
+	applicationLogsReader logsstream.ApplicationLogsStreamReader,
+	nodeLogsReader logsstream.NodeLogsStreamReader,
 ) *LogsStreamListener {
 
 	listener := LogsStreamListener{
@@ -32,10 +32,6 @@ func NewLogsStreamListener(
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-
-			listener.nodeLogsReader.SetHandler(func(logs repositories.NodeLogs) {
-				logger.Info("Recievied", zap.Any("logs", logs))
-			})
 
 			logger.Info("Starting listening for logs from", zap.String("addr", "kafka:9094"))
 
@@ -56,8 +52,15 @@ func main() {
 		fx.Provide(
 
 			NewLogsStreamListener,
-			logsstream.NewApplicationLogsStreamReader,
-			logsstream.NewNodeLogsStreamReader,
+			fx.Annotate(
+				logsstream.NewKafkaApplicationLogsStreamReader,
+				fx.As(new(logsstream.ApplicationLogsStreamReader)),
+			),
+
+			fx.Annotate(
+				logsstream.NewKafkaNodeLogsStreamReader,
+				fx.As(new(logsstream.NodeLogsStreamReader)),
+			),
 
 			elasticsearch.NewElasticSearchLogsDbClient,
 			repositories.ProvideAsApplicationLogsRepository(

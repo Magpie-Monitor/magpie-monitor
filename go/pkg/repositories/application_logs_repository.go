@@ -71,7 +71,7 @@ func (l *ApplicationLogs) Flatten() []*ApplicationLogsDocument {
 type ApplicationLogsRepository interface {
 	CreateIndex(ctx context.Context, indexName string) error
 	GetLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) ([]*ApplicationLogsDocument, error)
-	InsertLogs(ctx context.Context, logs ApplicationLogs) error
+	InsertLogs(ctx context.Context, logs *ApplicationLogs) error
 }
 
 func ProvideAsApplicationLogsRepository(f any) any {
@@ -167,9 +167,9 @@ func (r *ElasticSearchApplicationLogsRepository) CreateIndex(ctx context.Context
 	return nil
 }
 
-func (r *ElasticSearchApplicationLogsRepository) InsertLogs(ctx context.Context, logs ApplicationLogs) error {
+func (r *ElasticSearchApplicationLogsRepository) InsertLogs(ctx context.Context, logs *ApplicationLogs) error {
 
-	index := getApplicationLogsIndexName(&logs)
+	index := getApplicationLogsIndexName(logs)
 
 	if !r.doesIndexExists(index) {
 		r.CreateIndex(ctx, index)

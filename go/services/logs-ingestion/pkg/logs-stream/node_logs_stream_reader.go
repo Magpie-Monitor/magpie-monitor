@@ -1,36 +1,69 @@
 package logsstream
 
 import (
+	"context"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
+	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
-type NodeLogsStreamReader struct {
-	kafkaReader *KafkaLogsStreamReader[repositories.NodeLogs]
+type NodeLogsStreamReader interface {
+	Handle(ctx context.Context, nodeLogs *repositories.NodeLogs) error
+	Listen()
+	AddHandler(func(*repositories.NodeLogs))
 }
 
-func NewNodeLogsStreamReader(logger *zap.Logger) *NodeLogsStreamReader {
+type KafkaNodeLogsStreamReader struct {
+	kafkaReader         *KafkaLogsStreamReader[*repositories.NodeLogs]
+	nodesLogsRepository repositories.NodeLogsRepository
+	logger              *zap.Logger
+}
 
-	kafkaReader := NewKafkaLogsStream[repositories.NodeLogs](
+type NodeLogsStreamReaderParams struct {
+	fx.In
+	NodesLogsRepository repositories.NodeLogsRepository
+	Logger              *zap.Logger
+}
+
+func NewKafkaNodeLogsStreamReader(params NodeLogsStreamReaderParams) *KafkaNodeLogsStreamReader {
+
+	kafkaReader := NewKafkaLogsStream[*repositories.NodeLogs](
 		[]string{"kafka:9094"},
 		"nodes",
-		logger,
+		params.Logger,
 	)
 
-	return &NodeLogsStreamReader{
-		kafkaReader: &kafkaReader,
+	return &KafkaNodeLogsStreamReader{
+		kafkaReader:         &kafkaReader,
+		logger:              params.Logger,
+		nodesLogsRepository: params.NodesLogsRepository,
 	}
 }
 
-func (a *NodeLogsStreamReader) Listen() {
-	a.kafkaReader.logger.Info("Starting to listen")
-	a.kafkaReader.Listen()
+func (r *KafkaNodeLogsStreamReader) Handle(
+	ctx context.Context,
+	nodeLogs *repositories.NodeLogs) error {
+
+	err := r.nodesLogsRepository.InsertLogs(ctx, nodeLogs)
+	if err != nil {
+		r.logger.Error("Failed to index node logs", zap.Error(err))
+	}
+
+	return err
 }
 
-func (a *NodeLogsStreamReader) Stream() chan repositories.NodeLogs {
-	return a.kafkaReader.Stream()
+func (r *KafkaNodeLogsStreamReader) Listen() {
+	r.kafkaReader.logger.Info("Starting to listen for node logs")
+	go r.kafkaReader.Listen()
+	nodeStream := r.kafkaReader.Stream()
+
+	for {
+		log := <-nodeStream
+		r.kafkaReader.logger.Debug("Got message from stream", zap.Any("log", log))
+		r.Handle(context.Background(), log)
+	}
 }
 
-func (s *NodeLogsStreamReader) SetHandler(f func(repositories.NodeLogs)) {
+func (s *KafkaNodeLogsStreamReader) AddHandler(f func(*repositories.NodeLogs)) {
 	s.kafkaReader.SetHandler(f)
 }
