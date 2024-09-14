@@ -14,6 +14,7 @@ services:
   reports-service:
     user: "0"
     container_name: magpie-monitor-reports-service
+    restart: on-failure
     build:
       context: ./go
       dockerfile: ./docker/reports/Dockerfile
@@ -85,16 +86,13 @@ services:
   logs-generation-service:
     user: "0"
     container_name: magpie-monitor-logs-generation-service
+    restart: on-failure
     build:
       context: ./go
       dockerfile: ./docker/logs_generation/Dockerfile
     environment:
-      - LOGS_INGESTION_SERVICE_HTTP_PORT=${LOGS_INGESTION_SERVICE_HTTP_PORT}
-      - LOGSDB_PORT=${LOGSDB_PORT}
-      - LOGSDB_HOST=${LOGSDB_HOST}
-      - LOGSDB_USER=${LOGSDB_USER}
-      - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
-      - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
+      - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
+      - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
     develop:
       watch:
         - action: rebuild

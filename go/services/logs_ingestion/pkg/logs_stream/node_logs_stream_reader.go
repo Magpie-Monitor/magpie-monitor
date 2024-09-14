@@ -66,7 +66,9 @@ func (r *KafkaNodeLogsStreamReader) Handle(
 }
 
 func (r *KafkaNodeLogsStreamReader) Listen() {
-	r.kafkaReader.logger.Info("Starting to listen for node logs")
+	r.kafkaReader.logger.Info("Starting to listen for node logs at", zap.String(
+		"addr", r.kafkaReader.brokers[0],
+	))
 	go r.kafkaReader.Listen()
 	nodeStream := r.kafkaReader.Stream()
 
