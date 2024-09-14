@@ -12,7 +12,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 COPY . .
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
-    go build -o /bin/server ./services/logs-ingestion/cmd/logs-ingestion
+    go build -o /bin/server ./services/logs_ingestion/cmd/logs_ingestion
 
 FROM debian:latest AS final
 

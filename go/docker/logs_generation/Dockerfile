@@ -12,7 +12,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 COPY . .
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
-    go build -o /bin/server ./services/logs-generation/cmd/logs-generation
+    go build -o /bin/server ./services/logs_generation/cmd/logs_generation
 
 FROM debian:latest AS final
 
