@@ -18,6 +18,7 @@ func (i *arrayFlags) Set(value string) error {
 
 type Config struct {
 	Mode                     string
+	ClusterName              string
 	ScrapeInterval           int
 	RedisUrl                 string
 	WatchedFiles             []string
@@ -29,6 +30,7 @@ type Config struct {
 
 func GetConfig() Config {
 	mode := flag.String("scrape", "nodes", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
+	clusterName := flag.String("clusterFriendlyName", "unknown", "Friendly name of your cluster, visible in Magpie Cloud.")
 
 	scrapeInterval := flag.Int("scrapeInterval", 10, "Interval between scraping logs from files in \"nodes\" mode or pods in \"pods\" mode.")
 	remoteWriteRetryInterval := flag.Int("remoteWriteRetryInterval", 2, "Interval between retries in case of Remote Write error.")
@@ -52,6 +54,7 @@ func GetConfig() Config {
 
 	return Config{
 		Mode:                     *mode,
+		ClusterName:              *clusterName,
 		ScrapeInterval:           *scrapeInterval,
 		RedisUrl:                 *redisUrl,
 		WatchedFiles:             watchedFiles,

@@ -1,7 +1,6 @@
 package node
 
 import (
-	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/entity"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/database"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/transformer"
 	"io"
@@ -15,11 +14,11 @@ type IncrementalReader struct {
 	files          []string
 	scrapeInterval int
 	transformers   []transformer.Transformer
-	results        chan entity.Chunk
+	results        chan Chunk
 	redis          database.Redis
 }
 
-func NewReader(files []string, scrapeInterval int, transformers []transformer.Transformer, results chan entity.Chunk,
+func NewReader(files []string, scrapeInterval int, transformers []transformer.Transformer, results chan Chunk,
 	redisUrl string) IncrementalReader {
 	return IncrementalReader{
 		files:          files,
@@ -70,7 +69,7 @@ func (r *IncrementalReader) prepareFile(dir string) (*os.File, int64) {
 	return f, currentSize
 }
 
-func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan entity.Chunk) {
+func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan Chunk) {
 	f, currentSize := r.prepareFile(dir)
 	defer f.Close()
 
@@ -109,7 +108,7 @@ func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan ent
 			}
 
 			// TODO - fetch real node name
-			results <- entity.Chunk{Kind: "Node", Name: "mock-node-name", Namespace: dir, Content: r.transform(string(buf))}
+			results <- Chunk{Kind: "Node", Name: "mock-node-name", Namespace: dir, Content: r.transform(string(buf))}
 		}
 
 		time.Sleep(time.Duration(cooldown * 1000))
