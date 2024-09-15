@@ -26,6 +26,6 @@ spec:
             - "--redisUrl"
             - "magpie-agent-redis.{{ .Values.agent.namespace }}.svc.cluster.local:6379"
             - "--clusterFriendlyName"
-            - {{ .Values.agent.cluster.friendlyName }}
+            - "{{ .Values.agent.cluster.friendlyName }}"
       serviceAccountName: magpie-agent-service-account
 {{ end }}
