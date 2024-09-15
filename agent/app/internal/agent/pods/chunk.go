@@ -2,7 +2,7 @@ package pods
 
 import "encoding/json"
 
-type PodChunk struct {
+type Chunk struct {
 	Cluster   string          `json:"cluster"`
 	Kind      ApplicationKind `json:"kind"`
 	Timestamp int64           `json:"timestamp"`

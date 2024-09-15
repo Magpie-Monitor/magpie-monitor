@@ -28,10 +28,10 @@ type Agent struct {
 	client                    *kubernetes.Clientset
 	readTimestamps            map[string]int64
 	readTimes                 map[string]time.Time
-	results                   chan PodChunk
+	results                   chan Chunk
 }
 
-func NewAgent(excludedNamespaces []string, collectionIntervalSeconds int, results chan PodChunk) *Agent {
+func NewAgent(excludedNamespaces []string, collectionIntervalSeconds int, results chan Chunk) *Agent {
 	return &Agent{
 		excludedNamespaces:        excludedNamespaces,
 		collectionIntervalSeconds: collectionIntervalSeconds,
@@ -163,7 +163,7 @@ func (a *Agent) fetchDaemonSetLogsSinceTime(namespace string, daemonSets []v2.Da
 func (a *Agent) fetchPodLogsSinceTime(selector *metav1.LabelSelector, namespace string) []Pod {
 	res := make([]Pod, 0)
 
-	// TODO - error handling
+	// TODO - error handling, abstraction over K8S API
 	pods, _ := a.client.CoreV1().
 		Pods(namespace).
 		List(
@@ -253,7 +253,7 @@ func (a *Agent) getTimestampKey(podName, containerName string) string {
 }
 
 func (a *Agent) sendResult(kind ApplicationKind, name, namespace string, pods []Pod) {
-	a.results <- PodChunk{
+	a.results <- Chunk{
 		Cluster:   a.clusterName,
 		Kind:      kind,
 		Timestamp: time.Now().UnixNano(),

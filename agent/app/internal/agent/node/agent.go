@@ -108,7 +108,13 @@ func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan Chu
 			}
 
 			// TODO - fetch real node name
-			results <- Chunk{Kind: "Node", Name: "mock-node-name", Namespace: dir, Content: r.transform(string(buf))}
+			results <- Chunk{
+				Kind:      "Node",
+				Name:      "mock-node-name",
+				Timestamp: time.Now().Unix(),
+				Namespace: dir,
+				Content:   r.transform(string(buf)),
+			}
 		}
 
 		time.Sleep(time.Duration(cooldown * 1000))

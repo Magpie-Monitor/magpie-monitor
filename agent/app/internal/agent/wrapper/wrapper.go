@@ -49,7 +49,7 @@ func (a *AgentWrapper) startNodeAgent() {
 }
 
 func (a *AgentWrapper) startPodAgent() {
-	logChannel := make(chan pods.PodChunk)
+	logChannel := make(chan pods.Chunk)
 	agent := pods.NewAgent(a.config.ExcludedNamespaces, a.config.ScrapeInterval, logChannel)
 	go agent.Start()
 
