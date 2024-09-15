@@ -300,7 +300,7 @@ func (a *Agent) deduplicate(logs string) (string, error) {
 }
 
 // Returns second value for a log line beginning with RFC3339 timestamp,
-// ex. 2006-01-02T15:04:05Z07:00 $S0ME_LOG should return 5.
+// ex. "2006-01-02T15:04:05.123123Z $S0ME_LOG" should return 5.
 func (a *Agent) getSecondFromLogTimestamp(logLine string) (int, error) {
 	timestamp := strings.Split(logLine, " ")[0]
 	parsedTime, err := time.Parse(time.RFC3339, timestamp)
