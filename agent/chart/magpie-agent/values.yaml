@@ -6,11 +6,11 @@ agent:
       port: 8080
       targetPort: 8080
     files:
-      #      - /var/log/btmp
-      #      - /var/log/test.log
+#      - /var/log/btmp
+#      - /var/log/test.log
       - /var/log/calico/cni/cni.log
   cluster:
-    friendlyName: wojtek-test-cluster
+    friendlyName: magpie-cloud-dev-cluster
     enabled: true
     service:
       port: 8080

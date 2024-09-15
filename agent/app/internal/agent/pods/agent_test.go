@@ -2,7 +2,7 @@ package pods
 
 import "testing"
 
-func Test_Second_Extraction(t *testing.T) {
+func Test_Log_Second_Extraction(t *testing.T) {
 	a := Agent{}
 	log := "2006-01-02T15:04:05.123Z MY LOG\n"
 	expectedSeconds := 5
