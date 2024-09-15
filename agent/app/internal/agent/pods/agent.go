@@ -288,9 +288,7 @@ func (a *Agent) sendResult(kind ObjectKind, name, namespace string, pods []Pod) 
 // As a result, if the throughput of logs is high, we get log lines from the next second, which we don't need.
 // Deduplication removes those excessive lines, as they will be fetched in the next iteration.
 func (a *Agent) deduplicate(logs string) (string, error) {
-	split := strings.Split(logs, "\n")
-	// Last line is always empty.
-	split = split[:len(split)-1]
+	split := strings.Split(strings.Trim(logs, "\n"), "\n")
 
 	// Too little log lines for duplication to occur, no need to deduplicate.
 	if len(split) < 2 {
