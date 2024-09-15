@@ -1,6 +1,8 @@
 package pods
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type Chunk struct {
 	Cluster   string          `json:"cluster"`
@@ -39,7 +41,7 @@ func (o ApplicationKind) String() string {
 	case DaemonSet:
 		return "DaemonSet"
 	default:
-		return "unknown"
+		panic("Unknown ApplicationKind")
 	}
 }
 
