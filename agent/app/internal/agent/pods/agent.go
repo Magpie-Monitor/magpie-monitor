@@ -14,7 +14,6 @@ import (
 	"k8s.io/client-go/util/homedir"
 	"log"
 	"path/filepath"
-	"slices"
 	"strings"
 	"time"
 )
@@ -103,20 +102,20 @@ func (a *Agent) authenticate() {
 
 func (a *Agent) fetchNamespaces() {
 	a.includedNamespaces = make([]string, 0)
-	//a.includedNamespaces = append(a.includedNamespaces, "mock-ns")
+	a.includedNamespaces = append(a.includedNamespaces, "mock-ns")
 
-	namespaces, err := a.client.CoreV1().
-		Namespaces().
-		List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		panic(fmt.Sprintf("Error fetching namespaces: %s", err.Error()))
-	}
-
-	for _, namespace := range namespaces.Items {
-		if !slices.Contains(a.excludedNamespaces, namespace.Name) {
-			a.includedNamespaces = append(a.includedNamespaces, namespace.Name)
-		}
-	}
+	//namespaces, err := a.client.CoreV1().
+	//	Namespaces().
+	//	List(context.TODO(), metav1.ListOptions{})
+	//if err != nil {
+	//	panic(fmt.Sprintf("Error fetching namespaces: %s", err.Error()))
+	//}
+	//
+	//for _, namespace := range namespaces.Items {
+	//	if !slices.Contains(a.excludedNamespaces, namespace.Name) {
+	//		a.includedNamespaces = append(a.includedNamespaces, namespace.Name)
+	//	}
+	//}
 }
 
 func (a *Agent) gatherLogs() {
@@ -220,7 +219,7 @@ func (a *Agent) fetchContainerLogsSinceTime(container v1.Container, podName, nam
 	// following second, so they are fetched in next iteration.
 	time.Sleep(time.Duration(999999999 - sinceTime.Nanosecond()))
 
-	before := time.Now().UnixNano()
+	beforeTs := time.Now().UnixNano()
 	logs := a.client.CoreV1().
 		Pods(namespace).
 		GetLogs(
@@ -230,31 +229,31 @@ func (a *Agent) fetchContainerLogsSinceTime(container v1.Container, podName, nam
 				SinceTime:  &metav1.Time{Time: sinceTime},
 				Timestamps: true},
 		).Do(context.TODO())
-	after := time.Now().UnixNano()
+	afterTs := time.Now().UnixNano()
 
 	if logs.Error() != nil {
 		log.Println("Error fetching logs for Pod: ", podName, " container: ", container.Name)
 		return Container{}
-	} else {
-		// Subtract request time from the next fetch time,
-		// incorporating logs that were emitted at the time of making GetLogs() call.
-		now := after - (after - before)
-		a.setReadTimestamp(podName, container.Name, now)
-
-		rawLogs, err := logs.Raw()
-		if err != nil {
-			log.Println("Failed to fetch raw logs for container: ", container.Name)
-			return Container{}
-		}
-
-		deduplicatedLogs, err := a.deduplicate(string(rawLogs))
-		if err != nil {
-			log.Println("Failed to fetch container: ", container.Name, " logs")
-			return Container{}
-		}
-
-		return Container{Name: container.Name, Image: container.Image, Content: deduplicatedLogs}
 	}
+
+	// Subtract request time from the next fetch time,
+	// incorporating logs that were emitted at the time of making GetLogs() call.
+	now := afterTs - (afterTs - beforeTs)
+	a.setReadTimestamp(podName, container.Name, now)
+
+	rawLogs, err := logs.Raw()
+	if err != nil {
+		log.Println("Failed to fetch raw logs for container: ", container.Name)
+		return Container{}
+	}
+
+	deduplicatedLogs, err := a.deduplicate(string(rawLogs))
+	if err != nil {
+		log.Println("Failed to fetch container: ", container.Name, " logs")
+		return Container{}
+	}
+
+	return Container{Name: container.Name, Image: container.Image, Content: deduplicatedLogs}
 }
 
 func (a *Agent) setReadTimestamp(podName, containerName string, timestampUnixMicro int64) {
@@ -284,37 +283,46 @@ func (a *Agent) sendResult(kind ObjectKind, name, namespace string, pods []Pod) 
 	}
 }
 
+// API Server returns logs with second precision, while in our case nanosecond precision is preferred.
+// Therefore, on every fetch we wait till the end of the ongoing second and then fetch the logs.
+// As a result, if the throughput of logs is high, we get log lines from the next second, which we don't need.
+// Deduplication removes those excessive lines, as they will be fetched in the next iteration.
 func (a *Agent) deduplicate(logs string) (string, error) {
 	split := strings.Split(logs, "\n")
 	// Last line is always empty.
 	split = split[:len(split)-1]
 
-	if len(split) >= 2 {
-		lastLogSecond, err := a.getSecondFromLogTimestamp(split[len(split)-2])
+	// Too little log lines for duplication to occur, no need to deduplicate.
+	if len(split) < 2 {
+		return logs, nil
+	}
+
+	lastLogSeconds, err := a.getSecondFromLogTimestamp(split[len(split)-1])
+	if err != nil {
+		log.Println("Deduplication failed on last log timestamp extraction")
+		return "", err
+	}
+
+	for i := len(split) - 2; i >= 0; i-- {
+		logLine := split[i]
+		currentLogSeconds, err := a.getSecondFromLogTimestamp(logLine)
 		if err != nil {
-			log.Println("Deduplication failed on last log timestamp extraction")
+			log.Println("Deduplication failed on current log timestamp extraction")
 			return "", err
 		}
 
-		for i := len(split) - 3; i >= 0; i-- {
-			logLine := split[i]
-			currentLogSecond, err := a.getSecondFromLogTimestamp(logLine)
-			if err != nil {
-				log.Println("Deduplication failed on current log timestamp extraction")
-				return "", err
-			}
-
-			// Logs from the next second were fetched, they have to be removed.
-			// They will be fetched in the next iteration.
-			if lastLogSecond > currentLogSecond {
-				return strings.Join(split[:i+1], "\n"), nil
-			}
+		// Logs from the next second were fetched, they have to be removed.
+		// They will be fetched in the next iteration.
+		if lastLogSeconds > currentLogSeconds {
+			return strings.Join(split[:i+1], "\n"), nil
 		}
 	}
 
 	return logs, nil
 }
 
+// Returns second value for a log line beginning with RFC3339 timestamp,
+// ex. 2006-01-02T15:04:05Z07:00 $S0ME_LOG should return 5.
 func (a *Agent) getSecondFromLogTimestamp(logLine string) (int, error) {
 	timestamp := strings.Split(logLine, " ")[0]
 	parsedTime, err := time.Parse(time.RFC3339, timestamp)
