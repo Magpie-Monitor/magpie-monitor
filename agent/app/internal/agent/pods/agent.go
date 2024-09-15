@@ -14,30 +14,10 @@ import (
 	"k8s.io/client-go/util/homedir"
 	"log"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 )
-
-type ObjectKind string
-
-const (
-	Deployment  ObjectKind = "Deployment"
-	StatefulSet ObjectKind = "StatefulSet"
-	DaemonSet   ObjectKind = "DaemonSet"
-)
-
-func (o ObjectKind) String() string {
-	switch o {
-	case Deployment:
-		return "Deployment"
-	case StatefulSet:
-		return "StatefulSet"
-	case DaemonSet:
-		return "DaemonSet"
-	default:
-		return "unknown"
-	}
-}
 
 type Agent struct {
 	clusterName               string
@@ -102,20 +82,19 @@ func (a *Agent) authenticate() {
 
 func (a *Agent) fetchNamespaces() {
 	a.includedNamespaces = make([]string, 0)
-	a.includedNamespaces = append(a.includedNamespaces, "mock-ns")
 
-	//namespaces, err := a.client.CoreV1().
-	//	Namespaces().
-	//	List(context.TODO(), metav1.ListOptions{})
-	//if err != nil {
-	//	panic(fmt.Sprintf("Error fetching namespaces: %s", err.Error()))
-	//}
-	//
-	//for _, namespace := range namespaces.Items {
-	//	if !slices.Contains(a.excludedNamespaces, namespace.Name) {
-	//		a.includedNamespaces = append(a.includedNamespaces, namespace.Name)
-	//	}
-	//}
+	namespaces, err := a.client.CoreV1().
+		Namespaces().
+		List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		panic(fmt.Sprintf("Error fetching namespaces: %s", err.Error()))
+	}
+
+	for _, namespace := range namespaces.Items {
+		if !slices.Contains(a.excludedNamespaces, namespace.Name) {
+			a.includedNamespaces = append(a.includedNamespaces, namespace.Name)
+		}
+	}
 }
 
 func (a *Agent) gatherLogs() {
@@ -220,6 +199,7 @@ func (a *Agent) fetchContainerLogsSinceTime(container v1.Container, podName, nam
 	time.Sleep(time.Duration(999999999 - sinceTime.Nanosecond()))
 
 	beforeTs := time.Now().UnixNano()
+	// TODO - abstraction over this part
 	logs := a.client.CoreV1().
 		Pods(namespace).
 		GetLogs(
@@ -272,10 +252,10 @@ func (a *Agent) getTimestampKey(podName, containerName string) string {
 	return fmt.Sprintf("%s-%s", podName, containerName)
 }
 
-func (a *Agent) sendResult(kind ObjectKind, name, namespace string, pods []Pod) {
+func (a *Agent) sendResult(kind ApplicationKind, name, namespace string, pods []Pod) {
 	a.results <- PodChunk{
 		Cluster:   a.clusterName,
-		Kind:      kind.String(),
+		Kind:      kind,
 		Timestamp: time.Now().UnixNano(),
 		Name:      name,
 		Namespace: namespace,
