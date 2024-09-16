@@ -15,7 +15,7 @@ public class AuthenticationController {
 
     private final AuthenticationService service;
 
-    @GetMapping("/public/api/v1/user-details")
+    @GetMapping("/api/v1/auth/user-details")
     public ResponseEntity<?> getUser(Principal principal) {
         try {
             return ResponseEntity.ok().body(service.getUserDetails(principal.getName()));
