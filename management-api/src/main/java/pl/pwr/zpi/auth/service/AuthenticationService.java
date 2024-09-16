@@ -2,6 +2,7 @@ package pl.pwr.zpi.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.pwr.zpi.auth.dto.TokenExpDate;
 import pl.pwr.zpi.security.jwt.JwtService;
 import pl.pwr.zpi.user.dto.UserDTO;
 import pl.pwr.zpi.user.repository.UserRepository;
@@ -18,7 +19,7 @@ public class AuthenticationService {
         return UserDTO.toUserDTO(user);
     }
 
-    public String getTokenValidationTime(String authToken) {
-        return jwtService.getExpirationDate(authToken).toString();
+    public TokenExpDate getTokenValidationTime(String authToken) {
+        return jwtService.getExpirationDate(authToken);
     }
 }

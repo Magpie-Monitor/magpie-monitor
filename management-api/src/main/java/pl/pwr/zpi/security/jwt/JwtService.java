@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import pl.pwr.zpi.auth.dto.TokenExpDate;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -72,7 +73,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public Long getExpirationDate(String authToken) {
+    public TokenExpDate getExpirationDate(String authToken) {
         Claims claims = Jwts.parser()
                 .setSigningKey(getPublicSigningKey())
                 .build()
@@ -81,7 +82,7 @@ public class JwtService {
 
         Date expiration = claims.getExpiration();
         if (expiration != null) {
-            return expiration.getTime();
+            return new TokenExpDate(expiration.getTime());
         } else {
             throw new IllegalArgumentException("Token does not have expiration date");
         }
