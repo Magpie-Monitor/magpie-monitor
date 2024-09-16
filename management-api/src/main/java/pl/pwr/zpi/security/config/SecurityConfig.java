@@ -54,10 +54,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(@Value("${client.url:http://localhost:80}") String frontendUrl) {
+    public CorsConfigurationSource corsConfigurationSource(@Value("${client.url:http://localhost}") String frontendUrl) {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin(frontendUrl);
-        configuration.addAllowedOrigin("http://localhost:80");
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "HEAD", "OPTIONS"));
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
