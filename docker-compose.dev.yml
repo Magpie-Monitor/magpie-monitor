@@ -23,8 +23,9 @@ services:
       context: ./management-api
       dockerfile: Dockerfile
     environment:
-      - DB-PASSWORD=${DB_PASSWORD}
-      - DB-URL=${DB_URL}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_URL=${DB_URL}
+      - DB_LOGIN=${DB_LOGIN}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
