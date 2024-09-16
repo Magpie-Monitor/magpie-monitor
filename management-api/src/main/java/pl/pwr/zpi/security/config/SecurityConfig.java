@@ -15,7 +15,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pl.pwr.zpi.security.CustomAuthenticationSuccessHandler;
-import pl.pwr.zpi.security.CustomOAuth2UserService;
 import pl.pwr.zpi.security.jwt.JwtAuthenticationFilter;
 
 import java.util.Arrays;
@@ -27,7 +26,6 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-    private final CustomOAuth2UserService customOauth2UserService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
@@ -49,10 +47,7 @@ public class SecurityConfig {
                     ).permitAll();
                     request.anyRequest().authenticated();
                 })
-                .oauth2Login(oauth2Login -> oauth2Login
-                        .userInfoEndpoint().userService(customOauth2UserService)
-                        .and()
-                        .successHandler(customAuthenticationSuccessHandler))
+                .oauth2Login(oauth2Login -> oauth2Login.successHandler(customAuthenticationSuccessHandler))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();

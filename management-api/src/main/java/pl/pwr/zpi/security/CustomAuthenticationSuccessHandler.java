@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+import pl.pwr.zpi.security.cookie.CookieService;
 import pl.pwr.zpi.security.jwt.JwtService;
 import pl.pwr.zpi.security.jwt.JwtToken;
 import pl.pwr.zpi.user.data.User;
@@ -25,13 +26,10 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final JwtService tokenProvider;
     private final UserRepository userRepository;
+    private final CookieService cookieService;
 
     @Value("${oauth2.google.redirect-uri}")
     private String REDIRECT_URI;
-    @Value("${server.domainname}")
-    private String PAGE_DOMAIN;
-    @Value("${response-cookie.secure}")
-    private boolean RESPONSE_COOKIE_SECURE;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -46,7 +44,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         User user = userRepository.findByEmail(getEmail(authentication)).orElse(persistNewUser(getEmail(authentication), getName(authentication)));
         JwtToken token = tokenProvider.generateToken(user);
-        ResponseCookie authCookie = createAuthCookie(token);
+        ResponseCookie authCookie = cookieService.createAuthCookie(token.token());
         response.addHeader("Set-Cookie", authCookie.toString());
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
@@ -93,12 +91,5 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
     }
 
-    private ResponseCookie createAuthCookie(JwtToken token) {
-        return ResponseCookie.from("authToken", token.token())
-                .httpOnly(true)
-                .secure(RESPONSE_COOKIE_SECURE)
-                .domain(PAGE_DOMAIN)
-                .path("/")
-                .build();
-    }
+
 }

@@ -23,4 +23,13 @@ public class AuthenticationController {
             return ResponseEntity.badRequest().body(new ErrorMessageDTO(e.getMessage()));
         }
     }
+
+    @GetMapping("/api/vi/auth/token-validation-time")
+    public ResponseEntity<?> getTokenValidationTime(@CookieValue("authToken") String authToken) {
+        try {
+            return ResponseEntity.ok().body(service.getTokenValidationTime(authToken));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorMessageDTO(e.getMessage()));
+        }
+    }
 }

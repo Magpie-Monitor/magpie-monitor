@@ -72,4 +72,19 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    public Long getExpirationDate(String authToken) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(getPublicSigningKey())
+                .build()
+                .parseSignedClaims(authToken)
+                .getPayload();
+
+        Date expiration = claims.getExpiration();
+        if (expiration != null) {
+            return expiration.getTime();
+        } else {
+            throw new IllegalArgumentException("Token does not have expiration date");
+        }
+    }
+
 }
