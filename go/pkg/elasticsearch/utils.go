@@ -14,12 +14,14 @@ import (
 )
 
 func SearchIndices(ctx context.Context, esClient *elasticsearch.TypedClient, indices []string) (*search.Response, error) {
+	size := 1000
 	return esClient.Search().
 		Index(strings.Join(indices, ",")).
 		Request(&search.Request{
 			Query: &types.Query{
 				MatchAll: &types.MatchAllQuery{},
 			},
+			Size: &size,
 		}).Do(ctx)
 }
 
@@ -32,7 +34,7 @@ func GetIndexName(cluster string, sourceName string, timestamp int64) string {
 		"%s-%s-%s",
 		cluster,
 		sourceName,
-		getYYYYMM(time.Unix(timestamp, 0)))
+		getYYYYMM(time.Unix(timestamp/1000000000, 0)))
 }
 
 func GetIndexParams(index string) (cluster string, source string, year int, month int, err error) {

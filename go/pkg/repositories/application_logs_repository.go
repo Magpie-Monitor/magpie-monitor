@@ -3,12 +3,13 @@ package repositories
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/IBM/fp-go/array"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	es "github.com/elastic/go-elasticsearch/v8"
-	"github.com/elastic/go-elasticsearch/v8/typedapi/indices/create"
+	// "github.com/elastic/go-elasticsearch/v8/typedapi/indices/create"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -37,16 +38,28 @@ type ContainerLogs struct {
 }
 
 type ApplicationLogsDocument struct {
-	Cluster         string
-	Kind            string
-	Timestamp       int64
-	ApplicationName string
-	Namespace       string
-	PodName         string
-	ContainerName   string
-	Image           string
-	Content         string
+	Cluster         string `json:"cluster"`
+	Kind            string `json:"kind"`
+	Timestamp       int64  `json:"timestamp"`
+	ApplicationName string `json:"applicationName"`
+	Namespace       string `json:"namespace"`
+	PodName         string `json:"podName"`
+	ContainerName   string `json:"containerName"`
+	Image           string `json:"image"`
+	Content         string `json:"content"`
 }
+
+// type ApplicationLogsDocument struct {
+// 	Cluster         string
+// 	Kind            string
+// 	Timestamp       int64
+// 	ApplicationName string
+// 	Namespace       string
+// 	PodName         string
+// 	ContainerName   string
+// 	Image           string
+// 	Content         string
+// }
 
 func (l *ApplicationLogs) Flatten() []*ApplicationLogsDocument {
 	var documents []*ApplicationLogsDocument
@@ -93,7 +106,10 @@ func (r *ElasticSearchApplicationLogsRepository) doesIndexExists(index string) b
 }
 
 func getApplicationLogsIndexName(applicationLogs *ApplicationLogs) string {
-	return elasticsearch.GetIndexName(applicationLogs.Cluster, "applications", applicationLogs.Timestamp)
+
+	val := elasticsearch.GetIndexName(applicationLogs.Cluster, "applications", applicationLogs.Timestamp)
+	fmt.Println(val)
+	return val
 }
 
 func (r *ElasticSearchApplicationLogsRepository) getIndiciesWithClusterAndDateRange(cluster string,
@@ -121,7 +137,7 @@ func (r *ElasticSearchApplicationLogsRepository) GetLogs(ctx context.Context, cl
 		return nil, err
 	}
 
-	var nodeLogs []*ApplicationLogsDocument
+	var applicationLogs []*ApplicationLogsDocument
 	for _, value := range res.Hits.Hits {
 		var log ApplicationLogsDocument
 		err := json.Unmarshal(value.Source_, &log)
@@ -129,31 +145,36 @@ func (r *ElasticSearchApplicationLogsRepository) GetLogs(ctx context.Context, cl
 			r.logger.Error("Failed to decode node logs", zap.Error(err))
 			return nil, err
 		}
-		nodeLogs = append(nodeLogs, &log)
+
+		if log.Content != "" {
+			applicationLogs = append(applicationLogs, &log)
+		}
 
 	}
 
-	return nodeLogs, nil
+	return applicationLogs, nil
 }
 
 func (r *ElasticSearchApplicationLogsRepository) CreateIndex(ctx context.Context, indexName string) error {
 
-	_, err := r.esClient.Indices.Create(indexName).
-		Request(&create.Request{
-			Mappings: &types.TypeMapping{
-				Properties: map[string]types.Property{
-					"cluster":         types.NewTextProperty(),
-					"kind":            types.NewTextProperty(),
-					"timestamp":       types.NewIntegerNumberProperty(),
-					"applicationName": types.NewTextProperty(),
-					"namespace":       types.NewTextProperty(),
-					"podName":         types.NewTextProperty(),
-					"containerName":   types.NewTextProperty(),
-					"image":           types.NewTextProperty(),
-					"content":         types.NewTextProperty(),
-				},
-			},
-		}).Do(ctx)
+	// _, err := r.esClient.Indices.Create(indexName).
+	// 	Request(&create.Request{
+	// 		Mappings: &types.TypeMapping{
+	// 			Properties: map[string]types.Property{
+	// 				"cluster":         types.NewTextProperty(),
+	// 				"kind":            types.NewTextProperty(),
+	// 				"timestamp":       types.NewIntegerNumberProperty(),
+	// 				"applicationName": types.NewTextProperty(),
+	// 				"namespace":       types.NewTextProperty(),
+	// 				"podName":         types.NewTextProperty(),
+	// 				"containerName":   types.NewTextProperty(),
+	// 				"image":           types.NewTextProperty(),
+	// 				"content":         types.NewTextProperty(),
+	// 			},
+	// 		},
+	// 	}).Do(ctx)
+
+	_, err := r.esClient.Indices.Create(indexName).Do(ctx)
 
 	if err != nil {
 		r.logger.Error("Failed to create an applicationLogs index", zap.Error(err))
@@ -179,7 +200,12 @@ func (r *ElasticSearchApplicationLogsRepository) InsertLogs(ctx context.Context,
 	bulk := r.esClient.Bulk().Index(index)
 
 	for _, log := range logs.Flatten() {
-		bulk.IndexOp(*types.NewIndexOperation(), log)
+		jsonLog, err := json.Marshal(log)
+		r.logger.Sugar().Infof("%s", jsonLog)
+		if err != nil {
+			r.logger.Error("Failed to insert log", zap.Error(err))
+		}
+		bulk.IndexOp(*types.NewIndexOperation(), jsonLog)
 	}
 
 	_, err := bulk.Do(ctx)

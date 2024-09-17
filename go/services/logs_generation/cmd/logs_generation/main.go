@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
@@ -36,10 +38,12 @@ func (g *LogsGenerator) WriteNodeLogs(ctx context.Context) {
 	for {
 
 		err = g.writer.WriteNodeLogs(ctx, time.Now().String(), string(jsonNodeLogs))
+
 		if err != nil {
 			g.logger.Error("Failed to write a message", zap.Error(err))
 		} else {
 			g.logger.Debug("Sent a node log")
+
 		}
 
 		time.Sleep(time.Second * 200)
@@ -48,43 +52,61 @@ func (g *LogsGenerator) WriteNodeLogs(ctx context.Context) {
 
 func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 
-	applicationLogs := repositories.ApplicationLogs{
-		Cluster:   "cluster-1",
-		Kind:      "application",
-		Timestamp: time.Now().Unix(),
-		Name:      "my-cool-app",
-		Pods: []*repositories.PodLogs{
-			{
-				Name: "pod-1",
-				Containers: []*repositories.ContainerLogs{
-					{
-						Name:    "container-x",
-						Image:   "container-x-image",
-						Content: "container-logs-content",
-					},
-					{
-						Name:    "container-2",
-						Image:   "container-2-image",
-						Content: "container-logs-content",
-					},
-				},
-			},
-		},
-	}
+	// applicationLogs := repositories.ApplicationLogs{
+	// 	Cluster:   "cluster-1",
+	// 	Kind:      "application",
+	// 	Timestamp: time.Now().Unix(),
+	// 	Name:      "my-cool-app",
+	// 	Pods: []*repositories.PodLogs{
+	// 		{
+	// 			Name: "pod-1",
+	// 			Containers: []*repositories.ContainerLogs{
+	// 				{
+	// 					Name:    "container-x",
+	// 					Image:   "container-x-image",
+	// 					Content: "container-logs-content",
+	// 				},
+	// 				{
+	// 					Name:    "container-2",
+	// 					Image:   "container-2-image",
+	// 					Content: "container-logs-content",
+	// 				},
+	// 			},
+	// 		},
+	// 	},
+	// }
 
-	jsonApplicationLogs, err := json.Marshal(applicationLogs)
+	jsonApplicationLogs, err := os.ReadFile("/tmp/logs/logs2.test")
+
+	var applicationLogs []repositories.ApplicationLogs
+
+	json.Unmarshal(jsonApplicationLogs, &applicationLogs)
+
 	if err != nil {
 		g.logger.Error("Failed to encode applicatation logs", zap.Error(err))
+
+		return
 	}
 
-	for {
-		err = g.writer.WriteApplicationLogs(ctx, time.Now().String(), string(jsonApplicationLogs))
+	for _, log := range applicationLogs {
+		log.Cluster = "wojciechscluster16"
+
+		jsonLog, err := json.Marshal(log)
+
 		if err != nil {
-			g.logger.Error("Failed to write a message", zap.Error(err))
-		} else {
-			g.logger.Info("Sent application logs")
+			g.logger.Error("Failed to marshal single application log", zap.Error(err))
 		}
-		time.Sleep(time.Second * 200)
+		go g.handleApplicationLogs(ctx, string(jsonLog))
+	}
+}
+
+func (g *LogsGenerator) handleApplicationLogs(ctx context.Context, json string) {
+
+	err := g.writer.WriteApplicationLogs(ctx, fmt.Sprintf("%s%s", time.Now().String(), "2"), string(json))
+	if err != nil {
+		g.logger.Error("Failed to write a message", zap.Error(err))
+	} else {
+		g.logger.Info("Sent application logs")
 	}
 }
 
@@ -98,6 +120,7 @@ func NewLogsGenerator(lc fx.Lifecycle, logger *zap.Logger, writer *logsgeneratio
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			logger.Info("Starting sending logs to the queue")
+
 			go generator.WriteNodeLogs(ctx)
 			go generator.WriteApplicationLogs(ctx)
 			return nil

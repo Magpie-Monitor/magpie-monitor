@@ -57,6 +57,8 @@ func (r *KafkaApplicationLogsStreamReader) Handle(
 	ctx context.Context,
 	applicationLogs *repositories.ApplicationLogs) error {
 
+	r.kafkaReader.logger.Debug("Got message from stream", zap.Any("log", applicationLogs))
+
 	err := r.applicationLogsRepository.InsertLogs(ctx, applicationLogs)
 	if err != nil {
 		r.logger.Error("Failed to index application logs", zap.Error(err))
@@ -75,8 +77,7 @@ func (r *KafkaApplicationLogsStreamReader) Listen() {
 
 	for {
 		log := <-applicationLogs
-		r.kafkaReader.logger.Debug("Got message from stream", zap.Any("log", log))
-		r.Handle(context.Background(), log)
+		go r.Handle(context.Background(), log)
 	}
 }
 
