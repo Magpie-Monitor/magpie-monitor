@@ -16,18 +16,18 @@ type Incident struct {
 }
 
 type HostReport struct {
-	Host         string      `bson:"host"`
-	Precision    string      `bson:"precision"`
-	CustomPrompt string      `bson:"customPrompt"`
-	Incidents    []*Incident `bson:"incidents"`
+	Host         string     `bson:"host"`
+	Precision    string     `bson:"precision"`
+	CustomPrompt string     `bson:"customPrompt"`
+	Incidents    []Incident `bson:"incidents"`
 }
 
 type Report struct {
-	Id          int           `bson:"id"`
-	Title       string        `bson:"title"`
-	StartMs     int           `bson:"startMs"`
-	EndMs       int           `bson:"endMs"`
-	HostReports []*HostReport `bson:"hostReports"`
+	Id          int          `bson:"id"`
+	Title       string       `bson:"title"`
+	StartMs     int          `bson:"startMs"`
+	EndMs       int          `bson:"endMs"`
+	HostReports []HostReport `bson:"hostReports"`
 }
 
 var REPORTS_DB_NAME = "reports"
