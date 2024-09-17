@@ -30,28 +30,33 @@ func NewKafkaLogsStream[T any](host string, port string, topic string, logger *z
 	}
 }
 
+func (s *KafkaLogsStreamReader[T]) handleMessage(message []byte) {
+
+	s.logger.Debug("Read message", zap.String("msg", string(message)))
+
+	var a T
+	err := json.NewDecoder(bytes.NewReader(message)).Decode(&a)
+	if err != nil {
+		s.logger.Error("Failed to decode message from Kafka", zap.Error(err))
+		return
+	}
+
+	if s.handler != nil {
+		s.handler(a)
+	}
+
+	s.stream <- a
+}
 func (s *KafkaLogsStreamReader[T]) Listen() {
 	for {
-		var a T
 		m, err := s.reader.ReadMessage(context.Background())
 		if err != nil {
 			s.logger.Error("Failed to read message from Kafka", zap.Error(err))
 			continue
 		}
 
-		s.logger.Debug("Read message", zap.String("msg", string(m.Key)))
+		go s.handleMessage(m.Value)
 
-		err = json.NewDecoder(bytes.NewReader(m.Value)).Decode(&a)
-		if err != nil {
-			s.logger.Error("Failed to decode message from Kafka", zap.Error(err))
-			continue
-		}
-
-		if s.handler != nil {
-			s.handler(a)
-		}
-
-		s.stream <- a
 	}
 }
 
