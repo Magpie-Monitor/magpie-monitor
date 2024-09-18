@@ -17,8 +17,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User getCurrentUser() {
-        var principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        var userDetails = (UserDetails) principal;
+        var userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         var userEmail = userDetails.getUsername();
         return getUserByEmail(userEmail);
     }

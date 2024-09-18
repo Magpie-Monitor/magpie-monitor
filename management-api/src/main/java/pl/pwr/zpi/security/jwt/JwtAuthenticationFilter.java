@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -27,13 +28,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        String token = extractTokenFromCookies(request.getCookies());
+        Optional<String> optionalToken = extractTokenFromCookies(request.getCookies());
 
-        if (token == null) {
+        if (optionalToken.isEmpty()) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        String token = optionalToken.get();
         JwtToken jwt = new JwtToken(token);
         String userEmail = jwtService.extractUsername(jwt);
 
@@ -47,17 +49,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String extractTokenFromCookies(Cookie[] cookies) {
+    private Optional<String> extractTokenFromCookies(Cookie[] cookies) {
         if (cookies == null) {
-            return null;
+            return Optional.empty();
         }
 
         for (Cookie cookie : cookies) {
             if ("authToken".equals(cookie.getName())) {
-                return cookie.getValue();
+                return Optional.of(cookie.getValue());
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private void setAuthentication(HttpServletRequest request, UserDetails userDetails) {
