@@ -1,0 +1,47 @@
+{{ if .Values.agent.node.enabled }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: magpie-agent-node
+  namespace: {{ .Values.agent.namespace }}
+  labels:
+    name: magpie-agent-node
+spec:
+  selector:
+    matchLabels:
+      name: magpie-agent-node
+  template:
+    metadata:
+      labels:
+        name: magpie-agent-node
+    spec:
+      containers:
+        # TODO - add resources, QOS
+        - name: magpie-agent-node
+          image: woojciech/agent:latest
+          command: [ "./server" ]
+          args:
+            - "--scrape"
+            - "nodes"
+            - "--remoteWriteUrl"
+            - "google.com"
+            - "--redisUrl"
+            - "magpie-agent-redis.{{ .Values.agent.namespace }}.svc.cluster.local:6379" #TODO - parametrize
+            {{- range $file := .Values.agent.node.files }}
+            - "--file"
+            - "{{$file}}"
+            {{- end }}
+          volumeMounts:
+          {{- range $file := .Values.agent.node.files }}
+            - name: {{ splitList "/" $file | last | replace "." "-" }}
+              mountPath: {{ $file }}
+              readOnly: true
+          {{- end }}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      {{- range $file := .Values.agent.node.files }}
+        - name: {{ splitList "/" $file | last | replace "." "-" }}
+          hostPath:
+            path: {{$file}}
+      {{- end }}
+{{ end }}
