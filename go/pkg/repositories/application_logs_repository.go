@@ -3,7 +3,7 @@ package repositories
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	// "fmt"
 	"time"
 
 	"github.com/IBM/fp-go/array"
@@ -108,7 +108,6 @@ func (r *ElasticSearchApplicationLogsRepository) doesIndexExists(index string) b
 func getApplicationLogsIndexName(applicationLogs *ApplicationLogs) string {
 
 	val := elasticsearch.GetIndexName(applicationLogs.Cluster, "applications", applicationLogs.Timestamp)
-	fmt.Println(val)
 	return val
 }
 
@@ -117,7 +116,7 @@ func (r *ElasticSearchApplicationLogsRepository) getIndiciesWithClusterAndDateRa
 	toDate time.Time) []string {
 
 	filter := array.Filter(
-		elasticsearch.FilterIndicesByClusterAndDateRange(cluster, fromDate, toDate))
+		elasticsearch.FilterIndicesByClusterAndDateRange(cluster, "applications", fromDate, toDate))
 
 	r.updateIndices()
 
@@ -127,13 +126,16 @@ func (r *ElasticSearchApplicationLogsRepository) getIndiciesWithClusterAndDateRa
 func (r *ElasticSearchApplicationLogsRepository) GetLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) ([]*ApplicationLogsDocument, error) {
 
 	indices := r.getIndiciesWithClusterAndDateRange(cluster, startDate, endDate)
+
+	query := elasticsearch.GetQueryByTimestamps(startDate, endDate)
 	if len(indices) == 0 {
 		return []*ApplicationLogsDocument{}, nil
 	}
-	res, err := elasticsearch.SearchIndices(ctx, r.esClient, indices)
+
+	res, err := elasticsearch.SearchIndices(ctx, r.esClient, indices, query)
 
 	if err != nil {
-		r.logger.Error("Failed to get node logs", zap.Error(err))
+		r.logger.Error("Failed to get application logs", zap.Error(err))
 		return nil, err
 	}
 
@@ -142,7 +144,7 @@ func (r *ElasticSearchApplicationLogsRepository) GetLogs(ctx context.Context, cl
 		var log ApplicationLogsDocument
 		err := json.Unmarshal(value.Source_, &log)
 		if err != nil {
-			r.logger.Error("Failed to decode node logs", zap.Error(err))
+			r.logger.Error("Failed to decode application logs", zap.Error(err))
 			return nil, err
 		}
 
@@ -156,23 +158,6 @@ func (r *ElasticSearchApplicationLogsRepository) GetLogs(ctx context.Context, cl
 }
 
 func (r *ElasticSearchApplicationLogsRepository) CreateIndex(ctx context.Context, indexName string) error {
-
-	// _, err := r.esClient.Indices.Create(indexName).
-	// 	Request(&create.Request{
-	// 		Mappings: &types.TypeMapping{
-	// 			Properties: map[string]types.Property{
-	// 				"cluster":         types.NewTextProperty(),
-	// 				"kind":            types.NewTextProperty(),
-	// 				"timestamp":       types.NewIntegerNumberProperty(),
-	// 				"applicationName": types.NewTextProperty(),
-	// 				"namespace":       types.NewTextProperty(),
-	// 				"podName":         types.NewTextProperty(),
-	// 				"containerName":   types.NewTextProperty(),
-	// 				"image":           types.NewTextProperty(),
-	// 				"content":         types.NewTextProperty(),
-	// 			},
-	// 		},
-	// 	}).Do(ctx)
 
 	_, err := r.esClient.Indices.Create(indexName).Do(ctx)
 

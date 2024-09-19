@@ -6,8 +6,8 @@ import (
 	"github.com/IBM/fp-go/array"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	es "github.com/elastic/go-elasticsearch/v8"
-	"github.com/elastic/go-elasticsearch/v8/typedapi/indices/create"
-	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
+	// "github.com/elastic/go-elasticsearch/v8/typedapi/indices/create"
+	// "github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
@@ -58,7 +58,7 @@ func (r *ElasticSearchNodeLogsRepository) getIndiciesWithClusterAndDateRange(clu
 	toDate time.Time) []string {
 
 	filter := array.Filter(
-		elasticsearch.FilterIndicesByClusterAndDateRange(cluster, fromDate, toDate))
+		elasticsearch.FilterIndicesByClusterAndDateRange(cluster, "nodes", fromDate, toDate))
 
 	r.updateIndices()
 
@@ -71,7 +71,9 @@ func (r *ElasticSearchNodeLogsRepository) GetLogs(ctx context.Context, cluster s
 	if len(indices) == 0 {
 		return []*NodeLogsDocument{}, nil
 	}
-	res, err := elasticsearch.SearchIndices(ctx, r.esClient, indices)
+
+	query := elasticsearch.GetQueryByTimestamps(startDate, endDate)
+	res, err := elasticsearch.SearchIndices(ctx, r.esClient, indices, query)
 
 	if err != nil {
 		r.logger.Error("Failed to get node logs", zap.Error(err))
@@ -86,7 +88,10 @@ func (r *ElasticSearchNodeLogsRepository) GetLogs(ctx context.Context, cluster s
 			r.logger.Error("Failed to decode node logs", zap.Error(err))
 			return nil, err
 		}
-		nodeLogs = append(nodeLogs, &log)
+
+		if log.Content != "" {
+			nodeLogs = append(nodeLogs, &log)
+		}
 
 	}
 
@@ -95,19 +100,7 @@ func (r *ElasticSearchNodeLogsRepository) GetLogs(ctx context.Context, cluster s
 
 func (r *ElasticSearchNodeLogsRepository) CreateIndex(ctx context.Context, indexName string) error {
 
-	_, err := r.esClient.Indices.Create(indexName).
-		Request(&create.Request{
-			Mappings: &types.TypeMapping{
-				Properties: map[string]types.Property{
-					"cluster":   types.NewTextProperty(),
-					"kind":      types.NewTextProperty(),
-					"timestamp": types.NewPointInTimeReference(),
-					"namespace": types.NewTextProperty(),
-					"name":      types.NewTextProperty(),
-					"content":   types.NewTextProperty(),
-				},
-			},
-		}).Do(ctx)
+	_, err := r.esClient.Indices.Create(indexName).Do(ctx)
 
 	if err != nil {
 		r.logger.Error("Failed to create an index for logsdb", zap.Error(err))
