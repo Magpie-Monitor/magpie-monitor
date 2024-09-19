@@ -22,12 +22,34 @@ type HostReport struct {
 	Incidents    []Incident `bson:"incidents"`
 }
 
+type ApplicationReport struct {
+	Name          string     `bson:"name"`
+	PodName       string     `bson:"podName"`
+	ContainerName string     `bson:"containerName"`
+	Precision     string     `bson:"precision"`
+	CustomPrompt  string     `bson:"customPrompt"`
+	Incidents     []Incident `bson:"incidents"`
+}
+
+type ReportStatus string
+
+const (
+	FailedToGenerate   ReportStatus = "failed_to_generate"
+	AwaitingGeneration ReportStatus = "awaiting_generation"
+	Generated          ReportStatus = "generated"
+)
+
 type Report struct {
-	Id          int          `bson:"id"`
-	Title       string       `bson:"title"`
-	StartMs     int          `bson:"startMs"`
-	EndMs       int          `bson:"endMs"`
-	HostReports []HostReport `bson:"hostReports"`
+	Id                      int                 `bson:"id"`
+	Status                  ReportStatus        `bson:"status"`
+	RequestedAtMs           int64               `bson:"requestedAtMs"`
+	GeneratedAtMs           int64               `bson:"generatedAtMs"`
+	ScheduledGenerationAtMs int64               `bson:"scheduledGenerationAtMs"`
+	Title                   string              `bson:"title"`
+	FromDateMs              int64               `bson:"fromDateMs"`
+	ToDateMs                int64               `bson:"toDateMs"`
+	HostReports             []HostReport        `bson:"hostReports"`
+	ApplicationReports      []ApplicationReport `bson:"applicationReports"`
 }
 
 var REPORTS_DB_NAME = "reports"

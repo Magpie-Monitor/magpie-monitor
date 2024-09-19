@@ -3,14 +3,15 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"net/http"
+	"time"
+
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
-	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
+	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"net/http"
-	"time"
+	"math"
 )
 
 type ReportsRouter struct {
@@ -35,29 +36,32 @@ func (router *ReportsRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type ReportsHandler struct {
-	logger                    *zap.Logger
-	reportRepository          repositories.ReportRepository
-	applicationLogsRepository sharedrepositories.ApplicationLogsRepository
-	nodeLogsRepository        sharedrepositories.NodeLogsRepository
-	openAiClient              *openai.Client
+	logger                       *zap.Logger
+	reportRepository             repositories.ReportRepository
+	applicationLogsRepository    sharedrepositories.ApplicationLogsRepository
+	nodeLogsRepository           sharedrepositories.NodeLogsRepository
+	applicationInsightsGenerator insights.ApplicationInsightsGenerator
+	nodeInsightsGenerator        insights.NodeInsightsGenerator
 }
 
 type ReportsHandlerParams struct {
 	fx.In
-	Logger                    *zap.Logger
-	ReportRepository          repositories.ReportRepository
-	ApplicationLogsRepository sharedrepositories.ApplicationLogsRepository
-	NodeLogsRepository        sharedrepositories.NodeLogsRepository
-	OpenAiClient              *openai.Client
+	Logger                       *zap.Logger
+	ReportRepository             repositories.ReportRepository
+	ApplicationLogsRepository    sharedrepositories.ApplicationLogsRepository
+	NodeLogsRepository           sharedrepositories.NodeLogsRepository
+	ApplicationInsightsGenerator insights.ApplicationInsightsGenerator
+	NodeInsightsGenerator        insights.NodeInsightsGenerator
 }
 
 func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
 	return &ReportsHandler{
-		logger:                    p.Logger,
-		reportRepository:          p.ReportRepository,
-		applicationLogsRepository: p.ApplicationLogsRepository,
-		nodeLogsRepository:        p.NodeLogsRepository,
-		openAiClient:              p.OpenAiClient,
+		logger:                       p.Logger,
+		reportRepository:             p.ReportRepository,
+		applicationLogsRepository:    p.ApplicationLogsRepository,
+		nodeLogsRepository:           p.NodeLogsRepository,
+		applicationInsightsGenerator: p.ApplicationInsightsGenerator,
+		nodeInsightsGenerator:        p.NodeInsightsGenerator,
 	}
 }
 
@@ -81,66 +85,47 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logs, err := h.applicationLogsRepository.GetLogs(ctx,
+	applicationLogs, err := h.applicationLogsRepository.GetLogs(ctx,
+		params.Cluster,
+		time.Unix(0, params.FromDate),
+		time.Unix(0, params.ToDate))
+
+	h.logger.Sugar().Infof("Number of logs #%d", len(applicationLogs))
+
+	if err != nil {
+		h.logger.Error("Failed to get application logs", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	nodeLogs, err := h.nodeLogsRepository.GetLogs(ctx,
 		params.Cluster,
 		time.Unix(params.FromDate, 0),
 		time.Unix(params.ToDate, 0))
 
 	if err != nil {
-		h.logger.Error("Failed to get logs", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	h.logger.Info("Logs", zap.Any("logs", logs))
-
-	filteredLogs := logs[0:params.MaxLength]
-	jsonFilteredLogs, err := json.Marshal(filteredLogs)
-	if err != nil {
-		h.logger.Error("Failed to encode application logs before sending to model", zap.Error(err))
-	}
-
-	h.logger.Sugar().Debugf("Sending logs to the model: %s", string(jsonFilteredLogs))
-
-	openAiResponse, err := h.openAiClient.Complete([]*openai.Message{
-		{
-			Role: "system",
-			Content: `You are a kubernetes cluster system administrator. 
-			Given a list of logs from a Kubernetes cluster
-			find logs which might suggest any kind of errors or issues. Try to give a possible reason, 
-			category of an issue, urgency and possible resolution. Ignore logs which are only 
-			informational and are not marked by warnings or errors. Don't provide intruduction. 
-			Go straight into describing these logs. The only scenario in which you should include the 
-			informationa logs is when they are in a unnatural frequency (based on the timestamp) which might suggest an error.
-			Do not mention the information logs if you don't have unnatural amount of logs for a given event.
-			As a response for explaination return reports incident, where every inconsitency is an incident`,
-		},
-		{
-			Role: "user",
-			Content: fmt.Sprintf(`These are logs from my cluster. 
-			Please tell me if they might suggest any kind of issues:
-			%s`, jsonFilteredLogs),
-		},
-	},
-	)
-
-	h.logger.Info("Got response from openai", zap.Any("response", openAiResponse))
-
-	if err != nil {
-		h.logger.Error("Failed to get reports from openai client", zap.Error(err))
+		h.logger.Error("Failed to get node logs", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// TODO: Replace with interface for reports generation based on LLMs response
-	// report := generateDummyReportsFromLogs(logs)
-	// err = h.reportRepository.InsertReport(ctx, &report)
-	// if err != nil {
-	// 	h.logger.Error("Failed to generate report", zap.Error(err))
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
+	// filteredApplicationLogs := applicationLogs[0:params.MaxLength]
+	filteredApplicationLogs := applicationLogs[0:int(math.Min(float64(params.MaxLength), float64(len(applicationLogs))))]
+	filteredNodeLogs := nodeLogs[0:int(math.Min(float64(params.MaxLength), float64(len(nodeLogs))))]
 
-	reportJson, err := json.Marshal(openAiResponse)
+	applicationInsights, err := h.applicationInsightsGenerator.OnDemandApplicationInsights(filteredApplicationLogs)
+	if err != nil {
+		h.logger.Error("Failed to generate application insights", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	nodeInsights, err := h.nodeInsightsGenerator.OnDemandNodeInsights(filteredNodeLogs)
+	if err != nil {
+		h.logger.Error("Failed to generate application insights", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	reportJson, err := json.Marshal(nodeInsights)
 	if err != nil {
 		h.logger.Error("Failed encode report into json", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -148,24 +133,13 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(reportJson)
-}
 
-// func generateDummyReportsFromLogs(logs []*sharedrepositories.NodeLogsDocument) repositories.Report {
-//
-// 	hostReports := make([]*repositories.HostReport, 0, len(logs))
-// 	for _, log := range logs {
-// 		hostReports = append(hostReports, &repositories.HostReport{
-// 			Host:         log.Name,
-// 			CustomPrompt: log.Kind,
-// 		})
-// 	}
-//
-// 	report := repositories.Report{
-// 		Title:       "title",
-// 		StartMs:     21,
-// 		EndMs:       43,
-// 		HostReports: hostReports}
-//
-// 	return report
-//
-// }
+	applicationInsightsJson, err := json.Marshal(applicationInsights)
+	if err != nil {
+		h.logger.Error("Failed encode report into json", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(applicationInsightsJson)
+}
