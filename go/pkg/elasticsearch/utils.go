@@ -13,19 +13,36 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 )
 
-func SearchIndices(ctx context.Context, esClient *elasticsearch.TypedClient, indices []string) (*search.Response, error) {
+func GetQueryByTimestamps(fromDate time.Time, toDate time.Time) *types.Query {
+
+	fromDateFilter := types.Float64(fromDate.UnixNano())
+	toDateFilter := types.Float64(toDate.UnixNano())
+
+	return &types.Query{
+		Range: map[string]types.RangeQuery{
+			"timestamp": types.NumberRangeQuery{
+				Gte: &fromDateFilter,
+				Lte: &toDateFilter,
+			},
+		},
+	}
+}
+
+func SearchIndices(ctx context.Context, esClient *elasticsearch.TypedClient, indices []string, query *types.Query) (*search.Response, error) {
 	size := 1000
 	return esClient.Search().
 		Index(strings.Join(indices, ",")).
 		Request(&search.Request{
-			Query: &types.Query{
-				MatchAll: &types.MatchAllQuery{},
-			},
+			Query: query,
+
 			Size: &size,
 		}).Do(ctx)
 }
 
 func getYYYYMM(date time.Time) string {
+
+	fmt.Printf("%d-%d", date.Year(), date.Month())
+
 	return fmt.Sprintf("%d-%d", date.Year(), date.Month())
 }
 
@@ -34,7 +51,7 @@ func GetIndexName(cluster string, sourceName string, timestamp int64) string {
 		"%s-%s-%s",
 		cluster,
 		sourceName,
-		getYYYYMM(time.Unix(timestamp/1000000000, 0)))
+		getYYYYMM(time.Unix(0, timestamp)))
 }
 
 func GetIndexParams(index string) (cluster string, source string, year int, month int, err error) {
@@ -80,18 +97,21 @@ func GetAllIndicesSet(esClient *elasticsearch.TypedClient) (map[string]bool, err
 
 	return indices, nil
 }
-func FilterIndicesByClusterAndDateRange(cluster string, fromDate time.Time, toDate time.Time) func(index string) bool {
+func FilterIndicesByClusterAndDateRange(cluster string, kind string, fromDate time.Time, toDate time.Time) func(index string) bool {
 
 	return func(index string) bool {
 
-		existingCluster, _, year, month, err := GetIndexParams(index)
+		existingCluster, existingKind, year, month, err := GetIndexParams(index)
 		if err != nil {
 			return false
 		}
 
+		existingDate := time.Date(year, time.Month(month), 0, 0, 0, 0, 0, &time.Location{}).Unix()
+
 		return cluster == existingCluster &&
-			fromDate.Unix() <= time.Date(year, time.Month(month), 0, 0, 0, 0, 0, &time.Location{}).Unix() &&
-			toDate.Unix() >= time.Date(year, time.Month(month), 0, 0, 0, 0, 0, &time.Location{}).Unix()
+			time.Date(fromDate.Year(), fromDate.Month(), 0, 0, 0, 0, 0, &time.Location{}).Unix() <= existingDate &&
+			toDate.Unix() >= existingDate &&
+			existingKind == kind
 	}
 
 }
