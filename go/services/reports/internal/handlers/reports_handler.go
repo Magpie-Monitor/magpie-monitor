@@ -3,15 +3,16 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"net/http"
-	"time"
-
+	"fmt"
+	"github.com/IBM/fp-go/array"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"math"
+	"net/http"
+	"time"
 )
 
 type ReportsRouter struct {
@@ -66,10 +67,12 @@ func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
 }
 
 type reportsPostParams struct {
-	Cluster   string `json:"cluster"`
-	FromDate  int64  `json:"fromDate"`
-	ToDate    int64  `json:"toDate"`
-	MaxLength int64  `json:"maxLength"`
+	Cluster                  string                                      `json:"cluster"`
+	FromDate                 int64                                       `json:"fromDate"`
+	ToDate                   int64                                       `json:"toDate"`
+	ApplicationConfiguration []*insights.ApplicationInsightConfiguration `json:"applicationConfiguration"`
+	NodeConfiguration        []*insights.NodeInsightConfiguration        `json:"nodeConfiguration"`
+	MaxLength                int                                         `json:"maxLength"`
 }
 
 func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
@@ -85,47 +88,21 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	applicationLogs, err := h.applicationLogsRepository.GetLogs(ctx,
-		params.Cluster,
-		time.Unix(0, params.FromDate),
-		time.Unix(0, params.ToDate))
-
-	h.logger.Sugar().Infof("Number of logs #%d", len(applicationLogs))
-
+	report, err := h.generateCompleteOnDemandReport(ctx, params)
 	if err != nil {
-		h.logger.Error("Failed to get application logs", zap.Error(err))
+		h.logger.Error("Failed to generate report", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	nodeLogs, err := h.nodeLogsRepository.GetLogs(ctx,
-		params.Cluster,
-		time.Unix(params.FromDate, 0),
-		time.Unix(params.ToDate, 0))
-
+	insertedReport, err := h.reportRepository.InsertReport(ctx, report)
 	if err != nil {
-		h.logger.Error("Failed to get node logs", zap.Error(err))
+		h.logger.Error("Failed to save a report", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// filteredApplicationLogs := applicationLogs[0:params.MaxLength]
-	filteredApplicationLogs := applicationLogs[0:int(math.Min(float64(params.MaxLength), float64(len(applicationLogs))))]
-	filteredNodeLogs := nodeLogs[0:int(math.Min(float64(params.MaxLength), float64(len(nodeLogs))))]
-
-	applicationInsights, err := h.applicationInsightsGenerator.OnDemandApplicationInsights(filteredApplicationLogs)
-	if err != nil {
-		h.logger.Error("Failed to generate application insights", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	nodeInsights, err := h.nodeInsightsGenerator.OnDemandNodeInsights(filteredNodeLogs)
-	if err != nil {
-		h.logger.Error("Failed to generate application insights", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	reportJson, err := json.Marshal(nodeInsights)
+	reportJson, err := json.Marshal(insertedReport)
 	if err != nil {
 		h.logger.Error("Failed encode report into json", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -133,13 +110,208 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(reportJson)
+}
 
-	applicationInsightsJson, err := json.Marshal(applicationInsights)
+func (h *ReportsHandler) generateCompleteOnDemandReport(
+	ctx context.Context,
+	params reportsPostParams) (*repositories.Report, error) {
+
+	fromDate := time.Unix(0, params.FromDate)
+	toDate := time.Unix(0, params.ToDate)
+
+	applicationReports, err := h.generateApplicationReports(
+		ctx,
+		params.Cluster,
+		fromDate,
+		toDate,
+		params.ApplicationConfiguration,
+		params.MaxLength,
+	)
 	if err != nil {
-		h.logger.Error("Failed encode report into json", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		h.logger.Error("Failed to get application reports", zap.Error(err))
+		return nil, err
 	}
 
-	w.Write(applicationInsightsJson)
+	nodeReports, err := h.generateNodeReports(
+		ctx,
+		params.Cluster,
+		fromDate,
+		toDate,
+		params.NodeConfiguration,
+		params.MaxLength,
+	)
+	if err != nil {
+		h.logger.Error("Failed to get node reports", zap.Error(err))
+		return nil, err
+	}
+
+	report := repositories.Report{
+		Status:        repositories.ReportState_Generated,
+		RequestedAtNs: time.Now().UnixNano(),
+		//TODO: Generate the report entity first and assign the insights
+		//later once the Batch API is implemented.
+		GeneratedAtNs:           time.Now().UnixNano(),
+		ScheduledGenerationAtMs: time.Now().UnixNano(),
+		Title:                   h.getTitleForReport(params.Cluster, fromDate, toDate),
+		FromDateNs:              params.FromDate,
+		ToDateNs:                params.ToDate,
+		NodeReports:             nodeReports,
+		ApplicationReports:      applicationReports,
+	}
+
+	return &report, nil
+}
+
+func (h *ReportsHandler) getTitleForReport(cluster string, fromDate time.Time, toDate time.Time) string {
+	return fmt.Sprintf("On-Demand report for %s (%s - %s)",
+		cluster,
+		fmt.Sprintf("%d.%d", fromDate.Month(), fromDate.Year()),
+		fmt.Sprintf("%d.%d", toDate.Month(), toDate.Year()),
+	)
+}
+
+func (h *ReportsHandler) generateApplicationReports(
+	ctx context.Context,
+	cluster string,
+	fromDate time.Time,
+	toDate time.Time,
+	applicationConfiguration []*insights.ApplicationInsightConfiguration,
+	maxLength int,
+) ([]repositories.ApplicationReport, error) {
+
+	applicationLogs, err := h.applicationLogsRepository.GetLogs(ctx,
+		cluster,
+		fromDate,
+		toDate)
+
+	if err != nil {
+		h.logger.Error("Failed to get application logs", zap.Error(err))
+		return nil, err
+	}
+
+	filteredApplicationLogs := applicationLogs[0:int(math.Min(float64(maxLength), float64(len(applicationLogs))))]
+
+	applicationInsights, err := h.applicationInsightsGenerator.OnDemandApplicationInsights(
+		filteredApplicationLogs,
+		applicationConfiguration,
+	)
+	if err != nil {
+		h.logger.Error("Failed to generate application insights", zap.Error(err))
+		return nil, err
+	}
+
+	insightsByApplication := make(map[string][]insights.ApplicationInsightsWithMetadata)
+
+	for _, insight := range applicationInsights {
+		applicationName := insight.Metadata.ApplicationName
+		insightsByApplication[applicationName] = append(insightsByApplication[applicationName], insight)
+	}
+
+	reports := make([]repositories.ApplicationReport, 0, len(insightsByApplication))
+
+	configByApp := insights.MapApplicationNameToConfiguration(applicationConfiguration)
+
+	for applicationName, insightsForApplication := range insightsByApplication {
+
+		incidentsFromInsights := array.Map(func(insight insights.ApplicationInsightsWithMetadata) repositories.ApplicationIncident {
+			return repositories.ApplicationIncident{
+				Category:       insight.Insight.Category,
+				Summary:        insight.Insight.Summary,
+				Recommendation: insight.Insight.Recommendation,
+				Timestamp:      insight.Metadata.Timestamp,
+				PodName:        insight.Metadata.PodName,
+				ContainerName:  insight.Metadata.ContainerName,
+				Source:         insight.Metadata.Source,
+			}
+		})
+
+		incidents := incidentsFromInsights(insightsForApplication)
+		report := repositories.ApplicationReport{
+			ApplicationName: applicationName,
+			Incidents:       incidents,
+		}
+
+		config, ok := configByApp[applicationName]
+		if ok {
+			report.Precision = config.Precision
+			report.CustomPrompt = config.CustomPrompt
+		}
+
+		reports = append(reports, report)
+	}
+
+	return reports, nil
+
+}
+
+func (h *ReportsHandler) generateNodeReports(
+	ctx context.Context,
+	cluster string,
+	fromDate time.Time,
+	toDate time.Time,
+	nodeConfiguration []*insights.NodeInsightConfiguration,
+	maxLength int,
+) ([]repositories.NodeReport, error) {
+
+	nodeLogs, err := h.nodeLogsRepository.GetLogs(ctx,
+		cluster,
+		fromDate,
+		toDate)
+
+	if err != nil {
+		h.logger.Error("Failed to get node logs", zap.Error(err))
+		return nil, err
+	}
+
+	filteredNodeLogs := nodeLogs[0:int(math.Min(float64(maxLength), float64(len(nodeLogs))))]
+
+	nodeInsights, err := h.nodeInsightsGenerator.OnDemandNodeInsights(
+		filteredNodeLogs,
+		nodeConfiguration,
+	)
+	if err != nil {
+		h.logger.Error("Failed to generate node insights", zap.Error(err))
+		return nil, err
+	}
+
+	insightsByHostname := make(map[string][]insights.NodeInsightsWithMetadata)
+
+	for _, insight := range nodeInsights {
+		hostname := insight.Metadata.NodeName
+		insightsByHostname[hostname] = append(insightsByHostname[hostname], insight)
+	}
+
+	reports := make([]repositories.NodeReport, 0, len(insightsByHostname))
+
+	configByApp := insights.MapNodeNameToConfiguration(nodeConfiguration)
+
+	for hostname, insightsForNode := range insightsByHostname {
+
+		incidentsFromInsights := array.Map(func(insight insights.NodeInsightsWithMetadata) repositories.NodeIncident {
+			return repositories.NodeIncident{
+				Category:       insight.Insight.Category,
+				Summary:        insight.Insight.Summary,
+				Recommendation: insight.Insight.Recommendation,
+				Timestamp:      insight.Metadata.Timestamp,
+				Source:         insight.Metadata.Source,
+			}
+		})
+
+		incidents := incidentsFromInsights(insightsForNode)
+		report := repositories.NodeReport{
+			Host:      hostname,
+			Incidents: incidents,
+		}
+
+		config, ok := configByApp[hostname]
+		if ok {
+			report.Precision = config.Precision
+			report.CustomPrompt = config.CustomPrompt
+		}
+
+		reports = append(reports, report)
+	}
+
+	return reports, nil
+
 }

@@ -56,6 +56,10 @@ type BatchFileEntry struct {
 	Body     *Request `json:"body"`
 }
 
+const (
+	COMPLETION_PATH string = "chat/completions"
+)
+
 func NewOpenAiClient(logger *zap.Logger) *Client {
 
 	apiUrl := os.Getenv("OPENAI_API_URL")
@@ -95,12 +99,11 @@ func (c *Client) Complete(messages []*Message, responseFormat any) (*Response, e
 		c.logger.Sugar().Errorln("Failed to encode messages to complete", zap.Error(err))
 		return nil, err
 	}
-	c.logger.Debug("Encoded messages", zap.Any("msg", string(encodedMessages)))
 	messageReader := strings.NewReader(string(encodedMessages))
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/chat/completions", c.apiUrl), messageReader)
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", c.apiUrl, COMPLETION_PATH), messageReader)
 	if err != nil {
-		c.logger.Error("Failed to create request to /chat/completions", zap.Error(err))
+		c.logger.Error("Failed to create request to openai completions api", zap.Error(err))
 		return nil, err
 	}
 
@@ -122,8 +125,6 @@ func (c *Client) Complete(messages []*Message, responseFormat any) (*Response, e
 		c.logger.Error("Failed to read body", zap.Error(err))
 		return nil, err
 	}
-
-	c.logger.Debug("Response", zap.Any("response", string(body)))
 
 	err = json.Unmarshal(body, &decodedResponse)
 	if err != nil {
