@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
+	// "os"
 	"time"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
@@ -52,52 +52,50 @@ func (g *LogsGenerator) WriteNodeLogs(ctx context.Context) {
 
 func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 
-	// applicationLogs := repositories.ApplicationLogs{
-	// 	Cluster:   "cluster-1",
-	// 	Kind:      "application",
-	// 	Timestamp: time.Now().Unix(),
-	// 	Name:      "my-cool-app",
-	// 	Pods: []*repositories.PodLogs{
-	// 		{
-	// 			Name: "pod-1",
-	// 			Containers: []*repositories.ContainerLogs{
-	// 				{
-	// 					Name:    "container-x",
-	// 					Image:   "container-x-image",
-	// 					Content: "container-logs-content",
-	// 				},
-	// 				{
-	// 					Name:    "container-2",
-	// 					Image:   "container-2-image",
-	// 					Content: "container-logs-content",
-	// 				},
-	// 			},
-	// 		},
-	// 	},
-	// }
-
-	jsonApplicationLogs, err := os.ReadFile("/tmp/logs/logs2.test")
-
-	var applicationLogs []repositories.ApplicationLogs
-
-	json.Unmarshal(jsonApplicationLogs, &applicationLogs)
-
-	if err != nil {
-		g.logger.Error("Failed to encode applicatation logs", zap.Error(err))
-
-		return
+	applicationLogs := repositories.ApplicationLogs{
+		Cluster:   "testcluster",
+		Kind:      "application",
+		Timestamp: time.Now().Unix(),
+		Name:      "my-cool-app",
+		Pods: []*repositories.PodLogs{
+			{
+				Name: "pod-1",
+				Containers: []*repositories.ContainerLogs{
+					{
+						Name:    "container-x",
+						Image:   "container-x-image",
+						Content: "container-logs-content",
+					},
+					{
+						Name:    "container-2",
+						Image:   "container-2-image",
+						Content: "container-logs-content",
+					},
+				},
+			},
+		},
 	}
 
-	for _, log := range applicationLogs {
-		log.Cluster = "wojciechscluster16"
+	for {
 
-		jsonLog, err := json.Marshal(log)
-
-		if err != nil {
-			g.logger.Error("Failed to marshal single application log", zap.Error(err))
+		nodeLogs := repositories.NodeLogs{
+			Cluster:   "testcluster",
+			Kind:      "node",
+			Timestamp: 1726403831067790081,
+			Name:      "tools",
+			Namespace: "nms",
+			Content:   "Failed to save new nginx configuration. Out of disk space.",
 		}
-		go g.handleApplicationLogs(ctx, string(jsonLog))
+
+		jsonNodeLogs, _ := json.Marshal(nodeLogs)
+		jsonApplicationLogs, _ := json.Marshal(applicationLogs)
+
+		g.handleApplicationLogs(ctx, string(jsonApplicationLogs))
+		g.handleNodeLogs(ctx, string(jsonNodeLogs))
+		time.Sleep(time.Second * 1)
+
 	}
+
 }
 
 func (g *LogsGenerator) handleApplicationLogs(ctx context.Context, json string) {
@@ -107,6 +105,16 @@ func (g *LogsGenerator) handleApplicationLogs(ctx context.Context, json string) 
 		g.logger.Error("Failed to write a message", zap.Error(err))
 	} else {
 		g.logger.Info("Sent application logs")
+	}
+}
+
+func (g *LogsGenerator) handleNodeLogs(ctx context.Context, json string) {
+
+	err := g.writer.WriteNodeLogs(ctx, fmt.Sprintf("%s%s", time.Now().String(), "2"), string(json))
+	if err != nil {
+		g.logger.Error("Failed to write a message", zap.Error(err))
+	} else {
+		g.logger.Info("Sent node logs")
 	}
 }
 

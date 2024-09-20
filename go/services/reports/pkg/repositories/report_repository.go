@@ -2,53 +2,62 @@ package repositories
 
 import (
 	"context"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
-type Incident struct {
+type NodeIncident struct {
 	Category       string `bson:"category"`
 	Summary        string `bson:"summary"`
 	Recommendation string `bson:"recommendation"`
 	Source         string `bson:"source"`
-	Timestamp      int    `bson:"timestamp"`
+	Timestamp      int64  `bson:"timestamp"`
 }
 
-type HostReport struct {
-	Host         string     `bson:"host"`
-	Precision    string     `bson:"precision"`
-	CustomPrompt string     `bson:"customPrompt"`
-	Incidents    []Incident `bson:"incidents"`
+type ApplicationIncident struct {
+	Category       string `bson:"category"`
+	Summary        string `bson:"summary"`
+	Recommendation string `bson:"recommendation"`
+	Source         string `bson:"source"`
+	Timestamp      int64  `bson:"timestamp"`
+	PodName        string `bson:"podName"`
+	ContainerName  string `bson:"containerName"`
+}
+
+type NodeReport struct {
+	Host         string         `bson:"host"`
+	Precision    string         `bson:"precision"`
+	CustomPrompt string         `bson:"customPrompt"`
+	Incidents    []NodeIncident `bson:"incidents"`
 }
 
 type ApplicationReport struct {
-	Name          string     `bson:"name"`
-	PodName       string     `bson:"podName"`
-	ContainerName string     `bson:"containerName"`
-	Precision     string     `bson:"precision"`
-	CustomPrompt  string     `bson:"customPrompt"`
-	Incidents     []Incident `bson:"incidents"`
+	ApplicationName string                `bson:"name"`
+	Precision       string                `bson:"precision"`
+	CustomPrompt    string                `bson:"customPrompt"`
+	Incidents       []ApplicationIncident `bson:"incidents"`
 }
 
-type ReportStatus string
+type ReportState string
 
 const (
-	FailedToGenerate   ReportStatus = "failed_to_generate"
-	AwaitingGeneration ReportStatus = "awaiting_generation"
-	Generated          ReportStatus = "generated"
+	ReportState_FailedToGenerate   ReportState = "failed_to_generate"
+	ReportState_AwaitingGeneration ReportState = "awaiting_generation"
+	ReportState_Generated          ReportState = "generated"
 )
 
 type Report struct {
-	Id                      int                 `bson:"id"`
-	Status                  ReportStatus        `bson:"status"`
-	RequestedAtMs           int64               `bson:"requestedAtMs"`
-	GeneratedAtMs           int64               `bson:"generatedAtMs"`
+	Id                      string              `bson:"_id,omitempty"`
+	Status                  ReportState         `bson:"status"`
+	RequestedAtNs           int64               `bson:"requestedAtMs"`
+	GeneratedAtNs           int64               `bson:"generatedAtMs"`
 	ScheduledGenerationAtMs int64               `bson:"scheduledGenerationAtMs"`
 	Title                   string              `bson:"title"`
-	FromDateMs              int64               `bson:"fromDateMs"`
-	ToDateMs                int64               `bson:"toDateMs"`
-	HostReports             []HostReport        `bson:"hostReports"`
+	FromDateNs              int64               `bson:"fromDateMs"`
+	ToDateNs                int64               `bson:"toDateMs"`
+	NodeReports             []NodeReport        `bson:"nodeReports"`
 	ApplicationReports      []ApplicationReport `bson:"applicationReports"`
 }
 
@@ -57,7 +66,7 @@ var REPORTS_COLLECTION = "reports"
 
 type ReportRepository interface {
 	GetAllReports(ctx context.Context) ([]*Report, error)
-	InsertReport(ctx context.Context, report *Report) error
+	InsertReport(ctx context.Context, report *Report) (*Report, error)
 }
 
 type MongoDbReportRepository struct {
@@ -69,13 +78,23 @@ func (r *MongoDbReportRepository) GetAllReports(ctx context.Context) ([]*Report,
 	return nil, nil
 }
 
-func (r *MongoDbReportRepository) InsertReport(ctx context.Context, report *Report) error {
+func (r *MongoDbReportRepository) InsertReport(ctx context.Context, report *Report) (*Report, error) {
 	coll := r.mongoDbClient.Database(REPORTS_DB_NAME).Collection(REPORTS_COLLECTION)
-	_, err := coll.InsertOne(context.TODO(), report)
+	id, err := coll.InsertOne(context.TODO(), report)
 	if err != nil {
 		r.logger.Error("Failed to insert a report", zap.Error(err))
+		return nil, err
 	}
-	return nil
+
+	var resultReport Report
+
+	err = coll.FindOne(ctx, bson.M{"_id": id.InsertedID}).Decode(&resultReport)
+	if err != nil {
+		r.logger.Error("Failed to get inserted report", zap.Error(err))
+		return nil, err
+	}
+
+	return &resultReport, nil
 }
 
 type Params struct {
