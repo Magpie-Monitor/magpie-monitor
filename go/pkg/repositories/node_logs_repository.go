@@ -6,8 +6,6 @@ import (
 	"github.com/IBM/fp-go/array"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	es "github.com/elastic/go-elasticsearch/v8"
-	// "github.com/elastic/go-elasticsearch/v8/typedapi/indices/create"
-	// "github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
@@ -16,12 +14,13 @@ import (
 
 // TODO: To be clarified once the contract from agent is agreed upon
 type NodeLogs struct {
-	Cluster   string
-	Kind      string
-	Timestamp int64
-	Name      string
-	Namespace string
-	Content   string
+	Id        string `json:"_id,omitempty"`
+	Cluster   string `json:"cluster"`
+	Kind      string `json:"kind"`
+	Timestamp int64  `json:"timestamp"`
+	Name      string `json:"name"`
+	Namespace string `json:"namespace"`
+	Content   string `json:"content"`
 }
 
 type NodeLogsDocument = NodeLogs
@@ -88,6 +87,8 @@ func (r *ElasticSearchNodeLogsRepository) GetLogs(ctx context.Context, cluster s
 			r.logger.Error("Failed to decode node logs", zap.Error(err))
 			return nil, err
 		}
+
+		log.Id = *value.Id_
 
 		if log.Content != "" {
 			nodeLogs = append(nodeLogs, &log)
