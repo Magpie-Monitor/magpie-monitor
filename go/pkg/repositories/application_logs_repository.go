@@ -3,17 +3,14 @@ package repositories
 import (
 	"context"
 	"encoding/json"
-	// "fmt"
-	"time"
-
 	"github.com/IBM/fp-go/array"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	es "github.com/elastic/go-elasticsearch/v8"
-	// "github.com/elastic/go-elasticsearch/v8/typedapi/indices/create"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
+	"time"
 )
 
 // TODO: To be clarified once the contract from agent is agreed upon
@@ -38,28 +35,17 @@ type ContainerLogs struct {
 }
 
 type ApplicationLogsDocument struct {
-	Cluster         string `json:"cluster"`
-	Kind            string `json:"kind"`
-	Timestamp       int64  `json:"timestamp"`
-	ApplicationName string `json:"applicationName"`
-	Namespace       string `json:"namespace"`
-	PodName         string `json:"podName"`
-	ContainerName   string `json:"containerName"`
-	Image           string `json:"image"`
-	Content         string `json:"content"`
+	Id              string `json:"_id,omitempty" bson:"id,omitempty"`
+	Cluster         string `json:"cluster" bson:"cluster"`
+	Kind            string `json:"kind" bson:"kind"`
+	Timestamp       int64  `json:"timestamp" bson:"timestamp"`
+	ApplicationName string `json:"applicationName" bson:"applicationName"`
+	Namespace       string `json:"namespace" bson:"namespace"`
+	PodName         string `json:"podName" bson:"podName"`
+	ContainerName   string `json:"containerName" bson:"containerName"`
+	Image           string `json:"image" bson:"image"`
+	Content         string `json:"content" bson:"content"`
 }
-
-// type ApplicationLogsDocument struct {
-// 	Cluster         string
-// 	Kind            string
-// 	Timestamp       int64
-// 	ApplicationName string
-// 	Namespace       string
-// 	PodName         string
-// 	ContainerName   string
-// 	Image           string
-// 	Content         string
-// }
 
 func (l *ApplicationLogs) Flatten() []*ApplicationLogsDocument {
 	var documents []*ApplicationLogsDocument
@@ -147,6 +133,8 @@ func (r *ElasticSearchApplicationLogsRepository) GetLogs(ctx context.Context, cl
 			r.logger.Error("Failed to decode application logs", zap.Error(err))
 			return nil, err
 		}
+
+		log.Id = *value.Id_
 
 		if log.Content != "" {
 			applicationLogs = append(applicationLogs, &log)
