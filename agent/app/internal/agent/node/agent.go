@@ -19,13 +19,13 @@ type IncrementalReader struct {
 }
 
 func NewReader(files []string, scrapeInterval int, transformers []transformer.Transformer, results chan Chunk,
-	redisUrl string) IncrementalReader {
+	redisUrl, redisPassword string) IncrementalReader {
 	return IncrementalReader{
 		files:          files,
 		scrapeInterval: scrapeInterval,
 		transformers:   transformers,
 		results:        results,
-		redis:          database.NewRedis(redisUrl, os.Getenv(""), 0), // TODO - reiterate on Redis password
+		redis:          database.NewRedis(redisUrl, redisPassword, 0),
 	}
 }
 
