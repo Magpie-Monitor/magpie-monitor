@@ -1,0 +1,18 @@
+{{ if .Values.agent.cluster.enabled }}
+{{- with .Values.agent.cluster.service }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: magpie-agent-cluster-svc
+  labels:
+    name: magpie-agent-cluster-svc
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      protocol: TCP
+  selector:
+    name: magpie-agent-cluster
+{{- end }}
+{{ end }}
