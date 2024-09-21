@@ -173,7 +173,7 @@ func (a *Agent) fetchPodLogsSinceTime(selector *metav1.LabelSelector, namespace 
 	for _, pod := range pods.Items {
 		log.Println("Fetching logs for pod: ", pod.Name)
 
-		containers := make([]Container, 0)
+		containers := make([]Container, 0, len(pod.Spec.Containers))
 		for _, container := range pod.Spec.Containers {
 			log.Println("Fetching logs for container: ", container.Name)
 			c := a.fetchContainerLogsSinceTime(container, pod.Name, namespace)
