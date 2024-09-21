@@ -11,40 +11,44 @@ import (
 )
 
 type AgentWrapper struct {
-	config       config.Config
-	remoteWriter remoteWrite.RemoteWriter
+	config     config.Config
+	podWriter  remoteWrite.RemoteWriter
+	nodeWriter remoteWrite.RemoteWriter
 }
 
 func NewAgentWrapper(config config.Config) AgentWrapper {
 	return AgentWrapper{
-		config:       config,
-		remoteWriter: remoteWrite.NewRemoteWriter(config.RemoteWriteUrls, config.RemoteWriteRetryInterval, config.RemoteWriteMaxRetries),
+		config:     config,
+		podWriter:  remoteWrite.NewStreamWriter(config.RemoteWriteBrokerUrl, config.RemoteWritePodTopic, config.RemoteWriteBatchSize),
+		nodeWriter: remoteWrite.NewStreamWriter(config.RemoteWriteBrokerUrl, config.RemoteWriteNodeTopic, config.RemoteWriteBatchSize),
 	}
 }
 
 func (a *AgentWrapper) Start() {
-	if a.config.Mode == "nodes" {
+	mode := a.config.Global.Mode
+	if mode == "nodes" {
 		log.Println("Watched files: ", a.config.WatchedFiles)
 		if len(a.config.WatchedFiles) == 0 {
 			panic("Node agent doesn't have any files configured, please point watched files in the cfg.")
 		}
 		a.startNodeAgent()
-	} else if a.config.Mode == "pods" {
+	} else if mode == "pods" {
 		a.startPodAgent()
 	} else {
-		panic(fmt.Sprintf("Mode: %s not supported", a.config.Mode))
+		panic(fmt.Sprintf("Mode: %s not supported", mode))
 	}
 }
 
 func (a *AgentWrapper) startNodeAgent() {
 	logChannel := make(chan node.Chunk)
 
-	agent := node.NewReader(a.config.WatchedFiles, a.config.ScrapeInterval, nil, logChannel, a.config.RedisUrl, a.config.RedisPassword)
+	agent := node.NewReader(a.config.WatchedFiles, a.config.Global.ScrapeIntervalSeconds, nil, logChannel,
+		a.config.Redis.Url, a.config.RedisPassword)
 	go agent.WatchFiles()
 
 	for chunk := range logChannel {
 		log.Println("Collected node chunk: ", chunk)
-		a.writeChunk(chunk)
+		a.writeChunk(chunk, a.nodeWriter)
 	}
 }
 
@@ -55,15 +59,15 @@ func (a *AgentWrapper) startPodAgent() {
 
 	for chunk := range logChannel {
 		log.Println("Collected pod chunk: ", chunk)
-		a.writeChunk(chunk)
+		a.writeChunk(chunk, a.podWriter)
 	}
 }
 
-func (a *AgentWrapper) writeChunk(chunk any) {
+func (a *AgentWrapper) writeChunk(chunk any, writer remoteWrite.RemoteWriter) {
 	jsonChunk, err := json.Marshal(chunk)
 	if err != nil {
 		log.Println("Error converting chunk to JSON: ", err)
 	} else {
-		a.remoteWriter.Write(string(jsonChunk))
+		writer.Write(string(jsonChunk))
 	}
 }
