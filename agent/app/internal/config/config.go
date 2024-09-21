@@ -21,6 +21,7 @@ type Config struct {
 	ClusterName              string
 	ScrapeInterval           int
 	RedisUrl                 string
+	RedisPassword            string
 	WatchedFiles             []string
 	RemoteWriteUrls          []string
 	RemoteWriteRetryInterval int
@@ -29,7 +30,7 @@ type Config struct {
 }
 
 func GetConfig() Config {
-	mode := flag.String("scrape", "nodes", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
+	mode := flag.String("scrape", "pods", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
 	clusterName := flag.String("clusterFriendlyName", "unknown", "Friendly name of your cluster, visible in Magpie Cloud.")
 
 	scrapeInterval := flag.Int("scrapeInterval", 10, "Interval between scraping logs from files in \"nodes\" mode or pods in \"pods\" mode.")
@@ -37,6 +38,7 @@ func GetConfig() Config {
 	remoteWriteMaxRetries := flag.Int("remoteWriteMaxRetries", 5, "Maximal number of retries in case of Remote Write error.")
 
 	redisUrl := flag.String("redisUrl", "", "Redis URL in cluster DNS format, that is: service.namespace.svc.cluster.local:port")
+	redisPassword := flag.String("redisPassword", "", "Password to Redis instance pointed by --redisUrl flag.")
 
 	var watchedFiles arrayFlags
 	flag.Var(&watchedFiles, "file", "Log files that are watched for log collector running in \"nodes\" mode.")
@@ -57,6 +59,7 @@ func GetConfig() Config {
 		ClusterName:              *clusterName,
 		ScrapeInterval:           *scrapeInterval,
 		RedisUrl:                 *redisUrl,
+		RedisPassword:            *redisPassword,
 		WatchedFiles:             watchedFiles,
 		RemoteWriteUrls:          remoteWriteUrls,
 		RemoteWriteRetryInterval: *remoteWriteRetryInterval,

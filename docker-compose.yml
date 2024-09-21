@@ -11,7 +11,6 @@ services:
         - VITE_BACKEND_URL=${VITE_BACKEND_URL}
     ports:
       - "80:80"
-
   reports-service:
     user: "0"
     container_name: magpie-monitor-reports-service
@@ -106,10 +105,10 @@ services:
     command: >
       bash -c '
         if [ x${ELASTIC_PASSWORD} == x ]; then
-          echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
+          echo "Set the ELASTIC_PASSWORD environment variable in the .env.sample file";
           exit 1;
         elif [ x${KIBANA_PASSWORD} == x ]; then
-          echo "Set the KIBANA_PASSWORD environment variable in the .env file";
+          echo "Set the KIBANA_PASSWORD environment variable in the .env.sample file";
           exit 1;
         fi;
         if [ ! -f config/certs/ca.zip ]; then
@@ -148,7 +147,7 @@ services:
         echo "All done!";
       '
     healthcheck:
-      test: ["CMD-SHELL", "[ -f config/certs/elasticsearch/elasticsearch.crt ]"]
+      test: [ "CMD-SHELL", "[ -f config/certs/elasticsearch/elasticsearch.crt ]" ]
       interval: 1s
       timeout: 5s
       retries: 120
@@ -227,9 +226,67 @@ services:
         ]
       interval: 10s
       timeout: 10s
-
+  pod-agent:
+    user: "0" # Elevated permission needed for bind mount
+    container_name: magpie-monitor-pod-agent
+    build:
+      context: ./agent/app
+      dockerfile: Dockerfile
+    command:
+      - "--scrape"
+      - "pods"
+      - "--scrapeInterval"
+      - "30"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./agent/app
+          target: /src
+        - action: rebuild
+          path: ./go/pkg
+          target: /src
+    volumes:
+      - ${POD_AGENT_HOST_KUBECONFIG_PATH}:/root/.kube
+  node-agent:
+    user: "0" # Elevated permission needed for bind mount
+    container_name: magpie-monitor-node-agent
+    depends_on:
+      - redis
+    build:
+      context: ./agent/app
+      dockerfile: Dockerfile
+    command:
+      - "--scrape"
+      - "nodes"
+      - "--redisUrl"
+      - "redis:6379"
+      - "--redisPassword"
+      - ${REDIS_PASSWORD}
+      - "--file"
+      - "/var/log/file"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./agent/app
+          target: /src
+        - action: rebuild
+          path: ./go/pkg
+    volumes:
+      - ${NODE_AGENT_HOST_WATCHED_FILE_PATH}:/var/log/file
+  # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in dev environment.
+  redis:
+    image: redis:7.4-alpine
+    restart: always
+    command:
+      - "--requirepass"
+      - ${REDIS_PASSWORD}
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisdata:/data
 volumes:
   db-data:
   certs:
   elasticsearchdata:
   kibanadata:
+  redisdata:
