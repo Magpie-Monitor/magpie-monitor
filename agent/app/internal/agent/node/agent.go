@@ -11,27 +11,27 @@ import (
 )
 
 type IncrementalReader struct {
-	files          []string
-	scrapeInterval int
-	transformers   []transformer.Transformer
-	results        chan Chunk
-	redis          database.Redis
+	files                 []string
+	scrapeIntervalSeconds int
+	transformers          []transformer.Transformer
+	results               chan Chunk
+	redis                 database.Redis
 }
 
-func NewReader(files []string, scrapeInterval int, transformers []transformer.Transformer, results chan Chunk,
+func NewReader(files []string, scrapeIntervalSeconds int, transformers []transformer.Transformer, results chan Chunk,
 	redisUrl, redisPassword string) IncrementalReader {
 	return IncrementalReader{
-		files:          files,
-		scrapeInterval: scrapeInterval,
-		transformers:   transformers,
-		results:        results,
-		redis:          database.NewRedis(redisUrl, redisPassword, 0),
+		files:                 files,
+		scrapeIntervalSeconds: scrapeIntervalSeconds,
+		transformers:          transformers,
+		results:               results,
+		redis:                 database.NewRedis(redisUrl, redisPassword, 0),
 	}
 }
 
 func (r *IncrementalReader) WatchFiles() {
 	for _, file := range r.files {
-		go r.watchFile(file, 1, r.results)
+		go r.watchFile(file, r.scrapeIntervalSeconds, r.results)
 	}
 }
 
@@ -69,7 +69,7 @@ func (r *IncrementalReader) prepareFile(dir string) (*os.File, int64) {
 	return f, currentSize
 }
 
-func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan Chunk) {
+func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results chan Chunk) {
 	f, currentSize := r.prepareFile(dir)
 	defer f.Close()
 
@@ -111,13 +111,13 @@ func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan Chu
 			results <- Chunk{
 				Kind:      "Node",
 				Name:      "mock-node-name",
-				Timestamp: time.Now().Unix(),
+				Timestamp: time.Now().UnixNano(),
 				Namespace: dir,
 				Content:   r.transform(string(buf)),
 			}
 		}
 
-		time.Sleep(time.Duration(cooldown * 1000))
+		time.Sleep(time.Duration(cooldownSeconds * 1000))
 	}
 
 }
