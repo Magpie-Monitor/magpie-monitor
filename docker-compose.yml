@@ -289,7 +289,9 @@ services:
   #      - '6379:6379'
   #    volumes:
   #      - redisdata:/data
-
+  # connect to kafka using kcat
+  #   kcat -b 127.0.0.1:9094 -t pod -p 0 -o  -C -X sasl.username=username -X sasl.password=password \
+  #   -X sasl.mechanism=PLAIN -X security.protocol=SASL_PLAINTEXT -C
   kafka:
     image: bitnami/kafka
     container_name: magpie-monitor-kafka
