@@ -39,7 +39,7 @@ func (a *AgentWrapper) Start() {
 func (a *AgentWrapper) startNodeAgent() {
 	logChannel := make(chan node.Chunk)
 
-	agent := node.NewReader(a.config.WatchedFiles, a.config.ScrapeInterval, nil, logChannel, a.config.RedisUrl)
+	agent := node.NewReader(a.config.WatchedFiles, a.config.ScrapeInterval, nil, logChannel, a.config.RedisUrl, a.config.RedisPassword)
 	go agent.WatchFiles()
 
 	for chunk := range logChannel {
