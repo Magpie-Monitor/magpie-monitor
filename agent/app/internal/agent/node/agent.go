@@ -2,7 +2,6 @@ package node
 
 import (
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/database"
-	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/transformer"
 	"io"
 	"log"
 	"os"
@@ -13,19 +12,17 @@ import (
 type IncrementalReader struct {
 	files                 []string
 	scrapeIntervalSeconds int
-	transformers          []transformer.Transformer
 	results               chan Chunk
 	redis                 database.Redis
 }
 
-func NewReader(files []string, scrapeIntervalSeconds int, transformers []transformer.Transformer, results chan Chunk,
-	redisUrl, redisPassword string) IncrementalReader {
+func NewReader(files []string, scrapeIntervalSeconds int, results chan Chunk,
+	redisUrl, redisPassword string, redisDb int) IncrementalReader {
 	return IncrementalReader{
 		files:                 files,
 		scrapeIntervalSeconds: scrapeIntervalSeconds,
-		transformers:          transformers,
 		results:               results,
-		redis:                 database.NewRedis(redisUrl, redisPassword, 0),
+		redis:                 database.NewRedis(redisUrl, redisPassword, redisDb),
 	}
 }
 
@@ -113,18 +110,10 @@ func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results c
 				Name:      "mock-node-name",
 				Timestamp: time.Now().UnixNano(),
 				Namespace: dir,
-				Content:   r.transform(string(buf)),
+				Content:   string(buf),
 			}
 		}
 
 		time.Sleep(time.Duration(cooldownSeconds * 1000))
 	}
-
-}
-
-func (r *IncrementalReader) transform(content string) string {
-	for _, t := range r.transformers {
-		content = t.Transform(content)
-	}
-	return content
 }

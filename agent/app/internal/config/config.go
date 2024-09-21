@@ -55,13 +55,13 @@ func NewConfig() Config {
 	redisPassword := flag.String("redisPassword", "", "Password to Redis instance pointed by --redisUrl flag.")
 	redisDatabase := flag.Int("redisDatabase", 0, "Database number for Redis instance.")
 
-	remoteWriteBrokerUrl := flag.String("remoteWriteQueueUrl", "", "URL of remote write broker.")
-	remoteWritePodTopic := flag.String("remoteWritePodTopic", "", "Broker topic to which pod logs will be sent.")
-	remoteWriteNodeTopic := flag.String("remoteWriteNodeTopic", "", "Broker topic to which node logs will be sent.")
+	remoteWriteBrokerUrl := flag.String("remoteWriteQueueUrl", "localhost:9094", "URL of remote write broker.")
+	remoteWritePodTopic := flag.String("remoteWritePodTopic", "pods", "Broker topic to which pod logs will be sent.")
+	remoteWriteNodeTopic := flag.String("remoteWriteNodeTopic", "nodes", "Broker topic to which node logs will be sent.")
 	remoteWriteBatchSize := flag.Int("remoteWriteBatchSize", 20, "Number of messages that are buffered and sent to broker in a single batch.")
 
-	remoteWriteBrokerUsername := flag.String("remoteWriteBrokerUsername", "", "SASL authentication broker username.")
-	remoteWriteBrokerPassword := flag.String("remoteWriteBrokerPassword", "", "SASL authentication broker password.")
+	remoteWriteBrokerUsername := flag.String("remoteWriteBrokerUsername", "username", "SASL authentication broker username.")
+	remoteWriteBrokerPassword := flag.String("remoteWriteBrokerPassword", "password", "SASL authentication broker password.")
 
 	var watchedFiles arrayFlags
 	flag.Var(&watchedFiles, "file", "Log files that are watched for log collector running in \"nodes\" mode.")
