@@ -16,29 +16,52 @@ func (i *arrayFlags) Set(value string) error {
 	return nil
 }
 
-type Config struct {
-	Mode                     string
-	ClusterName              string
-	ScrapeInterval           int
-	RedisUrl                 string
-	RedisPassword            string
-	WatchedFiles             []string
-	RemoteWriteUrls          []string
-	RemoteWriteRetryInterval int
-	RemoteWriteMaxRetries    int
-	ExcludedNamespaces       []string
+type GlobalConfig struct {
+	Mode                  string
+	ClusterName           string
+	ScrapeIntervalSeconds int
 }
 
-func GetConfig() Config {
+type RedisConfig struct {
+	Url      string
+	Password string
+	Database int
+}
+
+type BrokerConfig struct {
+	Url       string
+	Username  string
+	Password  string
+	PodTopic  string
+	NodeTopic string
+	BatchSize int
+}
+
+type Config struct {
+	Global             GlobalConfig
+	Redis              RedisConfig
+	Broker             BrokerConfig
+	WatchedFiles       []string
+	ExcludedNamespaces []string
+}
+
+func NewConfig() Config {
 	mode := flag.String("scrape", "pods", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
 	clusterName := flag.String("clusterFriendlyName", "unknown", "Friendly name of your cluster, visible in Magpie Cloud.")
 
-	scrapeInterval := flag.Int("scrapeInterval", 10, "Interval between scraping logs from files in \"nodes\" mode or pods in \"pods\" mode.")
-	remoteWriteRetryInterval := flag.Int("remoteWriteRetryInterval", 2, "Interval between retries in case of Remote Write error.")
-	remoteWriteMaxRetries := flag.Int("remoteWriteMaxRetries", 5, "Maximal number of retries in case of Remote Write error.")
+	scrapeIntervalSeconds := flag.Int("scrapeIntervalSeconds", 10, "Interval between scraping logs from files in \"nodes\" mode or pods in \"pods\" mode.")
 
 	redisUrl := flag.String("redisUrl", "", "Redis URL in cluster DNS format, that is: service.namespace.svc.cluster.local:port")
 	redisPassword := flag.String("redisPassword", "", "Password to Redis instance pointed by --redisUrl flag.")
+	redisDatabase := flag.Int("redisDatabase", 0, "Database number for Redis instance.")
+
+	remoteWriteBrokerUrl := flag.String("remoteWriteQueueUrl", "", "URL of remote write broker.")
+	remoteWritePodTopic := flag.String("remoteWritePodTopic", "", "Broker topic to which pod logs will be sent.")
+	remoteWriteNodeTopic := flag.String("remoteWriteNodeTopic", "", "Broker topic to which node logs will be sent.")
+	remoteWriteBatchSize := flag.Int("remoteWriteBatchSize", 20, "Number of messages that are buffered and sent to broker in a single batch.")
+
+	remoteWriteBrokerUsername := flag.String("remoteWriteBrokerUsername", "", "SASL authentication broker username.")
+	remoteWriteBrokerPassword := flag.String("remoteWriteBrokerPassword", "", "SASL authentication broker password.")
 
 	var watchedFiles arrayFlags
 	flag.Var(&watchedFiles, "file", "Log files that are watched for log collector running in \"nodes\" mode.")
@@ -55,15 +78,25 @@ func GetConfig() Config {
 	log.Println("Redis url: ", *redisUrl)
 
 	return Config{
-		Mode:                     *mode,
-		ClusterName:              *clusterName,
-		ScrapeInterval:           *scrapeInterval,
-		RedisUrl:                 *redisUrl,
-		RedisPassword:            *redisPassword,
-		WatchedFiles:             watchedFiles,
-		RemoteWriteUrls:          remoteWriteUrls,
-		RemoteWriteRetryInterval: *remoteWriteRetryInterval,
-		RemoteWriteMaxRetries:    *remoteWriteMaxRetries,
-		ExcludedNamespaces:       excludedNamespaces,
+		Global: GlobalConfig{
+			Mode:                  *mode,
+			ClusterName:           *clusterName,
+			ScrapeIntervalSeconds: *scrapeIntervalSeconds,
+		},
+		Redis: RedisConfig{
+			Url:      *redisUrl,
+			Password: *redisPassword,
+			Database: *redisDatabase,
+		},
+		Broker: BrokerConfig{
+			Url:       *remoteWriteBrokerUrl,
+			Username:  *remoteWriteBrokerUsername,
+			Password:  *remoteWriteBrokerPassword,
+			PodTopic:  *remoteWritePodTopic,
+			NodeTopic: *remoteWriteNodeTopic,
+			BatchSize: *remoteWriteBatchSize,
+		},
+		WatchedFiles:       watchedFiles,
+		ExcludedNamespaces: excludedNamespaces,
 	}
 }

@@ -1,15 +1,300 @@
 services:
-  client:
-    container_name: magpie-monitor-client
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-      target: production
-      args:
-        - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-        - VITE_GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
-        - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+  #  client:
+  #    container_name: magpie-monitor-client
+  #    build:
+  #      context: ./client
+  #      dockerfile: Dockerfile
+  #      target: production
+  #      args:
+  #        - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+  #        - VITE_GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+  #        - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+  #    ports:
+  #      - "80:80"
+  #  reports-service:
+  #    user: "0"
+  #    container_name: magpie-monitor-reports-service
+  #    build:
+  #      context: ./go
+  #      dockerfile: ./docker/reports/Dockerfile
+  #    ports:
+  #      - ${REPORTS_SERVICE_HTTP_PORT}:${REPORTS_SERVICE_HTTP_PORT}
+  #    develop:
+  #      watch:
+  #        - action: rebuild
+  #          path: ./go/services/reports
+  #          target: /src
+  #    volumes:
+  #      - certs:/usr/local/share
+  #    healthcheck:
+  #      test: curl --fail http://localhost:8080 || exit 1
+  #      interval: 10s
+  #      timeout: 5s
+  #      retries: 5
+  #    environment:
+  #      - REPORTSDB_USER=${REPORTSDB_USER}
+  #      - REPORTSDB_PASSWORD=${REPORTSDB_PASSWORD}
+  #      - REPORTSDB_HOST=${REPORTSDB_HOST}
+  #      - REPORTSDB_PORT=${REPORTSDB_PORT}
+  #      - REPORTS_SERVICE_HTTP_PORT=${REPORTS_SERVICE_HTTP_PORT}
+  #      - LOGSDB_PORT=${LOGSDB_PORT}
+  #      - LOGSDB_HOST=${LOGSDB_HOST}
+  #      - LOGSDB_USER=${LOGSDB_USER}
+  #      - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
+  #      - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
+  #  logs-ingestion-service:
+  #    user: "0"
+  #    container_name: magpie-monitor-logs-ingestion-service
+  #    build:
+  #      context: ./go
+  #      dockerfile: ./docker/logs-ingestion/Dockerfile
+  #    ports:
+  #      - ${LOGS_INGESTION_SERVICE_HTTP_PORT}:${LOGS_INGESTION_SERVICE_HTTP_PORT}
+  #    environment:
+  #      - LOGS_INGESTION_SERVICE_HTTP_PORT=${LOGS_INGESTION_SERVICE_HTTP_PORT}
+  #      - LOGSDB_PORT=${LOGSDB_PORT}
+  #      - LOGSDB_HOST=${LOGSDB_HOST}
+  #      - LOGSDB_USER=${LOGSDB_USER}
+  #      - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
+  #      - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
+  #    develop:
+  #      watch:
+  #        - action: rebuild
+  #          path: ./go/services/logs-ingestion
+  #          target: /src
+  #        - action: rebuild
+  #          path: ./go/pkg
+  #          target: /src
+  #    volumes:
+  #      - certs:/usr/local/share
+  #    healthcheck:
+  #      test: curl --fail http://localhost:8080 || exit 1
+  #      interval: 10s
+  #      timeout: 5s
+  #      retries: 5
+  #  mongodb:
+  #    container_name: magpie-monitor-mongodb
+  #    image: mongo
+  #    volumes:
+  #      - db-data:/data/db
+  #    environment:
+  #      MONGO_INITDB_ROOT_USERNAME: ${REPORTSDB_USER}
+  #      MONGO_INITDB_ROOT_PASSWORD: ${REPORTSDB_PASSWORD}
+  #    healthcheck:
+  #      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+  #      interval: 10s
+  #      timeout: 5s
+  #      retries: 5
+  #  mongo-express:
+  #    container_name: magpie-monitor-mongo-express
+  #    image: mongo-express
+  #    ports:
+  #      - 8081:8081
+  #    environment:
+  #      ME_CONFIG_MONGODB_SERVER: ${REPORTSDB_HOST}
+  #      ME_CONFIG_MONGODB_ADMINUSERNAME: ${REPORTSDB_USER}
+  #      ME_CONFIG_MONGODB_ADMINPASSWORD: ${REPORTSDB_PASSWORD}
+  #    depends_on:
+  #      - mongodb
+  #  es-setup:
+  #    container_name: magpie-monitor-es-setup
+  #    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+  #    volumes:
+  #      - certs:/usr/share/elasticsearch/config/certs
+  #    user: "0"
+  #    command: >
+  #      bash -c '
+  #        if [ x${ELASTIC_PASSWORD} == x ]; then
+  #          echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
+  #          exit 1;
+  #        elif [ x${KIBANA_PASSWORD} == x ]; then
+  #          echo "Set the KIBANA_PASSWORD environment variable in the .env file";
+  #          exit 1;
+  #        fi;
+  #        if [ ! -f config/certs/ca.zip ]; then
+  #          echo "Creating CA";
+  #          bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
+  #          unzip config/certs/ca.zip -d config/certs;
+  #        fi;
+  #        if [ ! -f config/certs/certs.zip ]; then
+  #          echo "Creating certs";
+  #          echo -ne \
+  #          "instances:\n"\
+  #          "  - name: elasticsearch\n"\
+  #          "    dns:\n"\
+  #          "      - elasticsearch\n"\
+  #          "      - localhost\n"\
+  #          "    ip:\n"\
+  #          "      - 127.0.0.1\n"\
+  #          "  - name: kibana\n"\
+  #          "    dns:\n"\
+  #          "      - kibana\n"\
+  #          "      - localhost\n"\
+  #          "    ip:\n"\
+  #          "      - 127.0.0.1\n"\
+  #          > config/certs/instances.yml;
+  #          bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
+  #          unzip config/certs/certs.zip -d config/certs;
+  #        fi;
+  #        echo "Setting file permissions"
+  #        chown -R root:root config/certs;
+  #        find . -type d -exec chmod 750 \{\} \;;
+  #        find . -type f -exec chmod 640 \{\} \;;
+  #        echo "Waiting for Elasticsearch availability";
+  #        until curl -s --cacert config/certs/ca/ca.crt https://elasticsearch:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
+  #        echo "Setting kibana_system password";
+  #        until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elasticsearch:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
+  #        echo "All done!";
+  #      '
+  #    healthcheck:
+  #      test: [ "CMD-SHELL", "[ -f config/certs/elasticsearch/elasticsearch.crt ]" ]
+  #      interval: 1s
+  #      timeout: 5s
+  #      retries: 120
+  #  elasticsearch:
+  #    container_name: magpie-monitor-elasticsearch
+  #    depends_on:
+  #      es-setup:
+  #        condition: service_healthy
+  #    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+  #    labels:
+  #      co.elastic.logs/module: elasticsearch
+  #    volumes:
+  #      - certs:/usr/share/elasticsearch/config/certs
+  #      - elasticsearchdata:/usr/share/elasticsearch/data
+  #    ports:
+  #      - ${ES_PORT}:9200
+  #    environment:
+  #      - node.name=elasticsearch
+  #      - cluster.name=${CLUSTER_NAME}
+  #      - discovery.type=single-node
+  #      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+  #      - bootstrap.memory_lock=true
+  #      - xpack.security.enabled=true
+  #      - xpack.security.http.ssl.enabled=true
+  #      - xpack.security.http.ssl.key=certs/elasticsearch/elasticsearch.key
+  #      - xpack.security.http.ssl.certificate=certs/elasticsearch/elasticsearch.crt
+  #      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+  #      - xpack.security.transport.ssl.enabled=true
+  #      - xpack.security.transport.ssl.key=certs/elasticsearch/elasticsearch.key
+  #      - xpack.security.transport.ssl.certificate=certs/elasticsearch/elasticsearch.crt
+  #      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+  #      - xpack.security.transport.ssl.verification_mode=certificate
+  #      - xpack.license.self_generated.type=${LICENSE}
+  #    mem_limit: ${ES_MEM_LIMIT}
+  #    ulimits:
+  #      memlock:
+  #        soft: -1
+  #        hard: -1
+  #    healthcheck:
+  #      test:
+  #        [
+  #          "CMD-SHELL",
+  #          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+  #        ]
+  #      interval: 10s
+  #      timeout: 10s
+  #      retries: 120
+  #  kibana:
+  #    container_name: magpie-monitor-kibana
+  #    depends_on:
+  #      elasticsearch:
+  #        condition: service_healthy
+  #    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+  #    labels:
+  #      co.elastic.logs/module: kibana
+  #    volumes:
+  #      - certs:/usr/share/kibana/config/certs
+  #      - kibanadata:/usr/share/kibana/data
+  #    ports:
+  #      - ${KIBANA_PORT}:5601
+  #    environment:
+  #      - SERVERNAME=kibana
+  #      - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
+  #      - ELASTICSEARCH_USERNAME=kibana_system
+  #      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+  #      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+  #      - XPACK_SECURITY_ENCRYPTIONKEY=${ENCRYPTION_KEY}
+  #      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${ENCRYPTION_KEY}
+  #      - XPACK_REPORTING_ENCRYPTIONKEY=${ENCRYPTION_KEY}
+  #    mem_limit: ${KB_MEM_LIMIT}
+  #    healthcheck:
+  #      test:
+  #        [
+  #          "CMD-SHELL",
+  #          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+  #        ]
+  #      interval: 10s
+  #      timeout: 10s
+  #  pod-agent:
+  #    user: "0" # Elevated permission needed for bind mount
+  #    container_name: magpie-monitor-pod-agent
+  #    build:
+  #      context: ./agent/app
+  #      dockerfile: Dockerfile
+  #    restart: always
+  #    depends_on:
+  #      - kafka
+  #    command:
+  #      - "--scrape"
+  #      - "pods"
+  #      - "--scrapeInterval"
+  #      - "30"
+  #    develop:
+  #      watch:
+  #        - action: rebuild
+  #          path: ./agent/app
+  #          target: /src
+  #        - action: rebuild
+  #          path: ./go/pkg
+  #          target: /src
+  #    volumes:
+  #      - ${POD_AGENT_HOST_KUBECONFIG_PATH}:/root/.kube
+
+  #  node-agent:
+  #    user: "0" # Elevated permission needed for bind mount
+  #    container_name: magpie-monitor-node-agent
+  #    depends_on:
+  #      - redis
+  #    build:
+  #      context: ./agent/app
+  #      dockerfile: Dockerfile
+  #    restart: always
+  #    command:
+  #      - "--scrape"
+  #      - "nodes"
+  #      - "--redisUrl"
+  #      - "redis:6379"
+  #      - "--redisPassword"
+  #      - ${REDIS_PASSWORD}
+  #      - "--file"
+  #      - "/var/log/file"
+  #    develop:
+  #      watch:
+  #        - action: rebuild
+  #          path: ./agent/app
+  #          target: /src
+  #        - action: rebuild
+  #          path: ./go/pkg
+  #    volumes:
+  #      - ${NODE_AGENT_HOST_WATCHED_FILE_PATH}:/var/log/file
+  #  # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in dev environment.
+  #  redis:
+  #    image: redis:7.4-alpine
+  #    restart: always
+  #    command:
+  #      - "--requirepass"
+  #      - ${REDIS_PASSWORD}
+  #    ports:
+  #      - '6379:6379'
+  #    volumes:
+  #      - redisdata:/data
+
+  kafka:
+    image: bitnami/kafka
+    container_name: magpie-monitor-kafka
     ports:
+      - "9094:9094"
       - "80:80"
   reports-service:
     user: "0"
