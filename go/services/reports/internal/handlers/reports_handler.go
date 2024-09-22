@@ -21,6 +21,8 @@ type ReportsRouter struct {
 
 func NewReportsRouter(reportsHandler *ReportsHandler) *ReportsRouter {
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /", reportsHandler.GetAll)
+	mux.HandleFunc("GET /reports/{id}", reportsHandler.GetSingle)
 	mux.HandleFunc("POST /", reportsHandler.Post)
 
 	return &ReportsRouter{
@@ -29,7 +31,7 @@ func NewReportsRouter(reportsHandler *ReportsHandler) *ReportsRouter {
 }
 
 func (r *ReportsRouter) Pattern() string {
-	return "/reports"
+	return "/reports/"
 }
 
 func (router *ReportsRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -75,6 +77,61 @@ type reportsPostParams struct {
 	MaxLength                int                                         `json:"maxLength"`
 }
 
+func (h *ReportsHandler) GetSingle(w http.ResponseWriter, r *http.Request) {
+
+	ctx := context.Background()
+	id := r.PathValue("id")
+
+	report, repositoryErr := h.reportRepository.GetSingleReport(ctx, id)
+
+	if repositoryErr != nil {
+		switch repositoryErr.Kind() {
+		case repositories.InternalError:
+			w.WriteHeader(http.StatusInternalServerError)
+		case repositories.ReportNotFound:
+			w.WriteHeader(http.StatusNotFound)
+		case repositories.InvalidReportId:
+			w.WriteHeader(http.StatusBadRequest)
+		}
+
+		h.logger.Error(
+			"Failed to fetch single report by id",
+			zap.String("id", id),
+			zap.Error(repositoryErr))
+		return
+	}
+
+	encodedReport, err := json.Marshal(report)
+	if err != nil {
+		h.logger.Error("Failed to encode report", zap.String("id", id), zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(encodedReport)
+}
+
+func (h *ReportsHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+
+	ctx := context.Background()
+
+	reports, repositoryError := h.reportRepository.GetAllReports(ctx)
+	if repositoryError != nil {
+		h.logger.Error("Failed to fetch all reports", zap.Error(repositoryError))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	encodedReports, err := json.Marshal(reports)
+	if err != nil {
+		h.logger.Error("Failed to encode all reports", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(encodedReports)
+}
+
 func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
@@ -95,8 +152,8 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	insertedReport, err := h.reportRepository.InsertReport(ctx, report)
-	if err != nil {
+	insertedReport, repositoryErr := h.reportRepository.InsertReport(ctx, report)
+	if repositoryErr != nil {
 		h.logger.Error("Failed to save a report", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
