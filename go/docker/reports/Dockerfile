@@ -31,6 +31,10 @@ USER appuser
 
 COPY --from=build /bin/server /bin/
 
+# Copy the openapi.yaml specification
+COPY ./services/reports/api /srv
+COPY ./pkg/swagger/index.html /srv/swagger-ui.html
+
 EXPOSE 8080
 
 ENTRYPOINT [ "/bin/server" ]

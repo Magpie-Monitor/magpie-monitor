@@ -10,6 +10,7 @@ import (
 	elasticsearch "github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/swagger"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/database"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/handlers"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
@@ -21,7 +22,7 @@ import (
 )
 
 func NewHTTPServer(lc fx.Lifecycle, mux *http.ServeMux, log *zap.Logger) *http.Server {
-	port := os.Getenv("REPORTS_SERVICE_HTTP_PORT")
+	port := os.Getenv("REPORTS_SERVICE_PORT")
 
 	srv := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: mux}
 	lc.Append(fx.Hook{
@@ -56,7 +57,11 @@ func main() {
 			routing.ProvideAsRootServeMux(routing.NewServeMux),
 
 			routing.ProvideAsRoute(handlers.NewReportsRouter),
+			routing.ProvideAsRoute(swagger.NewSwaggerRouter),
 			handlers.NewReportsHandler,
+
+			swagger.NewSwaggerHandler,
+			swagger.ProvideSwaggerConfig(),
 
 			database.NewReportsDbMongoClient,
 			repositories.ProvideAsReportRepository(
