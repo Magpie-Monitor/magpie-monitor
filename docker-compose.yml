@@ -293,7 +293,7 @@ services:
           path: ./go/pkg
     volumes:
       - ${NODE_AGENT_HOST_WATCHED_FILE_PATH}:/var/log/file
-    # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in dev environment.
+  # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in dev environment.
   redis:
     image: redis:7.4-alpine
     restart: always
