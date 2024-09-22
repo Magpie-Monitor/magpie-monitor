@@ -19,7 +19,7 @@ services:
       context: ./go
       dockerfile: ./docker/reports/Dockerfile
     ports:
-      - ${REPORTS_SERVICE_HTTP_PORT}:${REPORTS_SERVICE_HTTP_PORT}
+      - ${REPORTS_SERVICE_PORT}:${REPORTS_SERVICE_PORT}
     develop:
       watch:
         - action: rebuild
@@ -40,7 +40,7 @@ services:
       - REPORTSDB_PASSWORD=${REPORTSDB_PASSWORD}
       - REPORTSDB_HOST=${REPORTSDB_HOST}
       - REPORTSDB_PORT=${REPORTSDB_PORT}
-      - REPORTS_SERVICE_HTTP_PORT=${REPORTS_SERVICE_HTTP_PORT}
+      - REPORTS_SERVICE_PORT=${REPORTS_SERVICE_PORT}
       - LOGSDB_PORT=${LOGSDB_PORT}
       - LOGSDB_HOST=${LOGSDB_HOST}
       - LOGSDB_USER=${LOGSDB_USER}
@@ -49,6 +49,7 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_API_URL=${OPENAI_API_URL}
       - OPENAI_API_MODEL=${OPENAI_API_MODEL}
+      - SWAGGER_HOST=${REPORTS_SERVICE_HOST}:${REPORTS_SERVICE_PORT}
   logs-ingestion-service:
     user: "0"
     container_name: magpie-monitor-logs-ingestion-service

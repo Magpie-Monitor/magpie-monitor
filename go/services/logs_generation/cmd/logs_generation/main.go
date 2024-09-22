@@ -92,7 +92,7 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 
 		g.handleApplicationLogs(ctx, string(jsonApplicationLogs))
 		g.handleNodeLogs(ctx, string(jsonNodeLogs))
-		time.Sleep(time.Second * 1)
+		time.Sleep(time.Second * 100)
 
 	}
 

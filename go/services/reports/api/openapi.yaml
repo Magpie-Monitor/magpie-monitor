@@ -1,78 +1,220 @@
 openapi: 3.0.0
 info:
-  title: Report API
+  title: Reports API
   version: 1.0.0
 paths:
   /reports:
     post:
-      summary: Create a new report
-      operationId: createReport
-      responses:
-        "200":
-          description: A report object
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Report"
+      summary: Generate a report
+      description: Creates a report based on input parameters.
+      operationId: generateReport
+      tags:
+        - reports
       requestBody:
-        description: Report creation request
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Report"
+              type: object
+              properties:
+                cluster:
+                  type: string
+                  description: The cluster name
+                fromDate:
+                  type: integer
+                  format: int64
+                  description: Start date in Unix timestamp (nanoseconds)
+                toDate:
+                  type: integer
+                  format: int64
+                  description: End date in Unix timestamp (nanoseconds)
+                applicationConfiguration:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/ApplicationInsightConfiguration"
+                nodeConfiguration:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/NodeInsightConfiguration"
+                maxLength:
+                  type: integer
+                  description: Maximum number of logs to include (dev only)
+      responses:
+        "200":
+          description: Successfully generated report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
-    Report:
+    ApplicationInsightConfiguration:
       type: object
       properties:
-        id:
-          type: integer
-          example: 1
-        title:
+        applicationName:
           type: string
-          example: "Security Incident Report"
-        startMs:
-          type: integer
-          example: 1634025600000
-        endMs:
-          type: integer
-          example: 1634112000000
-        hostReports:
-          type: array
-          items:
-            $ref: "#/components/schemas/HostReport"
-    HostReport:
-      type: object
-      properties:
-        host:
-          type: string
-          example: "server1.example.com"
+          description: Name of the application for the insight configuration
         precision:
           type: string
-          example: "high"
+          description: Precision of the insight
         customPrompt:
           type: string
-          example: "Investigate any unusual activity."
-        incidents:
-          type: array
-          items:
-            $ref: "#/components/schemas/Incident"
-    Incident:
+          description: Custom prompt for generating insights
+
+    NodeInsightConfiguration:
+      type: object
+      properties:
+        nodeName:
+          type: string
+          description: Name of the node for the insight configuration
+        precision:
+          type: string
+          description: Precision of the insight
+        customPrompt:
+          type: string
+          description: Custom prompt for generating insights
+
+    NodeIncident:
       type: object
       properties:
         category:
           type: string
-          example: "Network"
+          description: The category of the incident
         summary:
           type: string
-          example: "Suspicious traffic detected."
+          description: A summary of the incident
         recommendation:
           type: string
-          example: "Block the IP address."
+          description: Recommended actions to resolve the incident
         source:
           type: string
-          example: "IDS"
+          description: Source of the incident
         timestamp:
           type: integer
-          example: 1634108400
+          format: int64
+          description: Timestamp of the incident (milliseconds since epoch)
+
+    ApplicationIncident:
+      type: object
+      properties:
+        category:
+          type: string
+          description: The category of the incident
+        summary:
+          type: string
+          description: A summary of the incident
+        recommendation:
+          type: string
+          description: Recommended actions to resolve the incident
+        source:
+          type: string
+          description: Source of the incident
+        timestamp:
+          type: integer
+          format: int64
+          description: Timestamp of the incident (milliseconds since epoch)
+        podName:
+          type: string
+          description: Name of the pod where the incident occurred
+        containerName:
+          type: string
+          description: Name of the container where the incident occurred
+
+    NodeReport:
+      type: object
+      properties:
+        host:
+          type: string
+          description: Host associated with the report
+        precision:
+          type: string
+          description: Precision of the report
+        customPrompt:
+          type: string
+          description: Custom prompt for report generation
+        incidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/NodeIncident"
+
+    ApplicationReport:
+      type: object
+      properties:
+        applicationName:
+          type: string
+          description: Name of the application associated with the report
+        precision:
+          type: string
+          description: Precision of the report
+        customPrompt:
+          type: string
+          description: Custom prompt for report generation
+        incidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationIncident"
+
+    Report:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique report identifier
+        status:
+          type: string
+          description: Current state of the report
+          enum:
+            - failed_to_generate
+            - awaiting_generation
+            - generated
+        requestedAtNs:
+          type: integer
+          format: int64
+          description: Time when the report was requested (nanoseconds)
+        generatedAtNs:
+          type: integer
+          format: int64
+          description: Time when the report was generated (nanoseconds)
+        scheduledGenerationAtMs:
+          type: integer
+          format: int64
+          description: Time when the report is scheduled to be generated (milliseconds)
+        title:
+          type: string
+          description: Report title
+        fromDateNs:
+          type: integer
+          format: int64
+          description: Start date of the report (nanoseconds)
+        toDateNs:
+          type: integer
+          format: int64
+          description: End date of the report (nanoseconds)
+        nodeReports:
+          type: array
+          items:
+            $ref: "#/components/schemas/NodeReport"
+        applicationReports:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationReport"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
