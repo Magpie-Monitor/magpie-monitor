@@ -12,6 +12,7 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
+	"github.com/gorilla/mux"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -20,11 +21,20 @@ import (
 	"os"
 )
 
-func NewHTTPServer(lc fx.Lifecycle, mux *http.ServeMux, log *zap.Logger) *http.Server {
+type ServerParams struct {
+	fx.In
+	Lc            fx.Lifecycle
+	Logger        *zap.Logger
+	RootRouter    *mux.Router
+	ReportsRouter *handlers.ReportsRouter
+	SwaggerRouter *swagger.SwaggerRouter
+}
+
+func NewHTTPServer(serverParams ServerParams) *http.Server {
 	port := os.Getenv("REPORTS_SERVICE_PORT")
 
-	srv := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: mux}
-	lc.Append(fx.Hook{
+	srv := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: serverParams.RootRouter}
+	serverParams.Lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			ln, err := net.Listen("tcp", srv.Addr)
 
@@ -32,13 +42,13 @@ func NewHTTPServer(lc fx.Lifecycle, mux *http.ServeMux, log *zap.Logger) *http.S
 				return err
 			}
 
-			log.Info("Starting HTTP server at", zap.String("addr", srv.Addr))
+			serverParams.Logger.Info("Starting HTTP server at", zap.String("addr", srv.Addr))
 			go srv.Serve(ln)
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
 
-			log.Info("Shutting down the HTTP server at", zap.String("addr", srv.Addr))
+			serverParams.Logger.Info("Shutting down the HTTP server at", zap.String("addr", srv.Addr))
 			return srv.Shutdown(ctx)
 		},
 	})
@@ -53,12 +63,11 @@ func main() {
 		fx.Provide(
 			NewHTTPServer,
 
-			routing.ProvideAsRootServeMux(routing.NewServeMux),
-
-			routing.ProvideAsRoute(handlers.NewReportsRouter),
-			routing.ProvideAsRoute(swagger.NewSwaggerRouter),
+			routing.NewRootRouter,
+			handlers.NewReportsRouter,
 			handlers.NewReportsHandler,
 
+			swagger.NewSwaggerRouter,
 			swagger.NewSwaggerHandler,
 			swagger.ProvideSwaggerConfig(),
 

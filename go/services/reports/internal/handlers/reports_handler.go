@@ -4,34 +4,32 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
+	"net/http"
+	"time"
+
 	"github.com/IBM/fp-go/array"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
+	"github.com/gorilla/mux"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"math"
-	"net/http"
-	"time"
 )
 
 type ReportsRouter struct {
-	mux *http.ServeMux
+	mux *mux.Router
 }
 
-func NewReportsRouter(reportsHandler *ReportsHandler) *ReportsRouter {
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /", reportsHandler.GetAll)
-	mux.HandleFunc("GET /reports/{id}", reportsHandler.GetSingle)
-	mux.HandleFunc("POST /", reportsHandler.Post)
+func NewReportsRouter(reportsHandler *ReportsHandler, rootRouter *mux.Router) *ReportsRouter {
+	router := rootRouter.PathPrefix("/reports").Subrouter()
+	router.Methods(http.MethodGet).Path("/{id}").HandlerFunc(reportsHandler.GetSingle)
+	router.Methods(http.MethodGet).HandlerFunc(reportsHandler.GetAll)
+	router.Methods(http.MethodPost).HandlerFunc(reportsHandler.Post)
 
 	return &ReportsRouter{
-		mux: mux,
+		mux: rootRouter,
 	}
-}
-
-func (r *ReportsRouter) Pattern() string {
-	return "/reports/"
 }
 
 func (router *ReportsRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -80,8 +78,9 @@ type reportsPostParams struct {
 func (h *ReportsHandler) GetSingle(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
-	id := r.PathValue("id")
+	vars := mux.Vars(r)
 
+	id := vars["id"]
 	report, repositoryErr := h.reportRepository.GetSingleReport(ctx, id)
 
 	if repositoryErr != nil {
