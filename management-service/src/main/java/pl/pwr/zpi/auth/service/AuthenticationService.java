@@ -15,7 +15,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
 
     public UserDTO getUserDetails(String username) {
-        var user = userRepository.findByEmail(username).orElseThrow();
+        var user = userRepository.findByEmail(username);
         return UserDTO.toUserDTO(user);
     }
 
