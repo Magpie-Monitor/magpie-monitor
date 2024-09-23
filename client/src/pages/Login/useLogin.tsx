@@ -15,19 +15,19 @@ const useLogin = () => {
 
   useEffect(() => {
     if (code) {
-      login(code)
-        .then((authenticationInfo) => {
-          setAuthenticationInfo(authenticationInfo);
-          navigate("/config");
-        })
-        .catch((error) => {
-          console.error("Failed to login", error);
-        });
+      // login(code)
+      //   .then((authenticationInfo) => {
+      //     setAuthenticationInfo(authenticationInfo);
+      //     navigate("/config");
+      //   })
+      //   .catch((error) => {
+      //     console.error("Failed to login", error);
+      //   });
     }
 
-    if (isTokenValid()) {
-      navigate("/config");
-    }
+    // if (isTokenValid()) {
+    //   navigate("/config");
+    // }
   }, [code, setAuthenticationInfo, navigate, isTokenValid]);
 
   return authenticationInfo;

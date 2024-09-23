@@ -1,7 +1,7 @@
 package routing
 
 import (
-	"go.uber.org/fx"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -10,26 +10,8 @@ type Route interface {
 	Pattern() string
 }
 
-func NewServeMux(routes []Route) *http.ServeMux {
-	mux := http.NewServeMux()
-	for _, route := range routes {
-		mux.Handle(route.Pattern(), route)
-	}
+func NewRootRouter() *mux.Router {
+	mux := mux.NewRouter().PathPrefix("/v1").Subrouter()
+
 	return mux
-}
-
-func ProvideAsRootServeMux(f any) any {
-	return fx.Annotate(
-		NewServeMux,
-		fx.ParamTags(`group:"routes"`),
-	)
-}
-
-func ProvideAsRoute(f any) any {
-
-	return fx.Annotate(
-		f,
-		fx.As(new(Route)),
-		fx.ResultTags(`group:"routes"`),
-	)
 }

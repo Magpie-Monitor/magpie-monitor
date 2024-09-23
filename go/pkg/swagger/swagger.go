@@ -2,6 +2,7 @@ package swagger
 
 import (
 	"fmt"
+	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
@@ -10,26 +11,21 @@ import (
 
 type SwaggerRouter struct {
 	logger *zap.Logger
-	mux    *http.ServeMux
+	router *mux.Router
 }
 
-func NewSwaggerRouter(swaggerHandler *SwaggerHandler) *SwaggerRouter {
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("GET /swagger/openapi.yaml", swaggerHandler.GetOpenApiSpecification)
-	mux.HandleFunc("GET /", swaggerHandler.Get)
+func NewSwaggerRouter(swaggerHandler *SwaggerHandler, rootRouter *mux.Router) *SwaggerRouter {
+	router := rootRouter.PathPrefix("/swagger").Subrouter()
+	router.Methods(http.MethodGet).Path("/openapi.yaml").HandlerFunc(swaggerHandler.GetOpenApiSpecification)
+	router.Methods(http.MethodGet).HandlerFunc(swaggerHandler.Get)
 
 	return &SwaggerRouter{
-		mux: mux,
+		router: router,
 	}
 }
 
-func (r *SwaggerRouter) Pattern() string {
-	return "/swagger/"
-}
-
-func (router *SwaggerRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	router.mux.ServeHTTP(w, r)
+func (rtr *SwaggerRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	rtr.router.ServeHTTP(w, r)
 }
 
 type SwaggerHandler struct {
