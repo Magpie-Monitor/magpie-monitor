@@ -1,22 +1,12 @@
-import { useEffect } from "react";
 import { navigateToGoogleAuth } from "../../../../api/googleAuth";
 import "./Panel.scss";
 import googleLogo from "@/assets/google-logo.webp";
-import { getUsername } from "../../../../api/authApi";
 
 const LoginPanel = () => {
-  // const handleGoogleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
-  //   e.preventDefault();
-  //   navigateToGoogleAuth();
-  // };
-  //
-  useEffect(() => {
-    const handler = async () => {
-      const username = await getUsername();
-      console.log(username);
-    };
-    handler();
-  }, []);
+  const handleGoogleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    navigateToGoogleAuth();
+  };
 
   return (
     <div className="login-panel">
@@ -27,7 +17,7 @@ const LoginPanel = () => {
       <div className="login-panel__body">
         <button
           className="login-panel__body__button"
-        // onClick={handleGoogleLogin}
+          onClick={handleGoogleLogin}
         >
           <img
             src={googleLogo}

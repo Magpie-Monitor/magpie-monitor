@@ -32,8 +32,6 @@ func NewKafkaLogsStream[T any](host string, port string, topic string, logger *z
 
 func (s *KafkaLogsStreamReader[T]) handleMessage(message []byte) {
 
-	s.logger.Debug("Read message", zap.String("msg", string(message)))
-
 	var a T
 	err := json.NewDecoder(bytes.NewReader(message)).Decode(&a)
 	if err != nil {
