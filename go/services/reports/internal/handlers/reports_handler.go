@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/IBM/fp-go/array"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"github.com/gorilla/mux"
@@ -67,12 +69,12 @@ func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
 }
 
 type reportsPostParams struct {
-	Cluster                  string                                      `json:"cluster"`
-	FromDate                 int64                                       `json:"fromDate"`
-	ToDate                   int64                                       `json:"toDate"`
+	Cluster                  *string                                     `json:"cluster"`
+	FromDate                 *int64                                      `json:"fromDate"`
+	ToDate                   *int64                                      `json:"toDate"`
 	ApplicationConfiguration []*insights.ApplicationInsightConfiguration `json:"applicationConfiguration"`
 	NodeConfiguration        []*insights.NodeInsightConfiguration        `json:"nodeConfiguration"`
-	MaxLength                int                                         `json:"maxLength"`
+	MaxLength                *int                                        `json:"maxLength"`
 }
 
 func (h *ReportsHandler) GetSingle(w http.ResponseWriter, r *http.Request) {
@@ -97,7 +99,9 @@ func (h *ReportsHandler) GetSingle(w http.ResponseWriter, r *http.Request) {
 			"Failed to fetch single report by id",
 			zap.String("id", id),
 			zap.Error(repositoryErr))
-		return
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(repositoryErr.Error()))
 	}
 
 	encodedReport, err := json.Marshal(report)
@@ -107,6 +111,7 @@ func (h *ReportsHandler) GetSingle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("Content-Type", "application/json")
 	w.Write(encodedReport)
 }
 
@@ -114,7 +119,42 @@ func (h *ReportsHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	reports, repositoryError := h.reportRepository.GetAllReports(ctx)
+	query := r.URL.Query()
+
+	cluster, isClusterSet := routing.LookupQueryParam(query, "cluster")
+	fromDate, isFromDateSet := routing.LookupQueryParam(query, "fromDate")
+	toDate, isToDateSet := routing.LookupQueryParam(query, "toDate")
+
+	filterParams := repositories.FilterParams{}
+
+	if isClusterSet {
+		filterParams.Cluster = &cluster
+	}
+
+	if isFromDateSet {
+		fromDateInt, err := strconv.ParseInt(fromDate, 10, 64)
+		if err != nil {
+			h.logger.Warn("Invalid fromDate query param", zap.Error(err))
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Invalid fromDate parameter"))
+			return
+		}
+		filterParams.FromDate = &fromDateInt
+	}
+
+	if isToDateSet {
+		toDateInt, err := strconv.ParseInt(toDate, 10, 64)
+		if err != nil {
+			h.logger.Warn("Invalid toDate query param", zap.Error(err))
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Invalid toDate parameter"))
+			return
+		}
+		filterParams.ToDate = &toDateInt
+	}
+
+	reports, repositoryError := h.reportRepository.GetAllReports(ctx, filterParams)
+
 	if repositoryError != nil {
 		h.logger.Error("Failed to fetch all reports", zap.Error(repositoryError))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -128,6 +168,7 @@ func (h *ReportsHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("Content-Type", "application/json")
 	w.Write(encodedReports)
 }
 
@@ -144,7 +185,38 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	report, err := h.generateCompleteOnDemandReport(ctx, params)
+	if params.FromDate == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Missing fromDate parameter"))
+		return
+	}
+
+	if params.ToDate == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Missing toDate parameter"))
+		return
+	}
+
+	if params.Cluster == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Missing cluster parameter"))
+		return
+	}
+
+	if params.MaxLength == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Missing maxLength parameter"))
+		return
+	}
+
+	report, err := h.generateCompleteOnDemandReport(ctx, reportGenerationFilters{
+		Cluster:                  *params.Cluster,
+		FromDate:                 *params.FromDate,
+		ToDate:                   *params.ToDate,
+		MaxLength:                *params.MaxLength,
+		ApplicationConfiguration: params.ApplicationConfiguration,
+		NodeConfiguration:        params.NodeConfiguration,
+	})
 	if err != nil {
 		h.logger.Error("Failed to generate report", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -165,12 +237,22 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("Content-Type", "application/json")
 	w.Write(reportJson)
+}
+
+type reportGenerationFilters struct {
+	Cluster                  string                                      `json:"cluster"`
+	FromDate                 int64                                       `json:"fromDate"`
+	ToDate                   int64                                       `json:"toDate"`
+	ApplicationConfiguration []*insights.ApplicationInsightConfiguration `json:"applicationConfiguration"`
+	NodeConfiguration        []*insights.NodeInsightConfiguration        `json:"nodeConfiguration"`
+	MaxLength                int                                         `json:"maxLength"`
 }
 
 func (h *ReportsHandler) generateCompleteOnDemandReport(
 	ctx context.Context,
-	params reportsPostParams) (*repositories.Report, error) {
+	params reportGenerationFilters) (*repositories.Report, error) {
 
 	fromDate := time.Unix(0, params.FromDate)
 	toDate := time.Unix(0, params.ToDate)
@@ -203,6 +285,7 @@ func (h *ReportsHandler) generateCompleteOnDemandReport(
 
 	report := repositories.Report{
 		Status:        repositories.ReportState_Generated,
+		Cluster:       params.Cluster,
 		RequestedAtNs: time.Now().UnixNano(),
 		//TODO: Generate the report entity first and assign the insights
 		//later once the Batch API is implemented.

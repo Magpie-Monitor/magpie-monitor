@@ -3,7 +3,7 @@ info:
   title: Reports API
   version: 1.0.0
 paths:
-  /reports:
+  /v1/reports:
     post:
       summary: Generate a report
       description: Creates a report based on input parameters.
@@ -38,7 +38,7 @@ paths:
                     $ref: "#/components/schemas/NodeInsightConfiguration"
                 maxLength:
                   type: integer
-                  description: Maximum number of logs to include (dev only)
+                  description: Maximum number of non-empty logs to consider
       responses:
         "200":
           description: Successfully generated report
@@ -48,6 +48,91 @@ paths:
                 $ref: "#/components/schemas/Report"
         "400":
           description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      summary: Get all reports
+      description: Retrieve a list of all reports.
+      operationId: getReports
+      tags:
+        - reports
+      parameters:
+        - in: query
+          name: cluster
+          schema:
+            type: string
+          description: Filter reports by cluster name
+        - in: query
+          name: fromDate
+          schema:
+            type: integer
+            format: int64
+          description: Filter reports from this date (Unix timestamp in nanoseconds)
+        - in: query
+          name: toDate
+          schema:
+            type: integer
+            format: int64
+          description: Filter reports to this date (Unix timestamp in nanoseconds)
+      responses:
+        "200":
+          description: A list of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /v1/reports/{id}:
+    get:
+      summary: Get a specific report
+      description: Retrieve a report by its unique ID.
+      operationId: getReportById
+      tags:
+        - reports
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The id of the report
+      responses:
+        "200":
+          description: The requested report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "400":
+          description: Invalid request (e.g., malformed id)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Report not found
           content:
             application/json:
               schema:
@@ -195,6 +280,9 @@ components:
         title:
           type: string
           description: Report title
+        cluster:
+          type: string
+          description: Cluster for which the report was generated
         fromDateNs:
           type: integer
           format: int64
@@ -217,4 +305,4 @@ components:
       properties:
         error:
           type: string
-          description: Error message
+          description: Error mes
