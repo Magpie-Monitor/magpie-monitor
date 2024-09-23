@@ -5,7 +5,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.user.data.User;
-import pl.pwr.zpi.user.exception.UserNotFoundException;
 import pl.pwr.zpi.user.repository.UserRepository;
 
 import java.util.List;
@@ -23,11 +22,18 @@ public class UserService {
     }
 
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(
-                () -> new UserNotFoundException("User with email " + email + " not found"));
+        return userRepository.findByEmail(email);
     }
 
     public List<User> saveAllUsers(List<User> users) {
         return userRepository.saveAll(users);
+    }
+
+    public User findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }
