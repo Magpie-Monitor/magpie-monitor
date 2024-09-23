@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	// "os"
 	"time"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"

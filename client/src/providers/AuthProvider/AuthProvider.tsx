@@ -36,10 +36,10 @@ export const AuthProvider = (props: {
       authenticationInfo.expires > Date.now() / 1000
     );
   };
-  //
-  // useEffect(() => {
-  //   setAuthenticationInfo(props.authenticationInfo);
-  // }, [props, setAuthenticationInfo]);
+
+  useEffect(() => {
+    setAuthenticationInfo(props.authenticationInfo);
+  }, [props, setAuthenticationInfo]);
 
   return (
     <AuthContext.Provider
