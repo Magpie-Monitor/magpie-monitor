@@ -12,35 +12,35 @@ import (
 )
 
 type NodeIncident struct {
-	Category       string `bson:"category"`
-	Summary        string `bson:"summary"`
-	Recommendation string `bson:"recommendation"`
-	Source         string `bson:"source"`
-	Timestamp      int64  `bson:"timestamp"`
+	Category       string `bson:"category" json:"category"`
+	Summary        string `bson:"summary" json:"summary"`
+	Recommendation string `bson:"recommendation" json:"recommendation"`
+	Source         string `bson:"source" json:"source"`
+	Timestamp      int64  `bson:"timestamp" json:"timestamp"`
 }
 
 type ApplicationIncident struct {
-	Category       string `bson:"category"`
-	Summary        string `bson:"summary"`
-	Recommendation string `bson:"recommendation"`
-	Source         string `bson:"source"`
-	Timestamp      int64  `bson:"timestamp"`
-	PodName        string `bson:"podName"`
-	ContainerName  string `bson:"containerName"`
+	Category       string `bson:"category" json:"category"`
+	Summary        string `bson:"summary" json:"summary"`
+	Recommendation string `bson:"recommendation" json:"recommendation"`
+	Source         string `bson:"source" json:"source"`
+	Timestamp      int64  `bson:"timestamp" json:"timestamp"`
+	PodName        string `bson:"podName" json:"podName"`
+	ContainerName  string `bson:"containerName" json:"containerName"`
 }
 
 type NodeReport struct {
-	Host         string         `bson:"host"`
-	Precision    string         `bson:"precision"`
-	CustomPrompt string         `bson:"customPrompt"`
-	Incidents    []NodeIncident `bson:"incidents"`
+	Host         string         `bson:"host" json:"host"`
+	Precision    string         `bson:"precision" json:"precision"`
+	CustomPrompt string         `bson:"customPrompt" json:"customPrompt"`
+	Incidents    []NodeIncident `bson:"incidents" json:"incidents"`
 }
 
 type ApplicationReport struct {
-	ApplicationName string                `bson:"name"`
-	Precision       string                `bson:"precision"`
-	CustomPrompt    string                `bson:"customPrompt"`
-	Incidents       []ApplicationIncident `bson:"incidents"`
+	ApplicationName string                `bson:"name" json:"applicationName"`
+	Precision       string                `bson:"precision" json:"precision"`
+	CustomPrompt    string                `bson:"customPrompt" json:"customPrompt"`
+	Incidents       []ApplicationIncident `bson:"incidents" json:"incidents"`
 }
 
 type ReportState string
@@ -52,16 +52,17 @@ const (
 )
 
 type Report struct {
-	Id                      string              `bson:"_id,omitempty"`
-	Status                  ReportState         `bson:"status"`
-	RequestedAtNs           int64               `bson:"requestedAtMs"`
-	GeneratedAtNs           int64               `bson:"generatedAtMs"`
-	ScheduledGenerationAtMs int64               `bson:"scheduledGenerationAtMs"`
-	Title                   string              `bson:"title"`
-	FromDateNs              int64               `bson:"fromDateMs"`
-	ToDateNs                int64               `bson:"toDateMs"`
-	NodeReports             []NodeReport        `bson:"nodeReports"`
-	ApplicationReports      []ApplicationReport `bson:"applicationReports"`
+	Id                      string              `bson:"_id,omitempty" json:"id"`
+	Cluster                 string              `bson:"cluster" json:"cluster"`
+	Status                  ReportState         `bson:"status" json:"status"`
+	RequestedAtNs           int64               `bson:"requestedAtNs" json:"requestedAtNs"`
+	GeneratedAtNs           int64               `bson:"generatedAtNs" json:"generatedAtNs"`
+	ScheduledGenerationAtMs int64               `bson:"scheduledGenerationAtNs" json:"scheduledGenerationAtNs"`
+	Title                   string              `bson:"title" json:"title"`
+	FromDateNs              int64               `bson:"fromDateNs" json:"fromDateNs"`
+	ToDateNs                int64               `bson:"toDateNs" json:"toDateNs"`
+	NodeReports             []NodeReport        `bson:"nodeReports" json:"nodeReports"`
+	ApplicationReports      []ApplicationReport `bson:"applicationReports" json:"applicationReports"`
 }
 
 var REPORTS_DB_NAME = "reports"
@@ -109,8 +110,14 @@ func NewReportInternalError(err error) *ReportRepositoryError {
 	}
 }
 
+type FilterParams struct {
+	Cluster  *string
+	FromDate *int64
+	ToDate   *int64
+}
+
 type ReportRepository interface {
-	GetAllReports(ctx context.Context) ([]*Report, *ReportRepositoryError)
+	GetAllReports(ctx context.Context, filter FilterParams) ([]*Report, *ReportRepositoryError)
 	InsertReport(ctx context.Context, report *Report) (*Report, *ReportRepositoryError)
 	GetSingleReport(ctx context.Context, id string) (*Report, *ReportRepositoryError)
 }
@@ -142,9 +149,21 @@ func (r *MongoDbReportRepository) GetSingleReport(ctx context.Context, id string
 
 }
 
-func (r *MongoDbReportRepository) GetAllReports(ctx context.Context) ([]*Report, *ReportRepositoryError) {
+func (r *MongoDbReportRepository) GetAllReports(ctx context.Context, filter FilterParams) ([]*Report, *ReportRepositoryError) {
 	coll := r.mongoDbClient.Database(REPORTS_DB_NAME).Collection(REPORTS_COLLECTION)
-	documents, err := coll.Find(ctx, bson.D{{}})
+
+	mongoFilter := bson.M{}
+	if filter.Cluster != nil {
+		mongoFilter["cluster"] = *filter.Cluster
+	}
+	if filter.ToDate != nil {
+		mongoFilter["toDateNs"] = *filter.ToDate
+	}
+	if filter.FromDate != nil {
+		mongoFilter["fromDateNs"] = *filter.FromDate
+	}
+
+	documents, err := coll.Find(ctx, mongoFilter)
 	if err != nil {
 		r.logger.Error("Failed to get all reports from mongodb", zap.Error(err))
 		return nil, NewReportInternalError(err)
