@@ -288,9 +288,6 @@ services:
         - action: rebuild
           path: ./agent/app
           target: /src
-        - action: rebuild
-          path: ./go/pkg
-          target: /src
     volumes:
       - ${POD_AGENT_HOST_KUBECONFIG_PATH}:/root/.kube
   node-agent:
@@ -315,8 +312,6 @@ services:
         - action: rebuild
           path: ./agent/app
           target: /src
-        - action: rebuild
-          path: ./go/pkg
     volumes:
       - ${NODE_AGENT_HOST_WATCHED_FILE_PATH}:/var/log/file
   # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in dev environment.
