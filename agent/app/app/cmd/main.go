@@ -6,7 +6,6 @@ import (
 )
 
 func main() {
-	//cfg := config.Config{Global: config.GlobalConfig{Mode: "pods"}}
 	cfg := config.NewConfig()
 	agentWrapper := wrapper.NewAgentWrapper(cfg)
 	agentWrapper.Start()
