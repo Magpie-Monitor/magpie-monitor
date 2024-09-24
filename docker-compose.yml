@@ -293,7 +293,7 @@ services:
           path: ./go/pkg
     volumes:
       - ${NODE_AGENT_HOST_WATCHED_FILE_PATH}:/var/log/file
-  # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in dev environment.
+  # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in a dev environment.
   redis:
     image: redis:7.4-alpine
     restart: always
@@ -304,9 +304,6 @@ services:
       - '6379:6379'
     volumes:
       - redisdata:/data
-  # kcat -b 127.0.0.1:9094 -t pod -p 0 -o  -C -X sasl.username=username -X sasl.password=password \
-  # -X sasl.mechanism=PLAIN -X security.protocol=SASL_PLAINTEXT -C
-  # to connect to kafka from your terminal, change EXTERNAL://kafka:9094 to EXTERNAL://127.0.0.1:9094 in KAFKA_CFG_ADVERTISED_LISTENERS config
   kafka:
     image: bitnami/kafka
     container_name: magpie-monitor-kafka
