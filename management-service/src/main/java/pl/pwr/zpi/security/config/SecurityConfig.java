@@ -46,7 +46,6 @@ public class SecurityConfig {
                     request.anyRequest().authenticated();
                 })
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(oauthUserService))
                         .successHandler(oAuth2LoginSuccessHandler))
