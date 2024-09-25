@@ -1,0 +1,227 @@
+services:
+  client:
+    container_name: magpie-monitor-client
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+        - VITE_GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+        - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+    ports:
+      - "80:80"
+  reports-service:
+    user: "0"
+    container_name: magpie-monitor-reports-service
+    restart: on-failure
+    build:
+      context: ./go
+      dockerfile: ./docker/reports/Dockerfile
+    ports:
+      - ${REPORTS_SERVICE_HTTP_PORT}:${REPORTS_SERVICE_HTTP_PORT}
+    develop:
+      watch:
+        - action: rebuild
+          path: ./go/services/reports
+          target: /src
+        - action: rebuild
+          path: ./go/pkg
+          target: /src
+    volumes:
+      - es-certs:/usr/local/share
+    healthcheck:
+      test: curl --fail http://localhost:8080 || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - REPORTSDB_USER=${REPORTSDB_USER}
+      - REPORTSDB_PASSWORD=${REPORTSDB_PASSWORD}
+      - REPORTSDB_HOST=${REPORTSDB_HOST}
+      - REPORTSDB_PORT=${REPORTSDB_PORT}
+      - REPORTS_SERVICE_HTTP_PORT=${REPORTS_SERVICE_HTTP_PORT}
+      - LOGSDB_PORT=${LOGSDB_PORT}
+      - LOGSDB_HOST=${LOGSDB_HOST}
+      - LOGSDB_USER=${LOGSDB_USER}
+      - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
+      - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
+  logs-ingestion-service:
+    user: "0"
+    container_name: magpie-monitor-logs-ingestion-service
+    restart: on-failure
+    build:
+      context: ./go
+      dockerfile: ./docker/logs_ingestion/Dockerfile
+    ports:
+      - ${LOGS_INGESTION_SERVICE_HTTP_PORT}:${LOGS_INGESTION_SERVICE_HTTP_PORT}
+    environment:
+      - LOGS_INGESTION_SERVICE_HTTP_PORT=${LOGS_INGESTION_SERVICE_HTTP_PORT}
+      - LOGSDB_PORT=${LOGSDB_PORT}
+      - LOGSDB_HOST=${LOGSDB_HOST}
+      - LOGSDB_USER=${LOGSDB_USER}
+      - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
+      - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
+      - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
+      - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
+    develop:
+      watch:
+        - action: rebuild
+          path: ./go/services/logs_ingestion
+          target: /src
+        - action: rebuild
+          path: ./go/pkg
+          target: /src
+    volumes:
+      - es-certs:/usr/local/share
+    depends_on:
+      - kafka
+      - logs-generation-service
+    healthcheck:
+      test: curl --fail http://localhost:8080 || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  logs-generation-service:
+    user: "0"
+    container_name: magpie-monitor-logs-generation-service
+    restart: on-failure
+    build:
+      context: ./go
+      dockerfile: ./docker/logs_generation/Dockerfile
+    environment:
+      - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
+      - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
+    develop:
+      watch:
+        - action: rebuild
+          path: ./go/services/logs_generation
+          target: /src
+        - action: rebuild
+          path: ./go/pkg
+          target: /src
+    depends_on:
+      - kafka
+
+  kafka:
+    image: bitnami/kafka
+    container_name: magpie-monitor-kafka
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_CFG_NODE_ID: 0
+      KAFKA_CFG_PROCESS_ROLES: "controller,broker"
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "0@kafka:9093"
+      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,EXTERNAL://${KAFKA_EXTERNAL_HOSTNAME}:9094"
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+  mongodb:
+    container_name: magpie-monitor-mongodb
+    image: mongo
+    volumes:
+      - db-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${REPORTSDB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${REPORTSDB_PASSWORD}
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  mongo-express:
+    container_name: magpie-monitor-mongo-express
+    image: mongo-express
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_SERVER: ${REPORTSDB_HOST}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${REPORTSDB_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${REPORTSDB_PASSWORD}
+    depends_on:
+      - mongodb
+  pod-agent:
+    user: "0" # Elevated permission needed for bind mount
+    container_name: magpie-monitor-pod-agent
+    build:
+      context: ./agent/app
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - kafka
+    command:
+      - "--scrape"
+      - "pods"
+      - "--scrapeIntervalSeconds"
+      - "30"
+      - "--remoteWriteBrokerUrl"
+      - ${KAFKA_BROKER_URL}
+      - "--remoteWriteBrokerUsername"
+      - ${KAFKA_CLIENT_USERNAME}
+      - "--remoteWriteBrokerPassword"
+      - ${KAFKA_CLIENT_PASSWORD}
+      - "--remoteWriteBatchSize"
+      - ${KAFKA_CLIENT_BATCH_SIZE}
+    develop:
+      watch:
+        - action: rebuild
+          path: ./agent/app
+          target: /src
+    volumes:
+      - ${POD_AGENT_HOST_KUBECONFIG_PATH}:/root/.kube
+  node-agent:
+    user: "0" # Elevated permission needed for bind mount
+    container_name: magpie-monitor-node-agent
+    depends_on:
+      - redis
+    build:
+      context: ./agent/app
+      dockerfile: Dockerfile
+    restart: always
+    command:
+      - "--scrape"
+      - "nodes"
+      - "--redisUrl"
+      - "redis:6379"
+      - "--redisPassword"
+      - ${REDIS_PASSWORD}
+      - "--file"
+      - "/var/log/file"
+      - "--remoteWriteBrokerUrl"
+      - ${KAFKA_BROKER_URL}
+      - "--remoteWriteBrokerUsername"
+      - ${KAFKA_CLIENT_USERNAME}
+      - "--remoteWriteBrokerPassword"
+      - ${KAFKA_CLIENT_PASSWORD}
+      - "--remoteWriteBatchSize"
+      - ${KAFKA_CLIENT_BATCH_SIZE}
+    develop:
+      watch:
+        - action: rebuild
+          path: ./agent/app
+          target: /src
+    volumes:
+      - ${NODE_AGENT_HOST_WATCHED_FILE_PATH}:/var/log/file
+  # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in a dev environment.
+  redis:
+    image: redis:7.4-alpine
+    restart: always
+    command:
+      - "--requirepass"
+      - ${REDIS_PASSWORD}
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisdata:/data
+
+volumes:
+  redisdata:
+  db-data:
+  es-certs:
+    external: true
+
+networks:
+  default:
+    name: magpie-network
+    external: true
