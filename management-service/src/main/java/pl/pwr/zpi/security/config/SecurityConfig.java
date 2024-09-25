@@ -31,7 +31,6 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final OAuthLoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomOAuth2UserService oauthUserService;
-    private final UserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
@@ -46,13 +45,6 @@ public class SecurityConfig {
                     ).permitAll();
                     request.anyRequest().authenticated();
                 })
-                .formLogin((form) -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/", true)
-                        .failureUrl("/login")
-                        .permitAll()
-                ).userDetailsService(userDetailsService)
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
                         .userInfoEndpoint(userInfo -> userInfo
