@@ -30,7 +30,7 @@ public class UserService {
     }
 
     public User findById(Long id) {
-        return userRepository.findById(id);
+        return userRepository.findById(id).orElseThrow();
     }
 
     public User findByEmail(String email) {

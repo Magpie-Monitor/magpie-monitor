@@ -16,3 +16,37 @@ services:
           target: /app/src
         - action: rebuild
           path: ./client/package.json
+  management-service:
+    container_name: magpie-monitor-management-service
+    build:
+      context: ./management-service
+      dockerfile: Dockerfile
+    environment:
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_URL=${DB_URL}
+      - DB_LOGIN=${DB_LOGIN}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+      - JWTSECRET=${JWTSECRET}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - GOOGLE_REDIRECT_URI_FOR_FRONTEND=${GOOGLE_REDIRECT_URI_FOR_FRONTEND}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgresdb
+
+  postgresdb:
+    image: postgres:latest
+    container_name: postgresdb
+    environment:
+      POSTGRES_USER: ${DB_LOGIN}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
