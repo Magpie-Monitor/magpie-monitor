@@ -25,8 +25,8 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public List<User> saveAllUsers(List<User> users) {
-        return userRepository.saveAll(users);
+    public User saveUser(User user) {
+        return userRepository.save(user);
     }
 
     public User findById(Long id) {
