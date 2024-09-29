@@ -9,7 +9,7 @@ import pl.pwr.zpi.user.data.User;
 import java.io.IOException;
 import java.util.List;
 
-
+@Deprecated
 public interface GoogleAccessService {
 
 

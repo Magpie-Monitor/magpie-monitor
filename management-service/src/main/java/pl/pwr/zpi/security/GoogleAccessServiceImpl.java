@@ -30,6 +30,7 @@ import java.util.*;
 
 @Service
 @AllArgsConstructor
+@Deprecated
 public class GoogleAccessServiceImpl implements GoogleAccessService {
 
 //    @Value("${app.base-url}")

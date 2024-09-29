@@ -1,25 +1,31 @@
 package pl.pwr.zpi.auth.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import pl.pwr.zpi.auth.dto.TokenExpDate;
-import pl.pwr.zpi.security.jwt.JwtService;
+import pl.pwr.zpi.auth.dto.TokenExpTime;
+import pl.pwr.zpi.user.data.User;
 import pl.pwr.zpi.user.dto.UserDTO;
-import pl.pwr.zpi.user.repository.UserRepository;
+import pl.pwr.zpi.utils.AuthenticationUtils;
+
+import java.time.Instant;
 
 @RequiredArgsConstructor
 @Service
 public class AuthenticationService {
 
-    private final UserRepository userRepository;
-    private final JwtService jwtService;
+    private final AuthenticationUtils authenticationUtils;
 
-    public UserDTO getUserDetails(String username) {
-        var user = userRepository.findByEmail(username);
-        return UserDTO.toUserDTO(user);
+    public UserDTO getUserDetails(Authentication authentication) {
+        User oAuthUser = authenticationUtils.getOAuthUserFromAuthentication(authentication);
+        return UserDTO.toUserDTO(oAuthUser);
     }
 
-    public TokenExpDate getTokenValidationTime(String authToken) {
-        return jwtService.getExpirationDate(authToken);
+    public TokenExpTime getTokenValidationTime(Authentication authentication) {
+        User oAuthUser = authenticationUtils.getOAuthUserFromAuthentication(authentication);
+        long tokenExpiration = oAuthUser.getAuthTokenExpDate().toEpochMilli();
+        long currentTimeMillis = Instant.now().toEpochMilli();
+        long timeDifferenceMillis = tokenExpiration - currentTimeMillis;
+        return new TokenExpTime(timeDifferenceMillis);
     }
 }
