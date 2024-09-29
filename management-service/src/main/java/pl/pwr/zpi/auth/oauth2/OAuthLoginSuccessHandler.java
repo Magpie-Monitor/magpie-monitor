@@ -23,7 +23,6 @@ import pl.pwr.zpi.user.dto.Provider;
 import pl.pwr.zpi.user.service.OAuthUserService;
 import pl.pwr.zpi.user.service.UserService;
 import pl.pwr.zpi.utils.AuthenticationUtils;
-import pl.pwr.zpi.utils.StringUtils;
 
 import java.io.IOException;
 
@@ -46,12 +45,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        String googleClientId = environment.getProperty("spring.security.oauth2.client.registration.google.client-id");
-        String googleClientSecret = environment.getProperty("spring.security.oauth2.client.registration.google.client-secret");
-        if (StringUtils.isEmpty(googleClientId) || StringUtils.isEmpty(googleClientSecret)) {
-            response.sendRedirect("/error-page");
-            return;
-        }
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
         String registrationId = oauthToken.getAuthorizedClientRegistrationId();
 
