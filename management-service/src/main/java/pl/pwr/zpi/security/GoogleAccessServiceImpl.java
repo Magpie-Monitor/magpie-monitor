@@ -11,7 +11,6 @@ import com.google.api.client.json.gson.GsonFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.stereotype.Service;
@@ -21,11 +20,8 @@ import pl.pwr.zpi.google.config.GoogleAuthorizationCodeFlowWrapper;
 import pl.pwr.zpi.user.data.User;
 import pl.pwr.zpi.user.service.UserService;
 import pl.pwr.zpi.utils.AuthenticationUtils;
-import pl.pwr.zpi.utils.StringSetWrapper;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -49,7 +45,7 @@ public class GoogleAccessServiceImpl implements GoogleAccessService {
 
         Set<String> newGrantedScopes = new HashSet<>();
 
-        session.setAttribute("updatedScopes", new StringSetWrapper(newGrantedScopes));
+        session.setAttribute("updatedScopes", newGrantedScopes);
         String[] scopes = googleApiProperties.getScope().split(",");
         Set<String> SetOfRequiredScopes = new HashSet<>(Arrays.asList(scopes));
         SetOfRequiredScopes.addAll(newGrantedScopes);

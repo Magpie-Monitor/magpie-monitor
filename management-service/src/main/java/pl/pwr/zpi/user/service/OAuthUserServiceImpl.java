@@ -35,7 +35,6 @@ public class OAuthUserServiceImpl implements OAuthUserService {
 //    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
 //    private String clientSecret;
 
-    private static final String APPLICATION_NAME = "Your-Application-Name";
     private static final GsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static NetHttpTransport HTTP_TRANSPORT;
     static {
@@ -59,7 +58,6 @@ public class OAuthUserServiceImpl implements OAuthUserService {
     }
 
     @Override
-    @ConditionalOnExpression("!T(site.easy.to.build.crm.util.StringUtils).isEmpty('${spring.security.oauth2.client.registration.google.client-id:}')")
     public String refreshAccessTokenIfNeeded(User oauthUser) {
 //        Instant now = Instant.now();
 //        if (now.isBefore(oauthUser.getAccessTokenExpiration())) {
@@ -95,7 +93,6 @@ public class OAuthUserServiceImpl implements OAuthUserService {
     }
 
     @Override
-    @ConditionalOnExpression("!T(site.easy.to.build.crm.util.StringUtils).isEmpty('${spring.security.oauth2.client.registration.google.client-id:}')")
     public void revokeAccess(User oAuthUser) {
 //        try {
 //            final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
