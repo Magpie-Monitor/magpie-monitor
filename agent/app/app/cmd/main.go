@@ -6,8 +6,7 @@ import (
 )
 
 func main() {
-	//cfg := config.Config{Mode: "pods", RemoteWriteUrls: []string{"http://localhost:8080/api/v1/ingest"}}
-	cfg := config.GetConfig()
+	cfg := config.NewConfig()
 	agentWrapper := wrapper.NewAgentWrapper(cfg)
 	agentWrapper.Start()
 }

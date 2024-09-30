@@ -1,5 +1,4 @@
 agent:
-  name: "test"
   namespace: test2
   node:
     enabled: true
@@ -11,6 +10,7 @@ agent:
 #      - /var/log/test.log
       - /var/log/calico/cni/cni.log
   cluster:
+    friendlyName: magpie-cloud-dev-cluster
     enabled: true
     service:
       port: 8080

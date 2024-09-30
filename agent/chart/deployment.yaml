@@ -18,4 +18,4 @@ spec:
         - name: command-demo-container
           image: debian
           command: [ "/bin/bash", "-c" ]
-          args: [ "while true; do echo $(date); sleep 0.3; done" ]
+          args: [ "while true; do echo $(date); sleep 0.0000000000001; done" ]

@@ -1,9 +1,7 @@
 package node
 
 import (
-	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/entity"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/database"
-	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/transformer"
 	"io"
 	"log"
 	"os"
@@ -12,27 +10,25 @@ import (
 )
 
 type IncrementalReader struct {
-	files          []string
-	scrapeInterval int
-	transformers   []transformer.Transformer
-	results        chan entity.Chunk
-	redis          database.Redis
+	files                 []string
+	scrapeIntervalSeconds int
+	results               chan Chunk
+	redis                 database.Redis
 }
 
-func NewReader(files []string, scrapeInterval int, transformers []transformer.Transformer, results chan entity.Chunk,
-	redisUrl string) IncrementalReader {
+func NewReader(files []string, scrapeIntervalSeconds int, results chan Chunk,
+	redisUrl, redisPassword string, redisDb int) IncrementalReader {
 	return IncrementalReader{
-		files:          files,
-		scrapeInterval: scrapeInterval,
-		transformers:   transformers,
-		results:        results,
-		redis:          database.NewRedis(redisUrl, os.Getenv(""), 0), // TODO - reiterate on Redis password
+		files:                 files,
+		scrapeIntervalSeconds: scrapeIntervalSeconds,
+		results:               results,
+		redis:                 database.NewRedis(redisUrl, redisPassword, redisDb),
 	}
 }
 
 func (r *IncrementalReader) WatchFiles() {
 	for _, file := range r.files {
-		go r.watchFile(file, 1, r.results)
+		go r.watchFile(file, r.scrapeIntervalSeconds, r.results)
 	}
 }
 
@@ -70,7 +66,7 @@ func (r *IncrementalReader) prepareFile(dir string) (*os.File, int64) {
 	return f, currentSize
 }
 
-func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan entity.Chunk) {
+func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results chan Chunk) {
 	f, currentSize := r.prepareFile(dir)
 	defer f.Close()
 
@@ -109,17 +105,15 @@ func (r *IncrementalReader) watchFile(dir string, cooldown int, results chan ent
 			}
 
 			// TODO - fetch real node name
-			results <- entity.Chunk{Kind: "Node", Name: "mock-node-name", Namespace: dir, Content: r.transform(string(buf))}
+			results <- Chunk{
+				Kind:      "Node",
+				Name:      "mock-node-name",
+				Timestamp: time.Now().UnixNano(),
+				Namespace: dir,
+				Content:   string(buf),
+			}
 		}
 
-		time.Sleep(time.Duration(cooldown * 1000))
+		time.Sleep(time.Duration(cooldownSeconds * 1000))
 	}
-
-}
-
-func (r *IncrementalReader) transform(content string) string {
-	for _, t := range r.transformers {
-		content = t.Transform(content)
-	}
-	return content
 }

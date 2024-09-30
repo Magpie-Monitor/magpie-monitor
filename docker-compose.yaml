@@ -82,7 +82,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
   logs-generation-service:
     user: "0"
     container_name: magpie-monitor-logs-generation-service
@@ -103,7 +102,6 @@ services:
           target: /src
     depends_on:
       - kafka
-
   kafka:
     image: bitnami/kafka
     container_name: magpie-monitor-kafka
@@ -114,9 +112,11 @@ services:
       KAFKA_CFG_PROCESS_ROLES: "controller,broker"
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "0@kafka:9093"
       KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094"
-      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,EXTERNAL://kafka:9094"
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,EXTERNAL://${KAFKA_EXTERNAL_HOSTNAME}:9094"
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,EXTERNAL:SASL_PLAINTEXT,PLAINTEXT:PLAINTEXT"
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CLIENT_USERS: ${KAFKA_CLIENT_USERNAME}
+      KAFKA_CLIENT_PASSWORDS: ${KAFKA_CLIENT_PASSWORD}
   mongodb:
     container_name: magpie-monitor-mongodb
     image: mongo
@@ -141,8 +141,83 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${REPORTSDB_PASSWORD}
     depends_on:
       - mongodb
+  pod-agent:
+    user: "0" # Elevated permission needed for bind mount
+    container_name: magpie-monitor-pod-agent
+    build:
+      context: ./agent/app
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - kafka
+    command:
+      - "--scrape"
+      - "pods"
+      - "--scrapeIntervalSeconds"
+      - "30"
+      - "--remoteWriteBrokerUrl"
+      - ${KAFKA_BROKER_URL}
+      - "--remoteWriteBrokerUsername"
+      - ${KAFKA_CLIENT_USERNAME}
+      - "--remoteWriteBrokerPassword"
+      - ${KAFKA_CLIENT_PASSWORD}
+      - "--remoteWriteBatchSize"
+      - ${KAFKA_CLIENT_BATCH_SIZE}
+    develop:
+      watch:
+        - action: rebuild
+          path: ./agent/app
+          target: /src
+    volumes:
+      - ${POD_AGENT_HOST_KUBECONFIG_PATH}:/root/.kube
+  node-agent:
+    user: "0" # Elevated permission needed for bind mount
+    container_name: magpie-monitor-node-agent
+    depends_on:
+      - kafka
+      - redis
+    build:
+      context: ./agent/app
+      dockerfile: Dockerfile
+    restart: always
+    command:
+      - "--scrape"
+      - "nodes"
+      - "--redisUrl"
+      - "redis:6379"
+      - "--redisPassword"
+      - ${REDIS_PASSWORD}
+      - "--file"
+      - "/var/log/file"
+      - "--remoteWriteBrokerUrl"
+      - ${KAFKA_BROKER_URL}
+      - "--remoteWriteBrokerUsername"
+      - ${KAFKA_CLIENT_USERNAME}
+      - "--remoteWriteBrokerPassword"
+      - ${KAFKA_CLIENT_PASSWORD}
+      - "--remoteWriteBatchSize"
+      - ${KAFKA_CLIENT_BATCH_SIZE}
+    develop:
+      watch:
+        - action: rebuild
+          path: ./agent/app
+          target: /src
+    volumes:
+      - ${NODE_AGENT_HOST_WATCHED_FILE_PATH}:/var/log/file
+  # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in a dev environment.
+  redis:
+    image: redis:7.4-alpine
+    restart: always
+    command:
+      - "--requirepass"
+      - ${REDIS_PASSWORD}
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisdata:/data
 
 volumes:
+  redisdata:
   db-data:
   es-certs:
     external: true
