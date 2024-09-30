@@ -39,7 +39,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     public final UserService userService;
     private final OAuth2AuthorizedClientService authorizedClientService;
     public final AuthenticationUtils authenticationUtils;
-    private final Environment environment;
     private final CookieService cookieService;
 
 
