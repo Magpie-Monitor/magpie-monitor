@@ -31,9 +31,9 @@ public class AuthenticationController {
         ResponseCookie updatedToken = oauthRefreshTokenService.updateAuthToken(authentication);
 
         return ResponseEntity
-                .status(302)
+                .ok()
                 .header(HttpHeaders.SET_COOKIE, updatedToken.toString())
-                .header(HttpHeaders.LOCATION, "/refreshed")
+                .header("Content-Type", "application/json")
                 .build();
     }
 }

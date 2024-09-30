@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import pl.pwr.zpi.user.data.User;
 import pl.pwr.zpi.user.repository.UserRepository;
 
-import java.util.List;
+import java.time.Instant;
 
 @RequiredArgsConstructor
 @Service
@@ -35,5 +35,11 @@ public class UserService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public void updateUserToken(String userEmail) {
+        var user = userRepository.findByEmail(userEmail);
+        user.setAuthTokenExpDate(Instant.now());
+        userRepository.save(user);
     }
 }
