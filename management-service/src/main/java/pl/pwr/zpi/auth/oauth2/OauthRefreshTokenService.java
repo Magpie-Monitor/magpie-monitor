@@ -20,6 +20,8 @@ import pl.pwr.zpi.security.cookie.CookieService;
 import pl.pwr.zpi.user.service.UserService;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 
 @Service
 @RequiredArgsConstructor
@@ -42,12 +44,15 @@ public class OauthRefreshTokenService {
 
         OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(registrationId, authentication.getName());
 
-        OAuth2AccessToken oAuth2AccessToken = authorizedClient.getAccessToken();
-        log.info("New access token: {}", oAuth2AccessToken.getTokenValue());
+        OAuth2RefreshToken oAuth2RefreshToken = authorizedClient.getRefreshToken();
 
-        userService.updateUserToken(((DefaultOidcUser) authentication.getPrincipal()).getEmail());
+        if (oAuth2RefreshToken == null) {
+            throw new RuntimeException("Refresh token is null");
+        }
 
-        return cookieService.createRefreshCookie(refreshAccessToken(oAuth2AccessToken.getTokenValue()));
+        ResponseCookie newAuthCookie = cookieService.createAuthCookie(refreshAccessToken(oAuth2RefreshToken.getTokenValue()));
+        userService.updateUserToken(((DefaultOidcUser) authentication.getPrincipal()).getEmail(), Instant.now().plusSeconds(3600));
+        return newAuthCookie;
     }
 
 

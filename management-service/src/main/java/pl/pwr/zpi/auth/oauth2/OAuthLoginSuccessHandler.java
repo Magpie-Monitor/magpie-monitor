@@ -9,22 +9,28 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import pl.pwr.zpi.security.cookie.CookieService;
 import pl.pwr.zpi.user.data.User;
 import pl.pwr.zpi.user.dto.Provider;
-import pl.pwr.zpi.user.service.OAuthUserService;
 import pl.pwr.zpi.user.service.UserService;
 import pl.pwr.zpi.utils.AuthenticationUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -35,7 +41,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     @Value("${oauth2.google.redirect-uri}")
     private String REDIRECT_URI;
 
-    public final OAuthUserService oAuthUserService;
     public final UserService userService;
     private final OAuth2AuthorizedClientService authorizedClientService;
     public final AuthenticationUtils authenticationUtils;
@@ -74,6 +79,17 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         response.addHeader("Set-Cookie", authCookie.toString());
         ResponseCookie refreshCookie = cookieService.createRefreshCookie(oAuth2RefreshToken.getTokenValue());
         response.addHeader("Set-Cookie", refreshCookie.toString());
+
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+
+        List<GrantedAuthority> updatedAuthorities = new ArrayList<>(authentication.getAuthorities());
+        Authentication updatedAuthentication = new OAuth2AuthenticationToken(
+                oAuth2User,
+                updatedAuthorities,
+                registrationId
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(updatedAuthentication);
 
         String targetUrl = REDIRECT_URI;
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
