@@ -4,7 +4,6 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleRefreshTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
@@ -12,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.security.cookie.CookieService;
@@ -31,19 +31,15 @@ public class OauthRefreshTokenService {
     private final CookieService cookieService;
 
 
-    public ResponseCookie updateRefreshToken(Authentication authentication) {
+    public ResponseCookie updateAuthToken(Authentication authentication) {
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
         String registrationId = oauthToken.getAuthorizedClientRegistrationId();
 
         OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(registrationId, authentication.getName());
 
-        OAuth2RefreshToken oAuth2RefreshToken = authorizedClient.getRefreshToken();
+        OAuth2AccessToken oAuth2AccessToken = authorizedClient.getAccessToken();
 
-        if (oAuth2RefreshToken == null) {
-            throw new RuntimeException("No refresh token available");
-        }
-
-        return cookieService.createRefreshCookie(refreshAccessToken(oAuth2RefreshToken.getTokenValue()));
+        return cookieService.createRefreshCookie(refreshAccessToken(oAuth2AccessToken.getTokenValue()));
     }
 
 
