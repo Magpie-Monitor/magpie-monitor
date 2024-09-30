@@ -1,7 +1,5 @@
 package pl.pwr.zpi.auth.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -10,8 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.pwr.zpi.auth.oauth2.OauthRefreshTokenService;
 import pl.pwr.zpi.auth.service.AuthenticationService;
-
-import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,11 +28,12 @@ public class AuthenticationController {
 
     @GetMapping("/api/v1/auth/refreshToken")
     public ResponseEntity<?> refreshToken(Authentication authentication) {
-        ResponseCookie updatedToken = oauthRefreshTokenService.updateRefreshToken(authentication);
+        ResponseCookie updatedToken = oauthRefreshTokenService.updateAuthToken(authentication);
 
         return ResponseEntity
-                .ok()
+                .status(302)
                 .header(HttpHeaders.SET_COOKIE, updatedToken.toString())
+                .header(HttpHeaders.LOCATION, "/refreshed")
                 .build();
     }
 }
