@@ -25,7 +25,7 @@ public class AuthenticationController {
         return ResponseEntity.ok().body(service.getUserDetails(authentication));
     }
 
-    @GetMapping("/api/vi/auth/auth-token/validation-time")
+    @GetMapping("/api/v1/auth/auth-token/validation-time")
     public ResponseEntity<?> getTokenValidationTime(Authentication authentication) {
         return ResponseEntity.ok().body(service.getTokenValidationTime(authentication));
     }
@@ -39,5 +39,4 @@ public class AuthenticationController {
                 .header(HttpHeaders.SET_COOKIE, updatedToken.toString())
                 .build();
     }
-
 }
