@@ -3,12 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
+	"net/http"
+	"os"
+
 	elasticsearch "github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/swagger"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/database"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/handlers"
+	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/services"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
@@ -16,9 +21,6 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
-	"net"
-	"net/http"
-	"os"
 )
 
 type ServerParams struct {
@@ -64,6 +66,7 @@ func main() {
 			NewHTTPServer,
 
 			routing.NewRootRouter,
+			services.NewReportsService,
 			handlers.NewReportsRouter,
 			handlers.NewReportsHandler,
 

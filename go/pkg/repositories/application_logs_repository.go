@@ -176,7 +176,7 @@ func (r *ElasticSearchApplicationLogsRepository) InsertLogs(ctx context.Context,
 		jsonLog, err := json.Marshal(log)
 		r.logger.Sugar().Infof("%s", jsonLog)
 		if err != nil {
-			r.logger.Error("Failed to insert log", zap.Error(err))
+			r.logger.Error("Failed to convert log to json", zap.Error(err))
 		}
 		bulk.IndexOp(*types.NewIndexOperation(), jsonLog)
 	}
