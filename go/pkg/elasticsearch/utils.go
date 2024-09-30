@@ -101,17 +101,22 @@ func FilterIndicesByClusterAndDateRange(cluster string, kind string, fromDate ti
 
 	return func(index string) bool {
 
-		existingCluster, existingKind, year, month, err := GetIndexParams(index)
+		// Don't match indices by incorrect dates.
+		if fromDate.Unix() > toDate.Unix() {
+			return false
+		}
+
+		clusterFromIndex, kindFromIndex, yearFromIndex, monthFromIndex, err := GetIndexParams(index)
 		if err != nil {
 			return false
 		}
 
-		existingDate := time.Date(year, time.Month(month), 0, 0, 0, 0, 0, &time.Location{}).Unix()
+		dateFromIndex := time.Date(yearFromIndex, time.Month(monthFromIndex), 0, 0, 0, 0, 0, &time.Location{}).Unix()
 
-		return cluster == existingCluster &&
-			time.Date(fromDate.Year(), fromDate.Month(), 0, 0, 0, 0, 0, &time.Location{}).Unix() <= existingDate &&
-			toDate.Unix() >= existingDate &&
-			existingKind == kind
+		return cluster == clusterFromIndex &&
+			// Match indecies from the month of the fromDate.
+			time.Date(fromDate.Year(), fromDate.Month(), 0, 0, 0, 0, 0, &time.Location{}).Unix() <= dateFromIndex &&
+			toDate.Unix() >= dateFromIndex &&
+			kindFromIndex == kind
 	}
-
 }
