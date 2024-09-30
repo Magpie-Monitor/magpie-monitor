@@ -26,7 +26,7 @@ public class AuthenticationController {
         return ResponseEntity.ok().body(service.getTokenValidationTime(authentication));
     }
 
-    @GetMapping("/api/v1/auth/refreshToken")
+    @GetMapping("/api/v1/auth/refresh-token")
     public ResponseEntity<?> refreshToken(Authentication authentication) {
         ResponseCookie updatedToken = oauthRefreshTokenService.updateAuthToken(authentication);
 

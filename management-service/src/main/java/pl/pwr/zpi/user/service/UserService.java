@@ -37,9 +37,9 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public void updateUserToken(String userEmail) {
+    public void updateUserToken(String userEmail, Instant expiresAt) {
         var user = userRepository.findByEmail(userEmail);
-        user.setAuthTokenExpDate(Instant.now());
+        user.setAuthTokenExpDate(expiresAt);
         userRepository.save(user);
     }
 }
