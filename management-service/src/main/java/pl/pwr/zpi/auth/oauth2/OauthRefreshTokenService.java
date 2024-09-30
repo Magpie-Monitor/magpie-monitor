@@ -5,6 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
@@ -18,7 +19,7 @@ import pl.pwr.zpi.security.cookie.CookieService;
 import java.io.IOException;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OauthRefreshTokenService {
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -26,11 +27,8 @@ public class OauthRefreshTokenService {
 
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String clientSecret;
-    private OAuth2AuthorizedClientService authorizedClientService;
-    private CookieService cookieService;
-
-    public OauthRefreshTokenService() {
-    }
+    private final OAuth2AuthorizedClientService authorizedClientService;
+    private final CookieService cookieService;
 
 
     public ResponseCookie updateRefreshToken(Authentication authentication) {
