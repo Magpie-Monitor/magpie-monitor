@@ -71,8 +71,6 @@ public class OauthAuthenticator implements Filter {
                 throw new ServletException("Failed to verify OAuth token, status: " + response.getStatusCode());
             }
 
-            log.info("User verified successfully");
-
         } catch (TokenResponseException e) {
             if (e.getDetails() != null && "invalid_grant".equals(e.getDetails().getError())) {
                 throw new ServletException("Token has been expired or revoked", e);
