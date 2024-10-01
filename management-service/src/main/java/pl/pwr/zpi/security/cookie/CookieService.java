@@ -34,7 +34,7 @@ public class CookieService {
                 .httpOnly(true)
                 .secure(RESPONSE_COOKIE_SECURE)
                 .domain(PAGE_DOMAIN)
-                .path("/") //api/v1/auth/refresh
+                .path("/api/v1/auth/refresh-token")
                 .build();
     }
 
