@@ -60,20 +60,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         OAuth2AccessToken oAuth2AccessToken = authorizedClient.getAccessToken();
         OAuth2RefreshToken oAuth2RefreshToken = authorizedClient.getRefreshToken();
 
-        User storedUser = authenticationUtils.getOAuthUserFromAuthentication(authentication);
-        if (storedUser == null) {
-            User newUser = User.builder()
-                    .email(((DefaultOidcUser) authentication.getPrincipal()).getEmail())
-                    .nickname(((DefaultOidcUser) authentication.getPrincipal()).getEmail().split("@")[0])
-                    .provider(Provider.GOOGLE)
-                    .authTokenExpDate(oAuth2AccessToken.getExpiresAt())
-                    .build();
-
-            userService.saveUser(newUser);
-        } else {
-            storedUser.setAuthTokenExpDate(oAuth2AccessToken.getExpiresAt());
-            userService.saveUser(storedUser);
-        }
+        createOrUpdateUser(authentication, oAuth2AccessToken);
 
         ResponseCookie authCookie = cookieService.createAuthCookie(oAuth2AccessToken.getTokenValue());
         response.addHeader("Set-Cookie", authCookie.toString());
@@ -93,5 +80,22 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
         String targetUrl = REDIRECT_URI;
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
+    }
+
+    private void createOrUpdateUser(Authentication authentication, OAuth2AccessToken oAuth2AccessToken) {
+        User storedUser = authenticationUtils.getOAuthUserFromAuthentication(authentication);
+        if (storedUser == null) {
+            User newUser = User.builder()
+                    .email(((DefaultOidcUser) authentication.getPrincipal()).getEmail())
+                    .nickname(((DefaultOidcUser) authentication.getPrincipal()).getEmail().split("@")[0])
+                    .provider(Provider.GOOGLE)
+                    .authTokenExpDate(oAuth2AccessToken.getExpiresAt())
+                    .build();
+
+            userService.saveUser(newUser);
+        } else {
+            storedUser.setAuthTokenExpDate(oAuth2AccessToken.getExpiresAt());
+            userService.saveUser(storedUser);
+        }
     }
 }
