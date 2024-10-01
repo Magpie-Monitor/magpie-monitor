@@ -11,13 +11,15 @@ import org.springframework.stereotype.Component;
 import pl.pwr.zpi.user.data.User;
 import pl.pwr.zpi.user.service.UserService;
 
+import java.util.Optional;
+
 
 @Component
 @AllArgsConstructor
 public class AuthenticationUtils {
 
     private final UserService userService;
-    public User getOAuthUserFromAuthentication(Authentication authentication) {
+    public Optional<User> getOAuthUserFromAuthentication(Authentication authentication) {
         String email = ((OAuth2User)authentication.getPrincipal()).getAttribute("email");
         return userService.findByEmail(email);
     }

@@ -8,6 +8,7 @@ import pl.pwr.zpi.user.data.User;
 import pl.pwr.zpi.user.repository.UserRepository;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -15,13 +16,13 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public User getCurrentUser() {
+    public Optional<User> getCurrentUser() {
         var userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         var userEmail = userDetails.getUsername();
         return getUserByEmail(userEmail);
     }
 
-    public User getUserByEmail(String email) {
+    public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
@@ -33,13 +34,11 @@ public class UserService {
         return userRepository.findById(id).orElseThrow();
     }
 
-    public User findByEmail(String email) {
+    public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    public void updateUserToken(String userEmail, Instant expiresAt) {
-        var user = userRepository.findByEmail(userEmail);
-        user.setAuthTokenExpDate(expiresAt);
-        userRepository.save(user);
+    public User findByEmailNoOptional(String email) {
+        return userRepository.findByEmail(email).orElseThrow();
     }
 }
