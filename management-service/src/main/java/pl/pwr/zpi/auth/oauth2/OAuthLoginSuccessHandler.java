@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,9 +40,9 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     @Value("${oauth2.google.redirect-uri}")
     private String REDIRECT_URI;
 
-    public final UserService userService;
+    private final UserService userService;
     private final OAuth2AuthorizedClientService authorizedClientService;
-    public final AuthenticationUtils authenticationUtils;
+    private final AuthenticationUtils authenticationUtils;
     private final CookieService cookieService;
 
 
@@ -60,9 +59,9 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         OAuth2AccessToken oAuth2AccessToken = authorizedClient.getAccessToken();
         OAuth2RefreshToken oAuth2RefreshToken = authorizedClient.getRefreshToken();
 
-        createOrUpdateUser(authentication, oAuth2AccessToken);
+        createOrUpdateUser(authentication);
 
-        ResponseCookie authCookie = cookieService.createAuthCookie(oAuth2AccessToken.getTokenValue());
+        ResponseCookie authCookie = cookieService.createAuthCookie(oAuth2AccessToken.getTokenValue(), oAuth2AccessToken.getExpiresAt());
         response.addHeader("Set-Cookie", authCookie.toString());
         ResponseCookie refreshCookie = cookieService.createRefreshCookie(oAuth2RefreshToken.getTokenValue());
         response.addHeader("Set-Cookie", refreshCookie.toString());
@@ -82,20 +81,16 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
-    private void createOrUpdateUser(Authentication authentication, OAuth2AccessToken oAuth2AccessToken) {
-        User storedUser = authenticationUtils.getOAuthUserFromAuthentication(authentication);
-        if (storedUser == null) {
-            User newUser = User.builder()
-                    .email(((DefaultOidcUser) authentication.getPrincipal()).getEmail())
-                    .nickname(((DefaultOidcUser) authentication.getPrincipal()).getEmail().split("@")[0])
-                    .provider(Provider.GOOGLE)
-                    .authTokenExpDate(oAuth2AccessToken.getExpiresAt())
-                    .build();
-
-            userService.saveUser(newUser);
-        } else {
-            storedUser.setAuthTokenExpDate(oAuth2AccessToken.getExpiresAt());
-            userService.saveUser(storedUser);
-        }
+    private void createOrUpdateUser(Authentication authentication) {
+        authenticationUtils.getOAuthUserFromAuthentication(authentication)
+                .ifPresentOrElse(
+                        (storedUser) -> {},
+                        () -> userService.saveUser(User.builder()
+                                .email(((DefaultOidcUser) authentication.getPrincipal()).getEmail())
+                                .nickname(((DefaultOidcUser) authentication.getPrincipal()).getEmail().split("@")[0])
+                                .provider(Provider.GOOGLE)
+                                .build())
+                );
     }
+
 }

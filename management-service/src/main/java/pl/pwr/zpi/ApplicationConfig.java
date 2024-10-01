@@ -8,17 +8,18 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.pwr.zpi.user.repository.UserRepository;
+import pl.pwr.zpi.user.service.UserService;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableAsync
 public class ApplicationConfig {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return userRepository::findByEmail;
+        return userService::findByEmailNoOptional;
     }
 
     @Bean

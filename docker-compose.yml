@@ -166,7 +166,7 @@ services:
           target: /src
 
   postgresdb:
-    image: postgres:latest
+    image: postgres:16
     container_name: postgresdb
     environment:
       POSTGRES_USER: ${DB_LOGIN}

@@ -21,7 +21,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         DefaultOidcUser defaultOidcUser = (DefaultOidcUser) super.loadUser(userRequest);
 
         String email = defaultOidcUser.getEmail();
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
         return new CustomOAuth2User(defaultOidcUser, user);
     }

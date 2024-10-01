@@ -30,12 +30,13 @@ public class OauthRefreshTokenService {
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
-
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String clientSecret;
+    @Value("${google.oauth.cookie.exp-time}")
+    private Long cookieExpTime;
+
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final CookieService cookieService;
-    private final UserService userService;
 
 
     public ResponseCookie updateAuthToken(Authentication authentication) {
@@ -50,9 +51,7 @@ public class OauthRefreshTokenService {
             throw new RuntimeException("Refresh token is null");
         }
 
-        ResponseCookie newAuthCookie = cookieService.createAuthCookie(refreshAccessToken(oAuth2RefreshToken.getTokenValue()));
-        userService.updateUserToken(((DefaultOidcUser) authentication.getPrincipal()).getEmail(), Instant.now().plusSeconds(3600));
-        return newAuthCookie;
+        return cookieService.createAuthCookie(refreshAccessToken(oAuth2RefreshToken.getTokenValue()), Instant.now().plusSeconds(cookieExpTime));
     }
 
 

@@ -29,7 +29,6 @@ public class User implements UserDetails {
     private String nickname;
     private String email;
     private String password;
-    private Instant authTokenExpDate;
     @Enumerated(EnumType.STRING)
     private Provider provider;
 

@@ -1,5 +1,6 @@
 package pl.pwr.zpi.auth.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -22,8 +23,8 @@ public class AuthenticationController {
     }
 
     @GetMapping("/api/v1/auth/auth-token/validation-time")
-    public ResponseEntity<?> getTokenValidationTime(Authentication authentication) {
-        return ResponseEntity.ok().body(service.getTokenValidationTime(authentication));
+    public ResponseEntity<?> getTokenValidationTime(HttpServletRequest request) {
+        return ResponseEntity.ok().body(service.getTokenValidationTime(request));
     }
 
     @GetMapping("/api/v1/auth/refresh-token")
