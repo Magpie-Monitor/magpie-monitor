@@ -11,7 +11,7 @@ agent:
       - /var/log/calico/cni/cni.log
   cluster:
     friendlyName: magpie-cloud-dev-cluster
-    enabled: true
+    enabled: false
     service:
       port: 8080
       targetPort: 8080
