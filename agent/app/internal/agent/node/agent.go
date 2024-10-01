@@ -10,15 +10,17 @@ import (
 )
 
 type IncrementalReader struct {
+	nodeName              string
 	files                 []string
 	scrapeIntervalSeconds int
 	results               chan Chunk
 	redis                 database.Redis
 }
 
-func NewReader(files []string, scrapeIntervalSeconds int, results chan Chunk,
+func NewReader(nodeName string, files []string, scrapeIntervalSeconds int, results chan Chunk,
 	redisUrl, redisPassword string, redisDb int) IncrementalReader {
 	return IncrementalReader{
+		nodeName:              nodeName,
 		files:                 files,
 		scrapeIntervalSeconds: scrapeIntervalSeconds,
 		results:               results,
@@ -104,10 +106,9 @@ func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results c
 				log.Println("Error persisting read progress for: ", dir)
 			}
 
-			// TODO - fetch real node name
 			results <- Chunk{
 				Kind:      "Node",
-				Name:      "mock-node-name",
+				Name:      r.nodeName,
 				Timestamp: time.Now().UnixNano(),
 				Namespace: dir,
 				Content:   string(buf),

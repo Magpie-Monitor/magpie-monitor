@@ -201,6 +201,8 @@ services:
       - ${KAFKA_CLIENT_PASSWORD}
       - "--remoteWriteBatchSize"
       - ${KAFKA_CLIENT_BATCH_SIZE}
+    environment:
+      NODE_NAME: "mock-node-name"
     develop:
       watch:
         - action: rebuild

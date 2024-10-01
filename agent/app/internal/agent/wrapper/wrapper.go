@@ -44,8 +44,8 @@ func (a *AgentWrapper) Start() {
 func (a *AgentWrapper) startNodeAgent() {
 	logChannel := make(chan node.Chunk)
 
-	agent := node.NewReader(a.config.WatchedFiles, a.config.Global.ScrapeIntervalSeconds, logChannel, a.config.Redis.Url,
-		a.config.Redis.Password, a.config.Redis.Database)
+	agent := node.NewReader(a.config.Global.NodeName, a.config.WatchedFiles, a.config.Global.ScrapeIntervalSeconds,
+		logChannel, a.config.Redis.Url, a.config.Redis.Password, a.config.Redis.Database)
 	go agent.WatchFiles()
 
 	for chunk := range logChannel {

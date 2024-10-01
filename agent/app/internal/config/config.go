@@ -3,6 +3,7 @@ package config
 import (
 	"flag"
 	"log"
+	"os"
 )
 
 type arrayFlags []string
@@ -18,6 +19,7 @@ func (i *arrayFlags) Set(value string) error {
 
 type GlobalConfig struct {
 	Mode                  string
+	NodeName              string
 	ClusterName           string
 	ScrapeIntervalSeconds int
 }
@@ -46,6 +48,8 @@ type Config struct {
 }
 
 func NewConfig() Config {
+	nodeName := os.Getenv("NODE_NAME")
+
 	mode := flag.String("scrape", "pods", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
 	clusterName := flag.String("clusterFriendlyName", "unknown", "Friendly name of your cluster, visible in Magpie Cloud.")
 
@@ -75,11 +79,15 @@ func NewConfig() Config {
 	flag.Parse()
 
 	log.Println("Agent configured to run in mode: ", *mode)
+	if *mode == "nodes" {
+		log.Println("Node agent running on node: ", nodeName)
+	}
 	log.Println("Redis url: ", *redisUrl)
 
 	return Config{
 		Global: GlobalConfig{
 			Mode:                  *mode,
+			NodeName:              nodeName,
 			ClusterName:           *clusterName,
 			ScrapeIntervalSeconds: *scrapeIntervalSeconds,
 		},
