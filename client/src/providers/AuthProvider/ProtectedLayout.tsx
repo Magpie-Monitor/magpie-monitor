@@ -1,8 +1,8 @@
-import { useNavigate, useOutlet } from "react-router-dom";
-import { useAuth } from "./AuthProvider";
-import { useEffect } from "react";
-import Navbar from "../../components/Navbar/Navbar";
-import "./ProtectedLayout.scss";
+import { useNavigate, useOutlet } from 'react-router-dom';
+import { useAuth } from './AuthProvider';
+import { useEffect } from 'react';
+import Navbar from 'components/Navbar/Navbar';
+import './ProtectedLayout.scss';
 
 export const ProtectedLayout = () => {
   const { isTokenValid } = useAuth();
@@ -11,7 +11,7 @@ export const ProtectedLayout = () => {
 
   useEffect(() => {
     if (!isTokenValid()) {
-      navigate("/");
+      navigate('/');
     }
   }, [isTokenValid, navigate]);
 

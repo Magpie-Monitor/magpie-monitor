@@ -1,6 +1,6 @@
-import { Chart as ChartJS, ChartOptions, RadialLinearScale } from "chart.js";
-import { Radar } from "react-chartjs-2";
-import "./RadarChart.scss";
+import { Chart as ChartJS, ChartOptions, RadialLinearScale } from 'chart.js';
+import { Radar } from 'react-chartjs-2';
+import './RadarChart.scss';
 
 ChartJS.register(RadialLinearScale);
 
@@ -23,7 +23,7 @@ const RadarChart = ({ data, label }: RadarChartProps) => {
         label: label,
         data: data.map((entry) => entry.value),
         backgroundColor: data.map((entry) => entry.color),
-        borderColor: "transparent",
+        borderColor: 'transparent',
         borderWidth: 1,
       },
     ],
@@ -33,36 +33,36 @@ const RadarChart = ({ data, label }: RadarChartProps) => {
     responsive: true,
     maintainAspectRatio: true,
     resizeDelay: 200,
-    color: "white",
-    backgroundColor: "none",
+    color: 'white',
+    backgroundColor: 'none',
     elements: {
       line: {
         borderWidth: 3,
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
       },
     },
     scales: {
       r: {
         grid: {
-          color: "white",
+          color: 'white',
         },
         angleLines: {
-          color: "white",
+          color: 'white',
         },
         pointLabels: {
-          color: "white",
+          color: 'white',
           font: {
             size: 14,
-            color: "white",
+            color: 'white',
           },
         },
         ticks: {
-          color: "white",
-          backdropColor: "black",
+          color: 'white',
+          backdropColor: 'black',
           font: {
             size: 18,
-            weight: "bold",
+            weight: 'bold',
           },
         },
       },
@@ -71,19 +71,19 @@ const RadarChart = ({ data, label }: RadarChartProps) => {
     plugins: {
       legend: {
         display: true,
-        position: "bottom",
+        position: 'bottom',
       },
       title: {
         display: true,
         text: label,
-        position: "top",
-        color: "white",
+        position: 'top',
+        color: 'white',
         font: {
           size: 16,
         },
       },
     },
-  } as ChartOptions<"radar">;
+  } as ChartOptions<'radar'>;
 
   return (
     <div className="polar-chart">

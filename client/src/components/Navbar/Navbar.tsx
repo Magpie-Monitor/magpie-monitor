@@ -1,8 +1,8 @@
-import { Link, useLocation } from "react-router-dom";
-import "./Navbar.scss";
-import { logout } from "../../api/authApi";
+import { Link, useLocation } from 'react-router-dom';
+import './Navbar.scss';
+import { logout } from 'api/authApi';
 
-const NAVBAR_LINKS = [{ to: "examplePage", label: "Example page" }];
+const NAVBAR_LINKS = [{ to: 'examplePage', label: 'Example page' }];
 
 const Navbar = () => {
   const currentPage = useLocation().pathname;
@@ -13,14 +13,13 @@ const Navbar = () => {
           <Link
             key={to}
             to={to}
-            className={`navbar__link ${currentPage.includes(to) ? "navbar__link--active" : ""
-              }`}
+            className={`navbar__link ${currentPage.includes(to) ? 'navbar__link--active' : ''}`}
           >
             {label}
           </Link>
         ))}
       </div>
-      <Link className="navbar__link" to={"/"} onClick={logout}>
+      <Link className="navbar__link" to={'/'} onClick={logout}>
         Logout
       </Link>
     </nav>

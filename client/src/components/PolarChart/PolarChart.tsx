@@ -1,6 +1,6 @@
-import { Chart as ChartJS, ChartOptions, RadialLinearScale } from "chart.js";
-import { PolarArea } from "react-chartjs-2";
-import "./PolarChart.scss";
+import { Chart as ChartJS, ChartOptions, RadialLinearScale } from 'chart.js';
+import { PolarArea } from 'react-chartjs-2';
+import './PolarChart.scss';
 
 ChartJS.register(RadialLinearScale);
 
@@ -22,7 +22,7 @@ const PolarChart = ({ data, label }: PolarChartProps) => {
       {
         data: data.map((entry) => entry.value),
         backgroundColor: data.map((entry) => entry.color),
-        borderColor: "transparent",
+        borderColor: 'transparent',
         borderWidth: 1,
       },
     ],
@@ -32,18 +32,18 @@ const PolarChart = ({ data, label }: PolarChartProps) => {
     responsive: true,
     maintainAspectRatio: true,
     resizeDelay: 200,
-    color: "white",
-    backgroundColor: "none",
+    color: 'white',
+    backgroundColor: 'none',
     plugins: {
       legend: {
         display: true,
-        position: "bottom",
+        position: 'bottom',
       },
       title: {
         display: true,
         text: label,
-        position: "top",
-        color: "white",
+        position: 'top',
+        color: 'white',
         font: {
           size: 16,
         },
@@ -52,28 +52,28 @@ const PolarChart = ({ data, label }: PolarChartProps) => {
     scales: {
       r: {
         angleLines: {
-          color: "grey",
+          color: 'grey',
         },
         grid: {
-          color: "white",
+          color: 'white',
         },
         pointLabels: {
           font: {
             size: 14,
-            color: "black",
+            color: 'black',
           },
         },
         ticks: {
-          color: "white",
-          backdropColor: "black",
+          color: 'white',
+          backdropColor: 'black',
           font: {
             size: 18,
-            weight: "bold",
+            weight: 'bold',
           },
         },
       },
     },
-  } as ChartOptions<"polarArea">;
+  } as ChartOptions<'polarArea'>;
 
   return (
     <div className="polar-chart">

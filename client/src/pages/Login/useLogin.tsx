@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "../../providers/AuthProvider/AuthProvider";
-import { login } from "../../api/authApi";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { useAuth } from 'providers/AuthProvider/AuthProvider';
+import { login } from 'api/authApi';
+import { useNavigate } from 'react-router-dom';
 
 const getCodeFromParams = () => {
   const queryParams = new URLSearchParams(window.location.search);
-  return queryParams.get("code");
+  return queryParams.get('code');
 };
 
 const useLogin = () => {
@@ -16,17 +16,17 @@ const useLogin = () => {
   useEffect(() => {
     if (code) {
       login(code)
-        .then((authenticationInfo) => {
-          setAuthenticationInfo(authenticationInfo);
-          navigate("/config");
+        .then((resolvedAuthenticationInfo) => {
+          setAuthenticationInfo(resolvedAuthenticationInfo);
+          navigate('/config');
         })
         .catch((error) => {
-          console.error("Failed to login", error);
+          console.error('Failed to login', error); // eslint-disable-line no-console
         });
     }
 
     if (isTokenValid()) {
-      navigate("/config");
+      navigate('/config');
     }
   }, [code, setAuthenticationInfo, navigate, isTokenValid]);
 
