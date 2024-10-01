@@ -1,8 +1,8 @@
-import { Line } from "react-chartjs-2";
-import "chartjs-adapter-moment";
-import { useEffect, useState } from "react";
-import { ChartData, ChartOptions } from "chart.js";
-import "./TimeseriesChart.scss";
+import { Line } from 'react-chartjs-2';
+import 'chartjs-adapter-moment';
+import { useEffect, useState } from 'react';
+import { ChartData, ChartOptions } from 'chart.js';
+import './TimeseriesChart.scss';
 
 interface TimeSeriesChartProps {
   data: TimeSeriesData[];
@@ -23,29 +23,29 @@ export const getChartOptions = (
   title: string,
   // from?: number,
   // to?: number,
-): ChartOptions<"line"> => ({
+): ChartOptions<'line'> => ({
   responsive: true,
   maintainAspectRatio: true,
   resizeDelay: 200,
-  color: "white",
-  backgroundColor: "none",
+  color: 'white',
+  backgroundColor: 'none',
   scales: {
     y: {
       beginAtZero: true,
       ticks: {
-        color: "white",
+        color: 'white',
       },
     },
     x: {
-      type: "time",
+      type: 'time',
       time: {
-        unit: "hour",
+        unit: 'hour',
         displayFormats: {
-          hour: "MMM D hA",
+          hour: 'MMM D hA',
         },
       },
       ticks: {
-        color: "white",
+        color: 'white',
         maxTicksLimit: 5,
       },
       // min: from,
@@ -55,13 +55,13 @@ export const getChartOptions = (
   plugins: {
     legend: {
       display: true,
-      position: "bottom",
+      position: 'bottom',
     },
     title: {
       display: true,
       text: title,
-      position: "top",
-      color: "white",
+      position: 'top',
+      color: 'white',
       font: {
         size: 16,
       },
@@ -78,7 +78,7 @@ export const TimeSeriesChart = ({
   color,
   backgroundColor,
 }: TimeSeriesChartProps) => {
-  const [chartData, setChartData] = useState<ChartData<"line"> | null>(null);
+  const [chartData, setChartData] = useState<ChartData<'line'> | null>(null);
 
   useEffect(() => {
     setChartData({

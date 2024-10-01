@@ -1,0 +1,28 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-recommended-scss",
+    "stylelint-prettier/recommended"
+  ],
+  "plugins": ["stylelint-scss"],
+  "rules": {
+    "import-notation": "string",
+    "max-nesting-depth": 3,
+    "color-hex-length": "short",
+    "selector-max-id": 0,
+    "selector-class-pattern": "^[a-z0-9\\-]+$",
+
+    "selector-class-pattern": [
+      "^[a-z0-9]+(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$",
+      {
+        "message": "Expected class selector to follow BEM naming convention (block__element--modifier)"
+      }
+    ],
+
+    "scss/at-extend-no-missing-placeholder": true,
+    "scss/dollar-variable-colon-space-after": "always",
+    "scss/dollar-variable-pattern": "^[_]?[a-z0-9\\-]+$",
+    "scss/percent-placeholder-pattern": "^[_]?[a-z0-9\\-]+$",
+    "scss/selector-no-redundant-nesting-selector": true
+  }
+}

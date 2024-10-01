@@ -1,4 +1,4 @@
-import "./Shadow.scss";
+import './Shadow.scss';
 interface ShadowProps {
   children?: React.ReactNode;
 }

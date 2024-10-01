@@ -4,7 +4,7 @@ import {
   useContext,
   useEffect,
   useState,
-} from "react";
+} from 'react';
 
 export interface AuthenticationInfo {
   email: string;
@@ -18,7 +18,7 @@ export interface AuthenticationContext {
 }
 
 export const AuthContext = createContext<AuthenticationContext>({
-  authenticationInfo: { email: "", expires: 0 },
+  authenticationInfo: { email: '', expires: 0 },
   setAuthenticationInfo: () => { },
   isTokenValid: () => false,
 });
@@ -31,10 +31,7 @@ export const AuthProvider = (props: {
     useState<AuthenticationInfo>(props.authenticationInfo);
 
   const isTokenValid = () => {
-    return !!(
-      authenticationInfo.expires &&
-      authenticationInfo.expires > Date.now() / 1000
-    );
+    return !!(authenticationInfo.expires && authenticationInfo.expires > 0);
   };
 
   useEffect(() => {

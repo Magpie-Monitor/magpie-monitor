@@ -1,4 +1,4 @@
-@import "@/variables.scss";
+@import '@/variables';
 
 .timeseries-chart {
   display: flex;
@@ -22,7 +22,7 @@
 
   @media (max-width: $md) {
     padding: 0.5rem;
-    padding-top: 0rem;
-    padding-bottom: 0rem;
+    padding-top: 0;
+    padding-bottom: 0;
   }
 }
