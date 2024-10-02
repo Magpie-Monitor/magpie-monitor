@@ -357,6 +357,8 @@ func (a *Agent) gatherClusterMetadata() {
 				state.AppendDaemonSets(daemonSets.Items)
 			}
 
+			state.SetTimestamp()
+
 			a.metadata <- state
 			time.Sleep(time.Duration(a.metadataCollectionIntervalSeconds) * time.Second)
 		}

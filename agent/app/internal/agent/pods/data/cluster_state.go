@@ -6,18 +6,18 @@ import (
 )
 
 type ClusterState struct {
-	timestamp    int64
-	clusterName  string
-	applications []Application
+	Timestamp    int64         `json:"timestamp"`
+	ClusterName  string        `json:"clusterName"`
+	Applications []Application `json:"applications"`
 }
 
 type Application struct {
-	kind ApplicationKind
-	name string
+	Kind ApplicationKind `json:"kind"`
+	Name string          `json:"name"`
 }
 
 func NewClusterState(clusterName string) ClusterState {
-	return ClusterState{clusterName: clusterName, applications: make([]Application, 0)}
+	return ClusterState{ClusterName: clusterName, Applications: make([]Application, 0)}
 }
 
 type Test interface {
@@ -25,7 +25,7 @@ type Test interface {
 }
 
 func (c *ClusterState) SetTimestamp() {
-	c.timestamp = time.Now().UnixMicro()
+	c.Timestamp = time.Now().UnixMicro()
 }
 
 func (c *ClusterState) AppendDeployments(deployments []v1.Deployment) {
@@ -47,6 +47,6 @@ func (c *ClusterState) AppendDaemonSets(daemonSets []v1.DaemonSet) {
 }
 
 func (c *ClusterState) appendApplication(name string, kind ApplicationKind) {
-	app := Application{name: name, kind: kind}
-	c.applications = append(c.applications, app)
+	app := Application{Name: name, Kind: kind}
+	c.Applications = append(c.Applications, app)
 }
