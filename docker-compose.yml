@@ -19,7 +19,7 @@ services:
       context: ./go
       dockerfile: ./docker/reports/Dockerfile
     ports:
-      - ${REPORTS_SERVICE_PORT}:${REPORTS_SERVICE_PORT}
+      - ${REPORTS_SERVICE_HTTP_PORT}:${REPORTS_SERVICE_HTTP_PORT}
     develop:
       watch:
         - action: rebuild
