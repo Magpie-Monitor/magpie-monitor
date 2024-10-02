@@ -9,8 +9,10 @@ import (
 	"os"
 )
 
-var NODE_LOGS_QUQUE_HOST_KEY = "LOGS_INGESTION_QUEUE_HOST"
+var NODE_LOGS_QUEUE_HOST_KEY = "LOGS_INGESTION_QUEUE_HOST"
 var NODE_LOGS_QUEUE_PORT_KEY = "LOGS_INGESTION_QUEUE_PORT"
+var NODE_LOGS_QUEUE_USERNAME_KEY = "LOGS_INGESTION_QUEUE_USERNAME"
+var NODE_LOGS_QUEUE_PASSWORD_KEY = "LOGS_INGESTION_QUEUE_PASSWORD"
 var NODE_LOGS_TOPIC = "nodes"
 
 type NodeLogsStreamReader interface {
@@ -34,17 +36,25 @@ type NodeLogsStreamReaderParams struct {
 func NewKafkaNodeLogsStreamReader(params NodeLogsStreamReaderParams) *KafkaNodeLogsStreamReader {
 
 	envs.ValidateEnvs("Failed to connect to Kafka for node logs",
-		[]string{NODE_LOGS_QUQUE_HOST_KEY, NODE_LOGS_QUEUE_PORT_KEY})
+		[]string{NODE_LOGS_QUEUE_HOST_KEY,
+			NODE_LOGS_QUEUE_PORT_KEY,
+			NODE_LOGS_QUEUE_USERNAME_KEY,
+			NODE_LOGS_QUEUE_PASSWORD_KEY})
 
-	kafkaHost := os.Getenv(NODE_LOGS_QUQUE_HOST_KEY)
+	kafkaHost := os.Getenv(NODE_LOGS_QUEUE_HOST_KEY)
 	kafkaPort := os.Getenv(NODE_LOGS_QUEUE_PORT_KEY)
+	kafkaUsername := os.Getenv(NODE_LOGS_QUEUE_USERNAME_KEY)
+	kafkaPassword := os.Getenv(NODE_LOGS_QUEUE_PASSWORD_KEY)
 
 	kafkaReader := NewKafkaLogsStream[*repositories.NodeLogs](
-		kafkaHost,
-		kafkaPort,
-		NODE_LOGS_TOPIC,
-		params.Logger,
-	)
+		&KafkaLogsStreamParams{
+			Host:     kafkaHost,
+			Port:     kafkaPort,
+			Username: kafkaUsername,
+			Password: kafkaPassword,
+			Topic:    NODE_LOGS_TOPIC,
+			Logger:   params.Logger,
+		})
 
 	return &KafkaNodeLogsStreamReader{
 		kafkaReader:         &kafkaReader,

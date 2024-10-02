@@ -11,6 +11,8 @@ import (
 
 var APPLICATION_LOGS_QUQUE_HOST_KEY = "LOGS_INGESTION_QUEUE_HOST"
 var APPLICATION_LOGS_QUEUE_PORT_KEY = "LOGS_INGESTION_QUEUE_PORT"
+var APPLICATION_LOGS_QUEUE_USERNAME_KEY = "LOGS_INGESTION_QUEUE_USERNAME"
+var APPLICATION_LOGS_QUEUE_PASSWORD_KEY = "LOGS_INGESTION_QUEUE_PASSWORD"
 var APPLICATION_LOGS_TOPIC = "applications"
 
 type ApplicationLogsStreamReader interface {
@@ -34,17 +36,24 @@ type ApplicationLogsStreamReaderParams struct {
 func NewKafkaApplicationLogsStreamReader(params ApplicationLogsStreamReaderParams) *KafkaApplicationLogsStreamReader {
 
 	envs.ValidateEnvs("Failed to connect to Kafka for application logs",
-		[]string{APPLICATION_LOGS_QUQUE_HOST_KEY, APPLICATION_LOGS_QUEUE_PORT_KEY})
+		[]string{APPLICATION_LOGS_QUQUE_HOST_KEY,
+			APPLICATION_LOGS_QUEUE_PORT_KEY,
+			APPLICATION_LOGS_QUEUE_PASSWORD_KEY,
+			APPLICATION_LOGS_QUEUE_USERNAME_KEY})
 
 	kafkaHost := os.Getenv(APPLICATION_LOGS_QUQUE_HOST_KEY)
 	kafkaPort := os.Getenv(APPLICATION_LOGS_QUEUE_PORT_KEY)
+	kafkaUsername := os.Getenv(APPLICATION_LOGS_QUEUE_USERNAME_KEY)
+	kafkaPassword := os.Getenv(APPLICATION_LOGS_QUEUE_PASSWORD_KEY)
 
-	kafkaReader := NewKafkaLogsStream[*repositories.ApplicationLogs](
-		kafkaHost,
-		kafkaPort,
-		APPLICATION_LOGS_TOPIC,
-		params.Logger,
-	)
+	kafkaReader := NewKafkaLogsStream[*repositories.ApplicationLogs](&KafkaLogsStreamParams{
+		Host:     kafkaHost,
+		Port:     kafkaPort,
+		Topic:    APPLICATION_LOGS_TOPIC,
+		Username: kafkaUsername,
+		Password: kafkaPassword,
+		Logger:   params.Logger,
+	})
 
 	return &KafkaApplicationLogsStreamReader{
 		kafkaReader:               &kafkaReader,
