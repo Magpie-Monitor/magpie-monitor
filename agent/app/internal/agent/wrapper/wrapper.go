@@ -3,7 +3,8 @@ package wrapper
 import (
 	"fmt"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node"
-	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods/agent"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods/data"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/config"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/remoteWrite"
 	"k8s.io/apimachinery/pkg/util/json"
@@ -44,9 +45,9 @@ func (a *AgentWrapper) Start() {
 func (a *AgentWrapper) startNodeAgent() {
 	logChannel := make(chan node.Chunk)
 
-	agent := node.NewReader(a.config.Global.NodeName, a.config.WatchedFiles, a.config.Global.ScrapeIntervalSeconds,
+	nodeAgent := node.NewReader(a.config.Global.NodeName, a.config.WatchedFiles, a.config.Global.LogScrapeIntervalSeconds,
 		logChannel, a.config.Redis.Url, a.config.Redis.Password, a.config.Redis.Database)
-	go agent.WatchFiles()
+	go nodeAgent.WatchFiles()
 
 	for chunk := range logChannel {
 		log.Println("Collected node chunk: ", chunk)
@@ -55,13 +56,26 @@ func (a *AgentWrapper) startNodeAgent() {
 }
 
 func (a *AgentWrapper) startPodAgent() {
-	logChannel := make(chan pods.Chunk)
-	agent := pods.NewAgent(a.config.ExcludedNamespaces, a.config.Global.ScrapeIntervalSeconds, logChannel)
-	go agent.Start()
+	logChannel := make(chan data.Chunk)
+	metadataChannel := make(chan data.ClusterState)
 
+	podAgent := agent.NewAgent(a.config.ExcludedNamespaces, a.config.Global.LogScrapeIntervalSeconds, a.config.Global.MetadataScrapeIntervalSeconds, logChannel, metadataChannel)
+
+	go podAgent.Start()
+	go a.watchClusterLogsChannel(logChannel)
+}
+
+func (a *AgentWrapper) watchClusterLogsChannel(logChannel chan data.Chunk) {
 	for chunk := range logChannel {
 		log.Println("Collected pod chunk: ", chunk)
 		a.writeChunk(chunk, a.podWriter)
+	}
+}
+
+func (a *AgentWrapper) watchClusterMetadataChannel(metadataChannel chan data.ClusterState) {
+	for metadata := range metadataChannel {
+		metadata.SetTimestamp()
+		log.Println("Collected cluster metadata: ", metadata)
 	}
 }
 

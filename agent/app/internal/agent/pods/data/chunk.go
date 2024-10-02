@@ -1,4 +1,4 @@
-package pods
+package data
 
 import (
 	"encoding/json"

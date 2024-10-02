@@ -1,4 +1,4 @@
-package pods
+package agent
 
 import "testing"
 
