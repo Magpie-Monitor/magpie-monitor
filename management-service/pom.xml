@@ -31,6 +31,7 @@
 		<projectlombok.version>1.18.34</projectlombok.version>
 		<springdoc.version>2.6.0</springdoc.version>
 		<jjwt.version>0.12.6</jjwt.version>
+		<commonmark.version>0.22.0</commonmark.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -115,6 +116,17 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.commonmark</groupId>
+			<artifactId>commonmark</artifactId>
+			<version>${commonmark.version}</version>
 		</dependency>
 	</dependencies>
 
