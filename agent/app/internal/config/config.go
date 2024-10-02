@@ -23,7 +23,8 @@ type GlobalConfig struct {
 	ClusterName                   string
 	LogScrapeIntervalSeconds      int
 	MetadataScrapeIntervalSeconds int
-	MetadataRemoteWriteUrl        string
+	PodMetadataRemoteWriteUrl     string
+	NodeMetadataRemoteWriteUrl    string
 }
 
 type RedisConfig struct {
@@ -69,7 +70,9 @@ func NewConfig() Config {
 
 	remoteWriteBrokerUsername := flag.String("remoteWriteBrokerUsername", "username", "SASL authentication broker username.")
 	remoteWriteBrokerPassword := flag.String("remoteWriteBrokerPassword", "password", "SASL authentication broker password.")
-	remoteWriteMetadataUrl := flag.String("remoteWriteMetadataUrl", "", "URL for cluster and node metadata remote write.")
+
+	podRemoteWriteMetadataUrl := flag.String("podRemoteWriteMetadataUrl", "", "URL for cluster metadata remote write.")
+	nodeRemoteWriteMetadataUrl := flag.String("nodeRemoteWriteMetadataUrl", "", "URL for node metadata remote write.")
 
 	var watchedFiles arrayFlags
 	flag.Var(&watchedFiles, "file", "Log files that are watched for log collector running in \"nodes\" mode.")
@@ -95,7 +98,8 @@ func NewConfig() Config {
 			ClusterName:                   *clusterName,
 			LogScrapeIntervalSeconds:      *logScrapeIntervalSeconds,
 			MetadataScrapeIntervalSeconds: *metadataScrapeIntervalSeconds,
-			MetadataRemoteWriteUrl:        *remoteWriteMetadataUrl,
+			PodMetadataRemoteWriteUrl:     *podRemoteWriteMetadataUrl,
+			NodeMetadataRemoteWriteUrl:    *nodeRemoteWriteMetadataUrl,
 		},
 		Redis: RedisConfig{
 			Url:      *redisUrl,
