@@ -1,4 +1,4 @@
-package remoteWrite
+package remote_write
 
 import (
 	"context"

@@ -6,24 +6,26 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods/agent"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods/data"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/config"
-	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/remoteWrite"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/remote_write"
 	"k8s.io/apimachinery/pkg/util/json"
 	"log"
 )
 
 type AgentWrapper struct {
-	config     config.Config
-	podWriter  remoteWrite.RemoteWriter
-	nodeWriter remoteWrite.RemoteWriter
+	config                config.Config
+	podWriter             remote_write.RemoteWriter
+	nodeWriter            remote_write.RemoteWriter
+	clusterMetadataWriter remote_write.RemoteWriter
 }
 
 func NewAgentWrapper(config config.Config) AgentWrapper {
 	return AgentWrapper{
 		config: config,
-		podWriter: remoteWrite.NewStreamWriter(config.Broker.Url, config.Broker.PodTopic, config.Broker.Username,
+		podWriter: remote_write.NewStreamWriter(config.Broker.Url, config.Broker.PodTopic, config.Broker.Username,
 			config.Broker.Password, config.Broker.BatchSize),
-		nodeWriter: remoteWrite.NewStreamWriter(config.Broker.Url, config.Broker.NodeTopic, config.Broker.Username,
+		nodeWriter: remote_write.NewStreamWriter(config.Broker.Url, config.Broker.NodeTopic, config.Broker.Username,
 			config.Broker.Password, config.Broker.BatchSize),
+		clusterMetadataWriter: remote_write.NewMetadataWriter(config.Global.MetadataRemoteWriteUrl),
 	}
 }
 
@@ -63,6 +65,7 @@ func (a *AgentWrapper) startPodAgent() {
 
 	go podAgent.Start()
 	go a.watchClusterLogsChannel(logChannel)
+	a.watchClusterMetadataChannel(metadataChannel)
 }
 
 func (a *AgentWrapper) watchClusterLogsChannel(logChannel chan data.Chunk) {
@@ -74,12 +77,12 @@ func (a *AgentWrapper) watchClusterLogsChannel(logChannel chan data.Chunk) {
 
 func (a *AgentWrapper) watchClusterMetadataChannel(metadataChannel chan data.ClusterState) {
 	for metadata := range metadataChannel {
-		metadata.SetTimestamp()
+		a.writeChunk(metadata, a.clusterMetadataWriter)
 		log.Println("Collected cluster metadata: ", metadata)
 	}
 }
 
-func (a *AgentWrapper) writeChunk(chunk any, writer remoteWrite.RemoteWriter) {
+func (a *AgentWrapper) writeChunk(chunk any, writer remote_write.RemoteWriter) {
 	jsonChunk, err := json.Marshal(chunk)
 	if err != nil {
 		log.Println("Error converting chunk to JSON: ", err)
