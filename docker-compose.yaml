@@ -257,7 +257,6 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
-
 volumes:
   redisdata:
   db-data:
