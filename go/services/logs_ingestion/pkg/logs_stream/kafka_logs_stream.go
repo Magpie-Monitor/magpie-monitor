@@ -5,28 +5,50 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/segmentio/kafka-go"
+	"github.com/segmentio/kafka-go/sasl/scram"
 	"go.uber.org/zap"
 )
 
-func NewKafkaLogsStream[T any](host string, port string, topic string, logger *zap.Logger) KafkaLogsStreamReader[T] {
+type KafkaLogsStreamParams struct {
+	Host     string
+	Port     string
+	Topic    string
+	Logger   *zap.Logger
+	Username string
+	Password string
+}
 
-	brokers := []string{fmt.Sprintf("%s:%s", host, port)}
+func NewKafkaLogsStream[T any](params *KafkaLogsStreamParams) KafkaLogsStreamReader[T] {
+
+	brokers := []string{fmt.Sprintf("%s:%s", params.Host, params.Port)}
+
+	mechanism, err := scram.Mechanism(scram.SHA512, params.Username, params.Password)
+	if err != nil {
+		panic("Failed to set sasl mechanism for logs ingestion kafka queue")
+	}
+
+	dialer := &kafka.Dialer{
+		SASLMechanism: mechanism,
+	}
+
 	reader := kafka.NewReader(
 		kafka.ReaderConfig{
 			Brokers:   brokers,
-			Topic:     topic,
+			Topic:     params.Topic,
 			Partition: 0,
 			MaxBytes:  10e8,
+			Dialer:    dialer,
 		},
 	)
 
 	return KafkaLogsStreamReader[T]{
-		topic:   topic,
+		topic:   params.Topic,
 		brokers: brokers,
 		reader:  reader,
 		stream:  make(chan T),
-		logger:  logger,
+		logger:  params.Logger,
 	}
 }
 

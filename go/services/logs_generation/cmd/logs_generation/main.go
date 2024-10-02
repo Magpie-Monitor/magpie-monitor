@@ -45,7 +45,7 @@ func (g *LogsGenerator) WriteNodeLogs(ctx context.Context) {
 
 		}
 
-		time.Sleep(time.Second * 200)
+		time.Sleep(time.Second * 5)
 	}
 }
 
