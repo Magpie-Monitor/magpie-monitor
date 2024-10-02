@@ -19,14 +19,18 @@ type NodeIncident struct {
 	Timestamp      int64  `bson:"timestamp" json:"timestamp"`
 }
 
+type ApplicationIncidentSource struct {
+	Timestamp     int64  `bson:"timestamp" json:"timestamp"`
+	PodName       string `bson:"podName" json:"podName"`
+	ContainerName string `bson:"containerName" json:"containerName"`
+	Content       string `bson:"content" json:"content"`
+}
+
 type ApplicationIncident struct {
-	Category       string `bson:"category" json:"category"`
-	Summary        string `bson:"summary" json:"summary"`
-	Recommendation string `bson:"recommendation" json:"recommendation"`
-	Source         string `bson:"source" json:"source"`
-	Timestamp      int64  `bson:"timestamp" json:"timestamp"`
-	PodName        string `bson:"podName" json:"podName"`
-	ContainerName  string `bson:"containerName" json:"containerName"`
+	Category       string                      `bson:"category" json:"category"`
+	Summary        string                      `bson:"summary" json:"summary"`
+	Recommendation string                      `bson:"recommendation" json:"recommendation"`
+	Sources        []ApplicationIncidentSource `bson:"sources" json:"sources"`
 }
 
 type NodeReport struct {
