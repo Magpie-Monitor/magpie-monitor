@@ -10,9 +10,11 @@ export const ProtectedLayout = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isTokenValid()) {
-      navigate('/');
-    }
+    isTokenValid().then((isValid) => {
+      if (!isValid) {
+        navigate('/login');
+      }
+    });
   }, [isTokenValid, navigate]);
 
   return (

@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
 import './Navbar.scss';
-import { logout } from 'api/authApi';
 
 const NAVBAR_LINKS = [{ to: 'examplePage', label: 'Example page' }];
 
@@ -19,9 +18,6 @@ const Navbar = () => {
           </Link>
         ))}
       </div>
-      <Link className="navbar__link" to={'/'} onClick={logout}>
-        Logout
-      </Link>
     </nav>
   );
 };

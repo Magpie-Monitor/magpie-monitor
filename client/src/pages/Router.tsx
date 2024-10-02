@@ -2,11 +2,8 @@ import { Route, createBrowserRouter, createRoutesFromElements, defer } from 'rea
 import Login from './Login/Login';
 import { ProtectedLayout } from 'providers/AuthProvider/ProtectedLayout';
 import { AuthLayout } from 'providers/AuthProvider/AuthLayout';
-import { getTokenInfo } from 'api/authApi';
-
-const getUserData = () => {
-  return getTokenInfo();
-};
+import Home from './Home/Home';
+import { getAuthInfo } from 'providers/AuthProvider/AuthProvider';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -14,13 +11,15 @@ const router = createBrowserRouter(
       element={<AuthLayout />}
       loader={() => {
         return defer({
-          userData: getUserData(),
+          authData: getAuthInfo(),
         });
       }}
       errorElement={<Login />}
     >
-      <Route path="/" element={<Login />} />
-      <Route path="/" element={<ProtectedLayout />}></Route>
+      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<ProtectedLayout />}>
+        <Route path="/" element={<Home />} />
+      </Route>
     </Route>,
   ),
 );
