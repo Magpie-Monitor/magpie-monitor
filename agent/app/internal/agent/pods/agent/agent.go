@@ -1,9 +1,10 @@
-package pods
+package agent
 
 import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods/data"
 	v2 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,35 +17,41 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 )
 
 type Agent struct {
-	clusterName               string
-	excludedNamespaces        []string
-	includedNamespaces        []string
-	collectionIntervalSeconds int
-	collectionDirectory       string
-	client                    *kubernetes.Clientset
-	readTimestamps            map[string]int64
-	readTimes                 map[string]time.Time
-	results                   chan Chunk
+	clusterName                       string
+	excludedNamespaces                []string
+	includedNamespaces                []string
+	logCollectionIntervalSeconds      int
+	metadataCollectionIntervalSeconds int
+	client                            *kubernetes.Clientset
+	readTimestamps                    map[string]int64
+	readTimes                         map[string]time.Time
+	results                           chan data.Chunk
+	metadata                          chan data.ClusterState
 }
 
-func NewAgent(excludedNamespaces []string, collectionIntervalSeconds int, results chan Chunk) *Agent {
+func NewAgent(excludedNamespaces []string, collectionIntervalSeconds int, metadataCollectionIntervalSeconds int,
+	results chan data.Chunk, metadata chan data.ClusterState) *Agent {
 	return &Agent{
-		excludedNamespaces:        excludedNamespaces,
-		collectionIntervalSeconds: collectionIntervalSeconds,
-		readTimestamps:            make(map[string]int64),
-		readTimes:                 make(map[string]time.Time),
-		results:                   results,
+		excludedNamespaces:                excludedNamespaces,
+		logCollectionIntervalSeconds:      collectionIntervalSeconds,
+		metadataCollectionIntervalSeconds: metadataCollectionIntervalSeconds,
+		readTimestamps:                    make(map[string]int64),
+		readTimes:                         make(map[string]time.Time),
+		results:                           results,
+		metadata:                          metadata,
 	}
 }
 
 func (a *Agent) Start() {
 	a.authenticate()
 	a.fetchNamespaces()
-	a.gatherLogs()
+	go a.gatherLogs()
+	go a.gatherClusterMetadata()
 }
 
 func (a *Agent) authenticate() {
@@ -99,38 +106,50 @@ func (a *Agent) fetchNamespaces() {
 
 func (a *Agent) gatherLogs() {
 	for {
+		var wg sync.WaitGroup
+
 		for _, namespace := range a.includedNamespaces {
-			log.Println("Fetching logs for namespace: ", namespace)
-
-			deployments, err := a.client.AppsV1().
-				Deployments(namespace).
-				List(context.TODO(), metav1.ListOptions{})
-			if err != nil {
-				log.Println("Error fetching Deployments: ", err)
-				log.Println("Skipping iteration")
-			} else {
-				a.fetchDeploymentLogsSinceTime(namespace, deployments.Items)
-			}
-
-			statefulSets, err := a.client.AppsV1().StatefulSets(namespace).List(context.TODO(), metav1.ListOptions{})
-			if err != nil {
-				log.Println("Error fetching StatefulSets: ", err)
-				log.Println("Skipping iteration")
-			} else {
-				a.fetchStatefulSetLogsSinceTime(namespace, statefulSets.Items)
-			}
-
-			daemonSets, err := a.client.AppsV1().DaemonSets(namespace).List(context.TODO(), metav1.ListOptions{})
-			if err != nil {
-				log.Println("Error fetching DaemonSets: ", err)
-				log.Println("Skipping iteration")
-			} else {
-				a.fetchDaemonSetLogsSinceTime(namespace, daemonSets.Items)
-			}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				a.fetchLogsForNamespace(namespace)
+			}()
 		}
 
-		log.Println("Sleeping for: ", a.collectionIntervalSeconds, " seconds")
-		time.Sleep(time.Duration(a.collectionIntervalSeconds) * time.Second)
+		wg.Wait()
+
+		log.Println("Sleeping for: ", a.logCollectionIntervalSeconds, " seconds")
+		time.Sleep(time.Duration(a.logCollectionIntervalSeconds) * time.Second)
+	}
+}
+
+func (a *Agent) fetchLogsForNamespace(namespace string) {
+	log.Println("Fetching logs for namespace: ", namespace)
+
+	deployments, err := a.client.AppsV1().
+		Deployments(namespace).
+		List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Println("Error fetching Deployments: ", err)
+		log.Println("Skipping iteration")
+	} else {
+		a.fetchDeploymentLogsSinceTime(namespace, deployments.Items)
+	}
+
+	statefulSets, err := a.client.AppsV1().StatefulSets(namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Println("Error fetching StatefulSets: ", err)
+		log.Println("Skipping iteration")
+	} else {
+		a.fetchStatefulSetLogsSinceTime(namespace, statefulSets.Items)
+	}
+
+	daemonSets, err := a.client.AppsV1().DaemonSets(namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Println("Error fetching DaemonSets: ", err)
+		log.Println("Skipping iteration")
+	} else {
+		a.fetchDaemonSetLogsSinceTime(namespace, daemonSets.Items)
 	}
 }
 
@@ -138,7 +157,7 @@ func (a *Agent) fetchDeploymentLogsSinceTime(namespace string, deployments []v2.
 	for _, deployment := range deployments {
 		selectors := deployment.Spec.Selector
 		logs := a.fetchPodLogsSinceTime(selectors, namespace)
-		a.sendResult(Deployment, deployment.Name, namespace, logs)
+		a.sendResult(data.Deployment, deployment.Name, namespace, logs)
 	}
 }
 
@@ -147,7 +166,7 @@ func (a *Agent) fetchStatefulSetLogsSinceTime(namespace string, statefulSets []v
 	for _, statefulSet := range statefulSets {
 		selectors := statefulSet.Spec.Selector
 		logs := a.fetchPodLogsSinceTime(selectors, namespace)
-		a.sendResult(StatefulSet, statefulSet.Name, namespace, logs)
+		a.sendResult(data.StatefulSet, statefulSet.Name, namespace, logs)
 	}
 }
 
@@ -156,12 +175,12 @@ func (a *Agent) fetchDaemonSetLogsSinceTime(namespace string, daemonSets []v2.Da
 	for _, daemonSet := range daemonSets {
 		selectors := daemonSet.Spec.Selector
 		logs := a.fetchPodLogsSinceTime(selectors, namespace)
-		a.sendResult(DaemonSet, daemonSet.Name, namespace, logs)
+		a.sendResult(data.DaemonSet, daemonSet.Name, namespace, logs)
 	}
 }
 
-func (a *Agent) fetchPodLogsSinceTime(selector *metav1.LabelSelector, namespace string) []Pod {
-	res := make([]Pod, 0)
+func (a *Agent) fetchPodLogsSinceTime(selector *metav1.LabelSelector, namespace string) []data.Pod {
+	res := make([]data.Pod, 0)
 
 	// TODO - error handling, abstraction over K8S API
 	pods, _ := a.client.CoreV1().
@@ -173,20 +192,20 @@ func (a *Agent) fetchPodLogsSinceTime(selector *metav1.LabelSelector, namespace 
 	for _, pod := range pods.Items {
 		log.Println("Fetching logs for pod: ", pod.Name)
 
-		containers := make([]Container, 0, len(pod.Spec.Containers))
+		containers := make([]data.Container, 0, len(pod.Spec.Containers))
 		for _, container := range pod.Spec.Containers {
 			log.Println("Fetching logs for container: ", container.Name)
 			c := a.fetchContainerLogsSinceTime(container, pod.Name, namespace)
 			containers = append(containers, c)
 		}
 
-		res = append(res, Pod{Name: pod.Name, Containers: containers})
+		res = append(res, data.Pod{Name: pod.Name, Containers: containers})
 	}
 
 	return res
 }
 
-func (a *Agent) fetchContainerLogsSinceTime(container v1.Container, podName, namespace string) Container {
+func (a *Agent) fetchContainerLogsSinceTime(container v1.Container, podName, namespace string) data.Container {
 	log.Println("Fetching logs for container: ", container.Name)
 
 	sinceTime := a.getReadTimestamp(podName, container.Name)
@@ -213,7 +232,7 @@ func (a *Agent) fetchContainerLogsSinceTime(container v1.Container, podName, nam
 
 	if logs.Error() != nil {
 		log.Println("Error fetching logs for Pod: ", podName, " container: ", container.Name)
-		return Container{}
+		return data.Container{}
 	}
 
 	// Subtract request time from the next fetch time,
@@ -224,16 +243,16 @@ func (a *Agent) fetchContainerLogsSinceTime(container v1.Container, podName, nam
 	rawLogs, err := logs.Raw()
 	if err != nil {
 		log.Println("Failed to fetch raw logs for container: ", container.Name)
-		return Container{}
+		return data.Container{}
 	}
 
 	deduplicatedLogs, err := a.deduplicate(string(rawLogs))
 	if err != nil {
 		log.Println("Failed to fetch container: ", container.Name, " logs")
-		return Container{}
+		return data.Container{}
 	}
 
-	return Container{Name: container.Name, Image: container.Image, Content: deduplicatedLogs}
+	return data.Container{Name: container.Name, Image: container.Image, Content: deduplicatedLogs}
 }
 
 func (a *Agent) setReadTimestamp(podName, containerName string, timestampUnixMicro int64) {
@@ -252,8 +271,8 @@ func (a *Agent) getTimestampKey(podName, containerName string) string {
 	return fmt.Sprintf("%s-%s", podName, containerName)
 }
 
-func (a *Agent) sendResult(kind ApplicationKind, name, namespace string, pods []Pod) {
-	a.results <- Chunk{
+func (a *Agent) sendResult(kind data.ApplicationKind, name, namespace string, pods []data.Pod) {
+	a.results <- data.Chunk{
 		Cluster:   a.clusterName,
 		Kind:      kind,
 		Timestamp: time.Now().UnixNano(),
@@ -309,4 +328,37 @@ func (a *Agent) getSecondFromLogTimestamp(logLine string) (int, error) {
 		return 0, err
 	}
 	return parsedTime.Second(), nil
+}
+
+func (a *Agent) gatherClusterMetadata() {
+	for {
+		state := data.NewClusterState(a.clusterName)
+		for _, namespace := range a.includedNamespaces {
+			deployments, err := a.client.AppsV1().
+				Deployments(namespace).
+				List(context.TODO(), metav1.ListOptions{})
+			if err != nil {
+				log.Println("Error fetching Deployments: ", err)
+			} else {
+				state.AppendDeployments(deployments.Items)
+			}
+
+			statefulSets, err := a.client.AppsV1().StatefulSets(namespace).List(context.TODO(), metav1.ListOptions{})
+			if err != nil {
+				log.Println("Error fetching StatefulSets: ", err)
+			} else {
+				state.AppendStatefulSets(statefulSets.Items)
+			}
+
+			daemonSets, err := a.client.AppsV1().DaemonSets(namespace).List(context.TODO(), metav1.ListOptions{})
+			if err != nil {
+				log.Println("Error fetching DaemonSets: ", err)
+			} else {
+				state.AppendDaemonSets(daemonSets.Items)
+			}
+
+			a.metadata <- state
+			time.Sleep(time.Duration(a.metadataCollectionIntervalSeconds) * time.Second)
+		}
+	}
 }

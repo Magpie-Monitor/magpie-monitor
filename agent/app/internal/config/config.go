@@ -18,10 +18,11 @@ func (i *arrayFlags) Set(value string) error {
 }
 
 type GlobalConfig struct {
-	Mode                  string
-	NodeName              string
-	ClusterName           string
-	ScrapeIntervalSeconds int
+	Mode                          string
+	NodeName                      string
+	ClusterName                   string
+	LogScrapeIntervalSeconds      int
+	MetadataScrapeIntervalSeconds int
 }
 
 type RedisConfig struct {
@@ -53,7 +54,8 @@ func NewConfig() Config {
 	mode := flag.String("scrape", "pods", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
 	clusterName := flag.String("clusterFriendlyName", "unknown", "Friendly name of your cluster, visible in Magpie Cloud.")
 
-	scrapeIntervalSeconds := flag.Int("scrapeIntervalSeconds", 10, "Interval between scraping logs from files in \"nodes\" mode or pods in \"pods\" mode.")
+	logScrapeIntervalSeconds := flag.Int("logScrapeIntervalSeconds", 10, "Interval between scraping logs from files in \"nodes\" mode or pods in \"pods\" mode.")
+	metadataScrapeIntervalSeconds := flag.Int("metadataScrapeIntervalSeconds", 10, "Interval between scraping nodes metadata in \"nodes\" mode or cluster metadata in \"pods\".")
 
 	redisUrl := flag.String("redisUrl", "", "Redis URL in cluster DNS format, that is: service.namespace.svc.cluster.local:port")
 	redisPassword := flag.String("redisPassword", "", "Password to Redis instance pointed by --redisUrl flag.")
@@ -86,10 +88,11 @@ func NewConfig() Config {
 
 	return Config{
 		Global: GlobalConfig{
-			Mode:                  *mode,
-			NodeName:              nodeName,
-			ClusterName:           *clusterName,
-			ScrapeIntervalSeconds: *scrapeIntervalSeconds,
+			Mode:                          *mode,
+			NodeName:                      nodeName,
+			ClusterName:                   *clusterName,
+			LogScrapeIntervalSeconds:      *logScrapeIntervalSeconds,
+			MetadataScrapeIntervalSeconds: *metadataScrapeIntervalSeconds,
 		},
 		Redis: RedisConfig{
 			Url:      *redisUrl,
