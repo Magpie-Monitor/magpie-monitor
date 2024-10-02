@@ -1,11 +1,11 @@
-import { navigateToGoogleAuth } from 'api/googleAuth';
+import { ManagmentServiceApiInstance } from 'api/managment-service';
 import './Panel.scss';
 import googleLogo from 'assets/google-logo.webp';
 
 const LoginPanel = () => {
   const handleGoogleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    navigateToGoogleAuth();
+    ManagmentServiceApiInstance.login();
   };
 
   return (

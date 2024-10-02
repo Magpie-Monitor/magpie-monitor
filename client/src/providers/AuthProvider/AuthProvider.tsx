@@ -1,37 +1,55 @@
-import {
-  ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { ManagmentServiceApiInstance } from 'api/managment-service';
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
+
+export const getAuthInfo = async (): Promise<AuthenticationInfo> => {
+  const tokenInfo = await ManagmentServiceApiInstance.getTokenInfo();
+  const userInfo = await ManagmentServiceApiInstance.getUserInfo();
+
+  return {
+    expTime: tokenInfo.expTime,
+    nickname: userInfo.nickname,
+    email: userInfo.email,
+  };
+};
 
 export interface AuthenticationInfo {
   email: string;
-  expires: number;
+  nickname: string;
+  expTime: number;
 }
 
 export interface AuthenticationContext {
   authenticationInfo: AuthenticationInfo;
   setAuthenticationInfo: (value: AuthenticationInfo) => void;
-  isTokenValid: () => boolean;
+  isTokenValid: () => Promise<boolean>;
 }
 
 export const AuthContext = createContext<AuthenticationContext>({
-  authenticationInfo: { email: '', expires: 0 },
-  setAuthenticationInfo: () => { },
-  isTokenValid: () => false,
+  authenticationInfo: { email: '', expTime: 0, nickname: '' },
+  setAuthenticationInfo: () => {},
+  isTokenValid: () => Promise.resolve(false),
 });
 
 export const AuthProvider = (props: {
   children: ReactNode;
   authenticationInfo: AuthenticationInfo;
 }) => {
-  const [authenticationInfo, setAuthenticationInfo] =
-    useState<AuthenticationInfo>(props.authenticationInfo);
+  const [authenticationInfo, setAuthenticationInfo] = useState<AuthenticationInfo>(
+    props.authenticationInfo,
+  );
 
-  const isTokenValid = () => {
-    return !!(authenticationInfo.expires && authenticationInfo.expires > 0);
+  const isTokenValid = async (): Promise<boolean> => {
+    if (authenticationInfo.email && authenticationInfo.expTime <= 0) {
+      try {
+        const authInfo = await getAuthInfo();
+        setAuthenticationInfo(authInfo);
+        return !!(authInfo.expTime && authInfo.expTime > 0);
+      } catch {
+        return false;
+      }
+    }
+
+    return !!(authenticationInfo.expTime && authenticationInfo.expTime > 0);
   };
 
   useEffect(() => {
@@ -39,9 +57,7 @@ export const AuthProvider = (props: {
   }, [props, setAuthenticationInfo]);
 
   return (
-    <AuthContext.Provider
-      value={{ authenticationInfo, setAuthenticationInfo, isTokenValid }}
-    >
+    <AuthContext.Provider value={{ authenticationInfo, setAuthenticationInfo, isTokenValid }}>
       {props.children}
     </AuthContext.Provider>
   );

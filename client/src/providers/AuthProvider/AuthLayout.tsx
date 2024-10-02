@@ -5,17 +5,13 @@ import { AuthProvider, AuthenticationInfo } from './AuthProvider';
 
 export const AuthLayout = () => {
   const outlet = useOutlet();
-  const { userData } = useLoaderData() as { userData: AuthenticationInfo };
+  const { authData } = useLoaderData() as { authData: AuthenticationInfo };
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <Await resolve={userData}>
+      <Await resolve={authData}>
         {(authenticationInfo) => {
-          return (
-            <AuthProvider authenticationInfo={authenticationInfo}>
-              {outlet}
-            </AuthProvider>
-          );
+          return <AuthProvider authenticationInfo={authenticationInfo}>{outlet}</AuthProvider>;
         }}
       </Await>
     </Suspense>
