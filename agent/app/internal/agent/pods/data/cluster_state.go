@@ -20,10 +20,6 @@ func NewClusterState(clusterName string) ClusterState {
 	return ClusterState{ClusterName: clusterName, Applications: make([]Application, 0)}
 }
 
-type Test interface {
-	GetName() string
-}
-
 func (c *ClusterState) SetTimestamp() {
 	c.Timestamp = time.Now().UnixMicro()
 }

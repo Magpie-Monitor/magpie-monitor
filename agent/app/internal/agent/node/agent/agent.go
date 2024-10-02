@@ -1,6 +1,7 @@
-package node
+package agent
 
 import (
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node/data"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/database"
 	"io"
 	"log"
@@ -10,25 +11,35 @@ import (
 )
 
 type IncrementalReader struct {
-	nodeName              string
-	files                 []string
-	scrapeIntervalSeconds int
-	results               chan Chunk
-	redis                 database.Redis
+	nodeName                          string
+	files                             []string
+	scrapeIntervalSeconds             int
+	metadataCollectionIntervalSeconds int
+	results                           chan data.Chunk
+	metadata                          chan data.NodeState
+	redis                             database.Redis
 }
 
-func NewReader(nodeName string, files []string, scrapeIntervalSeconds int, results chan Chunk,
+func NewReader(nodeName string, files []string, scrapeIntervalSeconds int, metadataCollectionIntervalSeconds int,
+	results chan data.Chunk, metadata chan data.NodeState,
 	redisUrl, redisPassword string, redisDb int) IncrementalReader {
 	return IncrementalReader{
-		nodeName:              nodeName,
-		files:                 files,
-		scrapeIntervalSeconds: scrapeIntervalSeconds,
-		results:               results,
-		redis:                 database.NewRedis(redisUrl, redisPassword, redisDb),
+		nodeName:                          nodeName,
+		files:                             files,
+		scrapeIntervalSeconds:             scrapeIntervalSeconds,
+		metadataCollectionIntervalSeconds: metadataCollectionIntervalSeconds,
+		results:                           results,
+		metadata:                          metadata,
+		redis:                             database.NewRedis(redisUrl, redisPassword, redisDb),
 	}
 }
 
-func (r *IncrementalReader) WatchFiles() {
+func (r *IncrementalReader) Start() {
+	go r.watchFiles()
+	r.gatherNodeMetadata()
+}
+
+func (r *IncrementalReader) watchFiles() {
 	for _, file := range r.files {
 		go r.watchFile(file, r.scrapeIntervalSeconds, r.results)
 	}
@@ -68,7 +79,7 @@ func (r *IncrementalReader) prepareFile(dir string) (*os.File, int64) {
 	return f, currentSize
 }
 
-func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results chan Chunk) {
+func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results chan data.Chunk) {
 	f, currentSize := r.prepareFile(dir)
 	defer f.Close()
 
@@ -106,7 +117,7 @@ func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results c
 				log.Println("Error persisting read progress for: ", dir)
 			}
 
-			results <- Chunk{
+			results <- data.Chunk{
 				Kind:      "Node",
 				Name:      r.nodeName,
 				Timestamp: time.Now().UnixNano(),
@@ -116,5 +127,15 @@ func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results c
 		}
 
 		time.Sleep(time.Duration(cooldownSeconds * 1000))
+	}
+}
+
+func (r *IncrementalReader) gatherNodeMetadata() {
+	for {
+		state := data.NodeState{NodeName: r.nodeName, WatchedFiles: r.files}
+		state.SetTimestamp()
+		r.metadata <- state
+
+		time.Sleep(time.Duration(r.metadataCollectionIntervalSeconds) * time.Second)
 	}
 }

@@ -27,11 +27,7 @@ func NewRedis(url, password string, db int) Redis {
 		panic(err)
 	}
 
-	return Redis{url: url, password: password, db: db, client: redis.NewClient(&redis.Options{
-		Addr:     url,
-		Password: password,
-		DB:       db,
-	})}
+	return Redis{url: url, password: password, db: db, client: client}
 }
 
 func (r *Redis) Set(key, value string, ttl int) error {
