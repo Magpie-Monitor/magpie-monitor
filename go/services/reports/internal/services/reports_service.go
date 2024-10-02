@@ -111,6 +111,26 @@ func (s *ReportsService) getTitleForReport(cluster string, fromDate time.Time, t
 	)
 }
 
+func (s *ReportsService) getApplicationIncidentFromInsight(insight insights.ApplicationInsightsWithMetadata) repositories.ApplicationIncident {
+
+	sources := array.Map(func(metadata *insights.ApplicationInsightMetadata) repositories.ApplicationIncidentSource {
+		return repositories.ApplicationIncidentSource{
+			ContainerName: metadata.ContainerName,
+			PodName:       metadata.PodName,
+			Content:       metadata.Source,
+			Timestamp:     metadata.Timestamp,
+		}
+	})(insight.Metadata)
+
+	return repositories.ApplicationIncident{
+		Category:       insight.Insight.Category,
+		Summary:        insight.Insight.Summary,
+		Recommendation: insight.Insight.Recommendation,
+		Sources:        sources,
+	}
+
+}
+
 func (s *ReportsService) GenerateApplicationReports(
 	ctx context.Context,
 	cluster string,
@@ -124,7 +144,6 @@ func (s *ReportsService) GenerateApplicationReports(
 		cluster,
 		fromDate,
 		toDate)
-
 	if err != nil {
 		s.logger.Error("Failed to get application logs", zap.Error(err))
 		return nil, err
@@ -141,30 +160,14 @@ func (s *ReportsService) GenerateApplicationReports(
 		return nil, err
 	}
 
-	insightsByApplication := make(map[string][]insights.ApplicationInsightsWithMetadata)
-
-	for _, insight := range applicationInsights {
-		applicationName := insight.Metadata.ApplicationName
-		insightsByApplication[applicationName] = append(insightsByApplication[applicationName], insight)
-	}
+	insightsByApplication := insights.GroupInsightsByApplication(applicationInsights)
 
 	reports := make([]repositories.ApplicationReport, 0, len(insightsByApplication))
-
 	configByApp := insights.MapApplicationNameToConfiguration(applicationConfiguration)
 
 	for applicationName, insightsForApplication := range insightsByApplication {
 
-		incidentsFromInsights := array.Map(func(insight insights.ApplicationInsightsWithMetadata) repositories.ApplicationIncident {
-			return repositories.ApplicationIncident{
-				Category:       insight.Insight.Category,
-				Summary:        insight.Insight.Summary,
-				Recommendation: insight.Insight.Recommendation,
-				Timestamp:      insight.Metadata.Timestamp,
-				PodName:        insight.Metadata.PodName,
-				ContainerName:  insight.Metadata.ContainerName,
-				Source:         insight.Metadata.Source,
-			}
-		})
+		incidentsFromInsights := array.Map(s.getApplicationIncidentFromInsight)
 
 		incidents := incidentsFromInsights(insightsForApplication)
 		report := repositories.ApplicationReport{
@@ -182,7 +185,6 @@ func (s *ReportsService) GenerateApplicationReports(
 	}
 
 	return reports, nil
-
 }
 
 func (s *ReportsService) GenerateAndSaveReport(ctx context.Context, params ReportGenerationFilters) (*repositories.Report, error) {

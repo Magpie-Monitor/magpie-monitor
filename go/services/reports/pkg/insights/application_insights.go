@@ -14,24 +14,24 @@ import (
 )
 
 type ApplicationLogsInsight struct {
-	Name           string `json:"name"`
-	Category       string `json:"category"`
-	Summary        string `json:"summary"`
-	Recommendation string `json:"recommendation"`
-	SourceLogId    string `json:"sourceLogId"`
+	ApplicationName string   `json:"applicationName"`
+	IncidentName    string   `json:"name"`
+	Category        string   `json:"category"`
+	Summary         string   `json:"summary"`
+	Recommendation  string   `json:"recommendation"`
+	SourceLogIds    []string `json:"sourceLogId"`
 }
 
 type ApplicationInsightMetadata struct {
-	ApplicationName string `json:"applicationName"`
-	Timestamp       int64  `json:"timestamp"`
-	ContainerName   string `json:"containerName"`
-	PodName         string `json:"podName"`
-	Source          string `json:"source"`
+	Timestamp     int64  `json:"timestamp"`
+	ContainerName string `json:"containerName"`
+	PodName       string `json:"podName"`
+	Source        string `json:"source"`
 }
 
 type ApplicationInsightsWithMetadata struct {
-	Insight  *ApplicationLogsInsight     `json:"insight"`
-	Metadata *ApplicationInsightMetadata `json:"metadata"`
+	Insight  *ApplicationLogsInsight       `json:"insight"`
+	Metadata []*ApplicationInsightMetadata `json:"metadata"`
 }
 
 type ApplicationInsightsGenerator interface {
@@ -63,47 +63,62 @@ func (g *OpenAiInsightsGenerator) getApplicationLogById(logId string, logs []*re
 	return first, nil
 }
 
-func (g *OpenAiInsightsGenerator) OnDemandApplicationInsights(logs []*repositories.ApplicationLogsDocument, configurations []*ApplicationInsightConfiguration) ([]ApplicationInsightsWithMetadata, error) {
+func (g *OpenAiInsightsGenerator) addMetadataToInsight(insight ApplicationLogsInsight, logs []*repositories.ApplicationLogsDocument) ApplicationInsightsWithMetadata {
 
-	groupedLogs := make(map[string][]*repositories.ApplicationLogsDocument)
-	for _, log := range logs {
-		groupedLogs[log.ApplicationName] = append(groupedLogs[log.ApplicationName], log)
+	applicationInsightsMetadata := make([]*ApplicationInsightMetadata, 0, len(insight.SourceLogIds))
+	for _, sourceLogId := range insight.SourceLogIds {
+		log, err := g.getApplicationLogById(sourceLogId, logs)
+		if err != nil {
+			g.logger.Error("Failed to source application insights", zap.Error(err))
+		}
+
+		applicationInsightsMetadata = append(applicationInsightsMetadata, &ApplicationInsightMetadata{
+			Timestamp:     log.Timestamp,
+			ContainerName: log.ContainerName,
+			PodName:       log.PodName,
+			Source:        log.Content,
+		},
+		)
 	}
 
+	return ApplicationInsightsWithMetadata{
+		Insight:  &insight,
+		Metadata: applicationInsightsMetadata,
+	}
+}
+
+func (g *OpenAiInsightsGenerator) OnDemandApplicationInsights(
+	logs []*repositories.ApplicationLogsDocument,
+	configurations []*ApplicationInsightConfiguration) ([]ApplicationInsightsWithMetadata, error) {
+
+	groupedLogs := GroupLogsByName(logs)
+
+	// Map report configuration for an app (precision/customPrompt) to a app name.
 	configurationsByApplication := MapApplicationNameToConfiguration(configurations)
+
+	insightsChannel := make(chan []ApplicationInsightsWithMetadata, len(groupedLogs))
+	allInsights := make([]ApplicationInsightsWithMetadata, 0, len(groupedLogs))
 
 	var wg sync.WaitGroup
 
-	allInsights := make([]ApplicationInsightsWithMetadata, 0, len(groupedLogs))
-
-	insightsChannel := make(chan []ApplicationInsightsWithMetadata, len(groupedLogs))
-
+	// Generate insights for each application separately.
 	for applicationName, logs := range groupedLogs {
 		wg.Add(1)
 		go func() {
-
 			defer wg.Done()
 
-			insights, err := g.getInsightsForSingleApplication(logs, configurationsByApplication[applicationName])
+			insights, err := g.getInsightsForSingleApplication(
+				logs,
+				configurationsByApplication[applicationName],
+			)
+
 			if err != nil {
 				g.logger.Error("Failed to get insights for an application", zap.Error(err), zap.String("app", applicationName))
 			}
-			mapper := array.Map(func(insight ApplicationLogsInsight) ApplicationInsightsWithMetadata {
 
-				log, err := g.getApplicationLogById(insight.SourceLogId, logs)
-				if err != nil {
-					g.logger.Error("Failed to source application insights", zap.Error(err))
-				}
-				return ApplicationInsightsWithMetadata{
-					Insight: &insight,
-					Metadata: &ApplicationInsightMetadata{
-						ApplicationName: applicationName,
-						Timestamp:       log.Timestamp,
-						ContainerName:   log.ContainerName,
-						PodName:         log.PodName,
-						Source:          log.Content,
-					},
-				}
+			// Add metadata about insights (container/pod)
+			mapper := array.Map(func(insights ApplicationLogsInsight) ApplicationInsightsWithMetadata {
+				return g.addMetadataToInsight(insights, logs)
 			})
 
 			insightsChannel <- mapper(insights)
@@ -111,7 +126,6 @@ func (g *OpenAiInsightsGenerator) OnDemandApplicationInsights(logs []*repositori
 	}
 
 	wg.Wait()
-
 	close(insightsChannel)
 
 	for insights := range insightsChannel {
@@ -144,9 +158,10 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleApplication(
 			find logs which might suggest any kind of errors or issues. Try to give a possible reason, 
 			category of an issue, urgency and possible resolution.   
 			Source is an fragment of a the provided log that you are referencing in summary and recommendation. 
-			Always declare a unmodified source log with every insight you give.  
+			Always declare a unmodified sources with every insight you give.  
 			Always give a recommendation on how to resolve the issue. Always give a source. Never repeat insights, ie. 
-			if you once use the source do not create an insight for it again. One insight per source. 
+			if you once use the source do not create an insight for it again. One insight per source. If you recognize the 
+			same events on different containers/pods 
 			Ignore logs which do not explicitly suggest an issue. Ignore logs which are describing usual actions.
 			If there are no errors or warnings don't even mention an insight. Here is the additional configuration 
 			that you should consider while generating insights %s`, customPrompt),
