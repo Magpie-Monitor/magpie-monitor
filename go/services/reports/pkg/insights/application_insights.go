@@ -19,7 +19,7 @@ type ApplicationLogsInsight struct {
 	Category        string   `json:"category"`
 	Summary         string   `json:"summary"`
 	Recommendation  string   `json:"recommendation"`
-	SourceLogIds    []string `json:"sourceLogId"`
+	SourceLogIds    []string `json:"sourceLogIds"`
 }
 
 type ApplicationInsightMetadata struct {
@@ -30,8 +30,8 @@ type ApplicationInsightMetadata struct {
 }
 
 type ApplicationInsightsWithMetadata struct {
-	Insight  *ApplicationLogsInsight       `json:"insight"`
-	Metadata []*ApplicationInsightMetadata `json:"metadata"`
+	Insight  *ApplicationLogsInsight      `json:"insight"`
+	Metadata []ApplicationInsightMetadata `json:"metadata"`
 }
 
 type ApplicationInsightsGenerator interface {
@@ -65,14 +65,14 @@ func (g *OpenAiInsightsGenerator) getApplicationLogById(logId string, logs []*re
 
 func (g *OpenAiInsightsGenerator) addMetadataToInsight(insight ApplicationLogsInsight, logs []*repositories.ApplicationLogsDocument) ApplicationInsightsWithMetadata {
 
-	applicationInsightsMetadata := make([]*ApplicationInsightMetadata, 0, len(insight.SourceLogIds))
+	applicationInsightsMetadata := make([]ApplicationInsightMetadata, 0, len(insight.SourceLogIds))
 	for _, sourceLogId := range insight.SourceLogIds {
 		log, err := g.getApplicationLogById(sourceLogId, logs)
 		if err != nil {
 			g.logger.Error("Failed to source application insights", zap.Error(err))
 		}
 
-		applicationInsightsMetadata = append(applicationInsightsMetadata, &ApplicationInsightMetadata{
+		applicationInsightsMetadata = append(applicationInsightsMetadata, ApplicationInsightMetadata{
 			Timestamp:     log.Timestamp,
 			ContainerName: log.ContainerName,
 			PodName:       log.PodName,
@@ -161,7 +161,8 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleApplication(
 			Always declare a unmodified sources with every insight you give.  
 			Always give a recommendation on how to resolve the issue. Always give a source. Never repeat insights, ie. 
 			if you once use the source do not create an insight for it again. One insight per source. If you recognize the 
-			same events on different containers/pods 
+			same events on different containers/pods. 
+			Add all logs (from all pods/containers) which belong to the same insight to the sourceIds array of a single insight.
 			Ignore logs which do not explicitly suggest an issue. Ignore logs which are describing usual actions.
 			If there are no errors or warnings don't even mention an insight. Here is the additional configuration 
 			that you should consider while generating insights %s`, customPrompt),

@@ -113,7 +113,7 @@ func (s *ReportsService) getTitleForReport(cluster string, fromDate time.Time, t
 
 func (s *ReportsService) getApplicationIncidentFromInsight(insight insights.ApplicationInsightsWithMetadata) repositories.ApplicationIncident {
 
-	sources := array.Map(func(metadata *insights.ApplicationInsightMetadata) repositories.ApplicationIncidentSource {
+	sources := array.Map(func(metadata insights.ApplicationInsightMetadata) repositories.ApplicationIncidentSource {
 		return repositories.ApplicationIncidentSource{
 			ContainerName: metadata.ContainerName,
 			PodName:       metadata.PodName,
