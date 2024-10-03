@@ -2,6 +2,8 @@ package config
 
 import (
 	"flag"
+	nodeData "github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node/data"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods/data"
 	"log"
 	"os"
 )
@@ -15,6 +17,22 @@ func (i *arrayFlags) String() string {
 func (i *arrayFlags) Set(value string) error {
 	*i = append(*i, value)
 	return nil
+}
+
+type Channels struct {
+	ClusterLogsChannel     chan data.Chunk
+	ClusterMetadataChannel chan data.ClusterState
+	NodeLogsChannel        chan nodeData.Chunk
+	NodeMetadataChannel    chan nodeData.NodeState
+}
+
+func NewChannels() Channels {
+	return Channels{
+		ClusterLogsChannel:     make(chan data.Chunk),
+		ClusterMetadataChannel: make(chan data.ClusterState),
+		NodeLogsChannel:        make(chan nodeData.Chunk),
+		NodeMetadataChannel:    make(chan nodeData.NodeState),
+	}
 }
 
 type GlobalConfig struct {
@@ -46,6 +64,7 @@ type Config struct {
 	Global             GlobalConfig
 	Redis              RedisConfig
 	Broker             BrokerConfig
+	Channels           Channels
 	WatchedFiles       []string
 	ExcludedNamespaces []string
 }
@@ -114,6 +133,7 @@ func NewConfig() Config {
 			NodeTopic: *remoteWriteNodeTopic,
 			BatchSize: *remoteWriteBatchSize,
 		},
+		Channels:           NewChannels(),
 		WatchedFiles:       watchedFiles,
 		ExcludedNamespaces: excludedNamespaces,
 	}
