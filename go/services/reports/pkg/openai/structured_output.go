@@ -30,6 +30,13 @@ func getSchemaFromStruct(obj interface{}) *Schema {
 		t = t.Elem()
 	}
 
+	if isPrimitive(t.Kind()) {
+		schemaType := mapKindToSchema(t.Kind())
+		return &Schema{
+			Type: schemaType,
+		}
+	}
+
 	schema := &Schema{
 		Type:                 "object",
 		Properties:           map[string]*Schema{},
@@ -44,32 +51,8 @@ func getSchemaFromStruct(obj interface{}) *Schema {
 			fieldName = field.Name
 		}
 
-		// Determine the schema type of the field
-		var fieldSchema *Schema
-		switch fieldType.Kind() {
-		case reflect.String:
-			fieldSchema = &Schema{Type: "string"}
-		case reflect.Int, reflect.Int32, reflect.Int64:
-			fieldSchema = &Schema{Type: "integer"}
-		case reflect.Float32, reflect.Float64:
-			fieldSchema = &Schema{Type: "number"}
-		case reflect.Bool:
-			fieldSchema = &Schema{Type: "boolean"}
-		case reflect.Struct:
-			// Recursively get the schema of the nested struct
-			fieldSchema = getSchemaFromStruct(reflect.New(fieldType).Interface())
-		case reflect.Slice:
-			// Handle slice (arrays) fields
-			fieldSchema = &Schema{
-				Type:  "array",
-				Items: getSchemaFromStruct(reflect.New(fieldType.Elem()).Interface()),
-			}
-		default:
-			fieldSchema = &Schema{Type: "string"} // Default to string for unknown types
-		}
-
 		// Add field schema to properties
-		schema.Properties[fieldName] = fieldSchema
+		schema.Properties[fieldName] = createSchemaType(fieldType)
 
 		// Add to required fields if the field does not have the 'omitempty' tag
 		if !strings.Contains(field.Tag.Get("json"), "omitempty") {
@@ -78,6 +61,34 @@ func getSchemaFromStruct(obj interface{}) *Schema {
 	}
 
 	return schema
+}
+
+func createSchemaType(fieldType reflect.Type) *Schema {
+	kind := fieldType.Kind()
+	if isPrimitive(kind) {
+		return handlePrimitiveSchema(fieldType)
+	} else if kind == reflect.Struct {
+		return handleObjectSchema(fieldType)
+	} else if kind == reflect.Slice {
+		return handleArraySchema(fieldType)
+	} else {
+		return &Schema{Type: "string"} // Default to string for unknown types
+	}
+}
+
+func handleObjectSchema(fieldType reflect.Type) *Schema {
+	return getSchemaFromStruct(reflect.New(fieldType).Interface())
+}
+
+func handleArraySchema(fieldType reflect.Type) *Schema {
+	return &Schema{
+		Type:  "array",
+		Items: getSchemaFromStruct(reflect.New(fieldType.Elem()).Interface()),
+	}
+}
+
+func handlePrimitiveSchema(fieldType reflect.Type) *Schema {
+	return &Schema{Type: mapKindToSchema(fieldType.Kind())}
 }
 
 func CreateJsonReponseFormat(schemaName string, responseShape any) ResponseFormat {
@@ -89,4 +100,23 @@ func CreateJsonReponseFormat(schemaName string, responseShape any) ResponseForma
 			Schema: *getSchemaFromStruct(responseShape),
 		},
 	}
+}
+
+func mapKindToSchema(kind reflect.Kind) string {
+	switch kind {
+	case reflect.String:
+		return "string"
+	case reflect.Int, reflect.Int32, reflect.Int64:
+		return "integer"
+	case reflect.Float32, reflect.Float64:
+		return "number"
+	case reflect.Bool:
+		return "boolean"
+	default:
+		panic("Non-primitive type type passed to kind mapper")
+	}
+}
+
+func isPrimitive(kind reflect.Kind) bool {
+	return kind != reflect.Slice && kind != reflect.Struct
 }

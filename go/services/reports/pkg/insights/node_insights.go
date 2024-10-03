@@ -157,7 +157,7 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleNode(
 			%s`, encodedLogs),
 		},
 	},
-		openai.CreateJsonReponseFormat("node_insights", applicationInsightsResponseDto{}),
+		openai.CreateJsonReponseFormat("node_insights", nodeInsightsResponseDto{}),
 	)
 
 	if err != nil {
