@@ -1,0 +1,121 @@
+{
+	"info": {
+		"_postman_id": "e2444629-7cc8-498f-9375-88167ec4b06e",
+		"name": "Magpie Monitor",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22057309",
+		"_collection_link": "https://lively-meadow-271302.postman.co/workspace/My-Workspace~533c4214-2669-47f7-8a2e-307ff0f50f6c/collection/22057309-e2444629-7cc8-498f-9375-88167ec4b06e?action=share&source=collection_link&creator=22057309"
+	},
+	"item": [
+		{
+			"name": "notification-channels",
+			"item": [
+				{
+					"name": "/api/v1/notification-channels/mails",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/notification-channels/mails",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"mails"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notification-channels/mails",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"\",\n    \"email\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/notification-channels/mails",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"mails"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notification-channels/mails/{id}",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"\",\n    \"email\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/notification-channels/mails/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"mails",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notification-channels/mails/{id}/test-notification",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/notification-channels/mails/1/test-notification",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"mails",
+								"1",
+								"test-notification"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
