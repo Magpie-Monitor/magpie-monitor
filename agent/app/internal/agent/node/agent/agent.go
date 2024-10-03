@@ -2,6 +2,7 @@ package agent
 
 import (
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node/data"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/config"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/database"
 	"io"
 	"log"
@@ -11,26 +12,24 @@ import (
 )
 
 type IncrementalReader struct {
-	nodeName                          string
-	files                             []string
-	scrapeIntervalSeconds             int
-	metadataCollectionIntervalSeconds int
-	results                           chan data.Chunk
-	metadata                          chan data.NodeState
-	redis                             database.Redis
+	nodeName                      string
+	files                         []string
+	scrapeIntervalSeconds         int
+	metadataScrapeIntervalSeconds int
+	results                       chan data.Chunk
+	metadata                      chan data.NodeState
+	redis                         database.Redis
 }
 
-func NewReader(nodeName string, files []string, scrapeIntervalSeconds int, metadataCollectionIntervalSeconds int,
-	results chan data.Chunk, metadata chan data.NodeState,
-	redisUrl, redisPassword string, redisDb int) IncrementalReader {
+func NewReader(cfg config.Config) IncrementalReader {
 	return IncrementalReader{
-		nodeName:                          nodeName,
-		files:                             files,
-		scrapeIntervalSeconds:             scrapeIntervalSeconds,
-		metadataCollectionIntervalSeconds: metadataCollectionIntervalSeconds,
-		results:                           results,
-		metadata:                          metadata,
-		redis:                             database.NewRedis(redisUrl, redisPassword, redisDb),
+		nodeName:                      cfg.Global.NodeName,
+		files:                         cfg.WatchedFiles,
+		scrapeIntervalSeconds:         cfg.Global.LogScrapeIntervalSeconds,
+		metadataScrapeIntervalSeconds: cfg.Global.MetadataScrapeIntervalSeconds,
+		results:                       cfg.Channels.NodeLogsChannel,
+		metadata:                      cfg.Channels.NodeMetadataChannel,
+		redis:                         database.NewRedis(cfg.Redis.Url, cfg.Redis.Password, cfg.Redis.Database),
 	}
 }
 
@@ -132,10 +131,10 @@ func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results c
 
 func (r *IncrementalReader) gatherNodeMetadata() {
 	for {
-		state := data.NodeState{NodeName: r.nodeName, WatchedFiles: r.files}
+		state := data.NewNodeState(r.nodeName, r.files)
 		state.SetTimestamp()
 		r.metadata <- state
 
-		time.Sleep(time.Duration(r.metadataCollectionIntervalSeconds) * time.Second)
+		time.Sleep(time.Duration(r.metadataScrapeIntervalSeconds) * time.Second)
 	}
 }

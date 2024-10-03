@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods/data"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/config"
 	v2 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,16 +35,15 @@ type Agent struct {
 	metadata                          chan data.ClusterState
 }
 
-func NewAgent(excludedNamespaces []string, collectionIntervalSeconds int, metadataCollectionIntervalSeconds int,
-	results chan data.Chunk, metadata chan data.ClusterState) *Agent {
+func NewAgent(cfg config.Config) *Agent {
 	return &Agent{
-		excludedNamespaces:                excludedNamespaces,
-		logCollectionIntervalSeconds:      collectionIntervalSeconds,
-		metadataCollectionIntervalSeconds: metadataCollectionIntervalSeconds,
+		excludedNamespaces:                cfg.ExcludedNamespaces,
+		logCollectionIntervalSeconds:      cfg.Global.LogScrapeIntervalSeconds,
+		metadataCollectionIntervalSeconds: cfg.Global.MetadataScrapeIntervalSeconds,
 		readTimestamps:                    make(map[string]int64),
 		readTimes:                         make(map[string]time.Time),
-		results:                           results,
-		metadata:                          metadata,
+		results:                           cfg.Channels.ClusterLogsChannel,
+		metadata:                          cfg.Channels.ClusterMetadataChannel,
 	}
 }
 
@@ -331,6 +331,7 @@ func (a *Agent) getSecondFromLogTimestamp(logLine string) (int, error) {
 }
 
 func (a *Agent) gatherClusterMetadata() {
+	// TODO - create kubernetes API client
 	for {
 		state := data.NewClusterState(a.clusterName)
 		for _, namespace := range a.includedNamespaces {
