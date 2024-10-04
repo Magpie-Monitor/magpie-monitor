@@ -114,6 +114,111 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "/api/v1/notification-channels/slack",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/notification-channels/slack",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"slack"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notification-channels/slack",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"\",\n    \"webhookUrl\": \"https://hooks.slack.com/services/xxx/xxx/xxx\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/notification-channels/slack",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"slack"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notification-channels/slack/{id}",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"xxx\",\n    \"webhookUrl\": \"https://hooks.slack.com/services/xxx/xxx/xxx\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/notification-channels/slack/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"slack",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notification-channels/slack/{id}/test-notification",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/notification-channels/slack/1/test-notification",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"slack",
+								"1",
+								"test-notification"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
