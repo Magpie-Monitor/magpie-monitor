@@ -33,7 +33,6 @@
 		<springdoc.version>2.6.0</springdoc.version>
 		<jjwt.version>0.12.6</jjwt.version>
 		<commonmark.version>0.22.0</commonmark.version>
-		<slack-api-client.version>1.43.1</slack-api-client.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -91,12 +90,6 @@
 			<groupId>com.google.http-client</groupId>
 			<artifactId>google-http-client-gson</artifactId>
 			<version>1.45.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.slack.api</groupId>
-			<artifactId>slack-api-client</artifactId>
-			<version>${slack-api-client.version}</version>
 		</dependency>
 
 		<dependency>
