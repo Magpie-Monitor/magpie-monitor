@@ -1,14 +1,15 @@
 package agent
 
 import (
-	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node/data"
-	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/config"
-	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/database"
 	"io"
 	"log"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node/data"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/config"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/database"
 )
 
 type IncrementalReader struct {
@@ -16,19 +17,19 @@ type IncrementalReader struct {
 	files                         []string
 	scrapeIntervalSeconds         int
 	metadataScrapeIntervalSeconds int
-	results                       chan data.Chunk
-	metadata                      chan data.NodeState
+	results                       chan<- data.Chunk
+	metadata                      chan<- data.NodeState
 	redis                         database.Redis
 }
 
-func NewReader(cfg config.Config) IncrementalReader {
+func NewReader(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<- data.NodeState) IncrementalReader {
 	return IncrementalReader{
 		nodeName:                      cfg.Global.NodeName,
 		files:                         cfg.WatchedFiles,
 		scrapeIntervalSeconds:         cfg.Global.LogScrapeIntervalSeconds,
 		metadataScrapeIntervalSeconds: cfg.Global.MetadataScrapeIntervalSeconds,
-		results:                       cfg.Channels.NodeLogsChannel,
-		metadata:                      cfg.Channels.NodeMetadataChannel,
+		results:                       logsChan,
+		metadata:                      metadataChan,
 		redis:                         database.NewRedis(cfg.Redis.Url, cfg.Redis.Password, cfg.Redis.Database),
 	}
 }
@@ -78,7 +79,7 @@ func (r *IncrementalReader) prepareFile(dir string) (*os.File, int64) {
 	return f, currentSize
 }
 
-func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results chan data.Chunk) {
+func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results chan<- data.Chunk) {
 	f, currentSize := r.prepareFile(dir)
 	defer f.Close()
 
@@ -117,11 +118,11 @@ func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results c
 			}
 
 			results <- data.Chunk{
-				Kind:      "Node",
-				Name:      r.nodeName,
-				Timestamp: time.Now().UnixNano(),
-				Namespace: dir,
-				Content:   string(buf),
+				Kind:          "Node",
+				Name:          r.nodeName,
+				CollectedAtMs: time.Now().UnixNano(),
+				Filename:      dir,
+				Content:       string(buf),
 			}
 		}
 

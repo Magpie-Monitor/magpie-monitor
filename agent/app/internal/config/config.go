@@ -2,10 +2,11 @@ package config
 
 import (
 	"flag"
-	nodeData "github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node/data"
-	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods/data"
 	"log"
 	"os"
+
+	nodeData "github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node/data"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods/data"
 )
 
 type arrayFlags []string
@@ -20,19 +21,26 @@ func (i *arrayFlags) Set(value string) error {
 }
 
 type Channels struct {
-	ClusterLogsChannel     chan data.Chunk
-	ClusterMetadataChannel chan data.ClusterState
-	NodeLogsChannel        chan nodeData.Chunk
-	NodeMetadataChannel    chan nodeData.NodeState
+	ApplicationLogsChannel     chan data.Chunk
+	ApplicationMetadataChannel chan data.ClusterState
+	NodeLogsChannel            chan nodeData.Chunk
+	NodeMetadataChannel        chan nodeData.NodeState
 }
 
-func NewChannels() Channels {
-	return Channels{
-		ClusterLogsChannel:     make(chan data.Chunk),
-		ClusterMetadataChannel: make(chan data.ClusterState),
-		NodeLogsChannel:        make(chan nodeData.Chunk),
-		NodeMetadataChannel:    make(chan nodeData.NodeState),
+func NewChannels() *Channels {
+	return &Channels{
+		ApplicationLogsChannel:     make(chan data.Chunk, 10),
+		ApplicationMetadataChannel: make(chan data.ClusterState, 10),
+		NodeLogsChannel:            make(chan nodeData.Chunk, 10),
+		NodeMetadataChannel:        make(chan nodeData.NodeState, 10),
 	}
+}
+
+func (c *Channels) Close() {
+	close(c.ApplicationLogsChannel)
+	close(c.ApplicationMetadataChannel)
+	close(c.NodeLogsChannel)
+	close(c.NodeMetadataChannel)
 }
 
 type GlobalConfig struct {
@@ -64,7 +72,6 @@ type Config struct {
 	Global             GlobalConfig
 	Redis              RedisConfig
 	Broker             BrokerConfig
-	Channels           Channels
 	WatchedFiles       []string
 	ExcludedNamespaces []string
 }
@@ -133,7 +140,6 @@ func NewConfig() Config {
 			NodeTopic: *remoteWriteNodeTopic,
 			BatchSize: *remoteWriteBatchSize,
 		},
-		Channels:           NewChannels(),
 		WatchedFiles:       watchedFiles,
 		ExcludedNamespaces: excludedNamespaces,
 	}

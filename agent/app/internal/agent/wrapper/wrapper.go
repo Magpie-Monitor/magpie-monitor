@@ -2,20 +2,21 @@ package wrapper
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/collector"
 	nodeAgent "github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node/agent"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods/agent"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/config"
-	"log"
 )
 
 type AgentWrapper struct {
-	config    config.Config
-	channels  config.Channels
+	config    *config.Config
+	channels  *config.Channels
 	collector collector.DataCollector
 }
 
-func NewAgentWrapper(cfg config.Config) AgentWrapper {
+func NewAgentWrapper(cfg *config.Config) AgentWrapper {
 	channels := config.NewChannels()
 	return AgentWrapper{
 		config:    cfg,
@@ -25,6 +26,8 @@ func NewAgentWrapper(cfg config.Config) AgentWrapper {
 }
 
 func (a *AgentWrapper) Start() {
+	defer a.channels.Close()
+
 	mode := a.config.Global.Mode
 	if mode == "nodes" {
 		log.Println("Watched files: ", a.config.WatchedFiles)
@@ -40,13 +43,13 @@ func (a *AgentWrapper) Start() {
 }
 
 func (a *AgentWrapper) startNodeAgent() {
-	nodesAgent := nodeAgent.NewReader(a.config)
+	nodesAgent := nodeAgent.NewReader(a.config, a.channels.NodeLogsChannel, a.channels.NodeMetadataChannel)
 	go nodesAgent.Start()
 	a.collector.CollectNodes()
 }
 
 func (a *AgentWrapper) startPodAgent() {
-	podAgent := agent.NewAgent(a.config)
+	podAgent := agent.NewAgent(a.config, a.channels.ApplicationLogsChannel, a.channels.ApplicationMetadataChannel)
 	go podAgent.Start()
 	a.collector.CollectCluster()
 }

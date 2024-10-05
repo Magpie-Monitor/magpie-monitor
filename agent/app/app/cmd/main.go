@@ -8,6 +8,6 @@ import (
 func main() {
 	//cfg := config.Config{Global: config.GlobalConfig{Mode: "nodes", MetadataScrapeIntervalSeconds: 10}, WatchedFiles: []string{"test.log"}}
 	cfg := config.NewConfig()
-	agentWrapper := wrapper.NewAgentWrapper(cfg)
+	agentWrapper := wrapper.NewAgentWrapper(&cfg)
 	agentWrapper.Start()
 }

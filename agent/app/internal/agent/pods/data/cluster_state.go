@@ -1,8 +1,9 @@
 package data
 
 import (
-	v1 "k8s.io/api/apps/v1"
 	"time"
+
+	v1 "k8s.io/api/apps/v1"
 )
 
 type ClusterState struct {
@@ -17,27 +18,27 @@ type Application struct {
 }
 
 func NewClusterState(clusterName string) ClusterState {
-	return ClusterState{ClusterName: clusterName, Applications: make([]Application, 0)}
+	return ClusterState{ClusterName: clusterName, Applications: []Application{}}
 }
 
 func (c *ClusterState) SetTimestamp() {
 	c.Timestamp = time.Now().UnixMicro()
 }
 
-func (c *ClusterState) AppendDeployments(deployments []v1.Deployment) {
-	for _, d := range deployments {
+func (c *ClusterState) AppendDeployments(deployments *[]v1.Deployment) {
+	for _, d := range *deployments {
 		c.appendApplication(d.Name, Deployment)
 	}
 }
 
-func (c *ClusterState) AppendStatefulSets(statefulSets []v1.StatefulSet) {
-	for _, s := range statefulSets {
+func (c *ClusterState) AppendStatefulSets(statefulSets *[]v1.StatefulSet) {
+	for _, s := range *statefulSets {
 		c.appendApplication(s.Name, StatefulSet)
 	}
 }
 
-func (c *ClusterState) AppendDaemonSets(daemonSets []v1.DaemonSet) {
-	for _, d := range daemonSets {
+func (c *ClusterState) AppendDaemonSets(daemonSets *[]v1.DaemonSet) {
+	for _, d := range *daemonSets {
 		c.appendApplication(d.Name, DaemonSet)
 	}
 }
