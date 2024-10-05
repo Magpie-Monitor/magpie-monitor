@@ -203,7 +203,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/v1/notification-channels/slack/1/test-notification",
+							"raw": "localhost:8080/api/v1/notification-channels/slack/3/test-notification",
 							"host": [
 								"localhost"
 							],
@@ -213,6 +213,111 @@
 								"v1",
 								"notification-channels",
 								"slack",
+								"3",
+								"test-notification"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notification-channels/discord",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/notification-channels/discord",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"discord"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notification-channels/discord",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"\",\n    \"webhookUrl\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/notification-channels/discord",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"discord"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notification-channels/discord/{id}",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"xxx\",\n    \"webhookUrl\": \"https://discord.com/api/webhooks/0000/xxxxx\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/notification-channels/discord/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"discord",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notification-channels/discord/{id}/test-notification",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/notification-channels/discord/1/test-notification",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"discord",
 								"1",
 								"test-notification"
 							]
