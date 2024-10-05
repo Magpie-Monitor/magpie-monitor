@@ -14,6 +14,7 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/database"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/handlers"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/services"
+	batchcache "github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/batch_cache"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
@@ -88,6 +89,11 @@ func main() {
 				sharedrepositories.NewElasticSearchApplicationLogsRepository,
 			),
 			openai.NewOpenAiClient,
+
+			fx.Annotate(
+				batchcache.NewRedisBatchCache,
+				fx.As(new(batchcache.BatchCache)),
+			),
 
 			fx.Annotate(
 				insights.NewOpenAiInsightsGenerator,

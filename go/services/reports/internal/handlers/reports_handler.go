@@ -22,6 +22,7 @@ type ReportsRouter struct {
 func NewReportsRouter(reportsHandler *ReportsHandler, rootRouter *mux.Router) *ReportsRouter {
 	router := rootRouter.PathPrefix("/reports").Subrouter()
 	router.Methods(http.MethodGet).Path("/{id}").HandlerFunc(reportsHandler.GetSingle)
+	router.Methods(http.MethodPost).Path("/scheduled").HandlerFunc(reportsHandler.PostScheduled)
 	router.Methods(http.MethodGet).HandlerFunc(reportsHandler.GetAll)
 	router.Methods(http.MethodPost).HandlerFunc(reportsHandler.Post)
 
@@ -223,4 +224,69 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(reportJson)
+}
+
+func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
+
+	defer r.Body.Close()
+	var params reportsPostParams
+	ctx := context.Background()
+
+	err := json.NewDecoder(r.Body).Decode(&params)
+	if err != nil {
+		h.logger.Error("Failed to parse POST /reports params", zap.Error(err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if params.FromDate == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Missing fromDate parameter"))
+		return
+	}
+
+	if params.ToDate == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Missing toDate parameter"))
+		return
+	}
+
+	if params.Cluster == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Missing cluster parameter"))
+		return
+	}
+
+	if params.MaxLength == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Missing maxLength parameter"))
+		return
+	}
+
+	h.reportsService.GenerateScheduledReports(ctx,
+		services.ReportGenerationFilters{
+			Cluster:                  *params.Cluster,
+			FromDate:                 *params.FromDate,
+			ToDate:                   *params.ToDate,
+			MaxLength:                *params.MaxLength,
+			ApplicationConfiguration: params.ApplicationConfiguration,
+			NodeConfiguration:        params.NodeConfiguration,
+		},
+	)
+
+	// if err != nil {
+	// 	h.logger.Error("Failed to generate report", zap.Error(err))
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	return
+	// }
+
+	// reportJson, err := json.Marshal(report)
+	// if err != nil {
+	// 	h.logger.Error("Failed encode report into json", zap.Error(err))
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	return
+	// }
+
+	// w.Header().Add("Content-Type", "application/json")
+	// w.Write(reportJson)
 }
