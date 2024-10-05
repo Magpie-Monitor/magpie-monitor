@@ -3,9 +3,9 @@ package data
 import "time"
 
 type NodeState struct {
-	NodeName     string   `json:"nodeName"`
-	Timestamp    int64    `json:"timestamp"`
-	WatchedFiles []string `json:"watchedFiles"`
+	NodeName      string   `json:"nodeName"`
+	CollectedAtMs int64    `json:"collectedAtMs"`
+	WatchedFiles  []string `json:"watchedFiles"`
 }
 
 func NewNodeState(nodeName string, watchedFiles []string) NodeState {
@@ -13,5 +13,5 @@ func NewNodeState(nodeName string, watchedFiles []string) NodeState {
 }
 
 func (n *NodeState) SetTimestamp() {
-	n.Timestamp = time.Now().UnixMicro()
+	n.CollectedAtMs = time.Now().UnixMilli()
 }

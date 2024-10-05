@@ -7,9 +7,9 @@ import (
 )
 
 type ClusterState struct {
-	Timestamp    int64         `json:"timestamp"`
-	ClusterName  string        `json:"clusterName"`
-	Applications []Application `json:"applications"`
+	CollectedAtMs int64         `json:"collectedAtMs"`
+	ClusterName   string        `json:"clusterName"`
+	Applications  []Application `json:"applications"`
 }
 
 type Application struct {
@@ -22,7 +22,7 @@ func NewClusterState(clusterName string) ClusterState {
 }
 
 func (c *ClusterState) SetTimestamp() {
-	c.Timestamp = time.Now().UnixMicro()
+	c.CollectedAtMs = time.Now().UnixMilli()
 }
 
 func (c *ClusterState) AppendDeployments(deployments *[]v1.Deployment) {
