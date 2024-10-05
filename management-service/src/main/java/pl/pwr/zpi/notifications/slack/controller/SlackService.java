@@ -32,23 +32,24 @@ public class SlackService {
 
     @SneakyThrows
     public void addNewSlackIntegration(SlackReceiverDTO slackIntegration) {
-        String decodedWebhookUrl = confidentialTextEncoder.encrypt(slackIntegration.getWebhookUrl());
-        checkIfWebhookExists(decodedWebhookUrl);
+        String encryptedWebhookUrl = confidentialTextEncoder.encrypt(slackIntegration.getWebhookUrl());
+        checkIfWebhookExists(encryptedWebhookUrl);
         SlackReceiver receiver = SlackReceiver.builder()
                 .receiverName(slackIntegration.getName())
-                .webhookUrl(decodedWebhookUrl)
+                .webhookUrl(encryptedWebhookUrl)
                 .createdAt(LocalDateTime.now())
                 .build();
         slackRepository.save(receiver);
     }
 
+    @SneakyThrows
     public SlackReceiver updateSlackIntegration(Long id, SlackReceiverDTO slackReceiver) {
         var receiver = getSlackReceiver(id);
-
-        checkIfUserCanUpdateWebhookUrl(slackReceiver.getWebhookUrl(), id);
+        String encryptedWebhookUrl = confidentialTextEncoder.encrypt(slackReceiver.getWebhookUrl());
+        checkIfUserCanUpdateWebhookUrl(encryptedWebhookUrl, id);
 
         receiver.setReceiverName(slackReceiver.getName());
-        receiver.setWebhookUrl(slackReceiver.getWebhookUrl());
+        receiver.setWebhookUrl(encryptedWebhookUrl);
         receiver.setUpdatedAt(LocalDateTime.now());
         return slackRepository.save(receiver);
     }
