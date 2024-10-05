@@ -3,6 +3,7 @@ package jsonl
 import (
 	"encoding/json"
 	"io"
+	"reflect"
 )
 
 type JsonLinesEncoder struct {
@@ -15,10 +16,16 @@ func NewJsonLinesEncoder(writer io.Writer) *JsonLinesEncoder {
 	}
 }
 
-func (e *JsonLinesEncoder) Encode(v []interface{}) error {
+func (e *JsonLinesEncoder) Encode(v any) error {
 
-	for _, elem := range v {
-		jsonEncoding, err := json.Marshal(elem)
+	if reflect.TypeOf(v).Kind() != reflect.Slice {
+		panic("JsonLinesEncoder accepts only slices of structs")
+	}
+	rv := reflect.ValueOf(v)
+
+	for i := 0; i < rv.Len(); i++ {
+
+		jsonEncoding, err := json.Marshal(rv.Index(i).Interface())
 		if err != nil {
 			return err
 		}

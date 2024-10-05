@@ -52,6 +52,26 @@ func NewReportsService(p ReportsServerParams) *ReportsService {
 	}
 }
 
+func (s *ReportsService) GenerateScheduledReports(
+	ctx context.Context,
+	params ReportGenerationFilters,
+) {
+	applicationLogs, err := s.applicationLogsRepository.GetLogs(ctx,
+		params.Cluster,
+		time.Unix(0, params.FromDate),
+		time.Unix(0, params.ToDate))
+
+	if err != nil {
+		s.logger.Error("Failed to fetch application logs", zap.Error(err))
+		return
+	}
+
+	s.applicationInsightsGenerator.ScheduledApplicationInsights(
+		applicationLogs,
+		params.ApplicationConfiguration, time.Now(),
+	)
+}
+
 func (s *ReportsService) GenerateCompleteOnDemandReport(
 	ctx context.Context,
 	params ReportGenerationFilters) (*repositories.Report, error) {

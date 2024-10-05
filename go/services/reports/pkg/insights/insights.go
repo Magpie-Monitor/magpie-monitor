@@ -2,19 +2,30 @@ package insights
 
 import (
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
+	batchcache "github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/batch_cache"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
+	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
 type OpenAiInsightsGenerator struct {
-	client *openai.Client
-	logger *zap.Logger
+	client     *openai.Client
+	logger     *zap.Logger
+	batchCache batchcache.BatchCache
 }
 
-func NewOpenAiInsightsGenerator(client *openai.Client, logger *zap.Logger) *OpenAiInsightsGenerator {
+type OpenAiInsightsGeneratorParams struct {
+	fx.In
+	Client     *openai.Client
+	Logger     *zap.Logger
+	BatchCache batchcache.BatchCache
+}
+
+func NewOpenAiInsightsGenerator(params OpenAiInsightsGeneratorParams) *OpenAiInsightsGenerator {
 	return &OpenAiInsightsGenerator{
-		client: client,
-		logger: logger,
+		client:     params.Client,
+		logger:     params.Logger,
+		batchCache: params.BatchCache,
 	}
 }
 

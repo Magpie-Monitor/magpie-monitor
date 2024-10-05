@@ -1,6 +1,7 @@
 package insights
 
 import (
+	// "bytes"
 	"encoding/json"
 	"fmt"
 	"sync"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/IBM/fp-go/array"
 	"github.com/IBM/fp-go/option"
+	// "github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
 	"go.uber.org/zap"
@@ -36,7 +38,10 @@ type ApplicationInsightsWithMetadata struct {
 
 type ApplicationInsightsGenerator interface {
 	OnDemandApplicationInsights(logs []*repositories.ApplicationLogsDocument, configuration []*ApplicationInsightConfiguration) ([]ApplicationInsightsWithMetadata, error)
-	ScheduledApplicationInsights(logs []*repositories.ApplicationLogsDocument, scheduledTime time.Time) ([]ApplicationLogsInsight, error)
+	ScheduledApplicationInsights(
+		logs []*repositories.ApplicationLogsDocument,
+		configuration []*ApplicationInsightConfiguration,
+		scheduledTime time.Time) ([]ApplicationLogsInsight, error)
 }
 
 type applicationInsightsResponseDto struct {
@@ -63,7 +68,9 @@ func (g *OpenAiInsightsGenerator) getApplicationLogById(logId string, logs []*re
 	return first, nil
 }
 
-func (g *OpenAiInsightsGenerator) addMetadataToInsight(insight ApplicationLogsInsight, logs []*repositories.ApplicationLogsDocument) ApplicationInsightsWithMetadata {
+func (g *OpenAiInsightsGenerator) addMetadataToInsight(
+	insight ApplicationLogsInsight,
+	logs []*repositories.ApplicationLogsDocument) ApplicationInsightsWithMetadata {
 
 	applicationInsightsMetadata := make([]ApplicationInsightMetadata, 0, len(insight.SourceLogIds))
 	for _, sourceLogId := range insight.SourceLogIds {
@@ -135,9 +142,50 @@ func (g *OpenAiInsightsGenerator) OnDemandApplicationInsights(
 	return allInsights, nil
 }
 
-func (g *OpenAiInsightsGenerator) getInsightsForSingleApplication(
+func (g *OpenAiInsightsGenerator) ScheduledApplicationInsights(
 	logs []*repositories.ApplicationLogsDocument,
-	configuration *ApplicationInsightConfiguration) ([]ApplicationLogsInsight, error) {
+	configuration []*ApplicationInsightConfiguration,
+	scheduledTime time.Time) ([]ApplicationLogsInsight, error) {
+
+	groupedLogs := GroupLogsByName(logs)
+	configurationsByApplication := MapApplicationNameToConfiguration(configuration)
+	// completionBatchEntries := make([]*openai.BatchFileCompletionEntry, 0, len(groupedLogs))
+	completionRequests := make([]*openai.CompletionRequest, 0, len(groupedLogs))
+
+	// Generate insights for each application separately.
+	for applicationName, logs := range groupedLogs {
+		messages, err := g.createMessagesFromLogs(
+			logs,
+			configurationsByApplication[applicationName],
+		)
+		if err != nil {
+			g.logger.Error("Failed to messages from logs", zap.Error(err), zap.String("app", applicationName))
+		}
+
+		completionRequests = append(completionRequests,
+			&openai.CompletionRequest{
+				Messages:       messages,
+				Temperature:    0.6,
+				ResponseFormat: applicationInsightsResponseDto{},
+				Model:          g.client.Model(),
+			},
+		)
+	}
+
+	resp, err := g.client.CreateBatch(completionRequests)
+	if err != nil {
+		g.logger.Error("Failed to create a batch", zap.Error(err))
+		return nil, err
+	}
+
+	g.logger.Sugar().Infof("resp %+v", resp)
+
+	return nil, nil
+}
+
+func (g *OpenAiInsightsGenerator) createMessagesFromLogs(
+	logs []*repositories.ApplicationLogsDocument,
+	configuration *ApplicationInsightConfiguration) ([]*openai.Message, error) {
 
 	encodedLogs, err := json.Marshal(logs)
 	if err != nil {
@@ -150,7 +198,7 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleApplication(
 		customPrompt = configuration.CustomPrompt
 	}
 
-	openAiResponse, err := g.client.Complete([]*openai.Message{
+	messages := []*openai.Message{
 		{
 			Role: "system",
 			Content: fmt.Sprintf(`You are a kubernetes cluster system administrator. 
@@ -173,7 +221,22 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleApplication(
 			Please tell me if they might suggest any kind of issues:
 			%s`, encodedLogs),
 		},
-	},
+	}
+
+	return messages, nil
+}
+
+func (g *OpenAiInsightsGenerator) getInsightsForSingleApplication(
+	logs []*repositories.ApplicationLogsDocument,
+	configuration *ApplicationInsightConfiguration) ([]ApplicationLogsInsight, error) {
+
+	messages, err := g.createMessagesFromLogs(logs, configuration)
+	if err != nil {
+		g.logger.Error("Failed to create messages", zap.Error(err))
+		return nil, err
+	}
+
+	openAiResponse, err := g.client.Complete(messages,
 		openai.CreateJsonReponseFormat("application_insights", applicationInsightsResponseDto{}),
 	)
 
@@ -201,10 +264,6 @@ func MapApplicationNameToConfiguration(configurations []*ApplicationInsightConfi
 	}
 
 	return groupedConfigurations
-}
-
-func (g *OpenAiInsightsGenerator) ScheduledApplicationInsights(logs []*repositories.ApplicationLogsDocument, scheduledTime time.Time) ([]ApplicationLogsInsight, error) {
-	return nil, nil
 }
 
 var _ ApplicationInsightsGenerator = &OpenAiInsightsGenerator{}
