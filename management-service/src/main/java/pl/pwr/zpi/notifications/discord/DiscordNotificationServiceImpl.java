@@ -11,17 +11,16 @@ public class DiscordNotificationServiceImpl implements DiscordNotificationServic
     private static final String NEW_REPORT_MESSAGE_PATH = "discord/new-report-message.txt";
 
     private final DiscordService discordService;
+
     @Override
     public void sendTestMessage(String webhookUrl) {
         discordService.sendMessage(
                 ResourceLoaderUtils.loadResourceToString(TEST_MESSAGE_PATH),
                 webhookUrl);
-
     }
 
     @Override
     public void sendMessageAboutNewReport(String webhookUrl, String reportUrl) {
-
         discordService.sendMessage(
                 ResourceLoaderUtils.loadResourceToString(NEW_REPORT_MESSAGE_PATH) + reportUrl,
                 webhookUrl);
