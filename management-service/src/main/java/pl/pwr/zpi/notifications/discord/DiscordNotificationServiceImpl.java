@@ -7,8 +7,8 @@ import pl.pwr.zpi.notifications.common.ResourceLoaderUtils;
 @RequiredArgsConstructor
 @Service
 public class DiscordNotificationServiceImpl implements DiscordNotificationService {
-    private static final String TEST_MESSAGE_PATH = "discord/test-message.txt";
-    private static final String NEW_REPORT_MESSAGE_PATH = "discord/new-report-message.txt";
+    private final String TEST_MESSAGE_PATH = "discord/test-message.txt";
+    private final String NEW_REPORT_MESSAGE_PATH = "discord/new-report-message.txt";
 
     private final DiscordService discordService;
 
