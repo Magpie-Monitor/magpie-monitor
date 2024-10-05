@@ -1,24 +1,29 @@
 package insights
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
 
 	"github.com/IBM/fp-go/array"
 	"github.com/IBM/fp-go/option"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
+	reportrepo "github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"go.uber.org/zap"
 )
 
 type NodeLogsInsight struct {
-	Name           string `json:"name"`
-	Category       string `json:"category"`
-	Summary        string `json:"summary"`
-	Recommendation string `json:"recommendation"`
-	SourceLogId    string `json:"sourceLogId"`
+	Name           string   `json:"name"`
+	Category       string   `json:"category"`
+	Summary        string   `json:"summary"`
+	Recommendation string   `json:"recommendation"`
+	SourceLogIds   []string `json:"sourceLogIds"`
 }
 
 type NodeInsightMetadata struct {
@@ -28,23 +33,31 @@ type NodeInsightMetadata struct {
 }
 
 type NodeInsightsWithMetadata struct {
-	Insight  *NodeLogsInsight     `json:"insight"`
-	Metadata *NodeInsightMetadata `json:"metadata"`
+	Insight  *NodeLogsInsight      `json:"insight"`
+	Metadata []NodeInsightMetadata `json:"metadata"`
 }
 
 type NodeInsightsGenerator interface {
-	OnDemandNodeInsights(logs []*repositories.NodeLogsDocument, configuration []*NodeInsightConfiguration) ([]NodeInsightsWithMetadata, error)
-	ScheduledNodeInsights(logs []*repositories.NodeLogsDocument, scheduledTime time.Time) ([]NodeLogsInsight, error)
+	OnDemandNodeInsights(
+		logs []*repositories.NodeLogsDocument,
+		configuration []*reportrepo.NodeInsightConfiguration) ([]NodeInsightsWithMetadata, error)
+
+	ScheduleNodeInsights(
+		logs []*repositories.NodeLogsDocument,
+		configuration []*reportrepo.NodeInsightConfiguration,
+		scheduledTime time.Time,
+		cluster string,
+		fromDate int64,
+		toDate int64,
+	) (*reportrepo.ScheduledNodeInsights, error)
+
+	GetScheduledNodeInsights(
+		sheduledInsights *reportrepo.ScheduledNodeInsights,
+	) ([]NodeInsightsWithMetadata, error)
 }
 
 type nodeInsightsResponseDto struct {
 	Insights []NodeLogsInsight
-}
-
-type NodeInsightConfiguration struct {
-	NodeName     string `json:"nodeName"`
-	Precision    string `json:"precision"`
-	CustomPrompt string `json:"customPrompt"`
 }
 
 func (g *OpenAiInsightsGenerator) getNodeLogById(logId string, logs []*repositories.NodeLogsDocument) (*repositories.NodeLogsDocument, error) {
@@ -63,19 +76,14 @@ func (g *OpenAiInsightsGenerator) getNodeLogById(logId string, logs []*repositor
 
 func (g *OpenAiInsightsGenerator) OnDemandNodeInsights(
 	logs []*repositories.NodeLogsDocument,
-	configurations []*NodeInsightConfiguration) ([]NodeInsightsWithMetadata, error) {
+	configurations []*reportrepo.NodeInsightConfiguration) ([]NodeInsightsWithMetadata, error) {
 
-	groupedLogs := make(map[string][]*repositories.NodeLogsDocument)
-	for _, log := range logs {
-		groupedLogs[log.Name] = append(groupedLogs[log.Name], log)
-	}
-
-	configurationsByNode := MapNodeNameToConfiguration(configurations)
+	groupedLogs := GroupNodeLogsByName(logs)
+	configurationsByNode := reportrepo.MapNodeNameToConfiguration(configurations)
 
 	var wg sync.WaitGroup
 
 	allInsights := make([]NodeInsightsWithMetadata, 0, len(groupedLogs))
-
 	insightsChannel := make(chan []NodeInsightsWithMetadata, len(groupedLogs))
 
 	for nodeName, logs := range groupedLogs {
@@ -88,20 +96,9 @@ func (g *OpenAiInsightsGenerator) OnDemandNodeInsights(
 			if err != nil {
 				g.logger.Error("Failed to get insights for an node", zap.Error(err), zap.String("node", nodeName))
 			}
-			mapper := array.Map(func(insight NodeLogsInsight) NodeInsightsWithMetadata {
 
-				log, err := g.getNodeLogById(insight.SourceLogId, logs)
-				if err != nil {
-					g.logger.Error("Failed to source node insights", zap.Error(err))
-				}
-				return NodeInsightsWithMetadata{
-					Insight: &insight,
-					Metadata: &NodeInsightMetadata{
-						NodeName:  nodeName,
-						Timestamp: log.Timestamp,
-						Source:    log.Content,
-					},
-				}
+			mapper := array.Map(func(insight NodeLogsInsight) NodeInsightsWithMetadata {
+				return g.addMetadataToNodeInsight(insight, logs)
 			})
 
 			insightsChannel <- mapper(insights)
@@ -121,11 +118,91 @@ func (g *OpenAiInsightsGenerator) OnDemandNodeInsights(
 
 func (g *OpenAiInsightsGenerator) getInsightsForSingleNode(
 	logs []*repositories.NodeLogsDocument,
-	configuration *NodeInsightConfiguration) ([]NodeLogsInsight, error) {
+	configuration *reportrepo.NodeInsightConfiguration) ([]NodeLogsInsight, error) {
+
+	messages, err := g.createMessagesFromNodeLogs(logs, configuration)
+	if err != nil {
+		g.logger.Error("Failed to create messages", zap.Error(err))
+		return nil, err
+	}
+
+	openAiResponse, err := g.client.Complete(messages,
+		openai.CreateJsonReponseFormat("node_insights", nodeInsightsResponseDto{}))
+
+	if err != nil {
+		g.logger.Error("Failed to get node logs insights from openai client", zap.Error(err))
+		return nil, err
+	}
+
+	var insights nodeInsightsResponseDto
+
+	err = json.Unmarshal([]byte(openAiResponse.Choices[0].Message.Content), &insights)
+	if err != nil {
+		g.logger.Error("Failed to decode node insights from openai client", zap.Error(err))
+		return nil, err
+	}
+
+	return insights.Insights, nil
+}
+
+func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
+	logs []*repositories.NodeLogsDocument,
+	configuration []*reportrepo.NodeInsightConfiguration,
+	scheduledTime time.Time,
+	cluster string,
+	fromDateNs int64,
+	toDateNs int64,
+) (*reportrepo.ScheduledNodeInsights, error) {
+
+	groupedLogs := GroupNodeLogsByName(logs)
+	configurationsByApplication := reportrepo.MapNodeNameToConfiguration(configuration)
+	completionRequests := make([]*openai.CompletionRequest, 0, len(groupedLogs))
+
+	// Generate insights for each application separately.
+	for nodeName, logs := range groupedLogs {
+		messages, err := g.createMessagesFromNodeLogs(
+			logs,
+			configurationsByApplication[nodeName],
+		)
+		if err != nil {
+			g.logger.Error("Failed to messages from logs", zap.Error(err), zap.String("node", nodeName))
+		}
+
+		completionRequests = append(completionRequests,
+			&openai.CompletionRequest{
+				Messages:       messages,
+				Temperature:    0.6,
+				ResponseFormat: openai.CreateJsonReponseFormat("insigts", applicationInsightsResponseDto{}),
+				Model:          g.client.Model(),
+			},
+		)
+	}
+
+	resp, err := g.client.UploadAndCreateBatch(completionRequests)
+	if err != nil {
+		g.logger.Error("Failed to create a batch", zap.Error(err))
+		return nil, err
+	}
+
+	return &reportrepo.ScheduledNodeInsights{
+		Id:                resp.Id,
+		CreatedAt:         resp.CreatedAt,
+		ExpiresAt:         resp.ExpiresAt,
+		CompletedAt:       resp.CompletedAt,
+		Cluster:           cluster,
+		FromDateNs:        fromDateNs,
+		ToDateNs:          toDateNs,
+		NodeConfiguration: configuration,
+	}, nil
+}
+
+func (g *OpenAiInsightsGenerator) createMessagesFromNodeLogs(
+	logs []*repositories.NodeLogsDocument,
+	configuration *reportrepo.NodeInsightConfiguration) ([]*openai.Message, error) {
 
 	encodedLogs, err := json.Marshal(logs)
 	if err != nil {
-		g.logger.Error("Failed to encode node logs for application insights", zap.Error(err))
+		g.logger.Error("Failed to encode application logs for application insights", zap.Error(err))
 		return nil, err
 	}
 
@@ -134,7 +211,7 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleNode(
 		customPrompt = configuration.CustomPrompt
 	}
 
-	openAiResponse, err := g.client.Complete([]*openai.Message{
+	messages := []*openai.Message{
 		{
 			Role: "system",
 			Content: fmt.Sprintf(`You are a kubernetes cluster system administrator. 
@@ -156,38 +233,100 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleNode(
 			Please tell me if they might suggest any kind of issues:
 			%s`, encodedLogs),
 		},
-	},
-		openai.CreateJsonReponseFormat("node_insights", nodeInsightsResponseDto{}),
-	)
+	}
 
+	return messages, nil
+}
+
+func (g *OpenAiInsightsGenerator) GetScheduledNodeInsights(
+	sheduledInsights *reportrepo.ScheduledNodeInsights,
+) ([]NodeInsightsWithMetadata, error) {
+
+	batch, err := g.client.Batch(sheduledInsights.Id)
 	if err != nil {
-		g.logger.Error("Failed to get node logs insights from openai client", zap.Error(err))
+		g.logger.Error("Failed to get batch from id", zap.Error(err))
 		return nil, err
 	}
 
-	var insights nodeInsightsResponseDto
-
-	err = json.Unmarshal([]byte(openAiResponse.Choices[0].Message.Content), &insights)
+	outputFile, err := g.client.File(batch.OutputFileId)
 	if err != nil {
-		g.logger.Error("Failed to decode node insights from openai client", zap.Error(err))
+		g.logger.Error("Failed to get output file from batch")
 		return nil, err
 	}
 
-	return insights.Insights, nil
-
-}
-
-func MapNodeNameToConfiguration(configurations []*NodeInsightConfiguration) map[string]*NodeInsightConfiguration {
-	groupedConfigurations := make(map[string]*NodeInsightConfiguration)
-	for _, conf := range configurations {
-		groupedConfigurations[conf.NodeName] = conf
+	var responses []openai.BatchFileCompletionResponseEntry
+	g.logger.Sugar().Debugf("RESPONSE %s", string(outputFile))
+	err = jsonl.NewJsonLinesDecoder(bytes.NewReader(outputFile)).Decode(&responses)
+	if err != nil {
+		g.logger.Error("Failed to decode application response", zap.Error(err))
+		return nil, err
 	}
 
-	return groupedConfigurations
+	insightLogs, err := g.nodeLogsRepository.
+		GetLogs(context.TODO(), sheduledInsights.Cluster,
+			time.Unix(0, sheduledInsights.FromDateNs),
+			time.Unix(0, sheduledInsights.ToDateNs))
+
+	if err != nil {
+		g.logger.Error("Failed to get application logs for scheduled insight")
+		return nil, err
+	}
+
+	// Each jsonl entry contains insights for a single application
+	res := []NodeInsightsWithMetadata{}
+	for _, response := range responses {
+		var nodeInsights nodeInsightsResponseDto
+		if len(response.Response.Body.Choices) == 0 {
+			return nil, errors.New("Failed to get insights from batch completion choices")
+		}
+		messageContent := response.Response.Body.Choices[0].Message.Content
+		err := json.Unmarshal([]byte(messageContent), &nodeInsights)
+		if err != nil {
+			g.logger.Error("Failed to decode node insight", zap.Error(err))
+			return nil, err
+		}
+
+		// applicatonName := applicationInsights.Insights[0].ApplicationName
+		if len(response.Response.Body.Choices) == 0 {
+			return nil, errors.New("Failed to get insights from batch completion message content")
+		}
+
+		insightsWithMetadata := array.Map(func(insight NodeLogsInsight) NodeInsightsWithMetadata {
+			return g.addMetadataToNodeInsight(insight, insightLogs)
+		})(nodeInsights.Insights)
+
+		res = append(res, insightsWithMetadata...)
+	}
+
+	return res, nil
 }
 
-func (g *OpenAiInsightsGenerator) ScheduledNodeInsights(logs []*repositories.NodeLogsDocument, scheduledTime time.Time) ([]NodeLogsInsight, error) {
-	return nil, nil
+func (g *OpenAiInsightsGenerator) addMetadataToNodeInsight(
+	insight NodeLogsInsight,
+	logs []*repositories.NodeLogsDocument) NodeInsightsWithMetadata {
+
+	nodeInsightsMetadata := make([]NodeInsightMetadata, 0, len(insight.SourceLogIds))
+	for _, sourceLogId := range insight.SourceLogIds {
+		log, err := g.getNodeLogById(sourceLogId, logs)
+		if err != nil {
+			g.logger.Error("Failed to source node insights", zap.Error(err))
+
+			// In case of fake ids skip the source
+			continue
+		}
+
+		nodeInsightsMetadata = append(nodeInsightsMetadata, NodeInsightMetadata{
+			Timestamp: log.Timestamp,
+			NodeName:  log.Name,
+			Source:    log.Content,
+		},
+		)
+	}
+
+	return NodeInsightsWithMetadata{
+		Insight:  &insight,
+		Metadata: nodeInsightsMetadata,
+	}
 }
 
 var _ NodeInsightsGenerator = &OpenAiInsightsGenerator{}
