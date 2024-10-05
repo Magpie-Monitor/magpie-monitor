@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
-
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/logs_generation/internal/logs_generation"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
+	"math/rand"
+	"time"
 )
 
 type LogsGenerator struct {
@@ -45,45 +45,48 @@ func (g *LogsGenerator) WriteNodeLogs(ctx context.Context) {
 
 		}
 
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second * 100)
 	}
 }
 
 func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 
-	applicationLogs := repositories.ApplicationLogs{
-		Cluster:   "testcluster",
-		Kind:      "application",
-		Timestamp: time.Now().Unix(),
-		Name:      "my-cool-app",
-		Pods: []*repositories.PodLogs{
-			{
-				Name: "pod-1",
-				Containers: []*repositories.ContainerLogs{
-					{
-						Name:    "container-x",
-						Image:   "container-x-image",
-						Content: "container-logs-content",
-					},
-					{
-						Name:    "container-2",
-						Image:   "container-2-image",
-						Content: "container-logs-content",
-					},
-				},
-			},
-		},
-	}
+	apps := []string{"app-1", "app-2", "app-3", "app-3"}
 
 	for {
 
 		nodeLogs := repositories.NodeLogs{
 			Cluster:   "testcluster",
 			Kind:      "node",
-			Timestamp: 1726403831067790081,
+			Timestamp: 1728313197000000020,
 			Name:      "tools",
 			Namespace: "nms",
 			Content:   "Failed to save new nginx configuration. Out of disk space.",
+		}
+
+		applicationLogs := repositories.ApplicationLogs{
+			Cluster:   "testcluster",
+			Kind:      "application",
+			Timestamp: 1728313197000000010,
+			// 1728313197000000020
+			Name: apps[rand.Intn(len(apps))],
+			Pods: []*repositories.PodLogs{
+				{
+					Name: "pod-1",
+					Containers: []*repositories.ContainerLogs{
+						{
+							Name:    "container-x",
+							Image:   "container-x-image",
+							Content: "Failed to connect the psql database",
+						},
+						{
+							Name:    "container-2",
+							Image:   "container-2-image",
+							Content: "Failed to connect the mysql database",
+						},
+					},
+				},
+			},
 		}
 
 		jsonNodeLogs, _ := json.Marshal(nodeLogs)
@@ -91,7 +94,7 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 
 		g.handleApplicationLogs(ctx, string(jsonApplicationLogs))
 		g.handleNodeLogs(ctx, string(jsonNodeLogs))
-		time.Sleep(time.Second * 100)
+		time.Sleep(time.Second * 360)
 
 	}
 

@@ -31,9 +31,9 @@ type CompletionRequest struct {
 }
 
 type CompletionResponse struct {
-	Id      string
-	Object  string
-	Model   string
+	Id      string     `json:"id"`
+	Object  string     `json:"object"`
+	Model   string     `json:"model"`
 	Usage   UsageStats `json:"usage"`
 	Choices []Choice   `json:"choices"`
 }
@@ -64,19 +64,27 @@ type Message struct {
 	Content string `json:"content"`
 }
 
-type BatchFileCompletionEntry struct {
+type BatchFileCompletionRequestEntry struct {
 	CustomId string             `json:"custom_id"`
 	Method   string             `json:"method"`
 	Url      string             `json:"url"`
 	Body     *CompletionRequest `json:"body"`
 }
 
-const (
-	COMPLETION_PATH string = "/v1/chat/completions"
-)
+type BatchFileCompletionResponseEntry struct {
+	Id       string `json:"id"`
+	CustomId string `json:"custom_id"`
+	Response struct {
+		StatusCode int                 `json:"status_code"`
+		RequestId  string              `json:"request_id"`
+		Body       *CompletionResponse `json:"body"`
+	} `json:"response"`
+}
 
 const (
-	FILES_API_PATH string = "/v1/files"
+	COMPLETION_PATH string = "/v1/chat/completions"
+	BATCHES_PATH    string = "/v1/batches"
+	FILES_API_PATH  string = "/v1/files"
 )
 
 func NewOpenAiClient(logger *zap.Logger) *Client {
@@ -109,6 +117,10 @@ func (c *Client) addEncodingHeaders(r *http.Request) *http.Request {
 
 func (c *Client) completionUrl() string {
 	return fmt.Sprintf("%s/%s", c.apiUrl, COMPLETION_PATH)
+}
+
+func (c *Client) batchesUrl() string {
+	return fmt.Sprintf("%s/%s", c.apiUrl, BATCHES_PATH)
 }
 
 func (c *Client) filesApiUrl() string {
@@ -165,7 +177,7 @@ func (c *Client) Complete(messages []*Message, responseFormat any) (*CompletionR
 	return &decodedResponse, nil
 }
 
-func (c *Client) uploadBatch(batchInputFile string) (*FileApiReponse, error) {
+func (c *Client) uploadFileForBatch(inputFile string) (*FileApiReponse, error) {
 
 	httpClient := http.Client{}
 	var fileBuf bytes.Buffer
@@ -175,15 +187,15 @@ func (c *Client) uploadBatch(batchInputFile string) (*FileApiReponse, error) {
 		c.logger.Error("Failed to add batch file", zap.Error(err))
 	}
 
-	_, err = fileWriter.Write([]byte(batchInputFile))
+	_, err = fileWriter.Write([]byte(inputFile))
 	if err != nil {
-		c.logger.Error("Failed to set file header in openai batch")
+		c.logger.Error("Failed to set file header in openai files api request")
 		return nil, err
 	}
 
 	fieldWriter, err := mpw.CreateFormField("purpose")
 	if err != nil {
-		c.logger.Error("Failed to set purpose header in openai batch")
+		c.logger.Error("Failed to set purpose header in openai files api request")
 		return nil, err
 	}
 
@@ -228,10 +240,84 @@ func (c *Client) uploadBatch(batchInputFile string) (*FileApiReponse, error) {
 	return &decodedResponse, nil
 }
 
-func (c *Client) CreateBatch(completionRequests []*CompletionRequest) (*FileApiReponse, error) {
+type CreateBatchRequest struct {
+	InputFileId      string `json:"input_file_id"`
+	CompletionWindow string `json:"completion_window"`
+	Endpoint         string `json:"endpoint"`
+}
 
-	batchRequestEntries := array.Map(func(req *CompletionRequest) *BatchFileCompletionEntry {
-		return &BatchFileCompletionEntry{
+type BatchRequestCount struct {
+	Total     int `json:"total"`
+	Completed int `json:"completed"`
+	Failed    int `json:"failed"`
+}
+
+type Batch struct {
+	Id               string            `json:"id"`
+	InputFileId      string            `json:"input_field_id"`
+	CompletionWindow string            `json:"completion_window"`
+	Status           string            `json:"status"`
+	OutputFileId     string            `json:"output_file_id"`
+	CreatedAt        int64             `json:"created_at"`
+	ExpiresAt        int64             `json:"expires_at"`
+	CompletedAt      int64             `json:"completed_at"`
+	FailedAt         int64             `json:"failed_at"`
+	ExpiredAt        int64             `json:"expired_at"`
+	RequestCounts    BatchRequestCount `json:"request_counts"`
+}
+
+func (c *Client) createBatch(batchParams CreateBatchRequest) (*Batch, error) {
+
+	httpClient := http.Client{}
+
+	body, err := json.Marshal(batchParams)
+	if err != nil {
+		c.logger.Error("Failed to encode batch params", zap.Error(err))
+		return nil, err
+	}
+
+	req, err := http.NewRequest(
+		"POST",
+		c.batchesUrl(),
+		strings.NewReader(string(body)),
+	)
+
+	if err != nil {
+		c.logger.Error("Failed to create batch request", zap.Error(err))
+		return nil, err
+	}
+
+	c.addAuthHeaders(req)
+	c.addEncodingHeaders(req)
+
+	res, err := httpClient.Do(req)
+	if err != nil {
+		c.logger.Error("Failed to make batch request", zap.Error(err))
+		return nil, err
+	}
+
+	defer res.Body.Close()
+
+	respBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		c.logger.Error("Failed to read batch response", zap.Error(err))
+		return nil, err
+	}
+
+	var decodedResponse Batch
+	err = json.Unmarshal(respBody, &decodedResponse)
+	if err != nil {
+		c.logger.Error("Failed to decode batch response", zap.Error(err))
+		return nil, err
+	}
+
+	return &decodedResponse, nil
+}
+
+func (c *Client) UploadAndCreateBatch(completionRequests []*CompletionRequest) (*Batch, error) {
+
+	batchRequestEntries := array.Map(func(req *CompletionRequest) *BatchFileCompletionRequestEntry {
+		return &BatchFileCompletionRequestEntry{
 			CustomId: fmt.Sprintf("report-%s", time.Now().String()),
 			Method:   "POST",
 			Url:      COMPLETION_PATH,
@@ -247,11 +333,98 @@ func (c *Client) CreateBatch(completionRequests []*CompletionRequest) (*FileApiR
 		return nil, err
 	}
 
-	batchResponse, err := c.uploadBatch(batchFile.String())
+	batchUploadResponse, err := c.uploadFileForBatch(batchFile.String())
 	if err != nil {
-		c.logger.Error("Failed to create batch", zap.Error(err))
+		c.logger.Error("Failed to upload files for a batch", zap.Error(err))
 		return nil, err
 	}
 
-	return batchResponse, nil
+	batchCreateResponse, err := c.createBatch(CreateBatchRequest{
+		InputFileId: batchUploadResponse.Id,
+
+		// For now this is the only possible value for completion window xd.
+		CompletionWindow: "24h",
+		Endpoint:         COMPLETION_PATH,
+	})
+	if err != nil {
+		c.logger.Error("Failed to execute batch", zap.Error(err))
+		return nil, err
+	}
+
+	return batchCreateResponse, nil
+}
+
+func (c *Client) Batch(id string) (*Batch, error) {
+
+	httpClient := http.Client{}
+
+	req, err := http.NewRequest(
+		"GET",
+		fmt.Sprintf("%s/%s", c.batchesUrl(), id),
+		strings.NewReader(""),
+	)
+
+	if err != nil {
+		c.logger.Error("Failed to create batch request", zap.Error(err))
+		return nil, err
+	}
+
+	c.addAuthHeaders(req)
+	c.addEncodingHeaders(req)
+
+	res, err := httpClient.Do(req)
+	if err != nil {
+		c.logger.Error("Failed to make batch request", zap.Error(err))
+		return nil, err
+	}
+
+	defer res.Body.Close()
+
+	respBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		c.logger.Error("Failed to read batch response", zap.Error(err))
+		return nil, err
+	}
+
+	var decodedResponse Batch
+	err = json.Unmarshal(respBody, &decodedResponse)
+	if err != nil {
+		c.logger.Error("Failed to decode batch response", zap.Error(err))
+		return nil, err
+	}
+
+	return &decodedResponse, nil
+}
+
+func (c *Client) File(id string) ([]byte, error) {
+
+	httpClient := http.Client{}
+
+	req, err := http.NewRequest(
+		"GET",
+		fmt.Sprintf("%s/%s/content", c.filesApiUrl(), id),
+		strings.NewReader(""),
+	)
+	if err != nil {
+		c.logger.Error("Failed to create batch request", zap.Error(err))
+		return nil, err
+	}
+
+	c.addAuthHeaders(req)
+
+	res, err := httpClient.Do(req)
+	if err != nil {
+		c.logger.Error("Failed to make batch request", zap.Error(err))
+		return nil, err
+	}
+
+	defer res.Body.Close()
+
+	respBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		c.logger.Error("Failed to read batch response", zap.Error(err))
+		return nil, err
+	}
+
+	return respBody, nil
 }

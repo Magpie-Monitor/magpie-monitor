@@ -11,12 +11,17 @@ import (
 	"go.uber.org/zap"
 )
 
+type NodeIncidentSource struct {
+	Timestamp int64  `bson:"timestamp" json:"timestamp"`
+	NodeName  string `bson:"nodeName" json:"nodeName"`
+	Content   string `bson:"content" json:"content"`
+}
+
 type NodeIncident struct {
-	Category       string `bson:"category" json:"category"`
-	Summary        string `bson:"summary" json:"summary"`
-	Recommendation string `bson:"recommendation" json:"recommendation"`
-	Source         string `bson:"source" json:"source"`
-	Timestamp      int64  `bson:"timestamp" json:"timestamp"`
+	Category       string               `bson:"category" json:"category"`
+	Summary        string               `bson:"summary" json:"summary"`
+	Recommendation string               `bson:"recommendation" json:"recommendation"`
+	Sources        []NodeIncidentSource `bson:"source" json:"source"`
 }
 
 type ApplicationIncidentSource struct {
@@ -34,7 +39,7 @@ type ApplicationIncident struct {
 }
 
 type NodeReport struct {
-	Host         string         `bson:"host" json:"host"`
+	Node         string         `bson:"node" json:"node"`
 	Precision    string         `bson:"precision" json:"precision"`
 	CustomPrompt string         `bson:"customPrompt" json:"customPrompt"`
 	Incidents    []NodeIncident `bson:"incidents" json:"incidents"`
@@ -67,10 +72,70 @@ type Report struct {
 	ToDateNs                int64               `bson:"toDateNs" json:"toDateNs"`
 	NodeReports             []NodeReport        `bson:"nodeReports" json:"nodeReports"`
 	ApplicationReports      []ApplicationReport `bson:"applicationReports" json:"applicationReports"`
+
+	// Present only if report is pending
+	ScheduledApplicationInsights *ScheduledApplicationInsights `bson:"scheduledApplicationInsights" json:"scheduledApplicationInsights"`
+	ScheduledNodeInsights        *ScheduledNodeInsights        `bson:"scheduledNodeInsights" json:"scheduledNodeInsights"`
+	// ScheduledNodeInsights        *ScheduledInsights `bson:"scheduledNodeInsights" json:"scheduledNodeInsights"`
 }
 
-var REPORTS_DB_NAME = "reports"
-var REPORTS_COLLECTION = "reports"
+type ApplicationInsightConfiguration struct {
+	ApplicationName string `json:"applicationName"`
+	Precision       string `json:"precision"`
+	CustomPrompt    string `json:"customPrompt"`
+}
+
+type NodeInsightConfiguration struct {
+	NodeName     string `json:"nodeName"`
+	Precision    string `json:"precision"`
+	CustomPrompt string `json:"customPrompt"`
+}
+
+type ScheduledApplicationInsights struct {
+	Id                       string                             `json:"id"`
+	CreatedAt                int64                              `json:"created_at"`
+	ExpiresAt                int64                              `json:"expires_at"`
+	CompletedAt              int64                              `json:"completed_at"`
+	FromDateNs               int64                              `bson:"fromDateNs" json:"fromDateNs"`
+	ToDateNs                 int64                              `bson:"toDateNs" json:"toDateNs"`
+	Cluster                  string                             `bson:"cluster" json:"cluster"`
+	ApplicationConfiguration []*ApplicationInsightConfiguration `json:"applicationConfiguration"`
+}
+
+type ScheduledNodeInsights struct {
+	Id                string                      `json:"id"`
+	CreatedAt         int64                       `json:"created_at"`
+	ExpiresAt         int64                       `json:"expires_at"`
+	CompletedAt       int64                       `json:"completed_at"`
+	FromDateNs        int64                       `bson:"fromDateNs" json:"fromDateNs"`
+	ToDateNs          int64                       `bson:"toDateNs" json:"toDateNs"`
+	Cluster           string                      `bson:"cluster" json:"cluster"`
+	NodeConfiguration []*NodeInsightConfiguration `json:"nodeConfiguration"`
+}
+
+func MapApplicationNameToConfiguration(configurations []*ApplicationInsightConfiguration) map[string]*ApplicationInsightConfiguration {
+	groupedConfigurations := make(map[string]*ApplicationInsightConfiguration)
+	for _, conf := range configurations {
+		groupedConfigurations[conf.ApplicationName] = conf
+	}
+
+	return groupedConfigurations
+}
+
+func MapNodeNameToConfiguration(configurations []*NodeInsightConfiguration) map[string]*NodeInsightConfiguration {
+	groupedConfigurations := make(map[string]*NodeInsightConfiguration)
+	for _, conf := range configurations {
+		groupedConfigurations[conf.NodeName] = conf
+	}
+
+	return groupedConfigurations
+}
+
+const (
+	REPORTS_DB_NAME              = "reports"
+	SCHEDULED_REPORTS_COLLECTION = "scheduled_reports"
+	REPORTS_COLLECTION           = "reports"
+)
 
 type ReportRepositoryErrorKind string
 
@@ -123,7 +188,10 @@ type FilterParams struct {
 type ReportRepository interface {
 	GetAllReports(ctx context.Context, filter FilterParams) ([]*Report, *ReportRepositoryError)
 	InsertReport(ctx context.Context, report *Report) (*Report, *ReportRepositoryError)
+	// InsertScheduledReport(ctx context.Context, report *ScheduledReport) (*ScheduledReport, *ReportRepositoryError)
 	GetSingleReport(ctx context.Context, id string) (*Report, *ReportRepositoryError)
+	// GetSingleSheduledReport(ctx context.Context, id string) (*ScheduledReport, *ReportRepositoryError)
+	UpdateReport(ctx context.Context, report *Report) *ReportRepositoryError
 }
 
 type MongoDbReportRepository struct {
@@ -134,6 +202,28 @@ type MongoDbReportRepository struct {
 func (r *MongoDbReportRepository) GetSingleReport(ctx context.Context, id string) (*Report, *ReportRepositoryError) {
 
 	coll := r.mongoDbClient.Database(REPORTS_DB_NAME).Collection(REPORTS_COLLECTION)
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		r.logger.Error("Failed to decode report id", zap.Error(err))
+		return nil, NewInvalidReportIdError(err)
+	}
+
+	documents := coll.FindOne(ctx, bson.M{"_id": objectId})
+
+	var result *Report
+	err = documents.Decode(&result)
+	if err != nil {
+		r.logger.Error("Failed to decode reports from mongodb", zap.Error(err))
+		return nil, NewReportNotFoundError(err)
+	}
+
+	return result, nil
+
+}
+
+func (r *MongoDbReportRepository) GetSingleSheduledReport(ctx context.Context, id string) (*Report, *ReportRepositoryError) {
+
+	coll := r.mongoDbClient.Database(REPORTS_DB_NAME).Collection(SCHEDULED_REPORTS_COLLECTION)
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		r.logger.Error("Failed to decode report id", zap.Error(err))
@@ -200,6 +290,25 @@ func (r *MongoDbReportRepository) InsertReport(ctx context.Context, report *Repo
 	}
 
 	return &resultReport, nil
+}
+
+func (r *MongoDbReportRepository) UpdateReport(ctx context.Context, report *Report) *ReportRepositoryError {
+	coll := r.mongoDbClient.Database(REPORTS_DB_NAME).Collection(REPORTS_COLLECTION)
+
+	hexId, err := primitive.ObjectIDFromHex(report.Id)
+	if err != nil {
+		r.logger.Error("Failed to get report id", zap.Error(err))
+		return NewReportInternalError(err)
+	}
+
+	report.Id = ""
+
+	_, err = coll.ReplaceOne(ctx, bson.D{{"_id", hexId}}, report)
+	if err != nil {
+		r.logger.Error("Failed to update a report", zap.Error(err))
+		return NewReportInternalError(err)
+	}
+	return nil
 }
 
 type Params struct {

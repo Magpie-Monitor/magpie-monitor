@@ -1,18 +1,20 @@
 package insights
 
 import (
-	// "bytes"
+	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"sync"
-	"time"
-
 	"github.com/IBM/fp-go/array"
 	"github.com/IBM/fp-go/option"
-	// "github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
+	reportrepositories "github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"go.uber.org/zap"
+	"sync"
+	"time"
 )
 
 type ApplicationLogsInsight struct {
@@ -37,24 +39,33 @@ type ApplicationInsightsWithMetadata struct {
 }
 
 type ApplicationInsightsGenerator interface {
-	OnDemandApplicationInsights(logs []*repositories.ApplicationLogsDocument, configuration []*ApplicationInsightConfiguration) ([]ApplicationInsightsWithMetadata, error)
-	ScheduledApplicationInsights(
+	OnDemandApplicationInsights(
 		logs []*repositories.ApplicationLogsDocument,
-		configuration []*ApplicationInsightConfiguration,
-		scheduledTime time.Time) ([]ApplicationLogsInsight, error)
+		configuration []*reportrepositories.ApplicationInsightConfiguration) ([]ApplicationInsightsWithMetadata, error)
+
+	ScheduleApplicationInsights(
+		logs []*repositories.ApplicationLogsDocument,
+		configuration []*reportrepositories.ApplicationInsightConfiguration,
+		scheduledTime time.Time,
+		cluster string,
+		fromDate int64,
+		toDate int64,
+	) (*reportrepositories.ScheduledApplicationInsights, error)
+
+	GetScheduledApplicationInsights(
+		sheduledInsights *reportrepositories.ScheduledApplicationInsights,
+	) ([]ApplicationInsightsWithMetadata, error)
 }
 
 type applicationInsightsResponseDto struct {
 	Insights []ApplicationLogsInsight
 }
 
-type ApplicationInsightConfiguration struct {
-	ApplicationName string `json:"applicationName"`
-	Precision       string `json:"precision"`
-	CustomPrompt    string `json:"customPrompt"`
-}
-
 func (g *OpenAiInsightsGenerator) getApplicationLogById(logId string, logs []*repositories.ApplicationLogsDocument) (*repositories.ApplicationLogsDocument, error) {
+
+	if len(logs) == 0 {
+		return nil, errors.New("Failed to find application log by id in an empty logs array")
+	}
 
 	firstById := array.FindFirst(func(log *repositories.ApplicationLogsDocument) bool {
 		return log.Id == logId
@@ -63,12 +74,13 @@ func (g *OpenAiInsightsGenerator) getApplicationLogById(logId string, logs []*re
 	first, isSome := option.Unwrap(firstById(logs))
 	if !isSome {
 		g.logger.Error("Failed to find log by id", zap.String("id", logId))
+		return nil, errors.New(fmt.Sprintf("Failed to find log by id %s", logId))
 	}
 
 	return first, nil
 }
 
-func (g *OpenAiInsightsGenerator) addMetadataToInsight(
+func (g *OpenAiInsightsGenerator) addMetadataToApplicationInsight(
 	insight ApplicationLogsInsight,
 	logs []*repositories.ApplicationLogsDocument) ApplicationInsightsWithMetadata {
 
@@ -77,6 +89,9 @@ func (g *OpenAiInsightsGenerator) addMetadataToInsight(
 		log, err := g.getApplicationLogById(sourceLogId, logs)
 		if err != nil {
 			g.logger.Error("Failed to source application insights", zap.Error(err))
+
+			// Skipping source in case of a fake id
+			continue
 		}
 
 		applicationInsightsMetadata = append(applicationInsightsMetadata, ApplicationInsightMetadata{
@@ -96,12 +111,12 @@ func (g *OpenAiInsightsGenerator) addMetadataToInsight(
 
 func (g *OpenAiInsightsGenerator) OnDemandApplicationInsights(
 	logs []*repositories.ApplicationLogsDocument,
-	configurations []*ApplicationInsightConfiguration) ([]ApplicationInsightsWithMetadata, error) {
+	configurations []*reportrepositories.ApplicationInsightConfiguration) ([]ApplicationInsightsWithMetadata, error) {
 
-	groupedLogs := GroupLogsByName(logs)
+	groupedLogs := GroupApplicationLogsByName(logs)
 
 	// Map report configuration for an app (precision/customPrompt) to a app name.
-	configurationsByApplication := MapApplicationNameToConfiguration(configurations)
+	configurationsByApplication := reportrepositories.MapApplicationNameToConfiguration(configurations)
 
 	insightsChannel := make(chan []ApplicationInsightsWithMetadata, len(groupedLogs))
 	allInsights := make([]ApplicationInsightsWithMetadata, 0, len(groupedLogs))
@@ -125,7 +140,7 @@ func (g *OpenAiInsightsGenerator) OnDemandApplicationInsights(
 
 			// Add metadata about insights (container/pod)
 			mapper := array.Map(func(insights ApplicationLogsInsight) ApplicationInsightsWithMetadata {
-				return g.addMetadataToInsight(insights, logs)
+				return g.addMetadataToApplicationInsight(insights, logs)
 			})
 
 			insightsChannel <- mapper(insights)
@@ -142,50 +157,124 @@ func (g *OpenAiInsightsGenerator) OnDemandApplicationInsights(
 	return allInsights, nil
 }
 
-func (g *OpenAiInsightsGenerator) ScheduledApplicationInsights(
-	logs []*repositories.ApplicationLogsDocument,
-	configuration []*ApplicationInsightConfiguration,
-	scheduledTime time.Time) ([]ApplicationLogsInsight, error) {
+// Get Application insights by grouped by application name
+func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
+	sheduledInsights *reportrepositories.ScheduledApplicationInsights,
+) ([]ApplicationInsightsWithMetadata, error) {
+	batch, err := g.client.Batch(sheduledInsights.Id)
+	if err != nil {
+		g.logger.Error("Failed to get batch from id", zap.Error(err))
+		return nil, err
+	}
 
-	groupedLogs := GroupLogsByName(logs)
-	configurationsByApplication := MapApplicationNameToConfiguration(configuration)
-	// completionBatchEntries := make([]*openai.BatchFileCompletionEntry, 0, len(groupedLogs))
+	outputFile, err := g.client.File(batch.OutputFileId)
+	if err != nil {
+		g.logger.Error("Failed to get output file from batch")
+		return nil, err
+	}
+
+	var responses []openai.BatchFileCompletionResponseEntry
+	g.logger.Sugar().Debugf("RESPONSE %s", string(outputFile))
+	err = jsonl.NewJsonLinesDecoder(bytes.NewReader(outputFile)).Decode(&responses)
+	if err != nil {
+		g.logger.Error("Failed to decode application response", zap.Error(err))
+		return nil, err
+	}
+
+	insightLogs, err := g.applicationLogsRepository.
+		GetLogs(context.TODO(), sheduledInsights.Cluster,
+			time.Unix(0, sheduledInsights.FromDateNs),
+			time.Unix(0, sheduledInsights.ToDateNs))
+
+	if err != nil {
+		g.logger.Error("Failed to get application logs for scheduled insight")
+		return nil, err
+	}
+
+	// Each jsonl entry contains insights for a single application
+	res := []ApplicationInsightsWithMetadata{}
+	for _, response := range responses {
+		var applicationInsights applicationInsightsResponseDto
+		if len(response.Response.Body.Choices) == 0 {
+			return nil, errors.New("Failed to get insights from batch completion choices")
+		}
+
+		messageContent := response.Response.Body.Choices[0].Message.Content
+		err := json.Unmarshal([]byte(messageContent), &applicationInsights)
+		if err != nil {
+			g.logger.Error("Failed to decode application insight", zap.Error(err))
+			return nil, err
+		}
+
+		if len(response.Response.Body.Choices) == 0 {
+			return nil, errors.New("Failed to get insights from batch completion message content")
+		}
+
+		insightsWithMetadata := array.Map(func(insight ApplicationLogsInsight) ApplicationInsightsWithMetadata {
+			return g.addMetadataToApplicationInsight(insight, insightLogs)
+		})(applicationInsights.Insights)
+
+		res = append(res, insightsWithMetadata...)
+	}
+
+	return res, nil
+}
+
+func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
+	logs []*repositories.ApplicationLogsDocument,
+	configuration []*reportrepositories.ApplicationInsightConfiguration,
+	scheduledTime time.Time,
+	cluster string,
+	fromDateNs int64,
+	toDateNs int64,
+) (*reportrepositories.ScheduledApplicationInsights, error) {
+
+	groupedLogs := GroupApplicationLogsByName(logs)
+	configurationsByApplication := reportrepositories.MapApplicationNameToConfiguration(configuration)
 	completionRequests := make([]*openai.CompletionRequest, 0, len(groupedLogs))
 
 	// Generate insights for each application separately.
 	for applicationName, logs := range groupedLogs {
-		messages, err := g.createMessagesFromLogs(
+		messages, err := g.createMessagesFromApplicationLogs(
 			logs,
 			configurationsByApplication[applicationName],
 		)
 		if err != nil {
-			g.logger.Error("Failed to messages from logs", zap.Error(err), zap.String("app", applicationName))
+			g.logger.Error("Failed to create messages from application logs", zap.Error(err), zap.String("app", applicationName))
+			return nil, err
 		}
 
 		completionRequests = append(completionRequests,
 			&openai.CompletionRequest{
 				Messages:       messages,
 				Temperature:    0.6,
-				ResponseFormat: applicationInsightsResponseDto{},
+				ResponseFormat: openai.CreateJsonReponseFormat("insigts", applicationInsightsResponseDto{}),
 				Model:          g.client.Model(),
 			},
 		)
 	}
 
-	resp, err := g.client.CreateBatch(completionRequests)
+	resp, err := g.client.UploadAndCreateBatch(completionRequests)
 	if err != nil {
 		g.logger.Error("Failed to create a batch", zap.Error(err))
 		return nil, err
 	}
 
-	g.logger.Sugar().Infof("resp %+v", resp)
-
-	return nil, nil
+	return &reportrepositories.ScheduledApplicationInsights{
+		Id:                       resp.Id,
+		CreatedAt:                resp.CreatedAt,
+		ExpiresAt:                resp.ExpiresAt,
+		CompletedAt:              resp.CompletedAt,
+		Cluster:                  cluster,
+		FromDateNs:               fromDateNs,
+		ToDateNs:                 toDateNs,
+		ApplicationConfiguration: configuration,
+	}, nil
 }
 
-func (g *OpenAiInsightsGenerator) createMessagesFromLogs(
+func (g *OpenAiInsightsGenerator) createMessagesFromApplicationLogs(
 	logs []*repositories.ApplicationLogsDocument,
-	configuration *ApplicationInsightConfiguration) ([]*openai.Message, error) {
+	configuration *reportrepositories.ApplicationInsightConfiguration) ([]*openai.Message, error) {
 
 	encodedLogs, err := json.Marshal(logs)
 	if err != nil {
@@ -228,9 +317,9 @@ func (g *OpenAiInsightsGenerator) createMessagesFromLogs(
 
 func (g *OpenAiInsightsGenerator) getInsightsForSingleApplication(
 	logs []*repositories.ApplicationLogsDocument,
-	configuration *ApplicationInsightConfiguration) ([]ApplicationLogsInsight, error) {
+	configuration *reportrepositories.ApplicationInsightConfiguration) ([]ApplicationLogsInsight, error) {
 
-	messages, err := g.createMessagesFromLogs(logs, configuration)
+	messages, err := g.createMessagesFromApplicationLogs(logs, configuration)
 	if err != nil {
 		g.logger.Error("Failed to create messages", zap.Error(err))
 		return nil, err
@@ -255,15 +344,6 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleApplication(
 
 	return insights.Insights, nil
 
-}
-
-func MapApplicationNameToConfiguration(configurations []*ApplicationInsightConfiguration) map[string]*ApplicationInsightConfiguration {
-	groupedConfigurations := make(map[string]*ApplicationInsightConfiguration)
-	for _, conf := range configurations {
-		groupedConfigurations[conf.ApplicationName] = conf
-	}
-
-	return groupedConfigurations
 }
 
 var _ ApplicationInsightsGenerator = &OpenAiInsightsGenerator{}

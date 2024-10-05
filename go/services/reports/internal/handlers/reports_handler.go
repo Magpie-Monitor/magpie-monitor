@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/services"
-	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"github.com/gorilla/mux"
 	"go.uber.org/fx"
@@ -54,12 +54,12 @@ func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
 }
 
 type reportsPostParams struct {
-	Cluster                  *string                                     `json:"cluster"`
-	FromDate                 *int64                                      `json:"fromDate"`
-	ToDate                   *int64                                      `json:"toDate"`
-	ApplicationConfiguration []*insights.ApplicationInsightConfiguration `json:"applicationConfiguration"`
-	NodeConfiguration        []*insights.NodeInsightConfiguration        `json:"nodeConfiguration"`
-	MaxLength                *int                                        `json:"maxLength"`
+	Cluster                  *string                                         `json:"cluster"`
+	FromDate                 *int64                                          `json:"fromDate"`
+	ToDate                   *int64                                          `json:"toDate"`
+	ApplicationConfiguration []*repositories.ApplicationInsightConfiguration `json:"applicationConfiguration"`
+	NodeConfiguration        []*repositories.NodeInsightConfiguration        `json:"nodeConfiguration"`
+	MaxLength                *int                                            `json:"maxLength"`
 }
 
 func (h *ReportsHandler) handleResponseHeaderFromRepositoryError(w http.ResponseWriter, err repositories.ReportRepositoryError) {
@@ -84,7 +84,6 @@ func (h *ReportsHandler) GetSingle(w http.ResponseWriter, r *http.Request) {
 	if repositoryErr != nil {
 
 		h.handleResponseHeaderFromRepositoryError(w, *repositoryErr)
-
 		h.logger.Error(
 			"Failed to fetch single report by id",
 			zap.String("id", id),
@@ -92,6 +91,16 @@ func (h *ReportsHandler) GetSingle(w http.ResponseWriter, r *http.Request) {
 
 		w.Write([]byte(repositoryErr.Error()))
 		return
+	}
+
+	if report.Status == repositories.ReportState_AwaitingGeneration {
+
+		scheduledReport, err := h.reportsService.RetrieveScheduledReport(report.Id)
+		if err != nil {
+			h.logger.Error("Failed to retrieve scheduled report", zap.Error(err))
+		}
+
+		report = scheduledReport
 	}
 
 	encodedReport, err := json.Marshal(report)
@@ -263,7 +272,7 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.reportsService.GenerateScheduledReports(ctx,
+	resp, err := h.reportsService.ScheduleReport(ctx,
 		services.ReportGenerationFilters{
 			Cluster:                  *params.Cluster,
 			FromDate:                 *params.FromDate,
@@ -274,19 +283,22 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 
-	// if err != nil {
-	// 	h.logger.Error("Failed to generate report", zap.Error(err))
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
+	if err != nil {
+		h.logger.Error("Failed to generate report", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
-	// reportJson, err := json.Marshal(report)
-	// if err != nil {
-	// 	h.logger.Error("Failed encode report into json", zap.Error(err))
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
+	reportJson, err := json.Marshal(resp)
+	if err != nil {
+		h.logger.Error("Failed encode report into json", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
-	// w.Header().Add("Content-Type", "application/json")
-	// w.Write(reportJson)
+	time.Sleep(time.Second * 60)
+	h.reportsService.RetrieveScheduledReport(resp.Id)
+
+	w.Header().Add("Content-Type", "application/json")
+	w.Write(reportJson)
 }
