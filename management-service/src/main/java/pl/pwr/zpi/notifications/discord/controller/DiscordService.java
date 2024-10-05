@@ -19,8 +19,7 @@ public class DiscordService {
     private final DiscordRepository discordRepository;
     private final ConfidentialTextEncoder confidentialTextEncoder;
 
-    @SneakyThrows
-    public void sendTestMessage(Long receiverDiscordId) {
+    public void sendTestMessage(Long receiverDiscordId) throws Exception {
         var receiver = getDiscordReceiver(receiverDiscordId);
         String decodedWebhookUrl = confidentialTextEncoder.decrypt(receiver.getWebhookUrl());
         discordNotificationService.sendTestMessage(decodedWebhookUrl);
@@ -30,8 +29,7 @@ public class DiscordService {
         return discordRepository.findAll();
     }
 
-    @SneakyThrows
-    public void addNewDiscordIntegration(DiscordReceiverDTO discordIntegration) {
+    public void addNewDiscordIntegration(DiscordReceiverDTO discordIntegration) throws Exception {
         String encryptedWebhookUrl = confidentialTextEncoder.encrypt(discordIntegration.getWebhookUrl());
         checkIfWebhookExists(encryptedWebhookUrl);
         DiscordReceiver receiver = DiscordReceiver.builder()
@@ -42,8 +40,7 @@ public class DiscordService {
         discordRepository.save(receiver);
     }
 
-    @SneakyThrows
-    public DiscordReceiver updateDiscordIntegration(Long id, DiscordReceiverDTO discordReceiver) {
+    public DiscordReceiver updateDiscordIntegration(Long id, DiscordReceiverDTO discordReceiver) throws Exception {
         var receiver = getDiscordReceiver(id);
         String encryptedWebhookUrl = confidentialTextEncoder.encrypt(discordReceiver.getWebhookUrl());
         checkIfUserCanUpdateWebhookUrl(encryptedWebhookUrl, id);

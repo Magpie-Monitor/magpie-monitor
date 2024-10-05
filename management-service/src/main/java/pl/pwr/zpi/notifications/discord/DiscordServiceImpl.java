@@ -21,9 +21,11 @@ public class DiscordServiceImpl implements DiscordService {
 
             if (!response.isSuccess()) {
                 log.error("Failed to send message to Discord. Status: {}", response.getStatus());
+                throw new Exception("Failed to send message to Discord. Status: " + response.getStatus());
             }
         } catch (Exception e) {
             log.error("Error sending message to Discord: {}", e.getMessage(), e);
+            throw new RuntimeException("Error sending message to Discord: " + e.getMessage());
         }
     }
 }

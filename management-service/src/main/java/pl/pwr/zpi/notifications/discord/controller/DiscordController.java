@@ -19,18 +19,18 @@ public class DiscordController {
     }
 
     @PostMapping
-    public ResponseEntity<DiscordReceiver> addDiscordIntegration(@Valid @RequestBody DiscordReceiverDTO discordReceiver) {
+    public ResponseEntity<DiscordReceiver> addDiscordIntegration(@Valid @RequestBody DiscordReceiverDTO discordReceiver) throws Exception {
         discordService.addNewDiscordIntegration(discordReceiver);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<DiscordReceiver> updateDiscordIntegration(@PathVariable Long id, @Valid @RequestBody DiscordReceiverDTO DiscordReceiver) {
+    public ResponseEntity<DiscordReceiver> updateDiscordIntegration(@PathVariable Long id, @Valid @RequestBody DiscordReceiverDTO DiscordReceiver) throws Exception {
         return ResponseEntity.ok().body(discordService.updateDiscordIntegration(id, DiscordReceiver));
     }
 
     @GetMapping("/{id}/test-notification")
-    public ResponseEntity<DiscordReceiver> sendTestMessage(@PathVariable Long id) {
+    public ResponseEntity<DiscordReceiver> sendTestMessage(@PathVariable Long id) throws Exception {
         discordService.sendTestMessage(id);
         return ResponseEntity.ok().build();
     }
