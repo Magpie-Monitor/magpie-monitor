@@ -21,8 +21,8 @@ public class SlackServiceImpl implements SlackService {
         try {
             Slack.getInstance().send(webhookUrl, payload);
         } catch (IOException e) {
-            log.error("Error while sending!");
-
+            log.error("Error sending message to Slack: {}", e.getMessage(), e);
+            throw new RuntimeException("Error sending message to Slack: " + e.getMessage());
         }
     }
 }

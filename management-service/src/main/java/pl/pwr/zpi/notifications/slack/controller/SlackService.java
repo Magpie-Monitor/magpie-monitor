@@ -19,8 +19,7 @@ public class SlackService {
     private final SlackRepository slackRepository;
     private final ConfidentialTextEncoder confidentialTextEncoder;
 
-    @SneakyThrows
-    public void sendTestMessage(Long receiverSlackId) {
+    public void sendTestMessage(Long receiverSlackId) throws Exception {
         var receiver = getSlackReceiver(receiverSlackId);
         String decodedWebhookUrl = confidentialTextEncoder.decrypt(receiver.getWebhookUrl());
         slackNotificationService.sendTestMessage(decodedWebhookUrl);
@@ -30,8 +29,7 @@ public class SlackService {
         return slackRepository.findAll();
     }
 
-    @SneakyThrows
-    public void addNewSlackIntegration(SlackReceiverDTO slackIntegration) {
+    public void addNewSlackIntegration(SlackReceiverDTO slackIntegration) throws Exception {
         String encryptedWebhookUrl = confidentialTextEncoder.encrypt(slackIntegration.getWebhookUrl());
         checkIfWebhookExists(encryptedWebhookUrl);
         SlackReceiver receiver = SlackReceiver.builder()
@@ -42,8 +40,7 @@ public class SlackService {
         slackRepository.save(receiver);
     }
 
-    @SneakyThrows
-    public SlackReceiver updateSlackIntegration(Long id, SlackReceiverDTO slackReceiver) {
+    public SlackReceiver updateSlackIntegration(Long id, SlackReceiverDTO slackReceiver) throws Exception {
         var receiver = getSlackReceiver(id);
         String encryptedWebhookUrl = confidentialTextEncoder.encrypt(slackReceiver.getWebhookUrl());
         checkIfUserCanUpdateWebhookUrl(encryptedWebhookUrl, id);
