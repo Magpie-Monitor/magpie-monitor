@@ -5,12 +5,12 @@ import (
 )
 
 type Chunk struct {
-	Cluster   string          `json:"cluster"`
-	Kind      ApplicationKind `json:"kind"`
-	Timestamp int64           `json:"timestamp"`
-	Name      string          `json:"name"`
-	Namespace string          `json:"namespace"`
-	Pods      []Pod           `json:"pods"`
+	Cluster       string          `json:"cluster"`
+	Kind          ApplicationKind `json:"kind"`
+	CollectedAtMs int64           `json:"collectedAtMs"`
+	Name          string          `json:"name"`
+	Namespace     string          `json:"namespace"`
+	Pods          []Pod           `json:"pods"`
 }
 
 type Pod struct {

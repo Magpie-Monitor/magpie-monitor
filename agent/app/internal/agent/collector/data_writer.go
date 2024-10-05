@@ -2,11 +2,12 @@ package collector
 
 import (
 	"encoding/json"
+	"log"
+
 	nodeData "github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node/data"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods/data"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/config"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/remote_write"
-	"log"
 )
 
 type DataWriter struct {
@@ -16,7 +17,7 @@ type DataWriter struct {
 	nodeMetadataWriter remote_write.RemoteWriter
 }
 
-func NewDataWriter(config config.Config) DataWriter {
+func NewDataWriter(config *config.Config) DataWriter {
 	return DataWriter{
 		podWriter: remote_write.NewStreamWriter(config.Broker.Url, config.Broker.PodTopic, config.Broker.Username,
 			config.Broker.Password, config.Broker.BatchSize),

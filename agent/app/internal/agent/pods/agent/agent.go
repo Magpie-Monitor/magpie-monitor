@@ -4,6 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
+	"path/filepath"
+	"slices"
+	"strings"
+	"time"
+
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods/data"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/config"
 	v2 "k8s.io/api/apps/v1"
@@ -14,12 +20,6 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
-	"log"
-	"path/filepath"
-	"slices"
-	"strings"
-	"sync"
-	"time"
 )
 
 type Agent struct {
@@ -31,19 +31,19 @@ type Agent struct {
 	client                            *kubernetes.Clientset
 	readTimestamps                    map[string]int64
 	readTimes                         map[string]time.Time
-	results                           chan data.Chunk
-	metadata                          chan data.ClusterState
+	results                           chan<- data.Chunk
+	metadata                          chan<- data.ClusterState
 }
 
-func NewAgent(cfg config.Config) *Agent {
+func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<- data.ClusterState) *Agent {
 	return &Agent{
 		excludedNamespaces:                cfg.ExcludedNamespaces,
 		logCollectionIntervalSeconds:      cfg.Global.LogScrapeIntervalSeconds,
 		metadataCollectionIntervalSeconds: cfg.Global.MetadataScrapeIntervalSeconds,
 		readTimestamps:                    make(map[string]int64),
 		readTimes:                         make(map[string]time.Time),
-		results:                           cfg.Channels.ClusterLogsChannel,
-		metadata:                          cfg.Channels.ClusterMetadataChannel,
+		results:                           logsChan,
+		metadata:                          metadataChan,
 	}
 }
 
@@ -106,17 +106,17 @@ func (a *Agent) fetchNamespaces() {
 
 func (a *Agent) gatherLogs() {
 	for {
-		var wg sync.WaitGroup
+		// var wg sync.WaitGroup
 
 		for _, namespace := range a.includedNamespaces {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				a.fetchLogsForNamespace(namespace)
-			}()
+			// wg.Add(1)
+			// go func() {
+			// defer wg.Done()
+			a.fetchLogsForNamespace(namespace)
+			// }()
 		}
 
-		wg.Wait()
+		// wg.Wait()
 
 		log.Println("Sleeping for: ", a.logCollectionIntervalSeconds, " seconds")
 		time.Sleep(time.Duration(a.logCollectionIntervalSeconds) * time.Second)
@@ -195,7 +195,7 @@ func (a *Agent) fetchPodLogsSinceTime(selector *metav1.LabelSelector, namespace 
 		containers := make([]data.Container, 0, len(pod.Spec.Containers))
 		for _, container := range pod.Spec.Containers {
 			log.Println("Fetching logs for container: ", container.Name)
-			c := a.fetchContainerLogsSinceTime(container, pod.Name, namespace)
+			c := a.fetchContainerLogsSinceTime(&container, pod.Name, namespace)
 			containers = append(containers, c)
 		}
 
@@ -205,17 +205,22 @@ func (a *Agent) fetchPodLogsSinceTime(selector *metav1.LabelSelector, namespace 
 	return res
 }
 
-func (a *Agent) fetchContainerLogsSinceTime(container v1.Container, podName, namespace string) data.Container {
-	log.Println("Fetching logs for container: ", container.Name)
-
+func (a *Agent) fetchContainerLogsSinceTime(container *v1.Container, podName, namespace string) data.Container {
+	log.Println("before sleeping")
 	sinceTime := a.getReadTimestamp(podName, container.Name)
 
+	log.Println("sleeping")
 	// Sleep till all the logs from current second arrive.
 	// Precision of the logs API is within seconds,
 	// so to not fetch logs twice, we have to gather all logs
 	// from the ongoing second. Then, we cut off the logs from the
 	// following second, so they are fetched in next iteration.
+
+	log.Println("sinceTime: ", sinceTime)
+
 	time.Sleep(time.Duration(999999999 - sinceTime.Nanosecond()))
+
+	log.Println("after sleeping")
 
 	beforeTs := time.Now().UnixNano()
 	// TODO - abstraction over this part
@@ -273,12 +278,12 @@ func (a *Agent) getTimestampKey(podName, containerName string) string {
 
 func (a *Agent) sendResult(kind data.ApplicationKind, name, namespace string, pods []data.Pod) {
 	a.results <- data.Chunk{
-		Cluster:   a.clusterName,
-		Kind:      kind,
-		Timestamp: time.Now().UnixNano(),
-		Name:      name,
-		Namespace: namespace,
-		Pods:      pods,
+		Cluster:       a.clusterName,
+		Kind:          kind,
+		CollectedAtMs: time.Now().UnixMilli(),
+		Name:          name,
+		Namespace:     namespace,
+		Pods:          pods,
 	}
 }
 
@@ -341,21 +346,21 @@ func (a *Agent) gatherClusterMetadata() {
 			if err != nil {
 				log.Println("Error fetching Deployments: ", err)
 			} else {
-				state.AppendDeployments(deployments.Items)
+				state.AppendDeployments(&deployments.Items)
 			}
 
 			statefulSets, err := a.client.AppsV1().StatefulSets(namespace).List(context.TODO(), metav1.ListOptions{})
 			if err != nil {
 				log.Println("Error fetching StatefulSets: ", err)
 			} else {
-				state.AppendStatefulSets(statefulSets.Items)
+				state.AppendStatefulSets(&statefulSets.Items)
 			}
 
 			daemonSets, err := a.client.AppsV1().DaemonSets(namespace).List(context.TODO(), metav1.ListOptions{})
 			if err != nil {
 				log.Println("Error fetching DaemonSets: ", err)
 			} else {
-				state.AppendDaemonSets(daemonSets.Items)
+				state.AppendDaemonSets(&daemonSets.Items)
 			}
 
 			state.SetTimestamp()
