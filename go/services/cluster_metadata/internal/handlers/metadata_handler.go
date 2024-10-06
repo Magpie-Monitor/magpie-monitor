@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/internal/entity"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/services"
@@ -10,20 +11,24 @@ import (
 	"go.uber.org/zap"
 )
 
-type MetadataRouter struct {
-	mux *mux.Router
-}
-
-func NewMetadataRouter(metadataHandler MetadataHandler, rootRouter *mux.Router) *MetadataRouter {
-	router := rootRouter.PathPrefix("/metadata").Subrouter()
-	router.Methods(http.MethodGet).Path("/cluster").HandlerFunc(metadataHandler.GetClusterMetadataForTimerange)
-	router.Methods(http.MethodGet).Path("/nodes").HandlerFunc(metadataHandler.GetNodeMetadataForTimerange)
+func NewMetadataRouter(metadataHandler *MetadataHandler, rootRouter *mux.Router) *MetadataRouter {
+	router := rootRouter.PathPrefix("/api/v1/metadata").Subrouter()
+	router.Methods(http.MethodGet).Path("/clusters/{clusterId}/applications").HandlerFunc(metadataHandler.GetClusterMetadataForTimerange)
+	router.Methods(http.MethodGet).Path("/clusters/{clusterId}/nodes").HandlerFunc(metadataHandler.GetNodeMetadataForTimerange)
 	router.Methods(http.MethodPost).Path("/cluster").HandlerFunc(metadataHandler.InsertClusterMetadata)
-	router.Methods(http.MethodGet).Path("/nodes").HandlerFunc(metadataHandler.InsertNodeMetadata)
+	router.Methods(http.MethodPost).Path("/nodes").HandlerFunc(metadataHandler.InsertNodeMetadata)
 
 	return &MetadataRouter{
 		mux: router,
 	}
+}
+
+func NewMetadataHandler(log *zap.Logger, service *services.MetadataService) *MetadataHandler {
+	return &MetadataHandler{log: log, metadataService: service}
+}
+
+type MetadataRouter struct {
+	mux *mux.Router
 }
 
 func (m *MetadataRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -32,30 +37,22 @@ func (m *MetadataRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 type MetadataHandler struct {
 	log             *zap.Logger
-	metadataService services.MetadataService
-}
-
-func NewMetadataHandler(log *zap.Logger, service services.MetadataService) MetadataHandler {
-	return MetadataHandler{log: log, metadataService: service}
-}
-
-// TODO - change to URL params
-type ClusterMetadataRequest struct {
-	ClusterName string `json:"clusterName"`
-	SinceMillis int64  `json:"sinceMillis"`
-	ToMillis    int64  `json:"toMillis"`
+	metadataService *services.MetadataService
 }
 
 func (h *MetadataHandler) GetClusterMetadataForTimerange(w http.ResponseWriter, r *http.Request) {
-	var req ClusterMetadataRequest
-
-	err := json.NewDecoder(r.Body).Decode(&req)
+	sinceMillis, err := strconv.Atoi(r.URL.Query().Get("sinceMillis"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		http.Error(w, "Invalid parameter value for \"sinceMillis\", it has to be an integer", http.StatusBadRequest)
 	}
 
-	metadata, err := h.metadataService.GetClusterMetadataForTimerange(req.ClusterName, req.SinceMillis, req.ToMillis)
+	toMillis, err := strconv.Atoi(r.URL.Query().Get("toMillis"))
+	if err != nil {
+		http.Error(w, "Invalid parameter value for \"toMillis\", it has to be an integer", http.StatusBadRequest)
+	}
+
+	clusterId := mux.Vars(r)["clusterId"]
+	metadata, err := h.metadataService.GetClusterMetadataForTimerange(clusterId, sinceMillis, toMillis)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -67,23 +64,20 @@ func (h *MetadataHandler) GetClusterMetadataForTimerange(w http.ResponseWriter, 
 	}
 }
 
-// TODO - change to URL
-type NodeMetadataRequest struct {
-	NodeName    string `json:"nodeName"`
-	SinceMillis int64  `json:"sinceMillis"`
-	ToMillis    int64  `json:"toMillis"`
-}
-
 func (h *MetadataHandler) GetNodeMetadataForTimerange(w http.ResponseWriter, r *http.Request) {
-	var req NodeMetadataRequest
-
-	err := json.NewDecoder(r.Body).Decode(&req)
+	sinceMillis, err := strconv.Atoi(r.URL.Query().Get("sinceMillis"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		http.Error(w, "Invalid parameter value for \"sinceMillis\", it has to be an integer", http.StatusBadRequest)
 	}
 
-	metadata, err := h.metadataService.GetNodeMetadataForTimerange(req.NodeName, req.SinceMillis, req.ToMillis)
+	toMillis, err := strconv.Atoi(r.URL.Query().Get("toMillis"))
+	if err != nil {
+		http.Error(w, "Invalid parameter value for \"toMillis\", it has to be an integer", http.StatusBadRequest)
+	}
+
+	clusterId := mux.Vars(r)["clusterId"]
+
+	metadata, err := h.metadataService.GetNodeMetadataForTimerange(clusterId, sinceMillis, toMillis)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
