@@ -19,9 +19,9 @@ type MetadataService struct {
 func (m *MetadataService) GetClusterMetadataForTimerange(clusterName string, sinceMillis int, toMillis int) ([]repositories.ClusterState, error) {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
-			bson.D{{Key: "collectedatms", Value: bson.D{{Key: "$gt", Value: sinceMillis}}}},
-			bson.D{{Key: "collectedatms", Value: bson.D{{Key: "$lt", Value: toMillis}}}},
-			bson.D{{Key: "clustername", Value: bson.D{{Key: "$eq", Value: clusterName}}}},
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: sinceMillis}}}},
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: toMillis}}}},
+			bson.D{{Key: "clusterName", Value: bson.D{{Key: "$eq", Value: clusterName}}}},
 		}},
 	}
 
@@ -31,9 +31,9 @@ func (m *MetadataService) GetClusterMetadataForTimerange(clusterName string, sin
 func (m *MetadataService) GetNodeMetadataForTimerange(nodeName string, sinceMillis int, toMillis int) ([]repositories.NodeState, error) {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
-			bson.D{{Key: "collectedatms", Value: bson.D{{Key: "$gt", Value: sinceMillis}}}},
-			bson.D{{Key: "collectedatms", Value: bson.D{{Key: "$lt", Value: toMillis}}}},
-			bson.D{{Key: "nodename", Value: bson.D{{Key: "$eq", Value: nodeName}}}},
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: sinceMillis}}}},
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: toMillis}}}},
+			bson.D{{Key: "nodeName", Value: bson.D{{Key: "$eq", Value: nodeName}}}},
 		}},
 	}
 
