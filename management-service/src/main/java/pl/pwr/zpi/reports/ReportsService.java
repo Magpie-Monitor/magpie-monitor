@@ -12,10 +12,12 @@ import java.util.List;
 @Slf4j
 public class ReportsService {
     private final ReportsClient reportsClient;
+    private final String ALL_REPORTS_URL = "http://reports-service:8099/v1/reports";
+    private final String REPORT_DETAILS_URL = "http://reports-service:8099/v1/reports/";
     public List<ReportSummarizedDTO> getReport() throws Exception {
         log.info("Getting report");
         return reportsClient.sendGetRequestForList(
-                "http://reports-service:8099/v1/reports",
+                ALL_REPORTS_URL,
                 new TypeReference<>() {}
         );
     }
@@ -23,7 +25,7 @@ public class ReportsService {
     public ReportDTO getReportById(String id) throws Exception {
         log.info("Getting report by id: {}", id);
         return reportsClient.sendGetRequest(
-                "http://reports-service:8099/v1/reports/" + id,
+                REPORT_DETAILS_URL + id,
                 ReportDTO.class
         );      }
 }
