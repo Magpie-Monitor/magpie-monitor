@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/mongodb"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/internal/database"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/internal/handlers"
@@ -56,7 +57,8 @@ func main() {
 			NewHTTPServer,
 			handlers.NewMetadataRouter,
 			handlers.NewMetadataHandler,
-			database.NewMetadataDbMongoClient,
+			mongodb.NewMongoDbClient,
+			database.NewMongoDbConnectionDetails,
 			services.NewMetadataService,
 			repositories.NewClusterMetadataCollection,
 			repositories.NewNodeMetadataCollection,

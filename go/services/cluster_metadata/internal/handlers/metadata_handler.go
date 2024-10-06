@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/internal/entity"
+	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/services"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -93,7 +93,7 @@ func (h *MetadataHandler) GetNodeMetadataForTimerange(w http.ResponseWriter, r *
 
 // TODO - add m2m
 func (h *MetadataHandler) InsertClusterMetadata(w http.ResponseWriter, r *http.Request) {
-	var metadata entity.ClusterState
+	var metadata repositories.ClusterState
 
 	err := json.NewDecoder(r.Body).Decode(&metadata)
 	if err != nil {
@@ -111,7 +111,7 @@ func (h *MetadataHandler) InsertClusterMetadata(w http.ResponseWriter, r *http.R
 
 // TODO - add m2m
 func (h *MetadataHandler) InsertNodeMetadata(w http.ResponseWriter, r *http.Request) {
-	var metadata entity.NodeState
+	var metadata repositories.NodeState
 
 	err := json.NewDecoder(r.Body).Decode(&metadata)
 	if err != nil {

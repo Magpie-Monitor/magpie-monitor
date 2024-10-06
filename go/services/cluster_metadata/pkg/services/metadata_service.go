@@ -1,23 +1,22 @@
 package services
 
 import (
-	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/internal/entity"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.uber.org/zap"
 )
 
-func NewMetadataService(log *zap.Logger, clusterRepo *repositories.MongoDbCollection[entity.ClusterState], nodeRepo *repositories.MongoDbCollection[entity.NodeState]) *MetadataService {
+func NewMetadataService(log *zap.Logger, clusterRepo *repositories.MongoDbCollection[repositories.ClusterState], nodeRepo *repositories.MongoDbCollection[repositories.NodeState]) *MetadataService {
 	return &MetadataService{log: log, clusterRepo: clusterRepo, nodeRepo: nodeRepo}
 }
 
 type MetadataService struct {
 	log         *zap.Logger
-	clusterRepo *repositories.MongoDbCollection[entity.ClusterState]
-	nodeRepo    *repositories.MongoDbCollection[entity.NodeState]
+	clusterRepo *repositories.MongoDbCollection[repositories.ClusterState]
+	nodeRepo    *repositories.MongoDbCollection[repositories.NodeState]
 }
 
-func (m *MetadataService) GetClusterMetadataForTimerange(clusterName string, sinceMillis int, toMillis int) ([]entity.ClusterState, error) {
+func (m *MetadataService) GetClusterMetadataForTimerange(clusterName string, sinceMillis int, toMillis int) ([]repositories.ClusterState, error) {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
 			bson.D{{Key: "collectedatms", Value: bson.D{{Key: "$gt", Value: sinceMillis}}}},
@@ -29,7 +28,7 @@ func (m *MetadataService) GetClusterMetadataForTimerange(clusterName string, sin
 	return m.clusterRepo.GetFilteredDocuments(filter)
 }
 
-func (m *MetadataService) GetNodeMetadataForTimerange(nodeName string, sinceMillis int, toMillis int) ([]entity.NodeState, error) {
+func (m *MetadataService) GetNodeMetadataForTimerange(nodeName string, sinceMillis int, toMillis int) ([]repositories.NodeState, error) {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
 			bson.D{{Key: "collectedatms", Value: bson.D{{Key: "$gt", Value: sinceMillis}}}},
@@ -41,10 +40,10 @@ func (m *MetadataService) GetNodeMetadataForTimerange(nodeName string, sinceMill
 	return m.nodeRepo.GetFilteredDocuments(filter)
 }
 
-func (m *MetadataService) InsertClusterMetadata(metadata entity.ClusterState) error {
+func (m *MetadataService) InsertClusterMetadata(metadata repositories.ClusterState) error {
 	return m.clusterRepo.InsertDocuments([]interface{}{metadata})
 }
 
-func (m *MetadataService) InsertNodeMetadata(metadata entity.NodeState) error {
+func (m *MetadataService) InsertNodeMetadata(metadata repositories.NodeState) error {
 	return m.nodeRepo.InsertDocuments([]interface{}{metadata})
 }
