@@ -49,19 +49,24 @@ type MetadataResponse[T any] struct {
 func (h *MetadataHandler) GetClusterMetadataForTimerange(w http.ResponseWriter, r *http.Request) {
 	sinceMillis, err := strconv.Atoi(r.URL.Query().Get("sinceMillis"))
 	if err != nil {
-		http.Error(w, "Invalid parameter value for \"sinceMillis\", it has to be an integer", http.StatusBadRequest)
+		h.log.Error("Error parsing sinceMillis:", zap.Error(err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	toMillis, err := strconv.Atoi(r.URL.Query().Get("toMillis"))
 	if err != nil {
-		http.Error(w, "Invalid parameter value for \"toMillis\", it has to be an integer", http.StatusBadRequest)
+		h.log.Error("Error parsing toMillis:", zap.Error(err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	clusterId := mux.Vars(r)["clusterId"]
 
 	metadata, err := h.metadataService.GetClusterMetadataForTimerange(clusterId, sinceMillis, toMillis)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.log.Error("Error reading cluster metadata:", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 
 	response := MetadataResponse[repositories.ClusterState]{Response: metadata}
@@ -69,26 +74,33 @@ func (h *MetadataHandler) GetClusterMetadataForTimerange(w http.ResponseWriter, 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(&response)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.log.Error("Error parsing cluster metadata", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
 
 func (h *MetadataHandler) GetNodeMetadataForTimerange(w http.ResponseWriter, r *http.Request) {
 	sinceMillis, err := strconv.Atoi(r.URL.Query().Get("sinceMillis"))
 	if err != nil {
-		http.Error(w, "Invalid parameter value for \"sinceMillis\", it has to be an integer", http.StatusBadRequest)
+		h.log.Error("Error parsing sinceMillis:", zap.Error(err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	toMillis, err := strconv.Atoi(r.URL.Query().Get("toMillis"))
 	if err != nil {
-		http.Error(w, "Invalid parameter value for \"toMillis\", it has to be an integer", http.StatusBadRequest)
+		h.log.Error("Error parsing toMillis:", zap.Error(err))
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	clusterId := mux.Vars(r)["clusterId"]
 
 	metadata, err := h.metadataService.GetNodeMetadataForTimerange(clusterId, sinceMillis, toMillis)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.log.Error("Error reading node metadata:", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	response := MetadataResponse[repositories.NodeState]{Response: metadata}
@@ -97,7 +109,8 @@ func (h *MetadataHandler) GetNodeMetadataForTimerange(w http.ResponseWriter, r *
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(&response)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.log.Error("Error parsing node metadata:", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
 
@@ -107,13 +120,16 @@ func (h *MetadataHandler) InsertClusterMetadata(w http.ResponseWriter, r *http.R
 
 	err := json.NewDecoder(r.Body).Decode(&metadata)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		h.log.Error("Error reading cluster metadata:", zap.Error(err))
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	err = h.metadataService.InsertClusterMetadata(metadata)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.log.Error("Error inserting cluster metadata:", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -125,13 +141,16 @@ func (h *MetadataHandler) InsertNodeMetadata(w http.ResponseWriter, r *http.Requ
 
 	err := json.NewDecoder(r.Body).Decode(&metadata)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		h.log.Error("Error reading node metadata:", zap.Error(err))
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	err = h.metadataService.InsertNodeMetadata(metadata)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		h.log.Error("Error inserting node metadata:", zap.Error(err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
