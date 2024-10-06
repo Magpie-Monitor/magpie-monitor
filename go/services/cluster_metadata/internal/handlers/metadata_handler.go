@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -12,11 +13,12 @@ import (
 )
 
 func NewMetadataRouter(metadataHandler *MetadataHandler, rootRouter *mux.Router) *MetadataRouter {
-	router := rootRouter.PathPrefix("/api/v1/metadata").Subrouter()
+	router := rootRouter.PathPrefix("/metadata").Subrouter()
 	router.Methods(http.MethodGet).Path("/clusters/{clusterId}/applications").HandlerFunc(metadataHandler.GetClusterMetadataForTimerange)
 	router.Methods(http.MethodGet).Path("/clusters/{clusterId}/nodes").HandlerFunc(metadataHandler.GetNodeMetadataForTimerange)
 	router.Methods(http.MethodPost).Path("/cluster").HandlerFunc(metadataHandler.InsertClusterMetadata)
 	router.Methods(http.MethodPost).Path("/nodes").HandlerFunc(metadataHandler.InsertNodeMetadata)
+	router.Methods(http.MethodGet).Path("/healthz").HandlerFunc(metadataHandler.Healthz)
 
 	return &MetadataRouter{
 		mux: router,
@@ -40,6 +42,10 @@ type MetadataHandler struct {
 	metadataService *services.MetadataService
 }
 
+type MetadataResponse[T any] struct {
+	Response []T `json:"response"`
+}
+
 func (h *MetadataHandler) GetClusterMetadataForTimerange(w http.ResponseWriter, r *http.Request) {
 	sinceMillis, err := strconv.Atoi(r.URL.Query().Get("sinceMillis"))
 	if err != nil {
@@ -52,13 +58,16 @@ func (h *MetadataHandler) GetClusterMetadataForTimerange(w http.ResponseWriter, 
 	}
 
 	clusterId := mux.Vars(r)["clusterId"]
+
 	metadata, err := h.metadataService.GetClusterMetadataForTimerange(clusterId, sinceMillis, toMillis)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
+	response := MetadataResponse[repositories.ClusterState]{Response: metadata}
+
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(metadata)
+	err = json.NewEncoder(w).Encode(&response)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -82,13 +91,14 @@ func (h *MetadataHandler) GetNodeMetadataForTimerange(w http.ResponseWriter, r *
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	err = json.NewEncoder(w).Encode(metadata)
+	response := MetadataResponse[repositories.NodeState]{Response: metadata}
+	log.Println(response)
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(&response)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 }
 
 // TODO - add m2m
@@ -124,5 +134,9 @@ func (h *MetadataHandler) InsertNodeMetadata(w http.ResponseWriter, r *http.Requ
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *MetadataHandler) Healthz(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }

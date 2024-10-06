@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/mongodb"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
@@ -25,8 +26,7 @@ type ServerParams struct {
 }
 
 func NewHTTPServer(ServerParams ServerParams) *http.Server {
-	// TODO - add variable
-	port := "8080"
+	port := os.Getenv("HTTP_PORT")
 
 	srv := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: ServerParams.MetadataRouter}
 	ServerParams.Lc.Append(fx.Hook{
