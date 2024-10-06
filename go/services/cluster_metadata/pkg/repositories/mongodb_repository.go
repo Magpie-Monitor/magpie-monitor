@@ -3,35 +3,35 @@ package repositories
 import (
 	"context"
 
-	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/internal/entity"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 )
 
-func NewClusterMetadataCollection(log *zap.Logger, client *mongo.Client) *MongoDbCollection[entity.ClusterState] {
-	return &MongoDbCollection[entity.ClusterState]{log: log, db: "METADATA", col: "CLUSTER_STATE", client: client}
+func NewClusterMetadataCollection(log *zap.Logger, client *mongo.Client) *MongoDbCollection[ClusterState] {
+	return &MongoDbCollection[ClusterState]{log: log, db: "METADATA", col: "CLUSTER_STATE", client: client}
 }
 
-func NewNodeMetadataCollection(log *zap.Logger, client *mongo.Client) *MongoDbCollection[entity.NodeState] {
-	return &MongoDbCollection[entity.NodeState]{log: log, db: "METADATA", col: "NODE_STATE", client: client}
+func NewNodeMetadataCollection(log *zap.Logger, client *mongo.Client) *MongoDbCollection[NodeState] {
+	return &MongoDbCollection[NodeState]{log: log, db: "METADATA", col: "NODE_STATE", client: client}
 }
 
 type ClusterState struct {
-	CollectedAtMs int64         `json:"collectedAtMs"`
-	ClusterName   string        `json:"clusterName"`
-	Applications  []Application `json:"applications"`
+	CollectedAtMs int64         `json:"collectedAtMs" bson:"collectedAtMs"`
+	ClusterName   string        `json:"clusterName" bson:"clusterName"`
+	Applications  []Application `json:"applications" bson:"applications"`
 }
 
 type Application struct {
-	Kind string `json:"kind"`
-	Name string `json:"name"`
+	Kind string `json:"kind" bson:"kind"`
+	Name string `json:"name" bson:"name"`
 }
 
 type NodeState struct {
-	NodeName      string   `json:"nodeName"`
-	CollectedAtMs int64    `json:"collectedAtMs"`
-	WatchedFiles  []string `json:"watchedFiles"`
+	ClusterName   string   `json:"clusterName" bson:"clusterName"`
+	NodeName      string   `json:"nodeName" bson:"nodeName"`
+	CollectedAtMs int64    `json:"collectedAtMs" bson:"collectedAtMs"`
+	WatchedFiles  []string `json:"watchedFiles" bson:"watchedFiles"`
 }
 
 type MongoDbCollection[T any] struct {
