@@ -43,7 +43,7 @@ public class ReportsClient {
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 log.error("Failed to fetch the resource. Status: {}", response.code());
-                throw new Exception("Failed to fetch the resource");
+                throw new RuntimeException("Failed to fetch the resource");
             }
 
             String responseBody = response.body().string();
@@ -51,7 +51,7 @@ public class ReportsClient {
             return responseBody;
         } catch (IOException e) {
             log.error("Error fetching resource: {}", e.getMessage(), e);
-            throw new Exception("Error fetching resource", e);
+            throw new ("Error fetching resource", e);
         }
     }
 }
