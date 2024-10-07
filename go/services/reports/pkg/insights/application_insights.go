@@ -187,7 +187,6 @@ func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
 	}
 
 	var responses []openai.BatchFileCompletionResponseEntry
-	g.logger.Sugar().Debugf("RESPONSE %s", string(outputFile))
 	err = jsonl.NewJsonLinesDecoder(bytes.NewReader(outputFile)).Decode(&responses)
 	if err != nil {
 		g.logger.Error("Failed to decode application response", zap.Error(err))
@@ -204,9 +203,22 @@ func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
 		return nil, err
 	}
 
+	insights, err := g.getApplicationInsightsFromBatchEntries(responses, insightLogs)
+	if err != nil {
+		g.logger.Error("Failed to transform batch entries into application insights")
+		return nil, err
+	}
+
+	return insights, nil
+}
+
+func (g *OpenAiInsightsGenerator) getApplicationInsightsFromBatchEntries(
+	batchEntries []openai.BatchFileCompletionResponseEntry,
+	logs []*repositories.ApplicationLogsDocument) ([]ApplicationInsightsWithMetadata, error) {
+
 	// Each jsonl entry contains insights for a single application
 	res := []ApplicationInsightsWithMetadata{}
-	for _, response := range responses {
+	for _, response := range batchEntries {
 		var applicationInsights applicationInsightsResponseDto
 		if len(response.Response.Body.Choices) == 0 {
 			return nil, errors.New("Failed to get insights from batch completion choices")
@@ -219,12 +231,8 @@ func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
 			return nil, err
 		}
 
-		if len(response.Response.Body.Choices) == 0 {
-			return nil, errors.New("Failed to get insights from batch completion message content")
-		}
-
 		insightsWithMetadata := array.Map(func(insight ApplicationLogsInsight) ApplicationInsightsWithMetadata {
-			return g.addMetadataToApplicationInsight(insight, insightLogs)
+			return g.addMetadataToApplicationInsight(insight, logs)
 		})(applicationInsights.Insights)
 
 		res = append(res, insightsWithMetadata...)

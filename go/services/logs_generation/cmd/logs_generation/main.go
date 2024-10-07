@@ -45,7 +45,7 @@ func (g *LogsGenerator) WriteNodeLogs(ctx context.Context) {
 
 		}
 
-		time.Sleep(time.Second * 100)
+		time.Sleep(time.Second * 1000)
 	}
 }
 
@@ -94,7 +94,7 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 
 		g.handleApplicationLogs(ctx, string(jsonApplicationLogs))
 		g.handleNodeLogs(ctx, string(jsonNodeLogs))
-		time.Sleep(time.Second * 360)
+		time.Sleep(time.Second * 3609)
 
 	}
 

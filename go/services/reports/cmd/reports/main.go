@@ -80,6 +80,14 @@ func main() {
 				repositories.NewMongoDbReportRepository,
 			),
 
+			repositories.ProvideAsNodeIncidentRepository(
+				repositories.NewMongoDbNodeIncidentRepository,
+			),
+
+			repositories.ProvideAsApplicationIncidentRepository(
+				repositories.NewMongoDbApplicationIncidentRepository,
+			),
+
 			elasticsearch.NewElasticSearchLogsDbClient,
 			sharedrepositories.ProvideAsNodeLogsRepository(
 				sharedrepositories.NewElasticSearchNodeLogsRepository,
