@@ -3,14 +3,16 @@ package services
 import (
 	"context"
 	"fmt"
+	"math"
+	"slices"
+	"time"
+
 	"github.com/IBM/fp-go/array"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"math"
-	"time"
 )
 
 type ReportGenerationFilters struct {
@@ -58,35 +60,44 @@ func (s *ReportsService) ScheduleReport(
 	params ReportGenerationFilters,
 
 ) (*repositories.Report, error) {
-	applicationLogs, err := s.applicationLogsRepository.GetLogs(ctx,
-		params.Cluster,
-		time.Unix(0, params.FromDate),
-		time.Unix(0, params.ToDate))
 
-	nodeLogs, err := s.nodeLogsRepository.GetLogs(ctx,
-		params.Cluster,
-		time.Unix(0, params.FromDate),
-		time.Unix(0, params.ToDate))
+	fromDate := time.Unix(0, params.FromDate)
+	toDate := time.Unix(0, params.ToDate)
 
+	applicationLogs, err := s.GetApplicationLogsByParams(
+		ctx,
+		params.Cluster,
+		fromDate,
+		toDate,
+		params.MaxLength,
+	)
 	if err != nil {
 		s.logger.Error("Failed to fetch application logs", zap.Error(err))
 		return nil, err
 	}
 
-	filteredApplicationLogs := applicationLogs[0:int(math.Min(float64(params.MaxLength), float64(len(applicationLogs))))]
+	nodeLogs, err := s.GetNodeLogsByParams(
+		ctx,
+		params.Cluster,
+		fromDate,
+		toDate,
+		params.MaxLength,
+	)
+	if err != nil {
+		s.logger.Error("Failed to fetch application logs", zap.Error(err))
+		return nil, err
+	}
 
 	applicationInsights, err := s.applicationInsightsGenerator.ScheduleApplicationInsights(
-		filteredApplicationLogs,
+		applicationLogs,
 		params.ApplicationConfiguration, time.Now(),
 		params.Cluster,
 		params.FromDate,
 		params.ToDate,
 	)
 
-	filteredNodeLogs := nodeLogs[0:int(math.Min(float64(params.MaxLength), float64(len(applicationLogs))))]
-
 	nodeInsights, err := s.nodeInsightsGenerator.ScheduleNodeInsights(
-		filteredNodeLogs,
+		nodeLogs,
 		params.NodeConfiguration, time.Now(),
 		params.Cluster,
 		params.FromDate,
@@ -100,12 +111,14 @@ func (s *ReportsService) ScheduleReport(
 
 	report, err := s.reportRepository.InsertReport(ctx, &repositories.Report{
 		Cluster:                      params.Cluster,
+		Title:                        s.getTitleForReport(params.Cluster, fromDate, toDate),
 		Status:                       repositories.ReportState_AwaitingGeneration,
 		RequestedAtNs:                time.Now().UnixNano(),
-		GeneratedAtNs:                0,
-		ScheduledGenerationAtMs:      0,
+		ScheduledGenerationAtMs:      time.Now().UnixNano() + time.Hour.Nanoseconds(),
 		FromDateNs:                   params.FromDate,
 		ToDateNs:                     params.ToDate,
+		TotalNodeEntries:             len(nodeLogs),
+		TotalApplicationEntries:      len(applicationLogs),
 		ScheduledApplicationInsights: applicationInsights,
 		ScheduledNodeInsights:        nodeInsights,
 	})
@@ -160,6 +173,7 @@ func (s *ReportsService) RetrieveScheduledReport(scheduledReportId string) (*rep
 	scheduledReport.ApplicationReports = applicationReports
 	scheduledReport.NodeReports = nodeReports
 	scheduledReport.Status = repositories.ReportState_Generated
+	scheduledReport.Urgency = s.getReportUrgencyFromApplicationAndNodeReports(applicationReports, nodeReports)
 
 	repoErr = s.reportRepository.UpdateReport(context.TODO(), scheduledReport)
 	if repoErr != nil {
@@ -177,52 +191,74 @@ func (s *ReportsService) GenerateReport(
 	fromDate := time.Unix(0, params.FromDate)
 	toDate := time.Unix(0, params.ToDate)
 
-	applicationReports, err := s.GenerateApplicationReports(
+	applicationLogs, err := s.GetApplicationLogsByParams(
 		ctx,
 		params.Cluster,
 		fromDate,
 		toDate,
-		params.ApplicationConfiguration,
 		params.MaxLength,
+	)
+	if err != nil {
+		s.logger.Error("Failed to get application logs", zap.Error(err))
+		return nil, err
+	}
+
+	applicationReports, err := s.GenerateApplicationReports(
+		ctx,
+		applicationLogs,
+		params.ApplicationConfiguration,
 	)
 	if err != nil {
 		s.logger.Error("Failed to get application reports", zap.Error(err))
 		return nil, err
 	}
 
-	nodeReports, err := s.GenerateNodeReports(
+	nodeLogs, err := s.GetNodeLogsByParams(
 		ctx,
 		params.Cluster,
 		fromDate,
 		toDate,
+		params.MaxLength)
+	if err != nil {
+		s.logger.Error("Failed to generate node report", zap.Error(err))
+		return nil, err
+	}
+
+	nodeReports, err := s.GenerateNodeReports(
+		ctx,
+		nodeLogs,
 		params.NodeConfiguration,
-		params.MaxLength,
 	)
 	if err != nil {
 		s.logger.Error("Failed to get node reports", zap.Error(err))
 		return nil, err
 	}
 
+	urgency := s.getReportUrgencyFromApplicationAndNodeReports(
+		applicationReports,
+		nodeReports,
+	)
+
 	report := repositories.Report{
-		Status:        repositories.ReportState_Generated,
-		Cluster:       params.Cluster,
-		RequestedAtNs: time.Now().UnixNano(),
-		//TODO: Generate the report entity first and assign the insights
-		//later once the Batch API is implemented.
-		GeneratedAtNs:           time.Now().UnixNano(),
+		Status:                  repositories.ReportState_Generated,
+		Cluster:                 params.Cluster,
+		RequestedAtNs:           time.Now().UnixNano(),
 		ScheduledGenerationAtMs: time.Now().UnixNano(),
 		Title:                   s.getTitleForReport(params.Cluster, fromDate, toDate),
 		FromDateNs:              params.FromDate,
 		ToDateNs:                params.ToDate,
 		NodeReports:             nodeReports,
 		ApplicationReports:      applicationReports,
+		TotalApplicationEntries: len(applicationLogs),
+		TotalNodeEntries:        len(nodeLogs),
+		Urgency:                 urgency,
 	}
 
 	return &report, nil
 }
 
 func (s *ReportsService) getTitleForReport(cluster string, fromDate time.Time, toDate time.Time) string {
-	return fmt.Sprintf("On-Demand report for %s (%s - %s)",
+	return fmt.Sprintf("Report for %s (%s - %s)",
 		cluster,
 		fmt.Sprintf("%d.%d", fromDate.Month(), fromDate.Year()),
 		fmt.Sprintf("%d.%d", toDate.Month(), toDate.Year()),
@@ -237,6 +273,7 @@ func (s *ReportsService) getApplicationIncidentFromInsight(insight insights.Appl
 			PodName:       metadata.PodName,
 			Content:       metadata.Source,
 			Timestamp:     metadata.Timestamp,
+			Image:         metadata.Image,
 		}
 	})(insight.Metadata)
 
@@ -244,9 +281,36 @@ func (s *ReportsService) getApplicationIncidentFromInsight(insight insights.Appl
 		Category:       insight.Insight.Category,
 		Summary:        insight.Insight.Summary,
 		Recommendation: insight.Insight.Recommendation,
+		Urgency:        insight.Insight.Urgency,
 		Sources:        sources,
 	}
 
+}
+
+// Get maximum of all urgencies from incidents withing passed reports
+func (s *ReportsService) getReportUrgencyFromApplicationAndNodeReports(
+	applicationReports []repositories.ApplicationReport,
+	nodeReports []repositories.NodeReport,
+) repositories.Urgency {
+
+	applicationUrgnency := array.Map(func(report repositories.ApplicationReport) []repositories.Urgency {
+		return array.Map(func(incident repositories.ApplicationIncident) repositories.Urgency {
+			return incident.Urgency
+		})(report.Incidents)
+	})(applicationReports)
+
+	nodeUrgency := array.Map(func(report repositories.NodeReport) []repositories.Urgency {
+		return array.Map(func(incident repositories.NodeIncident) repositories.Urgency {
+			return incident.Urgency
+		})(report.Incidents)
+	})(nodeReports)
+
+	flattenedApplicationUrgency := array.Flatten(applicationUrgnency)
+	flattenedNodeUrgency := array.Flatten(nodeUrgency)
+
+	allUrgencies := append(flattenedApplicationUrgency, flattenedNodeUrgency...)
+
+	return slices.Max(allUrgencies)
 }
 
 func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsightsWithMetadata) repositories.NodeIncident {
@@ -263,6 +327,7 @@ func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsight
 		Category:       insight.Insight.Category,
 		Summary:        insight.Insight.Summary,
 		Recommendation: insight.Insight.Recommendation,
+		Urgency:        insight.Insight.Urgency,
 		Sources:        sources,
 	}
 
@@ -357,14 +422,13 @@ func (s *ReportsService) GenerateAndSaveReport(ctx context.Context, params Repor
 	return insertedReport, err
 }
 
-func (s *ReportsService) GenerateApplicationReports(
+func (s *ReportsService) GetApplicationLogsByParams(
 	ctx context.Context,
 	cluster string,
 	fromDate time.Time,
 	toDate time.Time,
-	applicationConfiguration []*repositories.ApplicationInsightConfiguration,
 	maxLength int,
-) ([]repositories.ApplicationReport, error) {
+) ([]*sharedrepositories.ApplicationLogsDocument, error) {
 
 	applicationLogs, err := s.applicationLogsRepository.GetLogs(ctx,
 		cluster,
@@ -375,46 +439,62 @@ func (s *ReportsService) GenerateApplicationReports(
 		return nil, err
 	}
 
-	s.logger.Sugar().Debugf("APPS %v", applicationLogs)
-
 	filteredApplicationLogs := applicationLogs[0:int(math.Min(float64(maxLength), float64(len(applicationLogs))))]
 
+	return filteredApplicationLogs, nil
+
+}
+
+func (s *ReportsService) GenerateApplicationReports(
+	ctx context.Context,
+	applicationLogs []*sharedrepositories.ApplicationLogsDocument,
+	applicationConfiguration []*repositories.ApplicationInsightConfiguration,
+) ([]repositories.ApplicationReport, error) {
+
 	applicationInsights, err := s.applicationInsightsGenerator.OnDemandApplicationInsights(
-		filteredApplicationLogs,
+		applicationLogs,
 		applicationConfiguration,
 	)
 	if err != nil {
 		s.logger.Error("Failed to generate application insights", zap.Error(err))
 		return nil, err
 	}
+
 	return s.GetApplicationReportsFromInsights(
 		applicationInsights,
 		applicationConfiguration,
 	)
 }
 
-func (s *ReportsService) GenerateNodeReports(
+func (s *ReportsService) GetNodeLogsByParams(
 	ctx context.Context,
 	cluster string,
 	fromDate time.Time,
 	toDate time.Time,
-	nodeConfiguration []*repositories.NodeInsightConfiguration,
 	maxLength int,
-) ([]repositories.NodeReport, error) {
+) ([]*sharedrepositories.NodeLogsDocument, error) {
 
 	nodeLogs, err := s.nodeLogsRepository.GetLogs(ctx,
 		cluster,
 		fromDate,
 		toDate)
 	if err != nil {
-		s.logger.Error("Failed to get application logs", zap.Error(err))
+		s.logger.Error("Failed to get node logs", zap.Error(err))
 		return nil, err
 	}
 
 	filteredNodeLogs := nodeLogs[0:int(math.Min(float64(maxLength), float64(len(nodeLogs))))]
+	return filteredNodeLogs, nil
+}
+
+func (s *ReportsService) GenerateNodeReports(
+	ctx context.Context,
+	nodeLogs []*sharedrepositories.NodeLogsDocument,
+	nodeConfiguration []*repositories.NodeInsightConfiguration,
+) ([]repositories.NodeReport, error) {
 
 	nodeInsights, err := s.nodeInsightsGenerator.OnDemandNodeInsights(
-		filteredNodeLogs,
+		nodeLogs,
 		nodeConfiguration,
 	)
 	if err != nil {

@@ -19,11 +19,12 @@ import (
 )
 
 type NodeLogsInsight struct {
-	Name           string   `json:"name"`
-	Category       string   `json:"category"`
-	Summary        string   `json:"summary"`
-	Recommendation string   `json:"recommendation"`
-	SourceLogIds   []string `json:"sourceLogIds"`
+	Name           string             `json:"name"`
+	Category       string             `json:"category"`
+	Summary        string             `json:"summary"`
+	Recommendation string             `json:"recommendation"`
+	Urgency        reportrepo.Urgency `json:"urgency"`
+	SourceLogIds   []string           `json:"sourceLogIds"`
 }
 
 type NodeInsightMetadata struct {
@@ -222,7 +223,7 @@ func (g *OpenAiInsightsGenerator) createMessagesFromNodeLogs(
 			Always declare a unmodified source log with every insight you give.  
 			Always give a recommendation on how to resolve the issue. Always give a source. Never repeat insights, ie. 
 			if you once use the source do not create an insight for it again. One insight per source. Do not duplicate insights, 
-			only mention the same issue once.
+			only mention the same issue once. For each incident assign urgency as an integer number between 1 and 3. 
 			Ignore logs which do not explicitly suggest an issue. Ignore logs which are describing usual actions.
 			If there are no errors or warnings don't even mention an insight. Here is the additional configuration 
 			that you should consider while generating insights %s`, customPrompt),
@@ -327,6 +328,25 @@ func (g *OpenAiInsightsGenerator) addMetadataToNodeInsight(
 		Insight:  &insight,
 		Metadata: nodeInsightsMetadata,
 	}
+}
+
+func GroupInsightsByNode(nodeInsights []NodeInsightsWithMetadata) map[string][]NodeInsightsWithMetadata {
+	insightsByNode := make(map[string][]NodeInsightsWithMetadata)
+
+	for _, insight := range nodeInsights {
+		nodeName := insight.Metadata[0].NodeName
+		insightsByNode[nodeName] = append(insightsByNode[nodeName], insight)
+	}
+	return insightsByNode
+}
+
+func GroupNodeLogsByName(logs []*repositories.NodeLogsDocument) map[string][]*repositories.NodeLogsDocument {
+	groupedLogs := make(map[string][]*repositories.NodeLogsDocument)
+	for _, log := range logs {
+		groupedLogs[log.Name] = append(groupedLogs[log.Name], log)
+	}
+
+	return groupedLogs
 }
 
 var _ NodeInsightsGenerator = &OpenAiInsightsGenerator{}
