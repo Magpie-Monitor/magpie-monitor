@@ -68,8 +68,7 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 			Cluster:   "testcluster",
 			Kind:      "application",
 			Timestamp: 1728313197000000010,
-			// 1728313197000000020
-			Name: apps[rand.Intn(len(apps))],
+			Name:      apps[rand.Intn(len(apps))],
 			Pods: []*repositories.PodLogs{
 				{
 					Name: "pod-1",
