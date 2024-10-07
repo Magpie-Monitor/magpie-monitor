@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -76,6 +77,11 @@ func (m *MongoDbCollection[T]) GetDocument(filter primitive.D, sort primitive.D)
 	}
 
 	return result, nil
+}
+
+func (m *MongoDbCollection[T]) GetDistinctDocumentFieldValues(fieldName string, filter bson.D) ([]interface{}, error) {
+	col := m.client.Database(m.db).Collection(m.col)
+	return col.Distinct(context.TODO(), fieldName, filter)
 }
 
 func (m *MongoDbCollection[T]) InsertDocuments(docs []interface{}) error {

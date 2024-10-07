@@ -1,0 +1,239 @@
+openapi: 3.0.0
+info:
+  title: Cluster Metadata API
+  version: 1.0.0
+paths:
+  /v1/metadata/cluster:
+    post:
+      summary: Generate a report
+      description: Creates a report based on input parameters.
+      operationId: generateReport
+      tags:
+        - metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collectedAtMs:
+                  type: integer
+                  format: int64
+                  description: Millisecond timestamp at which metadata was collected
+                clusterName:
+                  type: string
+                  description: Name of the cluster sending metadata
+                applications:
+                  type: array
+                  items:
+                    $ref "#/components/schemas/Application"
+      responses:
+        "200":
+          description: Successfully inserted metadata
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/metadata/nodes:
+    post:
+      summary: Generate a report
+      description: Creates a report based on input parameters.
+      operationId: generateReport
+      tags:
+        - metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collectedAtMs:
+                  type: integer
+                  format: int64
+                  description: Millisecond timestamp at which metadata was collected
+                nodeName:
+                  type: string
+                  description: Name of the cluster to which node sending metadata belongs to
+                clusterName:
+                  type: string
+                  description: Name of the node sending metadata
+                watchedFiles:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Successfully inserted metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NodesMetadata"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/metadata/clusters/${id}/applications:
+    get:
+      summary:
+      description:
+      operationId:
+      tags:
+        - metadata
+      parameters:
+        - in: path:
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Id of the cluster to which applications belong
+        - in: query
+          name: sinceMillis
+          schema:
+            type: integer
+            format: int64
+          description: Millisecond timestamp which indicates the start of metadata time range
+        - in: query
+          name: toMillis
+          schema:
+            type: integer
+            format: int64
+          description: Millisecond timestamp which indicates the end of metadata time range
+      responses:
+        "200":
+          description: Successfully fetched application metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationsMetadata"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /v1/metadata/clusters/${id}/nodes:
+    get:
+      summary:
+      description:
+      operationId:
+      tags:
+        - metadata
+      parameters:
+        - in: path:
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Id of the cluster to which node belongs
+        - in: query
+          name: sinceMillis
+          schema:
+            type: integer
+            format: int64
+          description: Millisecond timestamp which indicates the start of metadata time range
+        - in: query
+          name: toMillis
+          schema:
+            type: integer
+            format: int64
+          description: Millisecond timestamp which indicates the end of metadata time range
+      responses:
+        "200":
+          description: Successfully fetched node metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NodeMetadata"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    ApplicationsMetadata:
+      type: array
+      items:
+        $ref: "#/components/schemas/ApplicationMetadata"
+    ApplicationMetadata:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of an application
+        kind:
+          type: string
+          description: Kubernetes application kind, a deployment, statefulset or daemonset
+        running:
+          type: boolean
+          description: Whether an application is currently running
+    NodesMetadata:
+      type: array
+      items:
+        $ref: "#/components/schemas/NodeMetadata"
+    NodeMetadata:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of an application
+        files:
+          type: array
+            items:
+              type: string
+          description: Files that are watched by the node
+        running:
+          type: boolean
+          description: Whether the node is currently running
+
+    Application:
+      type: object
+      properties:
+        kind:
+          type: string
+          description: Kubernetes application kind, a deployment, statefulset or daemonset
+        name:
+          type: string
+          description: Name of the application
+    ErrorResponse:
+      type: object
+      properties:
+        timestampMillis:
+          type: integer
+            format: int64
+          description: Millisecond timestamp when error occured
+        error:
+          type: string
+          description: Error message
+      
