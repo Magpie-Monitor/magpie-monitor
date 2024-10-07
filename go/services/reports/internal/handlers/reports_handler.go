@@ -229,6 +229,7 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 	w.Write(reportJson)
 }
 
@@ -294,5 +295,6 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 	w.Write(reportJson)
 }

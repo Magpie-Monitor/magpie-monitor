@@ -269,7 +269,7 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 			&openai.CompletionRequest{
 				Messages:       messages,
 				Temperature:    0.6,
-				ResponseFormat: openai.CreateJsonReponseFormat("insigts", applicationInsightsResponseDto{}),
+				ResponseFormat: openai.CreateJsonReponseFormat("insights", applicationInsightsResponseDto{}),
 				Model:          g.client.Model(),
 			},
 		)
