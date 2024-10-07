@@ -3,6 +3,8 @@ package services
 import (
 	"fmt"
 	"log"
+	"slices"
+	"time"
 
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,9 +22,9 @@ type ApplicationMetadata struct {
 }
 
 type NodeMetadata struct {
-	Name    string `json:"name"`
-	Running bool   `json:"running"`
-	Files   string `json:"files"`
+	Name    string        `json:"name"`
+	Running bool          `json:"running"`
+	Files   []interface{} `json:"files"`
 }
 
 type MetadataService struct {
@@ -74,7 +76,7 @@ func (m *MetadataService) GetClusterMetadataForTimerange(clusterName string, sin
 		}
 	}
 
-	apps := make([]ApplicationMetadata, 0)
+	apps := make([]ApplicationMetadata, 0, len(applicationSet))
 	for _, v := range applicationSet {
 		apps = append(apps, v)
 	}
@@ -82,16 +84,41 @@ func (m *MetadataService) GetClusterMetadataForTimerange(clusterName string, sin
 	return apps, nil
 }
 
-func (m *MetadataService) GetNodeMetadataForTimerange(nodeName string, sinceMillis int, toMillis int) ([]repositories.NodeState, error) {
+func (m *MetadataService) GetNodeMetadataForTimerange(clusterName string, sinceMillis int, toMillis int) ([]NodeMetadata, error) {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: sinceMillis}}}},
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: toMillis}}}},
-			bson.D{{Key: "nodeName", Value: bson.D{{Key: "$eq", Value: nodeName}}}},
+			bson.D{{Key: "clusterName", Value: bson.D{{Key: "$eq", Value: clusterName}}}},
 		}},
 	}
 
-	return m.nodeRepo.GetDocuments(filter, nil)
+	fileSet, err := m.nodeRepo.GetDistinctDocumentFieldValues("watchedFiles", filter)
+	if err != nil {
+		m.log.Error("Error fetching node metadata:", zap.Error(err))
+		return nil, err
+	}
+
+	nodeSet, err := m.nodeRepo.GetDistinctDocumentFieldValues("nodeName", filter)
+	if err != nil {
+		m.log.Error("Error fetching node metadata:", zap.Error(err))
+		return nil, err
+	}
+
+	// a node is considered running if it reported metadata within 10 minutes
+	running, err := m.nodeRepo.GetDistinctDocumentFieldValues("nodeName", bson.D{{Key: "collectedAtMs", Value: time.Now().UnixMilli() - 600_000}})
+	if err != nil {
+		m.log.Error("Error fetching node metadata:", zap.Error(err))
+		return nil, err
+	}
+
+	nodes := make([]NodeMetadata, 0, len(nodeSet))
+	for _, n := range nodeSet {
+		running := slices.Contains(running, n)
+		nodes = append(nodes, NodeMetadata{Name: n.(string), Files: fileSet, Running: running})
+	}
+
+	return nodes, err
 }
 
 func (m *MetadataService) InsertClusterMetadata(metadata repositories.ClusterState) error {
