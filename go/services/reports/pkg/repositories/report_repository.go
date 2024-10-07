@@ -18,23 +18,28 @@ type NodeIncidentSource struct {
 }
 
 type NodeIncident struct {
+	Id             string               `bson:"_id,omitempty" json:"id"`
 	Category       string               `bson:"category" json:"category"`
 	Summary        string               `bson:"summary" json:"summary"`
 	Recommendation string               `bson:"recommendation" json:"recommendation"`
-	Sources        []NodeIncidentSource `bson:"source" json:"source"`
+	Urgency        Urgency              `bson:"urgency" json:"urgency"`
+	Sources        []NodeIncidentSource `bson:"sources" json:"sources"`
 }
 
 type ApplicationIncidentSource struct {
 	Timestamp     int64  `bson:"timestamp" json:"timestamp"`
 	PodName       string `bson:"podName" json:"podName"`
 	ContainerName string `bson:"containerName" json:"containerName"`
+	Image         string `bson:"image" json:"image"`
 	Content       string `bson:"content" json:"content"`
 }
 
 type ApplicationIncident struct {
+	Id             string                      `bson:"_id,omitempty" json:"id"`
 	Category       string                      `bson:"category" json:"category"`
 	Summary        string                      `bson:"summary" json:"summary"`
 	Recommendation string                      `bson:"recommendation" json:"recommendation"`
+	Urgency        Urgency                     `bson:"urgency" json:"urgency"`
 	Sources        []ApplicationIncidentSource `bson:"sources" json:"sources"`
 }
 
@@ -60,23 +65,33 @@ const (
 	ReportState_Generated          ReportState = "generated"
 )
 
+type Urgency int
+
+const (
+	_ Urgency = iota
+	Urgency_Low
+	Urgency_Medium
+	Urgency_High
+)
+
 type Report struct {
 	Id                      string              `bson:"_id,omitempty" json:"id"`
-	Cluster                 string              `bson:"cluster" json:"cluster"`
 	Status                  ReportState         `bson:"status" json:"status"`
-	RequestedAtNs           int64               `bson:"requestedAtNs" json:"requestedAtNs"`
-	GeneratedAtNs           int64               `bson:"generatedAtNs" json:"generatedAtNs"`
-	ScheduledGenerationAtMs int64               `bson:"scheduledGenerationAtNs" json:"scheduledGenerationAtNs"`
-	Title                   string              `bson:"title" json:"title"`
+	Cluster                 string              `bson:"cluster" json:"cluster"`
 	FromDateNs              int64               `bson:"fromDateNs" json:"fromDateNs"`
 	ToDateNs                int64               `bson:"toDateNs" json:"toDateNs"`
-	NodeReports             []NodeReport        `bson:"nodeReports" json:"nodeReports"`
-	ApplicationReports      []ApplicationReport `bson:"applicationReports" json:"applicationReports"`
+	RequestedAtNs           int64               `bson:"requestedAtNs" json:"requestedAtNs"`
+	ScheduledGenerationAtMs int64               `bson:"scheduledGenerationAtNs" json:"scheduledGenerationAtNs"`
+	Title                   string              `bson:"title" json:"title,omitempty"`
+	NodeReports             []NodeReport        `bson:"nodeReports" json:"nodeReports,omitempty"`
+	ApplicationReports      []ApplicationReport `bson:"applicationReports" json:"applicationReports,omitempty"`
+	TotalApplicationEntries int                 `bson:"totalApplicationEntries" json:"totalApplicationEntries"`
+	TotalNodeEntries        int                 `bson:"totalNodeEntries" json:"totalNodeEntries"`
+	Urgency                 Urgency             `bson:"urgency" json:"urgency,omitempty"`
 
 	// Present only if report is pending
-	ScheduledApplicationInsights *ScheduledApplicationInsights `bson:"scheduledApplicationInsights" json:"scheduledApplicationInsights"`
-	ScheduledNodeInsights        *ScheduledNodeInsights        `bson:"scheduledNodeInsights" json:"scheduledNodeInsights"`
-	// ScheduledNodeInsights        *ScheduledInsights `bson:"scheduledNodeInsights" json:"scheduledNodeInsights"`
+	ScheduledApplicationInsights *ScheduledApplicationInsights `bson:"scheduledApplicationInsights" json:"scheduledApplicationInsights,omitempty"`
+	ScheduledNodeInsights        *ScheduledNodeInsights        `bson:"scheduledNodeInsights" json:"scheduledNodeInsights,omitempty"`
 }
 
 type ApplicationInsightConfiguration struct {
@@ -188,9 +203,7 @@ type FilterParams struct {
 type ReportRepository interface {
 	GetAllReports(ctx context.Context, filter FilterParams) ([]*Report, *ReportRepositoryError)
 	InsertReport(ctx context.Context, report *Report) (*Report, *ReportRepositoryError)
-	// InsertScheduledReport(ctx context.Context, report *ScheduledReport) (*ScheduledReport, *ReportRepositoryError)
 	GetSingleReport(ctx context.Context, id string) (*Report, *ReportRepositoryError)
-	// GetSingleSheduledReport(ctx context.Context, id string) (*ScheduledReport, *ReportRepositoryError)
 	UpdateReport(ctx context.Context, report *Report) *ReportRepositoryError
 }
 
