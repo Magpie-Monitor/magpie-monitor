@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -42,10 +41,6 @@ type MetadataHandler struct {
 	metadataService *services.MetadataService
 }
 
-type MetadataResponse[T any] struct {
-	Response []T `json:"response"`
-}
-
 func (h *MetadataHandler) GetClusterMetadataForTimerange(w http.ResponseWriter, r *http.Request) {
 	sinceMillis, err := strconv.Atoi(r.URL.Query().Get("sinceMillis"))
 	if err != nil {
@@ -69,10 +64,8 @@ func (h *MetadataHandler) GetClusterMetadataForTimerange(w http.ResponseWriter, 
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	response := MetadataResponse[repositories.ClusterState]{Response: metadata}
-
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(&response)
+	err = json.NewEncoder(w).Encode(&metadata)
 	if err != nil {
 		h.log.Error("Error parsing cluster metadata", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
@@ -103,11 +96,8 @@ func (h *MetadataHandler) GetNodeMetadataForTimerange(w http.ResponseWriter, r *
 		return
 	}
 
-	response := MetadataResponse[repositories.NodeState]{Response: metadata}
-	log.Println(response)
-
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(&response)
+	err = json.NewEncoder(w).Encode(&metadata)
 	if err != nil {
 		h.log.Error("Error parsing node metadata:", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

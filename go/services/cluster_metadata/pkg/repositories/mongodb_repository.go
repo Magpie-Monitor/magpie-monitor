@@ -5,6 +5,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 )
 
@@ -41,10 +42,12 @@ type MongoDbCollection[T any] struct {
 	client *mongo.Client
 }
 
-func (m *MongoDbCollection[T]) GetFilteredDocuments(filter primitive.D) ([]T, error) {
+func (m *MongoDbCollection[T]) GetDocuments(filter primitive.D, sort primitive.D) ([]T, error) {
+	opts := options.Find().SetSort(sort)
+
 	col := m.client.Database(m.db).Collection(m.col)
 
-	cursor, err := col.Find(context.TODO(), filter)
+	cursor, err := col.Find(context.TODO(), filter, opts)
 	if err != nil {
 		m.log.Error("Error fetching documents:", zap.String("database", m.db), zap.String("collection", m.col), zap.Error(err))
 		return nil, err
@@ -57,6 +60,22 @@ func (m *MongoDbCollection[T]) GetFilteredDocuments(filter primitive.D) ([]T, er
 	}
 
 	return results, nil
+}
+
+func (m *MongoDbCollection[T]) GetDocument(filter primitive.D, sort primitive.D) (T, error) {
+	opts := options.FindOne().SetSort(sort)
+
+	col := m.client.Database(m.db).Collection(m.col)
+
+	var result T
+	err := col.FindOne(context.TODO(), filter, opts).Decode(&result)
+
+	if err != nil {
+		m.log.Error("Error parsing filtered document:", zap.String("database", m.db), zap.String("collection", m.col), zap.Error(err))
+		return result, err
+	}
+
+	return result, nil
 }
 
 func (m *MongoDbCollection[T]) InsertDocuments(docs []interface{}) error {
