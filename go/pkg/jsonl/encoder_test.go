@@ -1,12 +1,8 @@
 package jsonl_test
 
 import (
-	// "encoding/json"
-	// "fmt"
 	"bytes"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
-	// "reflect"
-	// "strings"
 	"testing"
 )
 
@@ -41,7 +37,6 @@ func TestEncode(t *testing.T) {
 	for _, tc := range testsCases {
 		t.Run(tc.description, func(t *testing.T) {
 
-			// testCaseReader := strings.NewReader(tc.rawString)
 			results := bytes.NewBufferString("")
 			sliceWithInterface := make([]interface{}, 0, len(tc.structSlice))
 			for _, strct := range tc.structSlice {

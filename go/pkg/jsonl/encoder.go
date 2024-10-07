@@ -19,7 +19,7 @@ func NewJsonLinesEncoder(writer io.Writer) *JsonLinesEncoder {
 func (e *JsonLinesEncoder) Encode(v any) error {
 
 	if reflect.TypeOf(v).Kind() != reflect.Slice {
-		panic("JsonLinesEncoder accepts only slices of structs")
+		panic("JsonLinesEncoder accepts only slices")
 	}
 	rv := reflect.ValueOf(v)
 
