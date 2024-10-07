@@ -11,50 +11,20 @@ import (
 	"go.uber.org/zap"
 )
 
-type NodeIncidentSource struct {
-	Timestamp int64  `bson:"timestamp" json:"timestamp"`
-	NodeName  string `bson:"nodeName" json:"nodeName"`
-	Content   string `bson:"content" json:"content"`
-}
-
-type NodeIncident struct {
-	Id             string               `bson:"_id,omitempty" json:"id"`
-	Category       string               `bson:"category" json:"category"`
-	Summary        string               `bson:"summary" json:"summary"`
-	Recommendation string               `bson:"recommendation" json:"recommendation"`
-	Urgency        Urgency              `bson:"urgency" json:"urgency"`
-	Sources        []NodeIncidentSource `bson:"sources" json:"sources"`
-}
-
-type ApplicationIncidentSource struct {
-	Timestamp     int64  `bson:"timestamp" json:"timestamp"`
-	PodName       string `bson:"podName" json:"podName"`
-	ContainerName string `bson:"containerName" json:"containerName"`
-	Image         string `bson:"image" json:"image"`
-	Content       string `bson:"content" json:"content"`
-}
-
-type ApplicationIncident struct {
-	Id             string                      `bson:"_id,omitempty" json:"id"`
-	Category       string                      `bson:"category" json:"category"`
-	Summary        string                      `bson:"summary" json:"summary"`
-	Recommendation string                      `bson:"recommendation" json:"recommendation"`
-	Urgency        Urgency                     `bson:"urgency" json:"urgency"`
-	Sources        []ApplicationIncidentSource `bson:"sources" json:"sources"`
-}
-
 type NodeReport struct {
-	Node         string         `bson:"node" json:"node"`
-	Precision    string         `bson:"precision" json:"precision"`
-	CustomPrompt string         `bson:"customPrompt" json:"customPrompt"`
-	Incidents    []NodeIncident `bson:"incidents" json:"incidents"`
+	Node         string          `bson:"node" json:"node"`
+	Precision    string          `bson:"precision" json:"precision"`
+	CustomPrompt string          `bson:"customPrompt" json:"customPrompt"`
+	Incidents    []*NodeIncident `bson:"-" json:"incidents"`
+	IncidentIds  []string        `bson:"incidentIds" json:"-"`
 }
 
 type ApplicationReport struct {
-	ApplicationName string                `bson:"name" json:"applicationName"`
-	Precision       string                `bson:"precision" json:"precision"`
-	CustomPrompt    string                `bson:"customPrompt" json:"customPrompt"`
-	Incidents       []ApplicationIncident `bson:"incidents" json:"incidents"`
+	ApplicationName string                 `bson:"name" json:"applicationName"`
+	Precision       string                 `bson:"precision" json:"precision"`
+	CustomPrompt    string                 `bson:"customPrompt" json:"customPrompt"`
+	Incidents       []*ApplicationIncident `bson:"-" json:"incidents"`
+	IncidentIds     []string               `bson:"incidentIds" json:"-"`
 }
 
 type ReportState string
@@ -75,19 +45,19 @@ const (
 )
 
 type Report struct {
-	Id                      string              `bson:"_id,omitempty" json:"id"`
-	Status                  ReportState         `bson:"status" json:"status"`
-	Cluster                 string              `bson:"cluster" json:"cluster"`
-	FromDateNs              int64               `bson:"fromDateNs" json:"fromDateNs"`
-	ToDateNs                int64               `bson:"toDateNs" json:"toDateNs"`
-	RequestedAtNs           int64               `bson:"requestedAtNs" json:"requestedAtNs"`
-	ScheduledGenerationAtMs int64               `bson:"scheduledGenerationAtNs" json:"scheduledGenerationAtNs"`
-	Title                   string              `bson:"title" json:"title,omitempty"`
-	NodeReports             []NodeReport        `bson:"nodeReports" json:"nodeReports,omitempty"`
-	ApplicationReports      []ApplicationReport `bson:"applicationReports" json:"applicationReports,omitempty"`
-	TotalApplicationEntries int                 `bson:"totalApplicationEntries" json:"totalApplicationEntries"`
-	TotalNodeEntries        int                 `bson:"totalNodeEntries" json:"totalNodeEntries"`
-	Urgency                 Urgency             `bson:"urgency" json:"urgency,omitempty"`
+	Id                      string               `bson:"_id,omitempty" json:"id"`
+	Status                  ReportState          `bson:"status" json:"status"`
+	Cluster                 string               `bson:"cluster" json:"cluster"`
+	FromDateNs              int64                `bson:"fromDateNs" json:"fromDateNs"`
+	ToDateNs                int64                `bson:"toDateNs" json:"toDateNs"`
+	RequestedAtNs           int64                `bson:"requestedAtNs" json:"requestedAtNs"`
+	ScheduledGenerationAtMs int64                `bson:"scheduledGenerationAtNs" json:"scheduledGenerationAtNs"`
+	Title                   string               `bson:"title" json:"title,omitempty"`
+	NodeReports             []*NodeReport        `bson:"nodeReports" json:"nodeReports,omitempty"`
+	ApplicationReports      []*ApplicationReport `bson:"applicationReports" json:"applicationReports,omitempty"`
+	TotalApplicationEntries int                  `bson:"totalApplicationEntries" json:"totalApplicationEntries"`
+	TotalNodeEntries        int                  `bson:"totalNodeEntries" json:"totalNodeEntries"`
+	Urgency                 Urgency              `bson:"urgency" json:"urgency,omitempty"`
 
 	// Present only if report is pending
 	ScheduledApplicationInsights *ScheduledApplicationInsights `bson:"scheduledApplicationInsights" json:"scheduledApplicationInsights,omitempty"`
@@ -205,11 +175,15 @@ type ReportRepository interface {
 	InsertReport(ctx context.Context, report *Report) (*Report, *ReportRepositoryError)
 	GetSingleReport(ctx context.Context, id string) (*Report, *ReportRepositoryError)
 	UpdateReport(ctx context.Context, report *Report) *ReportRepositoryError
+	InsertApplicationIncidents(ctx context.Context, reports []*ApplicationReport) error
+	InsertNodeIncidents(ctx context.Context, reports []*NodeReport) error
 }
 
 type MongoDbReportRepository struct {
-	mongoDbClient *mongo.Client
-	logger        *zap.Logger
+	mongoDbClient                  *mongo.Client
+	logger                         *zap.Logger
+	applicationIncidentsRepository ApplicationIncidentRepository
+	nodeIncidentsRepository        NodeIncidentRepository
 }
 
 func (r *MongoDbReportRepository) GetSingleReport(ctx context.Context, id string) (*Report, *ReportRepositoryError) {
@@ -230,8 +204,23 @@ func (r *MongoDbReportRepository) GetSingleReport(ctx context.Context, id string
 		return nil, NewReportNotFoundError(err)
 	}
 
-	return result, nil
+	for _, applicationReport := range result.ApplicationReports {
+		incidents, err := r.applicationIncidentsRepository.GetIncidentsByIds(ctx, applicationReport.IncidentIds)
+		if err != nil {
+			r.logger.Error("Failed to join application incidents to report", zap.Error(err))
+		}
+		applicationReport.Incidents = incidents
+	}
 
+	for _, nodeReport := range result.NodeReports {
+		incidents, err := r.nodeIncidentsRepository.GetIncidentsByIds(ctx, nodeReport.IncidentIds)
+		if err != nil {
+			r.logger.Error("Failed to join application incidents to report", zap.Error(err))
+		}
+		nodeReport.Incidents = incidents
+	}
+
+	return result, nil
 }
 
 func (r *MongoDbReportRepository) GetSingleSheduledReport(ctx context.Context, id string) (*Report, *ReportRepositoryError) {
@@ -286,6 +275,34 @@ func (r *MongoDbReportRepository) GetAllReports(ctx context.Context, filter Filt
 	return results, nil
 }
 
+func (r *MongoDbReportRepository) InsertApplicationIncidents(ctx context.Context, reports []*ApplicationReport) error {
+
+	for _, report := range reports {
+		ids, err := r.applicationIncidentsRepository.InsertIncidents(ctx, report.Incidents)
+		if err != nil {
+			r.logger.Error("Failed to insert incident incidents for a report", zap.Error(err))
+			return err
+		}
+		report.IncidentIds = ids
+	}
+
+	return nil
+}
+
+func (r *MongoDbReportRepository) InsertNodeIncidents(ctx context.Context, reports []*NodeReport) error {
+
+	for _, report := range reports {
+		ids, err := r.nodeIncidentsRepository.InsertIncidents(ctx, report.Incidents)
+		if err != nil {
+			r.logger.Error("Failed to insert incident incidents for a report", zap.Error(err))
+			return err
+		}
+		report.IncidentIds = ids
+	}
+
+	return nil
+}
+
 func (r *MongoDbReportRepository) InsertReport(ctx context.Context, report *Report) (*Report, *ReportRepositoryError) {
 	coll := r.mongoDbClient.Database(REPORTS_DB_NAME).Collection(REPORTS_COLLECTION)
 	id, err := coll.InsertOne(context.TODO(), report)
@@ -326,15 +343,19 @@ func (r *MongoDbReportRepository) UpdateReport(ctx context.Context, report *Repo
 
 type Params struct {
 	fx.In
-	ReportsDbMongoClient *mongo.Client
-	Logger               *zap.Logger
+	ReportsDbMongoClient           *mongo.Client
+	Logger                         *zap.Logger
+	ApplicationIncidentsRepository ApplicationIncidentRepository
+	NodeIncidentsRepository        NodeIncidentRepository
 }
 
 func NewMongoDbReportRepository(p Params) *MongoDbReportRepository {
 
 	return &MongoDbReportRepository{
-		mongoDbClient: p.ReportsDbMongoClient,
-		logger:        p.Logger,
+		mongoDbClient:                  p.ReportsDbMongoClient,
+		logger:                         p.Logger,
+		applicationIncidentsRepository: p.ApplicationIncidentsRepository,
+		nodeIncidentsRepository:        p.NodeIncidentsRepository,
 	}
 }
 

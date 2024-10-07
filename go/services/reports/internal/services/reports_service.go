@@ -3,16 +3,15 @@ package services
 import (
 	"context"
 	"fmt"
-	"math"
-	"slices"
-	"time"
-
 	"github.com/IBM/fp-go/array"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"math"
+	"slices"
+	"time"
 )
 
 type ReportGenerationFilters struct {
@@ -239,6 +238,18 @@ func (s *ReportsService) GenerateReport(
 		nodeReports,
 	)
 
+	err = s.reportRepository.InsertNodeIncidents(ctx, nodeReports)
+	if err != nil {
+		s.logger.Error("Failed to insert node incidents")
+		return nil, err
+	}
+
+	err = s.reportRepository.InsertApplicationIncidents(ctx, applicationReports)
+	if err != nil {
+		s.logger.Error("Failed to insert application incidents")
+		return nil, err
+	}
+
 	report := repositories.Report{
 		Status:                  repositories.ReportState_Generated,
 		Cluster:                 params.Cluster,
@@ -265,7 +276,7 @@ func (s *ReportsService) getTitleForReport(cluster string, fromDate time.Time, t
 	)
 }
 
-func (s *ReportsService) getApplicationIncidentFromInsight(insight insights.ApplicationInsightsWithMetadata) repositories.ApplicationIncident {
+func (s *ReportsService) getApplicationIncidentFromInsight(insight insights.ApplicationInsightsWithMetadata) *repositories.ApplicationIncident {
 
 	sources := array.Map(func(metadata insights.ApplicationInsightMetadata) repositories.ApplicationIncidentSource {
 		return repositories.ApplicationIncidentSource{
@@ -277,7 +288,7 @@ func (s *ReportsService) getApplicationIncidentFromInsight(insight insights.Appl
 		}
 	})(insight.Metadata)
 
-	return repositories.ApplicationIncident{
+	return &repositories.ApplicationIncident{
 		Category:       insight.Insight.Category,
 		Summary:        insight.Insight.Summary,
 		Recommendation: insight.Insight.Recommendation,
@@ -289,18 +300,18 @@ func (s *ReportsService) getApplicationIncidentFromInsight(insight insights.Appl
 
 // Get maximum of all urgencies from incidents withing passed reports
 func (s *ReportsService) getReportUrgencyFromApplicationAndNodeReports(
-	applicationReports []repositories.ApplicationReport,
-	nodeReports []repositories.NodeReport,
+	applicationReports []*repositories.ApplicationReport,
+	nodeReports []*repositories.NodeReport,
 ) repositories.Urgency {
 
-	applicationUrgnency := array.Map(func(report repositories.ApplicationReport) []repositories.Urgency {
-		return array.Map(func(incident repositories.ApplicationIncident) repositories.Urgency {
+	applicationUrgnency := array.Map(func(report *repositories.ApplicationReport) []repositories.Urgency {
+		return array.Map(func(incident *repositories.ApplicationIncident) repositories.Urgency {
 			return incident.Urgency
 		})(report.Incidents)
 	})(applicationReports)
 
-	nodeUrgency := array.Map(func(report repositories.NodeReport) []repositories.Urgency {
-		return array.Map(func(incident repositories.NodeIncident) repositories.Urgency {
+	nodeUrgency := array.Map(func(report *repositories.NodeReport) []repositories.Urgency {
+		return array.Map(func(incident *repositories.NodeIncident) repositories.Urgency {
 			return incident.Urgency
 		})(report.Incidents)
 	})(nodeReports)
@@ -313,7 +324,7 @@ func (s *ReportsService) getReportUrgencyFromApplicationAndNodeReports(
 	return slices.Max(allUrgencies)
 }
 
-func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsightsWithMetadata) repositories.NodeIncident {
+func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsightsWithMetadata) *repositories.NodeIncident {
 
 	sources := array.Map(func(metadata insights.NodeInsightMetadata) repositories.NodeIncidentSource {
 		return repositories.NodeIncidentSource{
@@ -323,7 +334,7 @@ func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsight
 		}
 	})(insight.Metadata)
 
-	return repositories.NodeIncident{
+	return &repositories.NodeIncident{
 		Category:       insight.Insight.Category,
 		Summary:        insight.Insight.Summary,
 		Recommendation: insight.Insight.Recommendation,
@@ -336,11 +347,11 @@ func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsight
 func (s *ReportsService) GetApplicationReportsFromInsights(
 	applicationInsights []insights.ApplicationInsightsWithMetadata,
 	applicationConfiguration []*repositories.ApplicationInsightConfiguration,
-) ([]repositories.ApplicationReport, error) {
+) ([]*repositories.ApplicationReport, error) {
 
 	insightsByApplication := insights.GroupInsightsByApplication(applicationInsights)
 
-	reports := make([]repositories.ApplicationReport, 0, len(insightsByApplication))
+	reports := make([]*repositories.ApplicationReport, 0, len(insightsByApplication))
 	configByApp := repositories.MapApplicationNameToConfiguration(applicationConfiguration)
 
 	for applicationName, insightsForApplication := range insightsByApplication {
@@ -348,7 +359,7 @@ func (s *ReportsService) GetApplicationReportsFromInsights(
 		incidentsFromInsights := array.Map(s.getApplicationIncidentFromInsight)
 
 		incidents := incidentsFromInsights(insightsForApplication)
-		report := repositories.ApplicationReport{
+		report := &repositories.ApplicationReport{
 			ApplicationName: applicationName,
 			Incidents:       incidents,
 		}
@@ -368,11 +379,11 @@ func (s *ReportsService) GetApplicationReportsFromInsights(
 func (s *ReportsService) GetNodeReportsFromInsights(
 	nodeInsights []insights.NodeInsightsWithMetadata,
 	nodesConfiguration []*repositories.NodeInsightConfiguration,
-) ([]repositories.NodeReport, error) {
+) ([]*repositories.NodeReport, error) {
 
 	insightsByNode := insights.GroupInsightsByNode(nodeInsights)
 
-	reports := make([]repositories.NodeReport, 0, len(insightsByNode))
+	reports := make([]*repositories.NodeReport, 0, len(insightsByNode))
 	configByNode := repositories.MapNodeNameToConfiguration(nodesConfiguration)
 
 	for nodeName, insightsForNode := range insightsByNode {
@@ -380,7 +391,7 @@ func (s *ReportsService) GetNodeReportsFromInsights(
 		nodeIncidentsFromInsights := array.Map(s.getNodeIncidentFromInsight)
 		incidents := nodeIncidentsFromInsights(insightsForNode)
 
-		report := repositories.NodeReport{
+		report := &repositories.NodeReport{
 			Node:      nodeName,
 			Incidents: incidents,
 		}
@@ -449,7 +460,7 @@ func (s *ReportsService) GenerateApplicationReports(
 	ctx context.Context,
 	applicationLogs []*sharedrepositories.ApplicationLogsDocument,
 	applicationConfiguration []*repositories.ApplicationInsightConfiguration,
-) ([]repositories.ApplicationReport, error) {
+) ([]*repositories.ApplicationReport, error) {
 
 	applicationInsights, err := s.applicationInsightsGenerator.OnDemandApplicationInsights(
 		applicationLogs,
@@ -491,7 +502,7 @@ func (s *ReportsService) GenerateNodeReports(
 	ctx context.Context,
 	nodeLogs []*sharedrepositories.NodeLogsDocument,
 	nodeConfiguration []*repositories.NodeInsightConfiguration,
-) ([]repositories.NodeReport, error) {
+) ([]*repositories.NodeReport, error) {
 
 	nodeInsights, err := s.nodeInsightsGenerator.OnDemandNodeInsights(
 		nodeLogs,
@@ -501,8 +512,6 @@ func (s *ReportsService) GenerateNodeReports(
 		s.logger.Error("Failed to generate application insights", zap.Error(err))
 		return nil, err
 	}
-
-	s.logger.Sugar().Debugf("NODES %+v", nodeConfiguration[0].CustomPrompt)
 
 	return s.GetNodeReportsFromInsights(
 		nodeInsights,

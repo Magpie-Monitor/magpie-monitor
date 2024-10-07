@@ -273,9 +273,20 @@ func (g *OpenAiInsightsGenerator) GetScheduledNodeInsights(
 		return nil, err
 	}
 
+	insights, err := g.getNodeInsightsFromBatchEntries(responses, insightLogs)
+	if err != nil {
+		g.logger.Error("Failed to transform batch entries into node insights")
+		return nil, err
+	}
+
+	return insights, nil
+}
+
+func (g OpenAiInsightsGenerator) getNodeInsightsFromBatchEntries(batchEntries []openai.BatchFileCompletionResponseEntry, logs []*repositories.NodeLogsDocument) ([]NodeInsightsWithMetadata, error) {
+
 	// Each jsonl entry contains insights for a single application
-	res := []NodeInsightsWithMetadata{}
-	for _, response := range responses {
+	insights := []NodeInsightsWithMetadata{}
+	for _, response := range batchEntries {
 		var nodeInsights nodeInsightsResponseDto
 		if len(response.Response.Body.Choices) == 0 {
 			return nil, errors.New("Failed to get insights from batch completion choices")
@@ -287,19 +298,14 @@ func (g *OpenAiInsightsGenerator) GetScheduledNodeInsights(
 			return nil, err
 		}
 
-		// applicatonName := applicationInsights.Insights[0].ApplicationName
-		if len(response.Response.Body.Choices) == 0 {
-			return nil, errors.New("Failed to get insights from batch completion message content")
-		}
-
 		insightsWithMetadata := array.Map(func(insight NodeLogsInsight) NodeInsightsWithMetadata {
-			return g.addMetadataToNodeInsight(insight, insightLogs)
+			return g.addMetadataToNodeInsight(insight, logs)
 		})(nodeInsights.Insights)
 
-		res = append(res, insightsWithMetadata...)
+		insights = append(insights, insightsWithMetadata...)
 	}
 
-	return res, nil
+	return insights, nil
 }
 
 func (g *OpenAiInsightsGenerator) addMetadataToNodeInsight(

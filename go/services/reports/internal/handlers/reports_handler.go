@@ -94,13 +94,12 @@ func (h *ReportsHandler) GetSingle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if report.Status == repositories.ReportState_AwaitingGeneration {
-
 		scheduledReport, err := h.reportsService.RetrieveScheduledReport(report.Id)
 		if err != nil {
 			h.logger.Error("Failed to retrieve scheduled report", zap.Error(err))
+		} else {
+			report = scheduledReport
 		}
-
-		report = scheduledReport
 	}
 
 	encodedReport, err := json.Marshal(report)
