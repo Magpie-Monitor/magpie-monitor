@@ -15,7 +15,7 @@ import (
 )
 
 type ReportGenerationFilters struct {
-	Cluster                  string                                          `json:"cluster"`
+	ClusterName              string                                          `json:"clusterName"`
 	FromDate                 int64                                           `json:"fromDate"`
 	ToDate                   int64                                           `json:"toDate"`
 	ApplicationConfiguration []*repositories.ApplicationInsightConfiguration `json:"applicationConfiguration"`
@@ -65,7 +65,7 @@ func (s *ReportsService) ScheduleReport(
 
 	applicationLogs, err := s.GetApplicationLogsByParams(
 		ctx,
-		params.Cluster,
+		params.ClusterName,
 		fromDate,
 		toDate,
 		params.MaxLength,
@@ -77,7 +77,7 @@ func (s *ReportsService) ScheduleReport(
 
 	nodeLogs, err := s.GetNodeLogsByParams(
 		ctx,
-		params.Cluster,
+		params.ClusterName,
 		fromDate,
 		toDate,
 		params.MaxLength,
@@ -90,7 +90,7 @@ func (s *ReportsService) ScheduleReport(
 	applicationInsights, err := s.applicationInsightsGenerator.ScheduleApplicationInsights(
 		applicationLogs,
 		params.ApplicationConfiguration, time.Now(),
-		params.Cluster,
+		params.ClusterName,
 		params.FromDate,
 		params.ToDate,
 	)
@@ -98,7 +98,7 @@ func (s *ReportsService) ScheduleReport(
 	nodeInsights, err := s.nodeInsightsGenerator.ScheduleNodeInsights(
 		nodeLogs,
 		params.NodeConfiguration, time.Now(),
-		params.Cluster,
+		params.ClusterName,
 		params.FromDate,
 		params.ToDate,
 	)
@@ -109,8 +109,8 @@ func (s *ReportsService) ScheduleReport(
 	}
 
 	report, err := s.reportRepository.InsertReport(ctx, &repositories.Report{
-		Cluster:                      params.Cluster,
-		Title:                        s.getTitleForReport(params.Cluster, fromDate, toDate),
+		ClusterName:                  params.ClusterName,
+		Title:                        s.getTitleForReport(params.ClusterName, fromDate, toDate),
 		Status:                       repositories.ReportState_AwaitingGeneration,
 		RequestedAtNs:                time.Now().UnixNano(),
 		ScheduledGenerationAtMs:      time.Now().UnixNano() + time.Hour.Nanoseconds(),
@@ -140,7 +140,6 @@ func (s *ReportsService) RetrieveScheduledReport(scheduledReportId string) (*rep
 	scheduledApplicationInsights := scheduledReport.ScheduledApplicationInsights
 	insights, err := s.applicationInsightsGenerator.
 		GetScheduledApplicationInsights(scheduledApplicationInsights)
-
 	if err != nil {
 		s.logger.Error("Failed to get application insights", zap.Error(err))
 		return nil, err
@@ -152,12 +151,9 @@ func (s *ReportsService) RetrieveScheduledReport(scheduledReportId string) (*rep
 		return nil, err
 	}
 
-	scheduledReport.ApplicationReports = applicationReports
-
 	scheduledNodeInsights := scheduledReport.ScheduledNodeInsights
 	nodeInsights, err := s.nodeInsightsGenerator.
 		GetScheduledNodeInsights(scheduledNodeInsights)
-
 	if err != nil {
 		s.logger.Error("Failed to get application insights", zap.Error(err))
 		return nil, err
@@ -166,6 +162,18 @@ func (s *ReportsService) RetrieveScheduledReport(scheduledReportId string) (*rep
 	nodeReports, err := s.GetNodeReportsFromInsights(nodeInsights, scheduledNodeInsights.NodeConfiguration)
 	if err != nil {
 		s.logger.Error("Failed to build applicatin reports from insights", zap.Error(err))
+		return nil, err
+	}
+
+	err = s.reportRepository.InsertNodeIncidents(context.TODO(), nodeReports)
+	if err != nil {
+		s.logger.Error("Failed to insert node incidents")
+		return nil, err
+	}
+
+	err = s.reportRepository.InsertApplicationIncidents(context.TODO(), applicationReports)
+	if err != nil {
+		s.logger.Error("Failed to insert application incidents")
 		return nil, err
 	}
 
@@ -180,7 +188,13 @@ func (s *ReportsService) RetrieveScheduledReport(scheduledReportId string) (*rep
 		return nil, repoErr
 	}
 
-	return scheduledReport, nil
+	updatedReport, repoErr := s.reportRepository.GetSingleReport(context.TODO(), scheduledReport.Id)
+	if repoErr != nil {
+		s.logger.Error("Failed to update a scheduled report", zap.Error(repoErr))
+		return nil, repoErr
+	}
+
+	return updatedReport, nil
 }
 
 func (s *ReportsService) GenerateReport(
@@ -192,7 +206,7 @@ func (s *ReportsService) GenerateReport(
 
 	applicationLogs, err := s.GetApplicationLogsByParams(
 		ctx,
-		params.Cluster,
+		params.ClusterName,
 		fromDate,
 		toDate,
 		params.MaxLength,
@@ -214,7 +228,7 @@ func (s *ReportsService) GenerateReport(
 
 	nodeLogs, err := s.GetNodeLogsByParams(
 		ctx,
-		params.Cluster,
+		params.ClusterName,
 		fromDate,
 		toDate,
 		params.MaxLength)
@@ -252,10 +266,10 @@ func (s *ReportsService) GenerateReport(
 
 	report := repositories.Report{
 		Status:                  repositories.ReportState_Generated,
-		Cluster:                 params.Cluster,
+		ClusterName:             params.ClusterName,
 		RequestedAtNs:           time.Now().UnixNano(),
 		ScheduledGenerationAtMs: time.Now().UnixNano(),
-		Title:                   s.getTitleForReport(params.Cluster, fromDate, toDate),
+		Title:                   s.getTitleForReport(params.ClusterName, fromDate, toDate),
 		FromDateNs:              params.FromDate,
 		ToDateNs:                params.ToDate,
 		NodeReports:             nodeReports,
@@ -412,7 +426,7 @@ func (s *ReportsService) GenerateAndSaveReport(ctx context.Context, params Repor
 
 	report, err := s.GenerateReport(ctx,
 		ReportGenerationFilters{
-			Cluster:                  params.Cluster,
+			ClusterName:              params.ClusterName,
 			FromDate:                 params.FromDate,
 			ToDate:                   params.ToDate,
 			MaxLength:                params.MaxLength,

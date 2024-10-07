@@ -3,16 +3,14 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"net/http"
-	"strconv"
-	"time"
-
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/services"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"github.com/gorilla/mux"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"net/http"
+	"strconv"
 )
 
 type ReportsRouter struct {
@@ -54,7 +52,7 @@ func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
 }
 
 type reportsPostParams struct {
-	Cluster                  *string                                         `json:"cluster"`
+	ClusterName              *string                                         `json:"clusterName"`
 	FromDate                 *int64                                          `json:"fromDate"`
 	ToDate                   *int64                                          `json:"toDate"`
 	ApplicationConfiguration []*repositories.ApplicationInsightConfiguration `json:"applicationConfiguration"`
@@ -119,7 +117,7 @@ func (h *ReportsHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 
-	cluster, isClusterSet := routing.LookupQueryParam(query, "cluster")
+	cluster, isClusterSet := routing.LookupQueryParam(query, "clusterName")
 	fromDate, isFromDateSet := routing.LookupQueryParam(query, "fromDate")
 	toDate, isToDateSet := routing.LookupQueryParam(query, "toDate")
 
@@ -195,9 +193,9 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if params.Cluster == nil {
+	if params.ClusterName == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Missing cluster parameter"))
+		w.Write([]byte("Missing clusterName parameter"))
 		return
 	}
 
@@ -209,7 +207,7 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 
 	report, err := h.reportsService.GenerateAndSaveReport(ctx,
 		services.ReportGenerationFilters{
-			Cluster:                  *params.Cluster,
+			ClusterName:              *params.ClusterName,
 			FromDate:                 *params.FromDate,
 			ToDate:                   *params.ToDate,
 			MaxLength:                *params.MaxLength,
@@ -259,9 +257,9 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if params.Cluster == nil {
+	if params.ClusterName == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Missing cluster parameter"))
+		w.Write([]byte("Missing clusterName parameter"))
 		return
 	}
 
@@ -273,7 +271,7 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.reportsService.ScheduleReport(ctx,
 		services.ReportGenerationFilters{
-			Cluster:                  *params.Cluster,
+			ClusterName:              *params.ClusterName,
 			FromDate:                 *params.FromDate,
 			ToDate:                   *params.ToDate,
 			MaxLength:                *params.MaxLength,
@@ -294,9 +292,6 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	time.Sleep(time.Second * 60)
-	h.reportsService.RetrieveScheduledReport(resp.Id)
 
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(reportJson)

@@ -47,7 +47,7 @@ const (
 type Report struct {
 	Id                      string               `bson:"_id,omitempty" json:"id"`
 	Status                  ReportState          `bson:"status" json:"status"`
-	Cluster                 string               `bson:"cluster" json:"cluster"`
+	ClusterName             string               `bson:"clusterName" json:"clusterName"`
 	FromDateNs              int64                `bson:"fromDateNs" json:"fromDateNs"`
 	ToDateNs                int64                `bson:"toDateNs" json:"toDateNs"`
 	RequestedAtNs           int64                `bson:"requestedAtNs" json:"requestedAtNs"`
@@ -206,6 +206,7 @@ func (r *MongoDbReportRepository) GetSingleReport(ctx context.Context, id string
 
 	for _, applicationReport := range result.ApplicationReports {
 		incidents, err := r.applicationIncidentsRepository.GetIncidentsByIds(ctx, applicationReport.IncidentIds)
+
 		if err != nil {
 			r.logger.Error("Failed to join application incidents to report", zap.Error(err))
 		}
@@ -221,28 +222,6 @@ func (r *MongoDbReportRepository) GetSingleReport(ctx context.Context, id string
 	}
 
 	return result, nil
-}
-
-func (r *MongoDbReportRepository) GetSingleSheduledReport(ctx context.Context, id string) (*Report, *ReportRepositoryError) {
-
-	coll := r.mongoDbClient.Database(REPORTS_DB_NAME).Collection(SCHEDULED_REPORTS_COLLECTION)
-	objectId, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		r.logger.Error("Failed to decode report id", zap.Error(err))
-		return nil, NewInvalidReportIdError(err)
-	}
-
-	documents := coll.FindOne(ctx, bson.M{"_id": objectId})
-
-	var result *Report
-	err = documents.Decode(&result)
-	if err != nil {
-		r.logger.Error("Failed to decode reports from mongodb", zap.Error(err))
-		return nil, NewReportNotFoundError(err)
-	}
-
-	return result, nil
-
 }
 
 func (r *MongoDbReportRepository) GetAllReports(ctx context.Context, filter FilterParams) ([]*Report, *ReportRepositoryError) {
@@ -311,15 +290,13 @@ func (r *MongoDbReportRepository) InsertReport(ctx context.Context, report *Repo
 		return nil, NewReportInternalError(err)
 	}
 
-	var resultReport Report
-
-	err = coll.FindOne(ctx, bson.M{"_id": id.InsertedID}).Decode(&resultReport)
-	if err != nil {
-		r.logger.Error("Failed to get inserted report", zap.Error(err))
-		return nil, NewReportInternalError(err)
+	resultReport, repErr := r.GetSingleReport(ctx, id.InsertedID.(primitive.ObjectID).Hex())
+	if repErr != nil {
+		r.logger.Error("Failed to insert a report", zap.Error(repErr))
+		return nil, NewReportInternalError(repErr)
 	}
 
-	return &resultReport, nil
+	return resultReport, nil
 }
 
 func (r *MongoDbReportRepository) UpdateReport(ctx context.Context, report *Report) *ReportRepositoryError {
@@ -333,11 +310,14 @@ func (r *MongoDbReportRepository) UpdateReport(ctx context.Context, report *Repo
 
 	report.Id = ""
 
-	_, err = coll.ReplaceOne(ctx, bson.D{{"_id", hexId}}, report)
+	_, err = coll.ReplaceOne(ctx, bson.M{"_id": hexId}, report)
 	if err != nil {
 		r.logger.Error("Failed to update a report", zap.Error(err))
 		return NewReportInternalError(err)
 	}
+
+	report.Id = hexId.Hex()
+
 	return nil
 }
 

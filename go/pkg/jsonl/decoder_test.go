@@ -1,8 +1,6 @@
 package jsonl_test
 
 import (
-	// "encoding/json"
-	// "fmt"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
 	"reflect"
 	"strings"
