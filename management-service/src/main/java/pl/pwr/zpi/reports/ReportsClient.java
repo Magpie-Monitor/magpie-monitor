@@ -51,7 +51,7 @@ public class ReportsClient {
             return responseBody;
         } catch (IOException e) {
             log.error("Error fetching resource: {}", e.getMessage(), e);
-            throw new ("Error fetching resource", e);
+            throw new RuntimeException("Error fetching resource", e);
         }
     }
 }
