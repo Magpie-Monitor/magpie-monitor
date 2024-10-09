@@ -1,22 +1,35 @@
-import { Link, useLocation } from 'react-router-dom';
 import './Navbar.scss';
-
-const NAVBAR_LINKS = [{ to: 'examplePage', label: 'Example page' }];
+import magpieMonitorLogo from 'assets/magpie-monitor-icon.png';
+import NavbarTab from './NavbarTab/NavbarTab';
+import { ManagmentServiceApiInstance } from 'api/managment-service';
 
 const Navbar = () => {
-  const currentPage = useLocation().pathname;
+  const signOut = () => {
+    ManagmentServiceApiInstance.logout();
+  };
+
   return (
     <nav className="navbar">
-      <div className="navbar__links">
-        {NAVBAR_LINKS.map(({ to, label }) => (
-          <Link
-            key={to}
-            to={to}
-            className={`navbar__link ${currentPage.includes(to) ? 'navbar__link--active' : ''}`}
-          >
-            {label}
-          </Link>
-        ))}
+      <div>
+        <div className="navbar__logo">
+          <img src={magpieMonitorLogo} alt="Magpie Monitor logo" className="navbar__logo__image" />
+          <div className="navbar__logo__name">
+            Magpie <br /> Monitor
+          </div>
+        </div>
+        <div className="navbar__links">
+          <NavbarTab label={'Dashboard'} destination={'/dashboard'} iconName={'dashboard-icon'} />
+          <NavbarTab label={'Reports'} destination={'/reports'} iconName={'reports-icon'} />
+          <NavbarTab label={'Settings'} destination={'/settings'} iconName={'setting-icon'} />
+        </div>
+      </div>
+      <div className="navbar__sign-out ">
+        <NavbarTab
+          label={'Sign Out'}
+          destination={'/login'}
+          iconName={'sign-out-icon'}
+          onClick={signOut}
+        />
       </div>
     </nav>
   );

@@ -1,0 +1,27 @@
+@import '/src/variables.scss';
+
+.svg-icon {
+  background-color: $navbar-text-color;
+  width: 50px;
+  height: 50px;
+}
+
+.dashboard-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/dashboard_icon.svg') no-repeat center;
+}
+
+.reports-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/reports_icon.svg') no-repeat center;
+}
+
+.sign-out-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/sign_out_icon.svg') no-repeat center;
+}
+
+.setting-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/settings_icon.svg') no-repeat center;
+}

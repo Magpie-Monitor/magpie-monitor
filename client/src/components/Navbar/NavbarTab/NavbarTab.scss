@@ -1,0 +1,29 @@
+@import '@/variables';
+
+.navbar-tab {
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+  border-radius: 1rem;
+
+  &__link {
+    font-size: 1.3rem;
+    font-weight: 300;
+    margin: 0 1rem;
+    margin-top: 0.6rem;
+    color: $navbar-text-color;
+  }
+
+  &:hover {
+    background-color: $secondary;
+
+    .navbar-tab__link {
+      color: $navbar-selected-color;
+      font-weight: 400;
+    }
+
+    .svg-icon {
+      background-color: $navbar-selected-color;
+    }
+  }
+}
