@@ -29,9 +29,14 @@ public class DiscordController {
         return ResponseEntity.ok().body(discordService.updateDiscordIntegration(id, DiscordReceiver));
     }
 
-    @GetMapping("/{id}/test-notification")
+    @PostMapping("/{id}/test-notification")
     public ResponseEntity<DiscordReceiver> sendTestMessage(@PathVariable Long id) throws Exception {
         discordService.sendTestMessage(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/webhook-url")
+    public ResponseEntity<DiscordReceiver> getWebhookUrl(@PathVariable Long id) throws Exception {
+        return ResponseEntity.ok().body(discordService.getEncodedWebhookUrl(id));
     }
 }
