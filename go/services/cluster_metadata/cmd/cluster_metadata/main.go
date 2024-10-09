@@ -9,6 +9,7 @@ import (
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/mongodb"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/swagger"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/internal/database"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/internal/handlers"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
@@ -23,6 +24,7 @@ type ServerParams struct {
 	Lc             fx.Lifecycle
 	Logger         *zap.Logger
 	MetadataRouter *handlers.MetadataRouter
+	SwaggerRouter  *swagger.SwaggerRouter
 }
 
 func NewHTTPServer(ServerParams ServerParams) *http.Server {
@@ -53,15 +55,26 @@ func main() {
 			return &fxevent.ZapLogger{Logger: log}
 		}),
 		fx.Provide(
-			routing.NewRootRouter,
 			NewHTTPServer,
+
+			routing.NewRootRouter,
+
+			// TODO - fix
+			swagger.NewSwaggerRouter,
+			swagger.NewSwaggerHandler,
+			swagger.ProvideSwaggerConfig(),
+
 			handlers.NewMetadataRouter,
 			handlers.NewMetadataHandler,
+
 			mongodb.NewMongoDbClient,
 			database.NewMongoDbConnectionDetails,
+
 			services.NewMetadataService,
+
 			repositories.NewClusterMetadataCollection,
 			repositories.NewNodeMetadataCollection,
+
 			zap.NewProduction,
 		),
 		fx.Invoke(func(*http.Server) {}),

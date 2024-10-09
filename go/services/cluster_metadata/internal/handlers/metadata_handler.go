@@ -16,7 +16,7 @@ func NewMetadataRouter(metadataHandler *MetadataHandler, rootRouter *mux.Router)
 	router := rootRouter.PathPrefix("/metadata").Subrouter()
 	router.Methods(http.MethodGet).Path("/clusters/{clusterId}/applications").HandlerFunc(metadataHandler.GetClusterMetadataForTimerange)
 	router.Methods(http.MethodGet).Path("/clusters/{clusterId}/nodes").HandlerFunc(metadataHandler.GetNodeMetadataForTimerange)
-	router.Methods(http.MethodPost).Path("/cluster").HandlerFunc(metadataHandler.InsertClusterMetadata)
+	router.Methods(http.MethodPost).Path("/clusters").HandlerFunc(metadataHandler.InsertClusterMetadata)
 	router.Methods(http.MethodPost).Path("/nodes").HandlerFunc(metadataHandler.InsertNodeMetadata)
 	router.Methods(http.MethodGet).Path("/healthz").HandlerFunc(metadataHandler.Healthz)
 
@@ -122,6 +122,8 @@ func (h *MetadataHandler) GetNodeMetadataForTimerange(w http.ResponseWriter, r *
 
 // TODO - add m2m
 func (h *MetadataHandler) InsertClusterMetadata(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
 	var metadata repositories.ClusterState
 
 	err := json.NewDecoder(r.Body).Decode(&metadata)
@@ -143,6 +145,8 @@ func (h *MetadataHandler) InsertClusterMetadata(w http.ResponseWriter, r *http.R
 
 // TODO - add m2m
 func (h *MetadataHandler) InsertNodeMetadata(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
 	var metadata repositories.NodeState
 
 	err := json.NewDecoder(r.Body).Decode(&metadata)

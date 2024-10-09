@@ -3,11 +3,11 @@ info:
   title: Cluster Metadata API
   version: 1.0.0
 paths:
-  /v1/metadata/cluster:
+  /v1/metadata/clusters:
     post:
-      summary: Generate a report
-      description: Creates a report based on input parameters.
-      operationId: generateReport
+      summary: Insert cluster metadata
+      description: Inserts metadata for a cluster 
+      operationId: insertClusterMetadata
       tags:
         - metadata
       requestBody:
@@ -45,9 +45,9 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
   /v1/metadata/nodes:
     post:
-      summary: Generate a report
-      description: Creates a report based on input parameters.
-      operationId: generateReport
+      summary: Insert node metadata
+      description: Inserts metadata for a node
+      operationId: insertNodeMetadata
       tags:
         - metadata
       requestBody:
@@ -92,9 +92,9 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
   /v1/metadata/clusters/${id}/applications:
     get:
-      summary:
-      description:
-      operationId:
+      summary: Get metadata for cluster applications
+      description: Returns deduplicated metadata for cluster applications, indicates which applications are running
+      operationId: getClusterMetadata
       tags:
         - metadata
       parameters:
@@ -137,9 +137,9 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
   /v1/metadata/clusters/${id}/nodes:
     get:
-      summary:
-      description:
-      operationId:
+      summary: Get metadata for cluster nodes
+      description: Returns deduplicated metadata for cluster nodes, indicates which nodes are running
+      operationId: getNodeMetadata
       tags:
         - metadata
       parameters:
