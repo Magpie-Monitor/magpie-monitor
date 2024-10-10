@@ -264,7 +264,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-  
+
   metadata-mongodb:
     container_name: cluster-metadata-service-mongodb
     image: mongo
@@ -286,26 +286,9 @@ services:
     ports:
       - ${CLUSTER_METADATA_MONGO_EXPRESS_PORT}:8081
     environment:
-      - LOGS_INGESTION_SERVICE_HTTP_PORT=${LOGS_INGESTION_SERVICE_HTTP_PORT}
-      - LOGSDB_PORT=${LOGSDB_PORT}
-      - LOGSDB_HOST=${LOGSDB_HOST}
-      - LOGSDB_USER=${LOGSDB_USER}
-      - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
-      - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
-      - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
-      - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
-      - LOGS_INGESTION_QUEUE_USERNAME=${KAFKA_CLIENT_USERNAME}
-      - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
-    develop:
-      watch:
-        - action: rebuild
-          path: ./go/services/logs_ingestion
-          target: /src
-        - action: rebuild
-          path: ./go/pkg
-          target: /src
-    volumes:
-      - es-certs:/usr/local/share
+      ME_CONFIG_MONGODB_SERVER: ${CLUSTER_METADATA_MONGODB_HOST}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${CLUSTER_METADATA_MONGODB_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
     depends_on:
       - metadata-mongodb
   cluster-metadata-service:
@@ -318,10 +301,12 @@ services:
     ports:
       - ${CLUSTER_METADATA_HTTP_PORT}:${CLUSTER_METADATA_HTTP_PORT}
     environment:
-      - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
-      - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
-      - LOGS_INGESTION_QUEUE_USERNAME=${KAFKA_CLIENT_USERNAME}
-      - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
+      HTTP_PORT: ${CLUSTER_METADATA_HTTP_PORT}
+      METADATADB_USER: ${CLUSTER_METADATA_MONGODB_USER}
+      METADATADB_PASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
+      METADATADB_HOST: ${CLUSTER_METADATA_MONGODB_HOST}
+      METADATADB_PORT: ${CLUSTER_METADATA_MONGODB_PORT}
+      SWAGGER_HOST: ${CLUSTER_METADATA_SERVICE_HOST}:${CLUSTER_METADATA_HTTP_PORT}
     develop:
       watch:
         - action: rebuild
@@ -337,137 +322,11 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  mongo-express:
-    container_name: magpie-monitor-mongo-express
-    image: mongo-express
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_SERVER: ${REPORTSDB_HOST}
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${REPORTSDB_USER}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${REPORTSDB_PASSWORD}
-    depends_on:
-      - mongodb
-  pod-agent:
-    user: "0" # Elevated permission needed for bind mount
-    container_name: magpie-monitor-pod-agent
-    build:
-      context: ./agent/app
-      dockerfile: Dockerfile
-    restart: always
-    depends_on:
-      - kafka
-    command:
-      - "--scrape"
-      - "pods"
-      - "--scrapeIntervalSeconds"
-      - "30"
-      - "--remoteWriteBrokerUrl"
-      - ${KAFKA_BROKER_URL}
-      - "--remoteWriteBrokerUsername"
-      - ${KAFKA_CLIENT_USERNAME}
-      - "--remoteWriteBrokerPassword"
-      - ${KAFKA_CLIENT_PASSWORD}
-      - "--remoteWriteBatchSize"
-      - ${KAFKA_CLIENT_BATCH_SIZE}
-    develop:
-      watch:
-        - action: rebuild
-          path: ./agent/app
-          target: /src
-    volumes:
-      - ${POD_AGENT_HOST_KUBECONFIG_PATH}:/root/.kube
-  node-agent:
-    user: "0" # Elevated permission needed for bind mount
-    container_name: magpie-monitor-node-agent
-    depends_on:
-      - kafka
-      - redis
-    build:
-      context: ./agent/app
-      dockerfile: Dockerfile
-    restart: always
-    command:
-      - "--scrape"
-      - "nodes"
-      - "--redisUrl"
-      - "redis:6379"
-      - "--redisPassword"
-      - ${REDIS_PASSWORD}
-      - "--file"
-      - "/var/log/file"
-      - "--remoteWriteBrokerUrl"
-      - ${KAFKA_BROKER_URL}
-      - "--remoteWriteBrokerUsername"
-      - ${KAFKA_CLIENT_USERNAME}
-      - "--remoteWriteBrokerPassword"
-      - ${KAFKA_CLIENT_PASSWORD}
-      - "--remoteWriteBatchSize"
-      - ${KAFKA_CLIENT_BATCH_SIZE}
-    environment:
-      NODE_NAME: "mock-node-name"
-    develop:
-      watch:
-        - action: rebuild
-          path: ./agent/app
-          target: /src
-    volumes:
-      - ${NODE_AGENT_HOST_WATCHED_FILE_PATH}:/var/log/file
-  # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in a dev environment.
-  redis:
-    image: redis:7.4-alpine
-    restart: always
-    command:
-      - "--requirepass"
-      - ${REDIS_PASSWORD}
-    ports:
-      - "6379:6379"
-    volumes:
-      - redisdata:/data
-
-  management-service:
-    container_name: magpie-monitor-management-service
-    build:
-      context: ./management-service
-      dockerfile: Dockerfile
-    environment:
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_URL=${DB_URL}
-      - DB_LOGIN=${DB_LOGIN}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - GOOGLE_REDIRECT_URI_FOR_FRONTEND=${GOOGLE_REDIRECT_URI_FOR_FRONTEND}
-      - EMAIL_USERNAME=${EMAIL_USERNAME}
-      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
-      - EMAIL_HOST=${EMAIL_HOST}
-      - CIPHER_ENCRYPTION_KEY=${CIPHER_ENCRYPTION_KEY}
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgresdb
-    develop:
-      watch:
-        - action: rebuild
-          path: ./management-service
-          target: /src
-
-  postgresdb:
-    image: postgres:16
-    container_name: postgresdb
-    environment:
-      POSTGRES_USER: ${DB_LOGIN}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
 
 volumes:
   redisdata:
-  db-metadata-data:
   db-data:
+  db-metadata-data:
   es-certs:
     external: true
   postgres-data:
