@@ -14,6 +14,7 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/internal/handlers"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/services"
+	"github.com/gorilla/mux"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -24,13 +25,14 @@ type ServerParams struct {
 	Lc             fx.Lifecycle
 	Logger         *zap.Logger
 	MetadataRouter *handlers.MetadataRouter
+	RootRouter     *mux.Router
 	SwaggerRouter  *swagger.SwaggerRouter
 }
 
 func NewHTTPServer(ServerParams ServerParams) *http.Server {
 	port := os.Getenv("HTTP_PORT")
 
-	srv := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: ServerParams.MetadataRouter}
+	srv := &http.Server{Addr: fmt.Sprintf(":%s", port), Handler: ServerParams.RootRouter}
 	ServerParams.Lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			ln, err := net.Listen("tcp", srv.Addr)
