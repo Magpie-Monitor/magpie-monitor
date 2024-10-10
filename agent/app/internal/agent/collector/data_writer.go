@@ -33,15 +33,15 @@ func (d *DataWriter) WriteClusterLogs(chunk data.Chunk) {
 }
 
 func (d *DataWriter) WriteClusterMetadata(chunk data.ClusterState) {
-	d.writeChunk(chunk, d.podWriter)
+	d.writeChunk(chunk, d.podMetadataWriter)
 }
 
 func (d *DataWriter) WriteNodeLogs(chunk nodeData.Chunk) {
-	d.writeChunk(chunk, d.podWriter)
+	d.writeChunk(chunk, d.nodeWriter)
 }
 
 func (d *DataWriter) WriteNodeMetadata(chunk nodeData.NodeState) {
-	d.writeChunk(chunk, d.podWriter)
+	d.writeChunk(chunk, d.nodeMetadataWriter)
 }
 
 func (d *DataWriter) writeChunk(chunk interface{}, writer remote_write.RemoteWriter) {
