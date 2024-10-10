@@ -68,6 +68,8 @@ services:
       - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
       - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
       - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
+      - LOGS_INGESTION_QUEUE_USERNAME=${KAFKA_CLIENT_USERNAME}
+      - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
     develop:
       watch:
         - action: rebuild
@@ -96,6 +98,8 @@ services:
     environment:
       - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
       - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
+      - LOGS_INGESTION_QUEUE_USERNAME=${KAFKA_CLIENT_USERNAME}
+      - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
     develop:
       watch:
         - action: rebuild
@@ -157,9 +161,7 @@ services:
     command:
       - "--scrape"
       - "pods"
-      - "--logScrapeIntervalSeconds"
-      - "30"
-      - "--metadataScrapeIntervalSeconds"
+      - "--scrapeIntervalSeconds"
       - "30"
       - "--remoteWriteBrokerUrl"
       - ${KAFKA_BROKER_URL}
@@ -223,6 +225,7 @@ services:
       - "6379:6379"
     volumes:
       - redisdata:/data
+
   management-service:
     container_name: magpie-monitor-management-service
     build:
@@ -239,7 +242,7 @@ services:
       - EMAIL_USERNAME=${EMAIL_USERNAME}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD}
       - EMAIL_HOST=${EMAIL_HOST}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - CIPHER_ENCRYPTION_KEY=${CIPHER_ENCRYPTION_KEY}
     ports:
       - "8080:8080"
     depends_on:
@@ -249,6 +252,7 @@ services:
         - action: rebuild
           path: ./management-service
           target: /src
+
   postgresdb:
     image: postgres:16
     container_name: postgresdb
@@ -260,6 +264,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+  
   metadata-mongodb:
     container_name: cluster-metadata-service-mongodb
     image: mongo
@@ -461,8 +466,8 @@ services:
 
 volumes:
   redisdata:
-  db-data:
   db-metadata-data:
+  db-data:
   es-certs:
     external: true
   postgres-data:
