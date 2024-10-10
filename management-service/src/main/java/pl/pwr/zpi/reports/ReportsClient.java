@@ -35,7 +35,7 @@ public class ReportsClient {
         return objectMapper.readValue(responseBody, typeReference);
     }
 
-    private String executeHttpGet(String urlToCall) throws Exception {
+    private String executeHttpGet(String urlToCall) {
         Request request = new Request.Builder()
                 .url(urlToCall)
                 .build();

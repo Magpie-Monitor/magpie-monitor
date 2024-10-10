@@ -67,4 +67,10 @@ public class SlackService {
             throw new IllegalArgumentException("Webhook is already assigned to other entry");
         }
     }
+
+    public SlackReceiver getEncodedWebhookUrl(Long id) throws Exception {
+        var receiver = getSlackReceiver(id);
+        receiver.setWebhookUrl(confidentialTextEncoder.decrypt(receiver.getWebhookUrl()));
+        return receiver;
+    }
 }

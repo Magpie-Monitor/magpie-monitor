@@ -67,4 +67,10 @@ public class DiscordService {
             throw new IllegalArgumentException("Webhook is already assigned to other entry");
         }
     }
+
+    public DiscordReceiver getEncodedWebhookUrl(Long id) throws Exception {
+        var receiver = getDiscordReceiver(id);
+        receiver.setWebhookUrl(confidentialTextEncoder.decrypt(receiver.getWebhookUrl()));
+        return receiver;
+    }
 }
