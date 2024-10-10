@@ -19,6 +19,7 @@ func (m *MetadataWriter) Write(content string) {
 	code, err := m.sendRequest(m.url, content)
 	if err != nil || code >= 400 {
 		log.Println("Error sending data to metadata service.")
+		return
 	}
 }
 

@@ -37,6 +37,7 @@ type Agent struct {
 
 func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<- data.ClusterState) *Agent {
 	return &Agent{
+		clusterName:                       cfg.Global.ClusterName,
 		excludedNamespaces:                cfg.ExcludedNamespaces,
 		logCollectionIntervalSeconds:      cfg.Global.LogScrapeIntervalSeconds,
 		metadataCollectionIntervalSeconds: cfg.Global.MetadataScrapeIntervalSeconds,
@@ -106,17 +107,9 @@ func (a *Agent) fetchNamespaces() {
 
 func (a *Agent) gatherLogs() {
 	for {
-		// var wg sync.WaitGroup
-
 		for _, namespace := range a.includedNamespaces {
-			// wg.Add(1)
-			// go func() {
-			// defer wg.Done()
 			a.fetchLogsForNamespace(namespace)
-			// }()
 		}
-
-		// wg.Wait()
 
 		log.Println("Sleeping for: ", a.logCollectionIntervalSeconds, " seconds")
 		time.Sleep(time.Duration(a.logCollectionIntervalSeconds) * time.Second)
@@ -206,21 +199,15 @@ func (a *Agent) fetchPodLogsSinceTime(selector *metav1.LabelSelector, namespace 
 }
 
 func (a *Agent) fetchContainerLogsSinceTime(container *v1.Container, podName, namespace string) data.Container {
-	log.Println("before sleeping")
 	sinceTime := a.getReadTimestamp(podName, container.Name)
 
-	log.Println("sleeping")
 	// Sleep till all the logs from current second arrive.
 	// Precision of the logs API is within seconds,
 	// so to not fetch logs twice, we have to gather all logs
 	// from the ongoing second. Then, we cut off the logs from the
 	// following second, so they are fetched in next iteration.
 
-	log.Println("sinceTime: ", sinceTime)
-
 	time.Sleep(time.Duration(999999999 - sinceTime.Nanosecond()))
-
-	log.Println("after sleeping")
 
 	beforeTs := time.Now().UnixNano()
 	// TODO - abstraction over this part
@@ -365,8 +352,9 @@ func (a *Agent) gatherClusterMetadata() {
 
 			state.SetTimestamp()
 
-			a.metadata <- state
-			time.Sleep(time.Duration(a.metadataCollectionIntervalSeconds) * time.Second)
 		}
+
+		a.metadata <- state
+		time.Sleep(time.Duration(a.metadataCollectionIntervalSeconds) * time.Second)
 	}
 }

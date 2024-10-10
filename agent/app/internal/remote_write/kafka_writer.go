@@ -2,10 +2,10 @@ package remote_write
 
 import (
 	"context"
-	"fmt"
+	"log"
+
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl/plain"
-	"log"
 )
 
 type RemoteWriter interface {
@@ -35,11 +35,11 @@ func (s *StreamWriter) Write(content string) {
 	s.buffer = append(s.buffer, msg)
 
 	if len(s.buffer) > s.batchSize {
-		log.Println(fmt.Sprintf("Buffer reached the batch size of: %d, sending messages.", s.batchSize))
+		log.Printf("Buffer reached the batch size of: %d, sending messages.", s.batchSize)
 
 		err := s.writer.WriteMessages(context.Background(), s.buffer...)
 		if err != nil {
-			log.Println(fmt.Sprintf("Error writing message: %v. Buffering, buffer size: %d.", err, len(s.buffer)))
+			log.Printf("Error writing message: %v. Buffering, buffer size: %d.", err, len(s.buffer))
 		}
 	}
 }
