@@ -1,25 +1,27 @@
 services:
   client:
     container_name: magpie-monitor-client
+    image: magpiemonitor/client
     build:
       context: ./client
       dockerfile: Dockerfile
       target: production
       args:
-        - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-        - VITE_GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
         - VITE_BACKEND_URL=${VITE_BACKEND_URL}
-    ports:
-      - "80:80"
+    environment:
+      - VIRTUAL_HOST=${CLIENT_PRODUCTION_HOST}
+      - LETSENCRYPT_HOST=${CLIENT_PRODUCTION_HOST}
+      - VIRTUAL_PORT=80
   reports-service:
     user: "0"
     container_name: magpie-monitor-reports-service
     restart: on-failure
+    image: magpiemonitor/reports-service
     build:
       context: ./go
       dockerfile: ./docker/reports/Dockerfile
     ports:
-      - ${REPORTS_SERVICE_PORT}:${REPORTS_SERVICE_PORT}
+      - ${REPORTS_SERVICE_PORT:-8090}:${REPORTS_SERVICE_PORT:-8090}
     develop:
       watch:
         - action: rebuild
@@ -49,18 +51,19 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_API_URL=${OPENAI_API_URL}
       - OPENAI_API_MODEL=${OPENAI_API_MODEL}
-      - SWAGGER_HOST=${REPORTS_SERVICE_HOST}:${REPORTS_SERVICE_PORT}
+      - SWAGGER_HOST=${REPORTS_SERVICE_HOST}
+      - VIRTUAL_HOST=${REPORTS_PRODUCTION_HOST}}
+      - LETSENCRYPT_HOST=${REPORTS_PRODUCTION_HOST}
+      - VIRTUAL_PORT=${REPORTS_SERVICE_PORT}
   logs-ingestion-service:
     user: "0"
     container_name: magpie-monitor-logs-ingestion-service
     restart: on-failure
+    image: magpiemonitor/logs-ingestion-service
     build:
       context: ./go
       dockerfile: ./docker/logs_ingestion/Dockerfile
-    ports:
-      - ${LOGS_INGESTION_SERVICE_HTTP_PORT}:${LOGS_INGESTION_SERVICE_HTTP_PORT}
     environment:
-      - LOGS_INGESTION_SERVICE_HTTP_PORT=${LOGS_INGESTION_SERVICE_HTTP_PORT}
       - LOGSDB_PORT=${LOGSDB_PORT}
       - LOGSDB_HOST=${LOGSDB_HOST}
       - LOGSDB_USER=${LOGSDB_USER}
@@ -82,34 +85,11 @@ services:
       - es-certs:/usr/local/share
     depends_on:
       - kafka
-      - logs-generation-service
     healthcheck:
       test: curl --fail http://localhost:8080 || exit 1
       interval: 10s
       timeout: 5s
       retries: 5
-  logs-generation-service:
-    user: "0"
-    container_name: magpie-monitor-logs-generation-service
-    restart: on-failure
-    build:
-      context: ./go
-      dockerfile: ./docker/logs_generation/Dockerfile
-    environment:
-      - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
-      - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
-      - LOGS_INGESTION_QUEUE_USERNAME=${KAFKA_CLIENT_USERNAME}
-      - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
-    develop:
-      watch:
-        - action: rebuild
-          path: ./go/services/logs_generation
-          target: /src
-        - action: rebuild
-          path: ./go/pkg
-          target: /src
-    depends_on:
-      - kafka
   kafka:
     image: bitnami/kafka
     container_name: magpie-monitor-kafka
@@ -119,17 +99,17 @@ services:
       KAFKA_CFG_NODE_ID: 0
       KAFKA_CFG_PROCESS_ROLES: "controller,broker"
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "0@kafka:9093"
-      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094"
-      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,EXTERNAL://${KAFKA_EXTERNAL_HOSTNAME}:9094"
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,EXTERNAL:SASL_PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL_DIFFERENT_HOST://0.0.0.0:9094,EXTERNAL_SAME_HOST://0.0.0.0:9095"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,EXTERNAL_DIFFERENT_HOST://${KAFKA_EXTERNAL_HOSTNAME}:9094,EXTERNAL_SAME_HOST://kafka:9095"
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,EXTERNAL:SASL_PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL_DIFFERENT_HOST:SASL_PLAINTEXT,EXTERNAL_SAME_HOST:SASL_PLAINTEXT"
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CLIENT_USERS: ${KAFKA_CLIENT_USERNAME}
       KAFKA_CLIENT_PASSWORDS: ${KAFKA_CLIENT_PASSWORD}
-  mongodb:
-    container_name: magpie-monitor-mongodb
+  reports-mongodb:
+    container_name: magpie-monitor-reports-mongodb
     image: mongo
     volumes:
-      - db-data:/data/db
+      - db-reports-data:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${REPORTSDB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${REPORTSDB_PASSWORD}
@@ -138,150 +118,80 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  mongo-express:
-    container_name: magpie-monitor-mongo-express
+  reports-mongo-express:
+    container_name: magpie-monitor-reports-mongo-express
     image: mongo-express
     ports:
       - 8081:8081
     environment:
       ME_CONFIG_MONGODB_SERVER: ${REPORTSDB_HOST}
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${REPORTSDB_USER}
+      ME_CONFIG_BASICAUTH_USERNAME: ${REPORTSDB_USER}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${REPORTSDB_PASSWORD}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${REPORTSDB_PASSWORD}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${REPORTSDB_USER}
+      VIRTUAL_HOST: ${REPORTS_MONGO_EXPRESS_PRODUCTION_HOST}
+      LETSENCRYPT_HOST: ${REPORTS_MONGO_EXPRESS_PRODUCTION_HOST}
+      VIRTUAL_PORT: 8081
     depends_on:
-      - mongodb
-  pod-agent:
-    user: "0" # Elevated permission needed for bind mount
-    container_name: magpie-monitor-pod-agent
-    build:
-      context: ./agent/app
-      dockerfile: Dockerfile
-    restart: always
-    depends_on:
-      - kafka
-    command:
-      - "--clusterFriendlyName"
-      - "local-docker"
-      - "--scrape"
-      - "pods"
-      - "--logScrapeIntervalSeconds"
-      - ${POD_AGENT_LOG_SCRAPE_INTERVAL_SECONDS}
-      - "--metadataScrapeIntervalSeconds"
-      - ${POD_AGENT_METADATA_SCRAPE_INTERVAL_SECONDS}
-      - "--remoteWriteBrokerUrl"
-      - ${KAFKA_BROKER_URL}
-      - "--remoteWriteBrokerUsername"
-      - ${KAFKA_CLIENT_USERNAME}
-      - "--remoteWriteBrokerPassword"
-      - ${KAFKA_CLIENT_PASSWORD}
-      - "--remoteWriteBatchSize"
-      - ${KAFKA_CLIENT_BATCH_SIZE}
-      - "--podRemoteWriteMetadataUrl"
-      - ${POD_AGENT_METADATA_REMOTE_WRITE_URL}
-    develop:
-      watch:
-        - action: rebuild
-          path: ./agent/app
-          target: /src
-    volumes:
-      - ${POD_AGENT_HOST_KUBECONFIG_PATH}:/root/.kube
-  node-agent:
-    user: "0" # Elevated permission needed for bind mount
-    container_name: magpie-monitor-node-agent
-    depends_on:
-      - kafka
-      - redis
-    build:
-      context: ./agent/app
-      dockerfile: Dockerfile
-    restart: always
-    command:
-      - "--scrape"
-      - "nodes"
-      - "--logScrapeIntervalSeconds"
-      - ${NODE_AGENT_LOG_SCRAPE_INTERVAL_SECONDS}
-      - "--metadataScrapeIntervalSeconds"
-      - ${NODE_AGENT_METADATA_SCRAPE_INTERVAL_SECONDS}
-      - "--redisUrl"
-      - "redis:6379"
-      - "--redisPassword"
-      - ${REDIS_PASSWORD}
-      - "--file"
-      - ${NODE_AGENT_WATCHED_FILE}
-      - "--remoteWriteBrokerUrl"
-      - ${KAFKA_BROKER_URL}
-      - "--remoteWriteBrokerUsername"
-      - ${KAFKA_CLIENT_USERNAME}
-      - "--remoteWriteBrokerPassword"
-      - ${KAFKA_CLIENT_PASSWORD}
-      - "--remoteWriteBatchSize"
-      - ${KAFKA_CLIENT_BATCH_SIZE}
-      - "--nodeRemoteWriteMetadataUrl"
-      - ${NODE_AGENT_METADATA_REMOTE_WRITE_URL}
-    environment:
-      NODE_NAME: "mock-node-name"
-    develop:
-      watch:
-        - action: rebuild
-          path: ./agent/app
-          target: /src
-    volumes:
-      - ${NODE_AGENT_HOST_WATCHED_FILE_PATH}:/var/log/file
+      - reports-mongodb
   # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in a dev environment.
-  redis:
-    image: redis:7.4-alpine
-    restart: always
-    command:
-      - "--requirepass"
-      - ${REDIS_PASSWORD}
-    ports:
-      - "6379:6379"
-    volumes:
-      - redisdata:/data
-
   management-service:
     container_name: magpie-monitor-management-service
+    image: magpiemonitor/management-service
     build:
       context: ./management-service
       dockerfile: Dockerfile
     environment:
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_URL=${DB_URL}
-      - DB_LOGIN=${DB_LOGIN}
+      - MANAGEMENT_DB_PASSWORD=${MANAGEMENT_DB_PASSWORD}
+      - MANAGEMENT_DB_URL=${MANAGEMENT_DB_URL}
+      - MANAGEMENT_DB_LOGIN=${MANAGEMENT_DB_LOGIN}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - GOOGLE_REDIRECT_URI_FOR_FRONTEND=${GOOGLE_REDIRECT_URI_FOR_FRONTEND}
-      - EMAIL_USERNAME=${EMAIL_USERNAME}
-      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
-      - EMAIL_HOST=${EMAIL_HOST}
-      - CIPHER_ENCRYPTION_KEY=${CIPHER_ENCRYPTION_KEY}
+      - REDIRECT_URI_AFTER_OAUTH=${MANAGEMENT_REDIRECT_URI_AFTER_OAUTH}
+      - MANAGEMENT_EMAIL_USERNAME=${MANAGEMENT_EMAIL_USERNAME}
+      - MANAGEMENT_EMAIL_PASSWORD=${MANAGEMENT_EMAIL_PASSWORD}
+      - MANAGEMENT_EMAIL_HOST=${MANAGEMENT_EMAIL_HOST}
+      - MANAGEMENT_CIPHER_ENCRYPTION_KEY=${MANAGEMENT_CIPHER_ENCRYPTION_KEY}
+      - MANAGEMENT_SERVER_DOMAINNAME=${MANAGEMENT_SERVER_DOMAINNAME}
+      - VIRTUAL_HOST=${MANAGEMENT_PRODUCTION_HOST}
+      - LETSENCRYPT_HOST=${MANAGEMENT_PRODUCTION_HOST}
+      - VIRTUAL_PORT=8080
     ports:
       - "8080:8080"
     depends_on:
-      - postgresdb
+      - management-postgresdb
     develop:
       watch:
         - action: rebuild
           path: ./management-service
           target: /src
-
-  postgresdb:
+  management-postgresdb:
     image: postgres:16
-    container_name: postgresdb
+    container_name: management-postgresdb
     environment:
-      POSTGRES_USER: ${DB_LOGIN}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${MANAGEMENT_DB_LOGIN}
+      POSTGRES_PASSWORD: ${MANAGEMENT_DB_PASSWORD}
+      POSTGRES_DB: ${MANAGEMENT_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - db-management-data:/var/lib/postgresql/data
 
+  management-pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${MANAGEMENT_PGADMIN_MAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${MANAGEMENT_PGADMIN_PASSWORD}
+      - VIRTUAL_HOST=${MANAGEMENT_PGADMIN_PRODUCTION_HOST}
+      - LETSENCRYPT_HOST=${MANAGEMENT_PGADMIN_PRODUCTION_HOST}
+    volumes:
+      - management-pgadmin-data:/var/lib/pgadmin
   metadata-mongodb:
     container_name: cluster-metadata-service-mongodb
     image: mongo
     ports:
-      - ${CLUSTER_METADATA_MONGODB_PORT}:27017
+      - ${CLUSTER_METADATA_MONGODB_PORT-27017}:27017
     volumes:
       - db-metadata-data:/data/db
     environment:
@@ -296,29 +206,38 @@ services:
     container_name: cluster-metadata-service-mongo-express
     image: mongo-express
     ports:
-      - ${CLUSTER_METADATA_MONGO_EXPRESS_PORT}:8081
+      - ${CLUSTER_METADATA_MONGO_EXPRESS_PORT:-8081}:8081
     environment:
       ME_CONFIG_MONGODB_SERVER: ${CLUSTER_METADATA_MONGODB_HOST}
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${CLUSTER_METADATA_MONGODB_USER}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
+      ME_CONFIG_BASICAUTH_USERNAME: ${CLUSTER_METADATA_MONGODB_USER}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
+      VIRTUAL_HOST: ${METADATA_MONGO_EXPRESS_PRODUCTION_HOST}
+      LETSENCRYPT_HOST: ${METADATA_MONGO_EXPRESS_PRODUCTION_HOST}
+      VIRTUAL_PORT: 8081
     depends_on:
       - metadata-mongodb
   cluster-metadata-service:
     user: "0"
     container_name: magpie-monitor-cluster-metadata-service
     restart: on-failure
+    image: magpiemonitor/cluster-metadata-service
     build:
       context: ./go
       dockerfile: ./docker/cluster_metadata/Dockerfile
     ports:
-      - ${CLUSTER_METADATA_HTTP_PORT}:${CLUSTER_METADATA_HTTP_PORT}
+      - ${CLUSTER_METADATA_HTTP_PORT:-8092}:${CLUSTER_METADATA_HTTP_PORT:-8092}
     environment:
       HTTP_PORT: ${CLUSTER_METADATA_HTTP_PORT}
       METADATADB_USER: ${CLUSTER_METADATA_MONGODB_USER}
       METADATADB_PASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
       METADATADB_HOST: ${CLUSTER_METADATA_MONGODB_HOST}
       METADATADB_PORT: ${CLUSTER_METADATA_MONGODB_PORT}
-      SWAGGER_HOST: ${CLUSTER_METADATA_SERVICE_HOST}:${CLUSTER_METADATA_HTTP_PORT}
+      SWAGGER_HOST: ${CLUSTER_METADATA_SERVICE_HOST}
+      VIRTUAL_HOST: ${CLUSTER_METADATA_PRODUCTION_HOST}
+      LETSENCRYPT_HOST: ${CLUSTER_METADATA_PRODUCTION_HOST}
+      VIRTUAL_PORT: ${CLUSTER_METADATA_HTTP_PORT}
     develop:
       watch:
         - action: rebuild
@@ -337,11 +256,12 @@ services:
 
 volumes:
   redisdata:
-  db-data:
+  db-reports-data:
   db-metadata-data:
   es-certs:
     external: true
-  postgres-data:
+  db-management-data:
+  management-pgadmin-data:
 
 networks:
   default:

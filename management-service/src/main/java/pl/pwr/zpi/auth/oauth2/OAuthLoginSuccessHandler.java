@@ -63,6 +63,9 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
         ResponseCookie authCookie = cookieService.createAuthCookie(oAuth2AccessToken.getTokenValue(), oAuth2AccessToken.getExpiresAt());
         response.addHeader("Set-Cookie", authCookie.toString());
+        if (oAuth2RefreshToken == null) {
+            throw new RuntimeException("Refresh token is null. Pls contact developers.");
+        }
         ResponseCookie refreshCookie = cookieService.createRefreshCookie(oAuth2RefreshToken.getTokenValue());
         response.addHeader("Set-Cookie", refreshCookie.toString());
 
