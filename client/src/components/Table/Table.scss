@@ -1,0 +1,57 @@
+@import '@/variables';
+
+.table {
+  display: grid;
+  grid-template-columns: repeat(100);
+  background-color: transparent;
+
+  &__headers {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: span 100;
+    padding: 0.4rem;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: $component-border-color;
+    background-color: $component-secondary-background;
+  }
+
+  &__body {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: span 100;
+    overflow-y: scroll;
+
+    /* max-height: 30vh; */
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: span 100;
+    border-bottom-style: solid;
+    border-width: 2px;
+    padding: 0.4rem;
+    border-bottom-color: $component-border-color;
+  }
+
+  &__cell,
+  &__header {
+    grid: grid;
+    grid-template-columns: subgrid;
+
+    /* grid-column: span 30; */
+    text-wrap: wrap;
+    padding: 0 1rem;
+    font-size: 1rem;
+  }
+
+  &__header {
+    font-weight: 600;
+  }
+
+  &__cell {
+    font-size: 1.1rem;
+  }
+}
