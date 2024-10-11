@@ -6,9 +6,9 @@ services:
       dockerfile: Dockerfile
       target: development
     environment:
-      - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - VITE_GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
       - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+    ports:
+      - "80:80"
     develop:
       watch:
         - action: sync
@@ -16,3 +16,101 @@ services:
           target: /app/src
         - action: rebuild
           path: ./client/package.json
+  logs-generation-service:
+    user: "0"
+    container_name: magpie-monitor-logs-generation-service
+    restart: on-failure
+    image: magpiemonitor/logs-generation-service
+    build:
+      context: ./go
+      dockerfile: ./docker/logs_generation/Dockerfile
+    environment:
+      - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
+      - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
+      - LOGS_INGESTION_QUEUE_USERNAME=${KAFKA_CLIENT_USERNAME}
+      - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
+    develop:
+      watch:
+        - action: rebuild
+          path: ./go/services/logs_generation
+          target: /src
+        - action: rebuild
+          path: ./go/pkg
+          target: /src
+  pod-agent:
+    user: "0" # Elevated permission needed for bind mount
+    container_name: magpie-monitor-pod-agent
+    image: magpiemonitor/agent
+    build:
+      context: ./agent/app
+      dockerfile: Dockerfile
+    restart: always
+    command:
+      - "--scrape"
+      - "pods"
+      - "--scrapeIntervalSeconds"
+      - "30"
+      - "--remoteWriteBrokerUrl"
+      - ${KAFKA_BROKER_URL}
+      - "--remoteWriteBrokerUsername"
+      - ${KAFKA_CLIENT_USERNAME}
+      - "--remoteWriteBrokerPassword"
+      - ${KAFKA_CLIENT_PASSWORD}
+      - "--remoteWriteBatchSize"
+      - ${KAFKA_CLIENT_BATCH_SIZE}
+    develop:
+      watch:
+        - action: rebuild
+          path: ./agent/app
+          target: /src
+    volumes:
+      - ${POD_AGENT_HOST_KUBECONFIG_PATH:-/.kube}:/root/.kube
+  node-agent:
+    user: "0" # Elevated permission needed for bind mount
+    container_name: magpie-monitor-node-agent
+    image: magpiemonitor/agent
+    depends_on:
+      - redis
+    build:
+      context: ./agent/app
+      dockerfile: Dockerfile
+    restart: always
+    command:
+      - "--scrape"
+      - "nodes"
+      - "--redisUrl"
+      - "redis:6379"
+      - "--redisPassword"
+      - ${REDIS_PASSWORD}
+      - "--file"
+      - "/var/log/file"
+      - "--remoteWriteBrokerUrl"
+      - ${KAFKA_BROKER_URL}
+      - "--remoteWriteBrokerUsername"
+      - ${KAFKA_CLIENT_USERNAME}
+      - "--remoteWriteBrokerPassword"
+      - ${KAFKA_CLIENT_PASSWORD}
+      - "--remoteWriteBatchSize"
+      - ${KAFKA_CLIENT_BATCH_SIZE}
+    environment:
+      NODE_NAME: "mock-node-name"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./agent/app
+          target: /src
+    volumes:
+      - ${NODE_AGENT_HOST_WATCHED_FILE_PATH:-/log/file}:/var/log/file
+  redis:
+    image: redis:7.4-alpine
+    restart: always
+    command:
+      - "--requirepass"
+      - ${REDIS_PASSWORD:-6379}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+volumes:
+  redisdata:

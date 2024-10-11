@@ -1,7 +1,7 @@
 services:
   es-setup:
     container_name: magpie-monitor-es-setup
-    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_STACK_VERSION}
     volumes:
       - es-certs:/usr/share/elasticsearch/config/certs
     user: "0"
@@ -59,7 +59,7 @@ services:
     depends_on:
       es-setup:
         condition: service_healthy
-    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_STACK_VERSION}
     labels:
       co.elastic.logs/module: elasticsearch
     volumes:
@@ -69,7 +69,7 @@ services:
       - ${ES_PORT}:9200
     environment:
       - node.name=elasticsearch
-      - cluster.name=${CLUSTER_NAME}
+      - cluster.name=${ELASTIC_CLUSTER_NAME}
       - discovery.type=single-node
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - bootstrap.memory_lock=true
@@ -83,8 +83,8 @@ services:
       - xpack.security.transport.ssl.certificate=certs/elasticsearch/elasticsearch.crt
       - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.security.transport.ssl.verification_mode=certificate
-      - xpack.license.self_generated.type=${LICENSE}
-    mem_limit: ${ES_MEM_LIMIT}
+      - xpack.license.self_generated.type=${ELASTIC_LICENSE}
+    mem_limit: ${ELASTIC_MEM_LIMIT}
     ulimits:
       memlock:
         soft: -1
@@ -103,7 +103,7 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
-    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    image: docker.elastic.co/kibana/kibana:${ELASTIC_STACK_VERSION}
     labels:
       co.elastic.logs/module: kibana
     volumes:
@@ -117,10 +117,14 @@ services:
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
       - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
-      - XPACK_SECURITY_ENCRYPTIONKEY=${ENCRYPTION_KEY}
-      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${ENCRYPTION_KEY}
-      - XPACK_REPORTING_ENCRYPTIONKEY=${ENCRYPTION_KEY}
-    mem_limit: ${KB_MEM_LIMIT}
+      - XPACK_SECURITY_ENCRYPTIONKEY=${ELASTIC_ENCRYPTION_KEY}
+      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${ELASTIC_ENCRYPTION_KEY}
+      - XPACK_REPORTING_ENCRYPTIONKEY=${ELASTIC_ENCRYPTION_KEY}
+      - VIRTUAL_HOST=${KIBANA_PRODUCTION_HOST}
+      - LETSENCRYPT_HOST=${KIBANA_PRODUCTION_HOST}
+      - VIRTUAL_PORT=5601
+
+    mem_limit: ${KIBANA_MEM_LIMIT}
     healthcheck:
       test:
         [
