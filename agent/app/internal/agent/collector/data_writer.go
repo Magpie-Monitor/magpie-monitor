@@ -23,8 +23,8 @@ func NewDataWriter(config *config.Config) DataWriter {
 			config.Broker.Password, config.Broker.BatchSize),
 		nodeWriter: remote_write.NewStreamWriter(config.Broker.Url, config.Broker.NodeTopic, config.Broker.Username,
 			config.Broker.Password, config.Broker.BatchSize),
-		podMetadataWriter:  remote_write.NewMetadataWriter(config.Global.PodMetadataRemoteWriteUrl),
-		nodeMetadataWriter: remote_write.NewMetadataWriter(config.Global.NodeMetadataRemoteWriteUrl),
+		podMetadataWriter:  remote_write.NewMetadataWriter(config.Global.PodMetadataRemoteWriteUrl, config.Global.ClusterMetadataServiceClientSecret),
+		nodeMetadataWriter: remote_write.NewMetadataWriter(config.Global.NodeMetadataRemoteWriteUrl, config.Global.ClusterMetadataServiceClientSecret),
 	}
 }
 

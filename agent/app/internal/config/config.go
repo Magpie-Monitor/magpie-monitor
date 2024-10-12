@@ -44,14 +44,15 @@ func (c *Channels) Close() {
 }
 
 type GlobalConfig struct {
-	Mode                          string
-	NodeName                      string
-	ClusterName                   string
-	LogScrapeIntervalSeconds      int
-	MetadataScrapeIntervalSeconds int
-	PodMetadataRemoteWriteUrl     string
-	NodeMetadataRemoteWriteUrl    string
-	RunningLocally                bool
+	Mode                               string
+	NodeName                           string
+	ClusterName                        string
+	LogScrapeIntervalSeconds           int
+	MetadataScrapeIntervalSeconds      int
+	PodMetadataRemoteWriteUrl          string
+	NodeMetadataRemoteWriteUrl         string
+	ClusterMetadataServiceClientSecret string
+	RunningLocally                     bool
 }
 
 type RedisConfig struct {
@@ -103,6 +104,8 @@ func NewConfig() Config {
 	podRemoteWriteMetadataUrl := flag.String("podRemoteWriteMetadataUrl", "", "URL for cluster metadata remote write.")
 	nodeRemoteWriteMetadataUrl := flag.String("nodeRemoteWriteMetadataUrl", "", "URL for node metadata remote write.")
 
+	clusterMetadataServiceClientSecret := flag.String("clusterMetadataServiceClientSecret", "", "Client secret for metadata service remote write.")
+
 	var watchedFiles arrayFlags
 	flag.Var(&watchedFiles, "file", "Log files that are watched for log collector running in \"nodes\" mode.")
 
@@ -122,14 +125,15 @@ func NewConfig() Config {
 
 	return Config{
 		Global: GlobalConfig{
-			Mode:                          *mode,
-			NodeName:                      nodeName,
-			ClusterName:                   *clusterName,
-			LogScrapeIntervalSeconds:      *logScrapeIntervalSeconds,
-			MetadataScrapeIntervalSeconds: *metadataScrapeIntervalSeconds,
-			PodMetadataRemoteWriteUrl:     *podRemoteWriteMetadataUrl,
-			NodeMetadataRemoteWriteUrl:    *nodeRemoteWriteMetadataUrl,
-			RunningLocally:                *runningLocally,
+			Mode:                               *mode,
+			NodeName:                           nodeName,
+			ClusterName:                        *clusterName,
+			LogScrapeIntervalSeconds:           *logScrapeIntervalSeconds,
+			MetadataScrapeIntervalSeconds:      *metadataScrapeIntervalSeconds,
+			PodMetadataRemoteWriteUrl:          *podRemoteWriteMetadataUrl,
+			NodeMetadataRemoteWriteUrl:         *nodeRemoteWriteMetadataUrl,
+			ClusterMetadataServiceClientSecret: *clusterMetadataServiceClientSecret,
+			RunningLocally:                     *runningLocally,
 		},
 		Redis: RedisConfig{
 			Url:      *redisUrl,
