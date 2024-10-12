@@ -22,6 +22,11 @@ type ApplicationMetadata struct {
 	Running bool   `json:"running"`
 }
 
+type ClusterMetadata struct {
+	Name    string `json:"name"`
+	Running bool   `json:"running"`
+}
+
 type NodeMetadata struct {
 	Name    string        `json:"name"`
 	Running bool          `json:"running"`
@@ -32,6 +37,45 @@ type MetadataService struct {
 	log         *zap.Logger
 	clusterRepo *sharedrepo.MongoDbCollection[repositories.ClusterState]
 	nodeRepo    *sharedrepo.MongoDbCollection[repositories.NodeState]
+}
+
+func (m *MetadataService) GetClusterList() ([]ClusterMetadata, error) {
+	clusters, err := m.clusterRepo.GetDistinctDocumentFieldValues("clusterName", bson.D{})
+	if err != nil {
+		m.log.Error("Error fetching cluster list:", zap.Error(err))
+		return nil, err
+	}
+
+	// a cluster is considered running if it reported state in the last hour
+	toMillis := time.Now().UnixMilli()
+	sinceMillis := toMillis - 3_600_000
+
+	activeClusters, err := m.clusterRepo.GetDistinctDocumentFieldValues("clusterName",
+		bson.D{
+			{Key: "$and", Value: bson.A{
+				bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: sinceMillis}}}},
+				bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: toMillis}}}},
+			}},
+		})
+	if err != nil {
+		m.log.Error("Error fetching active cluster list:", zap.Error(err))
+		return nil, err
+	}
+
+	activeClusterSet := map[string]struct{}{}
+	for _, c := range activeClusters {
+		clusterName := c.(string)
+		activeClusterSet[clusterName] = struct{}{}
+	}
+
+	clusterMetadata := make([]ClusterMetadata, len(clusters))
+	for _, c := range clusters {
+		clusterName := c.(string)
+		_, running := activeClusterSet[clusterName]
+		clusterMetadata = append(clusterMetadata, ClusterMetadata{Name: clusterName, Running: running})
+	}
+
+	return clusterMetadata, nil
 }
 
 func (m *MetadataService) GetClusterMetadataForTimerange(clusterName string, sinceMillis int, toMillis int) ([]ApplicationMetadata, error) {
