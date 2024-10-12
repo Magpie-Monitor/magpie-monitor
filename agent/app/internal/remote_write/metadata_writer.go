@@ -7,11 +7,12 @@ import (
 )
 
 type MetadataWriter struct {
-	url string
+	url          string
+	clientSecret string
 }
 
-func NewMetadataWriter(url string) RemoteWriter {
-	return &MetadataWriter{url: url}
+func NewMetadataWriter(url string, clientSecret string) RemoteWriter {
+	return &MetadataWriter{url: url, clientSecret: clientSecret}
 }
 
 func (m *MetadataWriter) Write(content string) {
@@ -31,6 +32,7 @@ func (m *MetadataWriter) sendRequest(url string, content string) (int, error) {
 	}
 
 	r.Header.Add("Content-Type", "application/json")
+	r.Header.Add("client_secret", m.clientSecret)
 	client := &http.Client{}
 	res, err := client.Do(r)
 
