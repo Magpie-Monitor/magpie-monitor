@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -27,8 +28,8 @@ public class Client implements HttpClient {
     }
 
     @Override
-    public <T> T get(String url, Class<T> clazz) {
-        String responseBody = sendGetRequest(url);
+    public <T> T get(String url, Map<String, String> params, Class<T> clazz) {
+        String responseBody = sendGetRequest(getUrl(url, params));
         try {
             return objectMapper.readValue(responseBody, clazz);
         } catch (JsonProcessingException e) {
@@ -37,8 +38,8 @@ public class Client implements HttpClient {
     }
 
     @Override
-    public <T> List<T> getList(String url, Class<T> clazz) {
-        String responseBody = sendGetRequest(url);
+    public <T> List<T> getList(String url, Map<String, String> params, Class<T> clazz) {
+        String responseBody = sendGetRequest(getUrl(url, params));
         try {
             TypeReference<List<T>> typeReference = new TypeReference<>() {};
             return objectMapper.readValue(responseBody, typeReference);
@@ -47,8 +48,23 @@ public class Client implements HttpClient {
         }
     }
 
+    private String getUrl(String baseUrl, Map<String, String> params) {
+        StringBuilder urlBuilder = new StringBuilder(baseUrl);
+        urlBuilder.append("?");
+
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            urlBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
+        }
+
+        urlBuilder.deleteCharAt(urlBuilder.length() - 1);
+
+        return urlBuilder.toString();
+    }
+
     private String sendGetRequest(String url) {
         Request request = new Request.Builder().url(url).build();
+
+        log.info("Sending GET request to: {}", url);
 
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {

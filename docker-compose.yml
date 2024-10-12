@@ -137,6 +137,7 @@ services:
   # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in a dev environment.
   management-service:
     container_name: magpie-monitor-management-service
+    restart: unless-stopped
     image: magpiemonitor/management-service
     build:
       context: ./management-service
@@ -153,6 +154,7 @@ services:
       - MANAGEMENT_EMAIL_PASSWORD=${MANAGEMENT_EMAIL_PASSWORD}
       - MANAGEMENT_EMAIL_HOST=${MANAGEMENT_EMAIL_HOST}
       - MANAGEMENT_CIPHER_ENCRYPTION_KEY=${MANAGEMENT_CIPHER_ENCRYPTION_KEY}
+      - CLUSTER_METADATA_SERVICE_BASE_URL=http://magpie-monitor-cluster-metadata-service:${CLUSTER_METADATA_HTTP_PORT}
       - MANAGEMENT_SERVER_DOMAINNAME=${MANAGEMENT_SERVER_DOMAINNAME}
       - MANAGEMENT_SERVER_REDIRECT_URI=${MANAGEMENT_SERVER_REDIRECT_URI}
       - CLIENT_BASE_URL=${CLIENT_BASE_URL}

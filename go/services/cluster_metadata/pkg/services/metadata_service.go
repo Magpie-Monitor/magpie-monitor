@@ -2,7 +2,6 @@ package services
 
 import (
 	"fmt"
-	"log"
 	"slices"
 	"time"
 
@@ -44,7 +43,6 @@ func (m *MetadataService) GetClusterMetadataForTimerange(clusterName string, sin
 	}
 
 	metadata, err := m.clusterRepo.GetDocuments(filter, bson.D{})
-	log.Println("metadata:", metadata)
 	if err != nil {
 		m.log.Error("Error fetching cluster metadata:", zap.Error(err))
 		return nil, err
