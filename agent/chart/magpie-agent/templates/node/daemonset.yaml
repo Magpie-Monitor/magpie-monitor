@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: magpie-agent-node
-  namespace: {{ .Values.agent.namespace }}
+  namespace: {{ .Release.Namespace }}
   labels:
     name: magpie-agent-node
 spec:
@@ -21,12 +21,34 @@ spec:
           image: woojciech/agent:latest
           command: [ "./bin/server" ]
           args:
+            - "--clusterFriendlyName"
+            - {{ .Values.agent.cluster.friendlyName | quote }}
             - "--scrape"
             - "nodes"
-            - "--remoteWriteUrl"
-            - "google.com"
+            - "--nodeRemoteWriteMetadataUrl"
+            - {{ .Values.agent.remoteWrite.metadata.url | quote }}
             - "--redisUrl"
-            - "magpie-agent-redis.{{ .Values.agent.namespace }}.svc.cluster.local:6379" #TODO - parametrize
+            - "magpie-agent-redis.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.agent.redis.port }}"
+            - "--redisDatabase"
+            - "0"
+            - "--redisPassword"
+            - {{ .Values.agent.redis.password | quote }}
+            - "--logScrapeIntervalSeconds"
+            - "60"
+            - "--metadataScrapeIntervalSeconds"
+            - "60"
+            {{- with .Values.agent.remoteWrite.logs }}
+            - "--remoteWriteBrokerUrl"
+            - {{ .url | quote }}
+            - "--remoteWriteNodeTopic"
+            - {{ .nodesTopic | quote }}
+            - "--remoteWriteBatchSize"
+            - {{ .batchSize | quote }}
+            - "--remoteWriteBrokerUsername"
+            - {{ .username | quote }}
+            - "--remoteWriteBrokerPassword"
+            - {{ .password | quote }}
+            {{- end }}
             {{- range $file := .Values.agent.node.files }}
             - "--file"
             - "{{$file}}"

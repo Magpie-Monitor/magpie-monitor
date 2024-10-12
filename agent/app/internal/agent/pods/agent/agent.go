@@ -33,6 +33,7 @@ type Agent struct {
 	readTimes                         map[string]time.Time
 	results                           chan<- data.Chunk
 	metadata                          chan<- data.ClusterState
+	runningLocally                    bool
 }
 
 func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<- data.ClusterState) *Agent {
@@ -45,6 +46,7 @@ func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<
 		readTimes:                         make(map[string]time.Time),
 		results:                           logsChan,
 		metadata:                          metadataChan,
+		runningLocally:                    cfg.Global.RunningLocally,
 	}
 }
 
@@ -56,15 +58,17 @@ func (a *Agent) Start() {
 }
 
 func (a *Agent) authenticate() {
-	var kubeconfig *string
-	if home := homedir.HomeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	}
-
 	var config *rest.Config
-	if len(*kubeconfig) > 0 {
+
+	if a.runningLocally {
+		var kubeconfig *string
+
+		if home := homedir.HomeDir(); home != "" {
+			kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+		} else {
+			kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+		}
+
 		c, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 		if err != nil {
 			log.Println("Failed to create kubernetes API client from kubeconfig")

@@ -4,6 +4,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: magpie-agent-cluster-svc
+  namespace: {{ $.Release.Namespace }}
   labels:
     name: magpie-agent-cluster-svc
 spec:
