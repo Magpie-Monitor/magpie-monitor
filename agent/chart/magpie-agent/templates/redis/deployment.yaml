@@ -18,10 +18,16 @@ spec:
     spec:
       containers:
         - name: redis
-          image: redis:6
+          image: {{ .Values.agent.redis.image }}
           args:
           - "--requirepass"
           - {{ .Values.agent.redis.password | quote }}
           ports:
             - containerPort: 6379
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
 {{ end }}

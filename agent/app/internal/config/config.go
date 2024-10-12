@@ -93,7 +93,7 @@ func NewConfig() Config {
 	redisDatabase := flag.Int("redisDatabase", 0, "Database number for Redis instance.")
 
 	remoteWriteBrokerUrl := flag.String("remoteWriteBrokerUrl", "localhost:9094", "URL of remote write broker.")
-	remoteWritePodTopic := flag.String("remoteWritePodTopic", "pods", "Broker topic to which pod logs will be sent.")
+	remoteWriteApplicationTopic := flag.String("remoteWriteApplicationTopic", "pods", "Broker topic to which pod logs will be sent.")
 	remoteWriteNodeTopic := flag.String("remoteWriteNodeTopic", "nodes", "Broker topic to which node logs will be sent.")
 	remoteWriteBatchSize := flag.Int("remoteWriteBatchSize", 0, "Number of messages that are buffered and sent to broker in a single batch.")
 
@@ -140,7 +140,7 @@ func NewConfig() Config {
 			Url:       *remoteWriteBrokerUrl,
 			Username:  *remoteWriteBrokerUsername,
 			Password:  *remoteWriteBrokerPassword,
-			PodTopic:  *remoteWritePodTopic,
+			PodTopic:  *remoteWriteApplicationTopic,
 			NodeTopic: *remoteWriteNodeTopic,
 			BatchSize: *remoteWriteBatchSize,
 		},

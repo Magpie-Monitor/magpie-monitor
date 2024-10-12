@@ -1,30 +1,25 @@
 agent:
-  node:
+  friendlyName: magpie-cloud-dev-cluster
+  application:
     enabled: true
-    service:
-      port: 8080
-      targetPort: 8080
-    files:
-      - /var/log/calico/cni/cni.log
-  cluster:
-    enabled: true
-    friendlyName: magpie-cloud-dev-cluster
+    image: woojciech/agent:latest 
     excludedNamespaces:
       - kube-system
-    service:
-      port: 8080
-      targetPort: 8080
-  redis:
+  node:
     enabled: true
-    password: redispass
-    port: 6379
+    image: woojciech/agent:latest 
+    files:
+      - /var/log/calico/cni/cni.log
+  redis:
+    enabled: true # Set enabled: false if running custom Redis instance
+    image: redis:6
+    url: <URL> # Fill in if running custom Redis instance 
+    database: <DATABASE> # Fill in if running custom Redis instance
+    password: <PASSWORD> # Fill in with safe password of your choice
   remoteWrite:
     metadata:
-      url: google.com
+      url: <URL>
     logs:
       url: <URL>
-      username: <username>
-      password: <password>
-      clusterTopic: pods
-      nodesTopic: nodes
-      batchSize: 5
+      username: <USERNAME>
+      password: <PASSWORD>

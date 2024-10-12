@@ -1,4 +1,4 @@
-{{ if .Values.agent.cluster.enabled }}
+{{ if .Values.agent.application.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,37 +18,20 @@ spec:
     spec:
       containers:
         - name: magpie-agent-cluster
-          image: woojciech/agent:latest
+          image: {{ .Values.agent.application.image }}
           command: [ "./bin/server" ]
           args:
-            - "--clusterFriendlyName"
-            - {{ .Values.agent.cluster.friendlyName | quote }}
-            - "--scrape"
-            - "pods"
-            - "--podRemoteWriteMetadataUrl"
-            - {{ .Values.agent.remoteWrite.metadata.url | quote }}
-            - "--redisUrl"
-            - "magpie-agent-redis.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.agent.redis.port }}"
-            - "--redisDatabase"
-            - "0"
-            - "--redisPassword"
-            - {{ .Values.agent.redis.password | quote }}
-            - "--logScrapeIntervalSeconds"
-            - "60"
-            - "--metadataScrapeIntervalSeconds"
-            - "60"
-            {{- with .Values.agent.remoteWrite.logs }}
-            - "--remoteWriteBrokerUrl"
-            - {{ .url | quote }}
-            - "--remoteWritePodTopic"
-            - {{ .podsTopic | quote }}
-            - "--remoteWriteBatchSize"
-            - {{ .batchSize | quote }}
-            - "--remoteWriteBrokerUsername"
-            - {{ .username | quote }}
-            - "--remoteWriteBrokerPassword"
-            - {{ .password | quote }}
-            {{- end }}
+            {{ include "agent.pod.config" . | indent 12 | trim }}
+            {{ include "redis.connection" . | indent 12 | trim }}
+            {{ include "metadata.scrapeIntervals" . | indent 12 | trim }}
+            {{ include "broker.connection" . | indent 12 | trim }}
+            {{ include "agent.pod.excludedNamespaces" . | indent 12 | trim }}
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
       terminationGracePeriodSeconds: 30
       serviceAccountName: magpie-agent-service-account
 {{ end }}
