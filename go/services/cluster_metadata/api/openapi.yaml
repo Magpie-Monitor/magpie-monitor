@@ -27,7 +27,7 @@ paths:
                 applications:
                   type: array
                   items:
-                    $ref "#/components/schemas/Application"
+                    $ref: "#/components/schemas/Application"
       responses:
         "200":
           description: Successfully inserted metadata
@@ -43,6 +43,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+                
   /v1/metadata/nodes:
     post:
       summary: Insert node metadata
@@ -90,7 +91,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /v1/metadata/clusters/${id}/applications:
+
+  /v1/metadata/clusters/{id}/applications:
     get:
       summary: Get metadata for cluster applications
       description: Returns deduplicated metadata for cluster applications, indicates which applications are running
@@ -98,7 +100,7 @@ paths:
       tags:
         - metadata
       parameters:
-        - in: path:
+        - in: path
           name: id
           required: true
           schema:
@@ -135,7 +137,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /v1/metadata/clusters/${id}/nodes:
+
+  /v1/metadata/clusters/{id}/nodes:
     get:
       summary: Get metadata for cluster nodes
       description: Returns deduplicated metadata for cluster nodes, indicates which nodes are running
@@ -143,7 +146,7 @@ paths:
       tags:
         - metadata
       parameters:
-        - in: path:
+        - in: path
           name: id
           required: true
           schema:
@@ -180,12 +183,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     ApplicationsMetadata:
       type: array
       items:
         $ref: "#/components/schemas/ApplicationMetadata"
+
     ApplicationMetadata:
       type: object
       properties:
@@ -198,10 +203,12 @@ components:
         running:
           type: boolean
           description: Whether an application is currently running
+
     NodesMetadata:
       type: array
       items:
         $ref: "#/components/schemas/NodeMetadata"
+
     NodeMetadata:
       type: object
       properties:
@@ -210,8 +217,8 @@ components:
           description: Name of an application
         files:
           type: array
-            items:
-              type: string
+          items:
+            type: string
           description: Files that are watched by the node
         running:
           type: boolean
@@ -226,14 +233,14 @@ components:
         name:
           type: string
           description: Name of the application
+
     ErrorResponse:
       type: object
       properties:
         timestampMillis:
           type: integer
-            format: int64
+          format: int64
           description: Millisecond timestamp when error occured
         error:
           type: string
           description: Error message
-      
