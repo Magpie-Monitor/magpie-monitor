@@ -2,10 +2,8 @@ package pl.pwr.zpi.reports;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import pl.pwr.zpi.reports.scheduler.ReportScheduler;
 
 import java.util.List;
 
@@ -15,6 +13,7 @@ import java.util.List;
 public class ReportsController {
 
     private final ReportsService reportsService;
+    private final ReportScheduler reportScheduler;
 
     @GetMapping
     public ResponseEntity<List<ReportSummarizedDTO>> getReport() throws Exception {
@@ -24,5 +23,11 @@ public class ReportsController {
     @GetMapping("/{id}")
     public ResponseEntity<ReportDTO> getReportById(@PathVariable String id) throws Exception {
         return ResponseEntity.ok().body(reportsService.getReportById(id));
+    }
+
+    @PostMapping("/schedule")
+    public String setReportSchedule(@RequestParam Long days, @RequestParam Long hours, @RequestParam Long minutes) {
+        reportScheduler.scheduleReport(days, hours, minutes);
+        return "Report scheduled to run every " + days + " day(s)";
     }
 }
