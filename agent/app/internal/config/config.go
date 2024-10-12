@@ -51,6 +51,7 @@ type GlobalConfig struct {
 	MetadataScrapeIntervalSeconds int
 	PodMetadataRemoteWriteUrl     string
 	NodeMetadataRemoteWriteUrl    string
+	RunningLocally                bool
 }
 
 type RedisConfig struct {
@@ -78,6 +79,8 @@ type Config struct {
 
 func NewConfig() Config {
 	nodeName := os.Getenv("NODE_NAME")
+
+	runningLocally := flag.Bool("runningLocally", false, "Determines whether an agent is running locally in a dev environment.")
 
 	mode := flag.String("scrape", "pods", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
 	clusterName := flag.String("clusterFriendlyName", "unknown", "Friendly name of your cluster, visible in Magpie Cloud.")
@@ -126,6 +129,7 @@ func NewConfig() Config {
 			MetadataScrapeIntervalSeconds: *metadataScrapeIntervalSeconds,
 			PodMetadataRemoteWriteUrl:     *podRemoteWriteMetadataUrl,
 			NodeMetadataRemoteWriteUrl:    *nodeRemoteWriteMetadataUrl,
+			RunningLocally:                *runningLocally,
 		},
 		Redis: RedisConfig{
 			Url:      *redisUrl,

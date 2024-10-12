@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: magpie-agent-cluster
-  namespace: {{ .Values.agent.namespace }}
+  namespace: {{ .Release.Namespace }}
   labels:
     name: magpie-agent-cluster
 spec:
@@ -19,13 +19,36 @@ spec:
       containers:
         - name: magpie-agent-cluster
           image: woojciech/agent:latest
-          command: [ "./server" ]
+          command: [ "./bin/server" ]
           args:
+            - "--clusterFriendlyName"
+            - {{ .Values.agent.cluster.friendlyName | quote }}
             - "--scrape"
             - "pods"
+            - "--podRemoteWriteMetadataUrl"
+            - {{ .Values.agent.remoteWrite.metadata.url | quote }}
             - "--redisUrl"
-            - "magpie-agent-redis.{{ .Values.agent.namespace }}.svc.cluster.local:6379"
-            - "--clusterFriendlyName"
-            - "{{ .Values.agent.cluster.friendlyName }}"
+            - "magpie-agent-redis.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.agent.redis.port }}"
+            - "--redisDatabase"
+            - "0"
+            - "--redisPassword"
+            - {{ .Values.agent.redis.password | quote }}
+            - "--logScrapeIntervalSeconds"
+            - "60"
+            - "--metadataScrapeIntervalSeconds"
+            - "60"
+            {{- with .Values.agent.remoteWrite.logs }}
+            - "--remoteWriteBrokerUrl"
+            - {{ .url | quote }}
+            - "--remoteWritePodTopic"
+            - {{ .podsTopic | quote }}
+            - "--remoteWriteBatchSize"
+            - {{ .batchSize | quote }}
+            - "--remoteWriteBrokerUsername"
+            - {{ .username | quote }}
+            - "--remoteWriteBrokerPassword"
+            - {{ .password | quote }}
+            {{- end }}
+      terminationGracePeriodSeconds: 30
       serviceAccountName: magpie-agent-service-account
 {{ end }}

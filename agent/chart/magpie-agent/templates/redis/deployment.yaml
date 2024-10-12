@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: magpie-agent-redis
-  namespace: {{ .Values.agent.namespace }}
+  namespace: {{ .Release.Namespace }}
   labels:
     name: magpie-agent-redis
 spec:
@@ -19,6 +19,9 @@ spec:
       containers:
         - name: redis
           image: redis:6
+          args:
+          - "--requirepass"
+          - {{ .Values.agent.redis.password | quote }}
           ports:
             - containerPort: 6379
 {{ end }}
