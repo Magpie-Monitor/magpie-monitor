@@ -16,12 +16,14 @@ type ApplicationIncidentSource struct {
 }
 
 type ApplicationIncident struct {
-	Id             string                      `bson:"_id,omitempty" json:"id"`
-	Category       string                      `bson:"category" json:"category"`
-	Summary        string                      `bson:"summary" json:"summary"`
-	Recommendation string                      `bson:"recommendation" json:"recommendation"`
-	Urgency        Urgency                     `bson:"urgency" json:"urgency"`
-	Sources        []ApplicationIncidentSource `bson:"sources" json:"sources"`
+	Id              string                      `bson:"_id,omitempty" json:"id"`
+	ApplicationName string                      `bson:"applicationName" json:"applicationName"`
+	ClusterId       string                      `bson:"clusterId" json:"clusterId"`
+	Category        string                      `bson:"category" json:"category"`
+	Summary         string                      `bson:"summary" json:"summary"`
+	Recommendation  string                      `bson:"recommendation" json:"recommendation"`
+	Urgency         Urgency                     `bson:"urgency" json:"urgency"`
+	Sources         []ApplicationIncidentSource `bson:"sources" json:"sources"`
 }
 
 func NewApplicationIncidentsCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[*ApplicationIncident] {

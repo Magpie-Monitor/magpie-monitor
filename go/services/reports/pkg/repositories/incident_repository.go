@@ -53,9 +53,9 @@ func NewIncidentInternalError(err error) *IncidentRepositoryError {
 }
 
 type IncidentRepository[T any] interface {
-	InsertIncidents(ctx context.Context, incidents []*T) ([]string, error)
-	GetIncident(ctx context.Context, id string) (*T, error)
-	GetIncidentsByIds(ctx context.Context, ids []string) ([]*T, error)
+	InsertIncidents(ctx context.Context, incidents []*T) ([]string, *IncidentRepositoryError)
+	GetIncident(ctx context.Context, id string) (*T, *IncidentRepositoryError)
+	GetIncidentsByIds(ctx context.Context, ids []string) ([]*T, *IncidentRepositoryError)
 }
 
 type MongoDbIncidentRepository[T any] struct {
@@ -63,7 +63,7 @@ type MongoDbIncidentRepository[T any] struct {
 	logger            *zap.Logger
 }
 
-func (r *MongoDbIncidentRepository[T]) InsertIncidents(ctx context.Context, incidents []*T) ([]string, error) {
+func (r *MongoDbIncidentRepository[T]) InsertIncidents(ctx context.Context, incidents []*T) ([]string, *IncidentRepositoryError) {
 
 	documents := make([]interface{}, 0, len(incidents))
 	for _, incident := range incidents {
@@ -73,8 +73,8 @@ func (r *MongoDbIncidentRepository[T]) InsertIncidents(ctx context.Context, inci
 	ids, err := r.mongoDbCollection.InsertDocuments(documents)
 
 	if err != nil {
-		r.logger.Error("Failed to insert node incidents", zap.Error(err))
-		return nil, err
+		r.logger.Error("Failed to insert incidents", zap.Error(err))
+		return nil, NewIncidentInternalError(err)
 	}
 
 	createdIds := array.Map(func(objectId primitive.ObjectID) string {
@@ -84,7 +84,7 @@ func (r *MongoDbIncidentRepository[T]) InsertIncidents(ctx context.Context, inci
 	return createdIds, nil
 }
 
-func (r *MongoDbIncidentRepository[T]) GetIncident(ctx context.Context, id string) (*T, error) {
+func (r *MongoDbIncidentRepository[T]) GetIncident(ctx context.Context, id string) (*T, *IncidentRepositoryError) {
 
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -102,7 +102,7 @@ func (r *MongoDbIncidentRepository[T]) GetIncident(ctx context.Context, id strin
 	return incident, nil
 }
 
-func (r *MongoDbIncidentRepository[T]) GetIncidentsByIds(ctx context.Context, ids []string) ([]*T, error) {
+func (r *MongoDbIncidentRepository[T]) GetIncidentsByIds(ctx context.Context, ids []string) ([]*T, *IncidentRepositoryError) {
 
 	idObjects := array.Map(func(id string) primitive.ObjectID {
 		idObj, err := primitive.ObjectIDFromHex(id)
@@ -113,10 +113,9 @@ func (r *MongoDbIncidentRepository[T]) GetIncidentsByIds(ctx context.Context, id
 	})(ids)
 
 	incidents, err := r.mongoDbCollection.GetDocuments(bson.D{{Key: "_id", Value: bson.M{"$in": idObjects}}}, primitive.D{})
-
 	if err != nil {
 		r.logger.Error("Failed to find application incidents by ids", zap.Error(err))
-		return nil, err
+		return nil, NewIncidentInternalError(err)
 	}
 
 	return incidents, nil

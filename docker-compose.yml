@@ -133,7 +133,7 @@ services:
       LETSENCRYPT_HOST: ${REPORTS_MONGO_EXPRESS_PRODUCTION_HOST}
       VIRTUAL_PORT: 8081
     depends_on:
-      - mongodb
+      - reports-mongodb
   # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in a dev environment.
   management-service:
     container_name: magpie-monitor-management-service

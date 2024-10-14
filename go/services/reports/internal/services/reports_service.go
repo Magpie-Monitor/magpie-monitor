@@ -118,6 +118,8 @@ func (s *ReportsService) ScheduleReport(
 		TotalApplicationEntries:      len(applicationLogs),
 		ScheduledApplicationInsights: applicationInsights,
 		ScheduledNodeInsights:        nodeInsights,
+		NodeReports:                  []*repositories.NodeReport{},
+		ApplicationReports:           []*repositories.ApplicationReport{},
 	})
 
 	return report, nil
@@ -301,13 +303,15 @@ func (s *ReportsService) getApplicationIncidentFromInsight(insight insights.Appl
 	})(insight.Metadata)
 
 	return &repositories.ApplicationIncident{
-		Category:       insight.Insight.Category,
-		Summary:        insight.Insight.Summary,
-		Recommendation: insight.Insight.Recommendation,
-		Urgency:        insight.Insight.Urgency,
-		Sources:        sources,
-	}
 
+		ApplicationName: insight.Metadata[0].ApplicationName,
+		ClusterId:       insight.Metadata[0].ClusterId,
+		Category:        insight.Insight.Category,
+		Summary:         insight.Insight.Summary,
+		Recommendation:  insight.Insight.Recommendation,
+		Urgency:         insight.Insight.Urgency,
+		Sources:         sources,
+	}
 }
 
 // Get maximum of all urgencies from incidents from passed reports
@@ -340,20 +344,20 @@ func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsight
 
 	sources := array.Map(func(metadata insights.NodeInsightMetadata) repositories.NodeIncidentSource {
 		return repositories.NodeIncidentSource{
-			NodeName:  metadata.NodeName,
 			Content:   metadata.Source,
 			Timestamp: metadata.Timestamp,
 		}
 	})(insight.Metadata)
 
 	return &repositories.NodeIncident{
+		ClusterId:      insight.Metadata[0].ClusterId,
+		NodeName:       insight.Metadata[0].NodeName,
 		Category:       insight.Insight.Category,
 		Summary:        insight.Insight.Summary,
 		Recommendation: insight.Insight.Recommendation,
 		Urgency:        insight.Insight.Urgency,
 		Sources:        sources,
 	}
-
 }
 
 func (s *ReportsService) GetApplicationReportsFromInsights(

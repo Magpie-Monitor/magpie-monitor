@@ -63,7 +63,7 @@ type Report struct {
 	TotalNodeEntries        int                  `bson:"totalNodeEntries" json:"totalNodeEntries"`
 	Urgency                 Urgency              `bson:"urgency" json:"urgency"`
 
-	// Present only if report is pending
+	// Filled only when report is scheduled
 	ScheduledApplicationInsights *ScheduledApplicationInsights `bson:"scheduledApplicationInsights" json:"scheduledApplicationInsights"`
 	ScheduledNodeInsights        *ScheduledNodeInsights        `bson:"scheduledNodeInsights" json:"scheduledNodeInsights"`
 }
