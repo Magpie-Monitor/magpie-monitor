@@ -17,7 +17,6 @@ const LoginPanel = () => {
                 src={magpieLogo}
                 alt="Magpie logo"
                 className="login-panel__image"
-                width="280"
             />
             <div className="login-panel__body">
                 <button className="login-panel__body__button" onClick={handleGoogleLogin}>
