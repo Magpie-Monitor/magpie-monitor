@@ -3,6 +3,7 @@ package pl.pwr.zpi.reports;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.pwr.zpi.reports.scheduler.ReportSchedule;
 import pl.pwr.zpi.reports.scheduler.ReportScheduler;
 
 import java.util.List;
@@ -26,8 +27,19 @@ public class ReportsController {
     }
 
     @PostMapping("/schedule")
-    public String setReportSchedule(@RequestParam Long days, @RequestParam Long hours, @RequestParam Long minutes) {
+    public ResponseEntity<?> setReportSchedule(@RequestParam Long days, @RequestParam Long hours, @RequestParam Long minutes) {
         reportScheduler.scheduleReport(days, hours, minutes);
-        return "Report scheduled to run every " + days + " day(s)";
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/schedule/stop")
+    public ResponseEntity<?> stopScheduledReport() {
+        reportScheduler.deactivateSchedule();
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/schedule/last-run")
+    public ResponseEntity<ReportSchedule> getLastRunTime() {
+        return ResponseEntity.ok().body(reportScheduler.getLastRunTime());
     }
 }

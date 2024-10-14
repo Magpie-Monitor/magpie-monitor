@@ -9,9 +9,13 @@ import org.springframework.stereotype.Service;
 import pl.pwr.zpi.reports.ReportsService;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import static com.zaxxer.hikari.util.ClockSource.toMillis;
 
 @Service
 @Slf4j
@@ -30,9 +34,35 @@ public class ReportScheduler {
         ((ThreadPoolTaskScheduler) taskScheduler).initialize();
     }
 
-//    @PostConstruct
+    @PostConstruct
     public void init() {
-        reportScheduleRepository.getFirst().ifPresentOrElse(this::scheduleNextRun, () -> log.info("No report schedule found"));
+        reportScheduleRepository.getFirst().ifPresentOrElse(this::generatePastReports, () -> log.info("No report schedule found"));
+    }
+
+    private void generatePastReports(ReportSchedule reportSchedule) {
+        if (!reportSchedule.getActive()) {
+            log.info("Report schedule is inactive, skipping past reports generation.");
+            return;
+        }
+        long breakBetweenReports = Duration.between(reportSchedule.getLastRunTime(), LocalDateTime.now()).toMillis();
+        long periodInMillis = reportSchedule.getPeriodInMilis();
+
+        long numberOfReportsToGenerate = breakBetweenReports / periodInMillis;
+
+        LocalDateTime lastRunTime = reportSchedule.getLastRunTime();
+        Duration periodDuration = Duration.ofMillis(periodInMillis);
+
+        for (int i = 0; i < numberOfReportsToGenerate; i++) {
+            lastRunTime = lastRunTime.plus(periodDuration);
+            reportJobService.generateReport(reportSchedule.getLastRunTime(), lastRunTime);
+            reportSchedule.setLastRunTime(LocalDateTime.now());
+            reportScheduleRepository.save(reportSchedule);
+        }
+
+        reportSchedule.setLastRunTime(lastRunTime);
+        reportScheduleRepository.save(reportSchedule);
+
+        scheduleNextRun(reportSchedule);
     }
 
     public void scheduleReport(Long days, Long hours, Long minutes) {
@@ -40,31 +70,26 @@ public class ReportScheduler {
                 .orElseGet(() -> createNewSchedule(days, hours, minutes));
 
         long periodInMillis = (days * 24 * 60 + hours * 60 + minutes) * 60 * 1000;
+        scheduleReport(reportSchedule, periodInMillis);
+    }
+
+    public void deactivateSchedule() {
+        reportScheduleRepository.getFirst().ifPresent(reportSchedule -> {
+            reportSchedule.setActive(false);
+            reportScheduleRepository.save(reportSchedule);
+            if (scheduledTask != null) {
+                scheduledTask.cancel(false);
+            }
+            log.info("Report schedule deactivated.");
+        });
+    }
+
+    private void scheduleReport(ReportSchedule reportSchedule, Long periodInMillis) {
         reportSchedule.setPeriodInMilis(periodInMillis);
-
         reportScheduleRepository.save(reportSchedule);
-
-        handleMissedRuns(reportSchedule);
-
         scheduleNextRun(reportSchedule);
     }
 
-    private void handleMissedRuns(ReportSchedule reportSchedule) {
-        if (reportSchedule.getLastRunTime() != null) {
-            LocalDateTime now = LocalDateTime.now();
-            long periodInMillis = reportSchedule.getPeriodInMilis();
-            LocalDateTime lastRunTime = reportSchedule.getLastRunTime();
-            Duration periodDuration = Duration.ofMillis(periodInMillis);
-
-            while (lastRunTime.plus(periodDuration).isBefore(now)) {
-                lastRunTime = lastRunTime.plus(periodDuration);
-                reportJobService.generateReport(reportSchedule.getLastRunTime(), lastRunTime);
-            }
-
-            reportSchedule.setLastRunTime(lastRunTime);
-            reportScheduleRepository.save(reportSchedule);
-        }
-    }
 
     private void scheduleNextRun(ReportSchedule reportSchedule) {
         if (scheduledTask != null) {
@@ -80,13 +105,18 @@ public class ReportScheduler {
 
             reportSchedule.setLastRunTime(LocalDateTime.now());
             reportScheduleRepository.save(reportSchedule);
-        }, Duration.ofMillis(Math.max(0, delayInMillis)));
+        }, Instant.ofEpochMilli(Math.max(0, delayInMillis)), Duration.ofMillis(reportSchedule.getPeriodInMilis()));
     }
 
     private ReportSchedule createNewSchedule(Long days, Long hours, Long minutes) {
-        ReportSchedule reportSchedule = new ReportSchedule();
-        reportSchedule.setLastRunTime(null);
-        reportSchedule.setPeriodInMilis((days * 24 * 60 + hours * 60 + minutes) * 60 * 1000);
-        return reportSchedule;
+        return ReportSchedule.builder()
+                .lastRunTime(null)
+                .periodInMilis((days * 24 * 60 + hours * 60 + minutes) * 60 * 1000)
+                .active(true)
+                .build();
+    }
+
+    public ReportSchedule getLastRunTime() {
+        return reportScheduleRepository.getFirst().orElse(null);
     }
 }

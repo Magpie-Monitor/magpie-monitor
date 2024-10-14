@@ -48,12 +48,12 @@ public class SecurityConfig {
                             "/login**",
                             "/error"
                             ).permitAll();
-                    request.anyRequest().authenticated();
+                    request.anyRequest().permitAll();
                 })
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(oauthUserService))
-                        .successHandler(oAuth2LoginSuccessHandler))
+//                .oauth2Login(oauth2 -> oauth2
+//                        .userInfoEndpoint(userInfo -> userInfo
+//                                .userService(oauthUserService))
+//                        .successHandler(oAuth2LoginSuccessHandler))
                 .logout((logout) -> logout
                         .logoutUrl("/api/v1/auth/logout")
                         .clearAuthentication(true)

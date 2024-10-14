@@ -22,4 +22,5 @@ public class ReportSchedule {
     private Long id;
     private LocalDateTime lastRunTime;
     private Long periodInMilis;
+    private Boolean active;
 }
