@@ -1,10 +1,10 @@
 @import '@/variables';
 
 .login-panel {
-  background-color: $tertiary;
+  background-color: $component-background;
   margin: auto;
   width: 450px;
-  height: 500px;
+  height: 600px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,7 +12,7 @@
   border-radius: 20px;
   border-width: 2px;
   border-style: solid;
-  border-color: $secondary;
+  border-color: $component-border-color;
   box-shadow: 0 5px 5px $secondary;
 
   @media (max-width: $md) {
@@ -38,6 +38,24 @@
     }
   }
 
+  &__image {
+    width: 250px;
+    height: 250px;
+    margin-top: 2rem;
+    margin-bottom: 7rem;
+  }
+
+  &__subheader--green {
+    font-size: 1rem;
+    font-weight: 300;
+    color: $navbar-selected-color;
+    text-decoration: underline;
+
+    @media (max-width: $md) {
+      font-size: 1rem;
+    }
+  }
+
   &__body {
     padding: 1rem;
     height: 100%;
@@ -55,18 +73,19 @@
       font-size: 1.3rem;
       display: flex;
       align-items: center;
-      border-color: $red;
+      border-color: $component-border-color;
       padding: 0;
       padding-left: 5%;
       padding-right: 5%;
       transition: all 0.1s;
+      background-color: $component-secondary-background;
 
       @media (max-width: $md) {
         width: 100%;
       }
 
       &:hover {
-        box-shadow: 0 5px 5px $red-light;
+        box-shadow: 0 2px 2px $component-border-color;
         transform: scale(1.02);
         background-color: $quaternary;
       }

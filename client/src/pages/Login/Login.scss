@@ -4,14 +4,6 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  grid-template-columns: 5fr 4fr;
-  display: grid;
-  background: transparent;
-  max-width: 1920px;
-  column-gap: 5rem;
-  margin: auto;
-
-  @media (max-width: $xl) {
-    grid-template-columns: 1fr;
-  }
+  display: flex;
+  background-color: transparent;
 }
