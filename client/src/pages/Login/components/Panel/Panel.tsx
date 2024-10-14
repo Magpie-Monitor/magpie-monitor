@@ -31,7 +31,7 @@ const LoginPanel = () => {
                 </button>
             </div>
             <div className="login-panel__subheader">Can’t access the page?</div>
-            <div className="login-panel__subheader-green">Contact your administrator.</div>
+            <div className="login-panel__subheader--green">Contact your administrator.</div>
         </div>
     );
 };
