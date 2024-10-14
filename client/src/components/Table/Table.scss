@@ -22,8 +22,6 @@
     grid-template-columns: subgrid;
     grid-column: span 100;
     overflow-y: scroll;
-
-    /* max-height: 30vh; */
   }
 
   &__row {
@@ -38,13 +36,12 @@
 
   &__cell,
   &__header {
-    grid: grid;
     grid-template-columns: subgrid;
-
-    /* grid-column: span 30; */
     text-wrap: wrap;
     padding: 0 1rem;
     font-size: 1rem;
+    display: flex;
+    align-items: center;
   }
 
   &__header {

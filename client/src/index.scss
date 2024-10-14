@@ -1,20 +1,15 @@
 /* stylelint-disable-next-line import-notation */
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import '@/variables';
 
 :root {
   font-family: Roboto, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   box-sizing: content-box;
-
-  /* background-image: linear-gradient(rgb(217 217 217 / 100%), rgb(219 255 241 / 100%)); */
-  background-color: #07111b;
+  background-color: $background;
   color-scheme: dark;
-
-  /* color: rgb(0 0 0 / 87%); */
-  color: white;
-
-  /* color: rgb(49 49 49 / 100%); */
+  color: $font-color;
   font-synthesis: none;
   text-rendering: optimizelegibility;
   -webkit-font-smoothing: antialiased;
@@ -23,12 +18,7 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
   text-decoration: inherit;
-}
-
-a:hover {
-  color: #535bf2;
 }
 
 body {
@@ -53,30 +43,10 @@ button {
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  background-color: rgb(244 244 244 / 30%);
   transition: border-color 0.25s;
-}
-
-button:hover {
-  border-color: #f91515;
 }
 
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #fff;
-  }
-
-  a:hover {
-    color: #747bff;
-  }
-
-  button {
-    background-color: #f9f9f9;
-  }
 }

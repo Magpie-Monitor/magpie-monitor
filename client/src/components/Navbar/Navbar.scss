@@ -1,7 +1,6 @@
 @import '@/variables';
 
 .navbar {
-  background-image: url('@/assets/login-banner.png');
   position: fixed;
   width: 15rem;
   height: 100%;
@@ -17,19 +16,18 @@
   left: 0;
   background-color: $navbar-backgroud-color;
 
-
   &__logo {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
-  
+
     &__image {
       width: 3.5rem;
       height: 3rem;
       border-radius: 7rem;
     }
-  
+
     &__name {
       font-size: 1.5rem;
       color: $navbar-text-color;
