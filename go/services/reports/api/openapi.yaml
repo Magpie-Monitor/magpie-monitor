@@ -87,6 +87,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Report"
+  /v1/node-incidents/{id}:
+    get:
+      summary: Get a single node incident by ID
+      operationId: getSingleNodeIncident
+      responses:
+        "200":
+          description: Node incident details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NodeIncident"
+  /v1/application-incidents/{id}:
+    get:
+      summary: Get a single application incident by ID
+      operationId: getSingleApplicationIncident
+      responses:
+        "200":
+          description: Application incident details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationIncident"
 
 components:
   schemas:
@@ -173,6 +195,10 @@ components:
           type: string
         category:
           type: string
+        clusterId:
+          type: string
+        nodeName:
+          type: string
         summary:
           type: string
         recommendation:
@@ -188,6 +214,10 @@ components:
       type: object
       properties:
         id:
+          type: string
+        clusterId:
+          type: string
+        applicationName:
           type: string
         category:
           type: string
@@ -208,8 +238,6 @@ components:
         timestamp:
           type: integer
           format: int64
-        nodeName:
-          type: string
         content:
           type: string
 

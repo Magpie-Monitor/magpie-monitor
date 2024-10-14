@@ -28,11 +28,13 @@ type ApplicationLogsInsight struct {
 }
 
 type ApplicationInsightMetadata struct {
-	Timestamp     int64  `json:"timestamp"`
-	ContainerName string `json:"containerName"`
-	PodName       string `json:"podName"`
-	Image         string `json:"image"`
-	Source        string `json:"source"`
+	Timestamp       int64  `json:"timestamp"`
+	ApplicationName string `json:"applicationName"`
+	ClusterId       string `json:"clusterId"`
+	ContainerName   string `json:"containerName"`
+	PodName         string `json:"podName"`
+	Image           string `json:"image"`
+	Source          string `json:"source"`
 }
 
 type ApplicationInsightsWithMetadata struct {
@@ -106,11 +108,13 @@ func (g *OpenAiInsightsGenerator) addMetadataToApplicationInsight(
 		}
 
 		applicationInsightsMetadata = append(applicationInsightsMetadata, ApplicationInsightMetadata{
-			Timestamp:     log.Timestamp,
-			ContainerName: log.ContainerName,
-			PodName:       log.PodName,
-			Source:        log.Content,
-			Image:         log.Image,
+			ApplicationName: log.ApplicationName,
+			ClusterId:       log.Cluster,
+			Timestamp:       log.Timestamp,
+			ContainerName:   log.ContainerName,
+			PodName:         log.PodName,
+			Source:          log.Content,
+			Image:           log.Image,
 		},
 		)
 	}

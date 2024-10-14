@@ -3,10 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"net"
-	"net/http"
-	"os"
-
 	elasticsearch "github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
@@ -21,15 +17,19 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
+	"net"
+	"net/http"
+	"os"
 )
 
 type ServerParams struct {
 	fx.In
-	Lc            fx.Lifecycle
-	Logger        *zap.Logger
-	RootRouter    *mux.Router
-	ReportsRouter *handlers.ReportsRouter
-	SwaggerRouter *swagger.SwaggerRouter
+	Lc              fx.Lifecycle
+	Logger          *zap.Logger
+	RootRouter      *mux.Router
+	ReportsRouter   *handlers.ReportsRouter
+	SwaggerRouter   *swagger.SwaggerRouter
+	IncidentsRouter *handlers.IncidentsRouter
 }
 
 func NewHTTPServer(serverParams ServerParams) *http.Server {
@@ -69,6 +69,11 @@ func main() {
 			services.NewReportsService,
 			handlers.NewReportsRouter,
 			handlers.NewReportsHandler,
+
+			handlers.NewIncidentsRouter,
+			handlers.NewIncidentHandler,
+			services.NewNodeIncidentsService,
+			services.NewApplicationIncidentsService,
 
 			swagger.NewSwaggerRouter,
 			swagger.NewSwaggerHandler,

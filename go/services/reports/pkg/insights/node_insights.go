@@ -28,6 +28,7 @@ type NodeLogsInsight struct {
 }
 
 type NodeInsightMetadata struct {
+	ClusterId string `json:"clusterId"`
 	NodeName  string `json:"nodeName"`
 	Timestamp int64  `json:"timestamp"`
 	Source    string `json:"source"`
@@ -323,6 +324,7 @@ func (g *OpenAiInsightsGenerator) addMetadataToNodeInsight(
 			Timestamp: log.Timestamp,
 			NodeName:  log.Name,
 			Source:    log.Content,
+			ClusterId: log.Cluster,
 		},
 		)
 	}

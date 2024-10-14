@@ -9,12 +9,13 @@ import (
 
 type NodeIncidentSource struct {
 	Timestamp int64  `bson:"timestamp" json:"timestamp"`
-	NodeName  string `bson:"nodeName" json:"nodeName"`
 	Content   string `bson:"content" json:"content"`
 }
 
 type NodeIncident struct {
 	Id             string               `bson:"_id,omitempty" json:"id"`
+	ClusterId      string               `bson:"clusterId" json:"clusterId"`
+	NodeName       string               `bson:"nodeName" json:"nodeName"`
 	Category       string               `bson:"category" json:"category"`
 	Summary        string               `bson:"summary" json:"summary"`
 	Recommendation string               `bson:"recommendation" json:"recommendation"`
