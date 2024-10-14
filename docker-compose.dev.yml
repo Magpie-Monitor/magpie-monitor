@@ -46,10 +46,16 @@ services:
       dockerfile: Dockerfile
     restart: always
     command:
+      - "--runningLocally"
+      - "true"
+      - "--clusterFriendlyName"
+      - "local-docker"
       - "--scrape"
       - "pods"
-      - "--scrapeIntervalSeconds"
-      - "30"
+      - "--logScrapeIntervalSeconds"
+      - ${POD_AGENT_LOG_SCRAPE_INTERVAL_SECONDS}
+      - "--metadataScrapeIntervalSeconds"
+      - ${POD_AGENT_METADATA_SCRAPE_INTERVAL_SECONDS}
       - "--remoteWriteBrokerUrl"
       - ${KAFKA_BROKER_URL}
       - "--remoteWriteBrokerUsername"
@@ -58,6 +64,8 @@ services:
       - ${KAFKA_CLIENT_PASSWORD}
       - "--remoteWriteBatchSize"
       - ${KAFKA_CLIENT_BATCH_SIZE}
+      - "--podRemoteWriteMetadataUrl"
+      - ${POD_AGENT_METADATA_REMOTE_WRITE_URL}
     develop:
       watch:
         - action: rebuild
@@ -76,14 +84,20 @@ services:
       dockerfile: Dockerfile
     restart: always
     command:
+      - "--runningLocally"
+      - "true"
       - "--scrape"
       - "nodes"
+      - "--logScrapeIntervalSeconds"
+      - ${NODE_AGENT_LOG_SCRAPE_INTERVAL_SECONDS}
+      - "--metadataScrapeIntervalSeconds"
+      - ${NODE_AGENT_METADATA_SCRAPE_INTERVAL_SECONDS}
       - "--redisUrl"
       - "redis:6379"
       - "--redisPassword"
       - ${REDIS_PASSWORD}
       - "--file"
-      - "/var/log/file"
+      - ${NODE_AGENT_WATCHED_FILE}
       - "--remoteWriteBrokerUrl"
       - ${KAFKA_BROKER_URL}
       - "--remoteWriteBrokerUsername"
@@ -92,6 +106,8 @@ services:
       - ${KAFKA_CLIENT_PASSWORD}
       - "--remoteWriteBatchSize"
       - ${KAFKA_CLIENT_BATCH_SIZE}
+      - "--nodeRemoteWriteMetadataUrl"
+      - ${NODE_AGENT_METADATA_REMOTE_WRITE_URL}
     environment:
       NODE_NAME: "mock-node-name"
     develop:
