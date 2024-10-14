@@ -24,18 +24,18 @@ paths:
       summary: Get all reports
       operationId: getAllReports
       parameters:
-        - name: clusterName
+        - name: clusterId
           in: query
-          description: Name of the cluster
+          description: Id of the cluster
           schema:
             type: string
-        - name: fromDate
+        - name: sinceNano
           in: query
           description: Filter reports starting from this date (Unix nanoseconds timestamp)
           schema:
             type: integer
             format: int64
-        - name: toDate
+        - name: toNano
           in: query
           description: Filter reports up to this date (Unix nanoseconds timestamp)
           schema:
@@ -98,14 +98,14 @@ components:
           description: Report ID
         status:
           $ref: "#/components/schemas/ReportState"
-        clusterName:
+        clusterId:
           type: string
-          description: Name of the cluster
-        fromDateNs:
+          description: Id of the cluster
+        SinceNano:
           type: integer
           format: int64
           description: Report start date (in nanoseconds)
-        toDateNs:
+        toNano:
           type: integer
           format: int64
           description: Report end date (in nanoseconds)
@@ -233,22 +233,13 @@ components:
       properties:
         id:
           type: string
-        created_at:
+        sinceNano:
           type: integer
           format: int64
-        expires_at:
+        toNano:
           type: integer
           format: int64
-        completed_at:
-          type: integer
-          format: int64
-        fromDateNs:
-          type: integer
-          format: int64
-        toDateNs:
-          type: integer
-          format: int64
-        cluster:
+        clusterId:
           type: string
         applicationConfiguration:
           type: array
@@ -260,22 +251,13 @@ components:
       properties:
         id:
           type: string
-        created_at:
+        sinceNano:
           type: integer
           format: int64
-        expires_at:
+        toNano:
           type: integer
           format: int64
-        completed_at:
-          type: integer
-          format: int64
-        fromDateNs:
-          type: integer
-          format: int64
-        toDateNs:
-          type: integer
-          format: int64
-        cluster:
+        clusterId:
           type: string
         nodeConfiguration:
           type: array
@@ -305,12 +287,12 @@ components:
     reportsPostParams:
       type: object
       properties:
-        clusterName:
+        clusterId:
           type: string
-        fromDate:
+        sinceNano:
           type: integer
           format: int64
-        toDate:
+        toNano:
           type: integer
           format: int64
         applicationConfiguration:

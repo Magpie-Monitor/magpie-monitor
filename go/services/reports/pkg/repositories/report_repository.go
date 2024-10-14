@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"fmt"
+
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,20 +13,22 @@ import (
 	"go.uber.org/zap"
 )
 
+func NewReportCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[*Report] {
+	return &repositories.MongoDbCollection[*Report]{Log: log, Db: "reports", Col: "reports", Client: client}
+}
+
 type NodeReport struct {
 	Node         string          `bson:"node" json:"node"`
 	Precision    string          `bson:"precision" json:"precision"`
 	CustomPrompt string          `bson:"customPrompt" json:"customPrompt"`
-	Incidents    []*NodeIncident `bson:"-" json:"incidents"`
-	IncidentIds  []string        `bson:"incidentIds" json:"-"`
+	Incidents    []*NodeIncident `bson:"incidents" json:"incidents"`
 }
 
 type ApplicationReport struct {
 	ApplicationName string                 `bson:"name" json:"applicationName"`
 	Precision       string                 `bson:"precision" json:"precision"`
 	CustomPrompt    string                 `bson:"customPrompt" json:"customPrompt"`
-	Incidents       []*ApplicationIncident `bson:"-" json:"incidents"`
-	IncidentIds     []string               `bson:"incidentIds" json:"-"`
+	Incidents       []*ApplicationIncident `bson:"incidents" json:"incidents"`
 }
 
 type ReportState string
@@ -47,21 +51,21 @@ const (
 type Report struct {
 	Id                      string               `bson:"_id,omitempty" json:"id"`
 	Status                  ReportState          `bson:"status" json:"status"`
-	ClusterName             string               `bson:"clusterName" json:"clusterName"`
-	FromDateNs              int64                `bson:"fromDateNs" json:"fromDateNs"`
-	ToDateNs                int64                `bson:"toDateNs" json:"toDateNs"`
+	ClusterId               string               `bson:"clusterId" json:"clusterId"`
+	SinceNano               int64                `bson:"sinceNano" json:"sinceNano"`
+	ToNano                  int64                `bson:"toNano" json:"toNano"`
 	RequestedAtNs           int64                `bson:"requestedAtNs" json:"requestedAtNs"`
 	ScheduledGenerationAtMs int64                `bson:"scheduledGenerationAtNs" json:"scheduledGenerationAtNs"`
-	Title                   string               `bson:"title" json:"title,omitempty"`
-	NodeReports             []*NodeReport        `bson:"nodeReports" json:"nodeReports,omitempty"`
-	ApplicationReports      []*ApplicationReport `bson:"applicationReports" json:"applicationReports,omitempty"`
+	Title                   string               `bson:"title" json:"title"`
+	NodeReports             []*NodeReport        `bson:"nodeReports" json:"nodeReports"`
+	ApplicationReports      []*ApplicationReport `bson:"applicationReports" json:"applicationReports"`
 	TotalApplicationEntries int                  `bson:"totalApplicationEntries" json:"totalApplicationEntries"`
 	TotalNodeEntries        int                  `bson:"totalNodeEntries" json:"totalNodeEntries"`
-	Urgency                 Urgency              `bson:"urgency" json:"urgency,omitempty"`
+	Urgency                 Urgency              `bson:"urgency" json:"urgency"`
 
 	// Present only if report is pending
-	ScheduledApplicationInsights *ScheduledApplicationInsights `bson:"scheduledApplicationInsights" json:"scheduledApplicationInsights,omitempty"`
-	ScheduledNodeInsights        *ScheduledNodeInsights        `bson:"scheduledNodeInsights" json:"scheduledNodeInsights,omitempty"`
+	ScheduledApplicationInsights *ScheduledApplicationInsights `bson:"scheduledApplicationInsights" json:"scheduledApplicationInsights"`
+	ScheduledNodeInsights        *ScheduledNodeInsights        `bson:"scheduledNodeInsights" json:"scheduledNodeInsights"`
 }
 
 type ApplicationInsightConfiguration struct {
@@ -78,23 +82,17 @@ type NodeInsightConfiguration struct {
 
 type ScheduledApplicationInsights struct {
 	Id                       string                             `json:"id"`
-	CreatedAt                int64                              `json:"created_at"`
-	ExpiresAt                int64                              `json:"expires_at"`
-	CompletedAt              int64                              `json:"completed_at"`
-	FromDateNs               int64                              `bson:"fromDateNs" json:"fromDateNs"`
-	ToDateNs                 int64                              `bson:"toDateNs" json:"toDateNs"`
-	Cluster                  string                             `bson:"cluster" json:"cluster"`
+	SinceNano                int64                              `bson:"sinceNano" json:"sinceNano"`
+	ToNano                   int64                              `bson:"toNano" json:"toNano"`
+	ClusterId                string                             `bson:"clusterId" json:"clusterId"`
 	ApplicationConfiguration []*ApplicationInsightConfiguration `json:"applicationConfiguration"`
 }
 
 type ScheduledNodeInsights struct {
 	Id                string                      `json:"id"`
-	CreatedAt         int64                       `json:"created_at"`
-	ExpiresAt         int64                       `json:"expires_at"`
-	CompletedAt       int64                       `json:"completed_at"`
-	FromDateNs        int64                       `bson:"fromDateNs" json:"fromDateNs"`
-	ToDateNs          int64                       `bson:"toDateNs" json:"toDateNs"`
-	Cluster           string                      `bson:"cluster" json:"cluster"`
+	SinceNano         int64                       `bson:"sinceNano" json:"sinceNano"`
+	ToNano            int64                       `bson:"toNano" json:"toNano"`
+	ClusterId         string                      `bson:"clusterId" json:"clusterId"`
 	NodeConfiguration []*NodeInsightConfiguration `json:"nodeConfiguration"`
 }
 
@@ -115,12 +113,6 @@ func MapNodeNameToConfiguration(configurations []*NodeInsightConfiguration) map[
 
 	return groupedConfigurations
 }
-
-const (
-	REPORTS_DB_NAME              = "reports"
-	SCHEDULED_REPORTS_COLLECTION = "scheduled_reports"
-	REPORTS_COLLECTION           = "reports"
-)
 
 type ReportRepositoryErrorKind string
 
@@ -165,9 +157,9 @@ func NewReportInternalError(err error) *ReportRepositoryError {
 }
 
 type FilterParams struct {
-	Cluster  *string
-	FromDate *int64
-	ToDate   *int64
+	ClusterId *string
+	SinceNano *int64
+	ToNano    *int64
 }
 
 type ReportRepository interface {
@@ -180,78 +172,70 @@ type ReportRepository interface {
 }
 
 type MongoDbReportRepository struct {
-	mongoDbClient                  *mongo.Client
 	logger                         *zap.Logger
-	applicationIncidentsRepository ApplicationIncidentRepository
-	nodeIncidentsRepository        NodeIncidentRepository
+	applicationIncidentsRepository IncidentRepository[ApplicationIncident]
+	nodeIncidentsRepository        IncidentRepository[NodeIncident]
+	mongoDbCollection              *repositories.MongoDbCollection[*Report]
 }
 
 func (r *MongoDbReportRepository) GetSingleReport(ctx context.Context, id string) (*Report, *ReportRepositoryError) {
 
-	coll := r.mongoDbClient.Database(REPORTS_DB_NAME).Collection(REPORTS_COLLECTION)
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		r.logger.Error("Failed to decode report id", zap.Error(err))
 		return nil, NewInvalidReportIdError(err)
 	}
 
-	documents := coll.FindOne(ctx, bson.M{"_id": objectId})
-
-	var result *Report
-	err = documents.Decode(&result)
+	result, err := r.mongoDbCollection.GetDocument(bson.D{{Key: "_id", Value: objectId}}, bson.D{})
 	if err != nil {
 		r.logger.Error("Failed to decode reports from mongodb", zap.Error(err))
 		return nil, NewReportNotFoundError(err)
-	}
-
-	for _, applicationReport := range result.ApplicationReports {
-		incidents, err := r.applicationIncidentsRepository.GetIncidentsByIds(ctx, applicationReport.IncidentIds)
-
-		if err != nil {
-			r.logger.Error("Failed to join application incidents to report", zap.Error(err))
-		}
-		applicationReport.Incidents = incidents
-	}
-
-	for _, nodeReport := range result.NodeReports {
-		incidents, err := r.nodeIncidentsRepository.GetIncidentsByIds(ctx, nodeReport.IncidentIds)
-		if err != nil {
-			r.logger.Error("Failed to join application incidents to report", zap.Error(err))
-		}
-		nodeReport.Incidents = incidents
 	}
 
 	return result, nil
 }
 
 func (r *MongoDbReportRepository) GetAllReports(ctx context.Context, filter FilterParams) ([]*Report, *ReportRepositoryError) {
-	coll := r.mongoDbClient.Database(REPORTS_DB_NAME).Collection(REPORTS_COLLECTION)
 
-	mongoFilter := bson.M{}
-	if filter.Cluster != nil {
-		mongoFilter["cluster"] = *filter.Cluster
+	mongoFilter := bson.A{}
+	if filter.ClusterId != nil {
+		mongoFilter = append(mongoFilter,
+			bson.D{
+				{Key: "clusterId", Value: bson.D{
+					{Key: "$eq", Value: filter.ClusterId}}},
+			})
 	}
-	if filter.ToDate != nil {
-		mongoFilter["toDateNs"] = *filter.ToDate
+	if filter.ToNano != nil {
+		mongoFilter = append(mongoFilter,
+			bson.D{
+				{Key: "toNano", Value: bson.D{
+					{Key: "$lte", Value: filter.ToNano}}},
+			})
 	}
-	if filter.FromDate != nil {
-		mongoFilter["fromDateNs"] = *filter.FromDate
+	if filter.SinceNano != nil {
+		mongoFilter = append(mongoFilter,
+			bson.D{
+				{Key: "sinceNano", Value: bson.D{
+					{Key: "$gte", Value: filter.SinceNano}}},
+			})
 	}
 
-	documents, err := coll.Find(ctx, mongoFilter)
+	finalFilter := bson.D{}
+
+	if len(mongoFilter) > 0 {
+		finalFilter = append(finalFilter, bson.E{
+			Key: "$and", Value: mongoFilter,
+		})
+	}
+
+	reports, err := r.mongoDbCollection.GetDocuments(finalFilter, primitive.D{})
+
 	if err != nil {
 		r.logger.Error("Failed to get all reports from mongodb", zap.Error(err))
 		return nil, NewReportInternalError(err)
 	}
 
-	var results []*Report
-	err = documents.All(ctx, &results)
-	if err != nil {
-		r.logger.Error("Failed to decode reports from mongodb", zap.Error(err))
-		return nil, NewReportInternalError(err)
-	}
-
-	return results, nil
+	return reports, nil
 }
 
 func (r *MongoDbReportRepository) InsertApplicationIncidents(ctx context.Context, reports []*ApplicationReport) error {
@@ -262,7 +246,13 @@ func (r *MongoDbReportRepository) InsertApplicationIncidents(ctx context.Context
 			r.logger.Error("Failed to insert incident incidents for a report", zap.Error(err))
 			return err
 		}
-		report.IncidentIds = ids
+
+		insertedIncidents, err := r.applicationIncidentsRepository.GetIncidentsByIds(ctx, ids)
+		if err != nil {
+			r.logger.Error("Failed to retrieve inserted node incidents", zap.Error(err))
+			return err
+		}
+		report.Incidents = insertedIncidents
 	}
 
 	return nil
@@ -273,24 +263,30 @@ func (r *MongoDbReportRepository) InsertNodeIncidents(ctx context.Context, repor
 	for _, report := range reports {
 		ids, err := r.nodeIncidentsRepository.InsertIncidents(ctx, report.Incidents)
 		if err != nil {
-			r.logger.Error("Failed to insert incident incidents for a report", zap.Error(err))
+			r.logger.Error("Failed to insert incidents from a report", zap.Error(err))
 			return err
 		}
-		report.IncidentIds = ids
+
+		insertedIncidents, err := r.nodeIncidentsRepository.GetIncidentsByIds(ctx, ids)
+		if err != nil {
+			r.logger.Error("Failed to retrieve inserted node incidents", zap.Error(err))
+			return err
+		}
+		report.Incidents = insertedIncidents
 	}
 
 	return nil
 }
 
 func (r *MongoDbReportRepository) InsertReport(ctx context.Context, report *Report) (*Report, *ReportRepositoryError) {
-	coll := r.mongoDbClient.Database(REPORTS_DB_NAME).Collection(REPORTS_COLLECTION)
-	id, err := coll.InsertOne(context.TODO(), report)
+
+	id, err := r.mongoDbCollection.InsertDocument(report)
 	if err != nil {
 		r.logger.Error("Failed to insert a report", zap.Error(err))
 		return nil, NewReportInternalError(err)
 	}
 
-	resultReport, repErr := r.GetSingleReport(ctx, id.InsertedID.(primitive.ObjectID).Hex())
+	resultReport, repErr := r.GetSingleReport(ctx, id.Hex())
 	if repErr != nil {
 		r.logger.Error("Failed to insert a report", zap.Error(repErr))
 		return nil, NewReportInternalError(repErr)
@@ -300,39 +296,37 @@ func (r *MongoDbReportRepository) InsertReport(ctx context.Context, report *Repo
 }
 
 func (r *MongoDbReportRepository) UpdateReport(ctx context.Context, report *Report) *ReportRepositoryError {
-	coll := r.mongoDbClient.Database(REPORTS_DB_NAME).Collection(REPORTS_COLLECTION)
 
-	hexId, err := primitive.ObjectIDFromHex(report.Id)
+	id, err := primitive.ObjectIDFromHex(report.Id)
+	if err != nil {
+		r.logger.Error("Failed to encode report id", zap.Error(err))
+		return NewInvalidReportIdError(err)
+	}
+	report.Id = ""
+
+	err = r.mongoDbCollection.ReplaceDocument(ctx, id, report)
 	if err != nil {
 		r.logger.Error("Failed to get report id", zap.Error(err))
 		return NewReportInternalError(err)
 	}
 
-	report.Id = ""
-
-	_, err = coll.ReplaceOne(ctx, bson.M{"_id": hexId}, report)
-	if err != nil {
-		r.logger.Error("Failed to update a report", zap.Error(err))
-		return NewReportInternalError(err)
-	}
-
-	report.Id = hexId.Hex()
+	report.Id = id.Hex()
 
 	return nil
 }
 
 type Params struct {
 	fx.In
-	ReportsDbMongoClient           *mongo.Client
+	ReportsDbMongoColl             *repositories.MongoDbCollection[*Report]
 	Logger                         *zap.Logger
-	ApplicationIncidentsRepository ApplicationIncidentRepository
-	NodeIncidentsRepository        NodeIncidentRepository
+	ApplicationIncidentsRepository IncidentRepository[ApplicationIncident]
+	NodeIncidentsRepository        IncidentRepository[NodeIncident]
 }
 
 func NewMongoDbReportRepository(p Params) *MongoDbReportRepository {
 
 	return &MongoDbReportRepository{
-		mongoDbClient:                  p.ReportsDbMongoClient,
+		mongoDbCollection:              p.ReportsDbMongoColl,
 		logger:                         p.Logger,
 		applicationIncidentsRepository: p.ApplicationIncidentsRepository,
 		nodeIncidentsRepository:        p.NodeIncidentsRepository,

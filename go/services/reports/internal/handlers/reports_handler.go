@@ -3,14 +3,16 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/services"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"github.com/gorilla/mux"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"net/http"
-	"strconv"
 )
 
 type ReportsRouter struct {
@@ -52,9 +54,9 @@ func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
 }
 
 type reportsPostParams struct {
-	ClusterName              *string                                         `json:"clusterName"`
-	FromDate                 *int64                                          `json:"fromDate"`
-	ToDate                   *int64                                          `json:"toDate"`
+	ClusterId                *string                                         `json:"clusterId"`
+	SinceNano                *int64                                          `json:"sinceNano"`
+	ToNano                   *int64                                          `json:"toNano"`
 	ApplicationConfiguration []*repositories.ApplicationInsightConfiguration `json:"applicationConfiguration"`
 	NodeConfiguration        []*repositories.NodeInsightConfiguration        `json:"nodeConfiguration"`
 	MaxLength                *int                                            `json:"maxLength"`
@@ -87,7 +89,7 @@ func (h *ReportsHandler) GetSingle(w http.ResponseWriter, r *http.Request) {
 			zap.String("id", id),
 			zap.Error(repositoryErr))
 
-		w.Write([]byte(repositoryErr.Error()))
+		routing.WriteHttpError(w, repositoryErr.Error())
 		return
 	}
 
@@ -117,36 +119,38 @@ func (h *ReportsHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query()
 
-	cluster, isClusterSet := routing.LookupQueryParam(query, "clusterName")
-	fromDate, isFromDateSet := routing.LookupQueryParam(query, "fromDate")
-	toDate, isToDateSet := routing.LookupQueryParam(query, "toDate")
+	clusterId, isClusterSet := routing.LookupQueryParam(query, "clusterId")
+	sinceNano, isSinceNanoSet := routing.LookupQueryParam(query, "sinceNano")
+	toNano, isToNanoSet := routing.LookupQueryParam(query, "toNano")
 
 	filterParams := repositories.FilterParams{}
 
 	if isClusterSet {
-		filterParams.Cluster = &cluster
+		filterParams.ClusterId = &clusterId
 	}
 
-	if isFromDateSet {
-		fromDateInt, err := strconv.ParseInt(fromDate, 10, 64)
+	if isSinceNanoSet {
+		fromDateInt, err := strconv.ParseInt(sinceNano, 10, 64)
 		if err != nil {
-			h.logger.Warn("Invalid fromDate query param", zap.Error(err))
+			h.logger.Warn("Invalid sinceNano query param", zap.Error(err))
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Invalid fromDate parameter"))
+			routing.WriteHttpError(w, "Invalid sinceNano parameter")
 			return
 		}
-		filterParams.FromDate = &fromDateInt
+
+		filterParams.SinceNano = &fromDateInt
 	}
 
-	if isToDateSet {
-		toDateInt, err := strconv.ParseInt(toDate, 10, 64)
+	if isToNanoSet {
+		toDateInt, err := strconv.ParseInt(toNano, 10, 64)
 		if err != nil {
 			h.logger.Warn("Invalid toDate query param", zap.Error(err))
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Invalid toDate parameter"))
+			routing.WriteHttpError(w, "Invalid toNano parameter")
+
 			return
 		}
-		filterParams.ToDate = &toDateInt
+		filterParams.ToNano = &toDateInt
 	}
 
 	reports, repositoryError := h.reportsService.GetAllReports(ctx, filterParams)
@@ -177,39 +181,40 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
 		h.logger.Error("Failed to parse POST /reports params", zap.Error(err))
+		routing.WriteHttpError(w, "Failed to parse POST /reports params")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	if params.FromDate == nil {
+	if params.SinceNano == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Missing fromDate parameter"))
+		routing.WriteHttpError(w, "Missing sinceNano parameter")
 		return
 	}
 
-	if params.ToDate == nil {
+	if params.ToNano == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Missing toDate parameter"))
+		routing.WriteHttpError(w, "Missing toNano parameter")
 		return
 	}
 
-	if params.ClusterName == nil {
+	if params.ClusterId == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Missing clusterName parameter"))
+		routing.WriteHttpError(w, "Missing clusterId parameter")
 		return
 	}
 
 	if params.MaxLength == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Missing maxLength parameter"))
+		routing.WriteHttpError(w, "Missing maxLength parameter")
 		return
 	}
 
 	report, err := h.reportsService.GenerateAndSaveReport(ctx,
 		services.ReportGenerationFilters{
-			ClusterName:              *params.ClusterName,
-			FromDate:                 *params.FromDate,
-			ToDate:                   *params.ToDate,
+			ClusterId:                *params.ClusterId,
+			SinceNano:                *params.SinceNano,
+			ToNano:                   *params.ToNano,
 			MaxLength:                *params.MaxLength,
 			ApplicationConfiguration: params.ApplicationConfiguration,
 			NodeConfiguration:        params.NodeConfiguration,
@@ -243,38 +248,39 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.logger.Error("Failed to parse POST /reports params", zap.Error(err))
 		w.WriteHeader(http.StatusBadRequest)
+		routing.WriteHttpError(w, fmt.Sprintf("Failed to parse POST /reports params"))
 		return
 	}
 
-	if params.FromDate == nil {
+	if params.SinceNano == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Missing fromDate parameter"))
+		routing.WriteHttpError(w, "Missing sinceNano parameter")
 		return
 	}
 
-	if params.ToDate == nil {
+	if params.ToNano == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Missing toDate parameter"))
+		routing.WriteHttpError(w, "Missing toNano parameter")
 		return
 	}
 
-	if params.ClusterName == nil {
+	if params.ClusterId == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Missing clusterName parameter"))
+		routing.WriteHttpError(w, "Missing clusterId parameter")
 		return
 	}
 
 	if params.MaxLength == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Missing maxLength parameter"))
+		routing.WriteHttpError(w, "Missing maxLength parameter")
 		return
 	}
 
 	resp, err := h.reportsService.ScheduleReport(ctx,
 		services.ReportGenerationFilters{
-			ClusterName:              *params.ClusterName,
-			FromDate:                 *params.FromDate,
-			ToDate:                   *params.ToDate,
+			ClusterId:                *params.ClusterId,
+			SinceNano:                *params.SinceNano,
+			ToNano:                   *params.ToNano,
 			MaxLength:                *params.MaxLength,
 			ApplicationConfiguration: params.ApplicationConfiguration,
 			NodeConfiguration:        params.NodeConfiguration,
@@ -284,6 +290,7 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.logger.Error("Failed to generate report", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
+		routing.WriteHttpError(w, "Internal server error")
 		return
 	}
 
@@ -291,6 +298,7 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.logger.Error("Failed encode report into json", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)
+		routing.WriteHttpError(w, "Internal server error")
 		return
 	}
 

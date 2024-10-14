@@ -75,14 +75,17 @@ func main() {
 			swagger.ProvideSwaggerConfig(),
 
 			database.NewReportsDbMongoClient,
+			repositories.NewReportCollection,
 			repositories.ProvideAsReportRepository(
 				repositories.NewMongoDbReportRepository,
 			),
 
+			repositories.NewNodeIncidentsCollection,
 			repositories.ProvideAsNodeIncidentRepository(
 				repositories.NewMongoDbNodeIncidentRepository,
 			),
 
+			repositories.NewApplicationIncidentsCollection,
 			repositories.ProvideAsApplicationIncidentRepository(
 				repositories.NewMongoDbApplicationIncidentRepository,
 			),
