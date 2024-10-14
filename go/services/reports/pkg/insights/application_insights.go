@@ -74,7 +74,6 @@ func GroupInsightsByApplication(applicationInsights []ApplicationInsightsWithMet
 }
 
 func (g *OpenAiInsightsGenerator) getApplicationLogById(logId string, logs []*repositories.ApplicationLogsDocument) (*repositories.ApplicationLogsDocument, error) {
-
 	if len(logs) == 0 {
 		return nil, errors.New("Failed to find application log by id in an empty logs array")
 	}
@@ -125,7 +124,6 @@ func (g *OpenAiInsightsGenerator) addMetadataToApplicationInsight(
 func (g *OpenAiInsightsGenerator) OnDemandApplicationInsights(
 	logs []*repositories.ApplicationLogsDocument,
 	configurations []*reportrepositories.ApplicationInsightConfiguration) ([]ApplicationInsightsWithMetadata, error) {
-
 	groupedLogs := GroupApplicationLogsByName(logs)
 
 	// Map report configuration for an app (precision/customPrompt) to a app name.
@@ -170,7 +168,7 @@ func (g *OpenAiInsightsGenerator) OnDemandApplicationInsights(
 	return allInsights, nil
 }
 
-// Get Application insights by grouped by application name
+// Get Application insights grouped by application name
 func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
 	sheduledInsights *reportrepositories.ScheduledApplicationInsights,
 ) ([]ApplicationInsightsWithMetadata, error) {
@@ -194,9 +192,9 @@ func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
 	}
 
 	insightLogs, err := g.applicationLogsRepository.
-		GetLogs(context.TODO(), sheduledInsights.Cluster,
-			time.Unix(0, sheduledInsights.FromDateNs),
-			time.Unix(0, sheduledInsights.ToDateNs))
+		GetLogs(context.TODO(), sheduledInsights.ClusterId,
+			time.Unix(0, sheduledInsights.SinceNano),
+			time.Unix(0, sheduledInsights.ToNano))
 
 	if err != nil {
 		g.logger.Error("Failed to get application logs for scheduled insight")
@@ -245,9 +243,9 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 	logs []*repositories.ApplicationLogsDocument,
 	configuration []*reportrepositories.ApplicationInsightConfiguration,
 	scheduledTime time.Time,
-	cluster string,
-	fromDateNs int64,
-	toDateNs int64,
+	clusterId string,
+	sinceNano int64,
+	toNano int64,
 ) (*reportrepositories.ScheduledApplicationInsights, error) {
 
 	groupedLogs := GroupApplicationLogsByName(logs)
@@ -283,12 +281,9 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 
 	return &reportrepositories.ScheduledApplicationInsights{
 		Id:                       resp.Id,
-		CreatedAt:                resp.CreatedAt,
-		ExpiresAt:                resp.ExpiresAt,
-		CompletedAt:              resp.CompletedAt,
-		Cluster:                  cluster,
-		FromDateNs:               fromDateNs,
-		ToDateNs:                 toDateNs,
+		ClusterId:                clusterId,
+		SinceNano:                sinceNano,
+		ToNano:                   toNano,
 		ApplicationConfiguration: configuration,
 	}, nil
 }

@@ -1,21 +1,17 @@
 package repositories
 
 import (
-	"context"
-
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 )
 
-func NewClusterMetadataCollection(log *zap.Logger, client *mongo.Client) *MongoDbCollection[ClusterState] {
-	return &MongoDbCollection[ClusterState]{log: log, db: "METADATA", col: "CLUSTER_STATE", client: client}
+func NewClusterMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[ClusterState] {
+	return &repositories.MongoDbCollection[ClusterState]{Log: log, Db: "METADATA", Col: "CLUSTER_STATE", Client: client}
 }
 
-func NewNodeMetadataCollection(log *zap.Logger, client *mongo.Client) *MongoDbCollection[NodeState] {
-	return &MongoDbCollection[NodeState]{log: log, db: "METADATA", col: "NODE_STATE", client: client}
+func NewNodeMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[NodeState] {
+	return &repositories.MongoDbCollection[NodeState]{Log: log, Db: "METADATA", Col: "NODE_STATE", Client: client}
 }
 
 type ClusterState struct {
@@ -34,64 +30,4 @@ type NodeState struct {
 	NodeName      string   `json:"nodeName" bson:"nodeName"`
 	CollectedAtMs int64    `json:"collectedAtMs" bson:"collectedAtMs"`
 	WatchedFiles  []string `json:"watchedFiles" bson:"watchedFiles"`
-}
-
-type MongoDbCollection[T any] struct {
-	log    *zap.Logger
-	db     string
-	col    string
-	client *mongo.Client
-}
-
-func (m *MongoDbCollection[T]) GetDocuments(filter primitive.D, sort primitive.D) ([]T, error) {
-	opts := options.Find().SetSort(sort)
-
-	col := m.client.Database(m.db).Collection(m.col)
-
-	cursor, err := col.Find(context.TODO(), filter, opts)
-	if err != nil {
-		m.log.Error("Error fetching documents:", zap.String("database", m.db), zap.String("collection", m.col), zap.Error(err))
-		return nil, err
-	}
-
-	var results []T
-	if err = cursor.All(context.TODO(), &results); err != nil {
-		m.log.Error("Error parsing filtered documents:", zap.String("database", m.db), zap.String("collection", m.col), zap.Error(err))
-		return nil, err
-	}
-
-	return results, nil
-}
-
-func (m *MongoDbCollection[T]) GetDocument(filter primitive.D, sort primitive.D) (T, error) {
-	opts := options.FindOne().SetSort(sort)
-
-	col := m.client.Database(m.db).Collection(m.col)
-
-	var result T
-	err := col.FindOne(context.TODO(), filter, opts).Decode(&result)
-
-	if err != nil {
-		m.log.Error("Error parsing filtered document:", zap.String("database", m.db), zap.String("collection", m.col), zap.Error(err))
-		return result, err
-	}
-
-	return result, nil
-}
-
-func (m *MongoDbCollection[T]) GetDistinctDocumentFieldValues(fieldName string, filter bson.D) ([]interface{}, error) {
-	col := m.client.Database(m.db).Collection(m.col)
-	return col.Distinct(context.TODO(), fieldName, filter)
-}
-
-func (m *MongoDbCollection[T]) InsertDocuments(docs []interface{}) error {
-	col := m.client.Database(m.db).Collection(m.col)
-
-	_, err := col.InsertMany(context.TODO(), docs)
-	if err != nil {
-		m.log.Error("Error inserting documents:", zap.String("database", m.db), zap.String("collection", m.col), zap.Error(err))
-		return err
-	}
-
-	return nil
 }

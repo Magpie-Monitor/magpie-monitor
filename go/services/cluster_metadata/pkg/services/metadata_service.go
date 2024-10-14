@@ -6,12 +6,13 @@ import (
 	"slices"
 	"time"
 
+	sharedrepo "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.uber.org/zap"
 )
 
-func NewMetadataService(log *zap.Logger, clusterRepo *repositories.MongoDbCollection[repositories.ClusterState], nodeRepo *repositories.MongoDbCollection[repositories.NodeState]) *MetadataService {
+func NewMetadataService(log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ClusterState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState]) *MetadataService {
 	return &MetadataService{log: log, clusterRepo: clusterRepo, nodeRepo: nodeRepo}
 }
 
@@ -29,8 +30,8 @@ type NodeMetadata struct {
 
 type MetadataService struct {
 	log         *zap.Logger
-	clusterRepo *repositories.MongoDbCollection[repositories.ClusterState]
-	nodeRepo    *repositories.MongoDbCollection[repositories.NodeState]
+	clusterRepo *sharedrepo.MongoDbCollection[repositories.ClusterState]
+	nodeRepo    *sharedrepo.MongoDbCollection[repositories.NodeState]
 }
 
 func (m *MetadataService) GetClusterMetadataForTimerange(clusterName string, sinceMillis int, toMillis int) ([]ApplicationMetadata, error) {
@@ -122,9 +123,11 @@ func (m *MetadataService) GetNodeMetadataForTimerange(clusterName string, sinceM
 }
 
 func (m *MetadataService) InsertClusterMetadata(metadata repositories.ClusterState) error {
-	return m.clusterRepo.InsertDocuments([]interface{}{metadata})
+	_, err := m.clusterRepo.InsertDocuments([]interface{}{metadata})
+	return err
 }
 
 func (m *MetadataService) InsertNodeMetadata(metadata repositories.NodeState) error {
-	return m.nodeRepo.InsertDocuments([]interface{}{metadata})
+	_, err := m.nodeRepo.InsertDocuments([]interface{}{metadata})
+	return err
 }

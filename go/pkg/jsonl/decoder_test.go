@@ -13,7 +13,6 @@ type decodingTestCase struct {
 }
 
 func TestDecode(t *testing.T) {
-
 	testsCases := []struct {
 		description string
 		rawString   string

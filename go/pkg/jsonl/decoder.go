@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+// JSONL is a encoding format which is an equivalent of list of JSONs
+// where each object is separated by a newline. This format is used in the OpenAI Batch API.
 type JsonLinesDecoder struct {
 	reader io.Reader
 }

@@ -12,7 +12,6 @@ type encodingTestCase struct {
 }
 
 func TestEncode(t *testing.T) {
-
 	testsCases := []struct {
 		description string
 		encoded     string

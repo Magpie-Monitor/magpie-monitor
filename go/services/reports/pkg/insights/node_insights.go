@@ -150,9 +150,9 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 	logs []*repositories.NodeLogsDocument,
 	configuration []*reportrepo.NodeInsightConfiguration,
 	scheduledTime time.Time,
-	cluster string,
-	fromDateNs int64,
-	toDateNs int64,
+	clusterId string,
+	sinceNano int64,
+	toNano int64,
 ) (*reportrepo.ScheduledNodeInsights, error) {
 
 	groupedLogs := GroupNodeLogsByName(logs)
@@ -187,12 +187,9 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 
 	return &reportrepo.ScheduledNodeInsights{
 		Id:                resp.Id,
-		CreatedAt:         resp.CreatedAt,
-		ExpiresAt:         resp.ExpiresAt,
-		CompletedAt:       resp.CompletedAt,
-		Cluster:           cluster,
-		FromDateNs:        fromDateNs,
-		ToDateNs:          toDateNs,
+		ClusterId:         clusterId,
+		SinceNano:         sinceNano,
+		ToNano:            toNano,
 		NodeConfiguration: configuration,
 	}, nil
 }
@@ -264,9 +261,9 @@ func (g *OpenAiInsightsGenerator) GetScheduledNodeInsights(
 	}
 
 	insightLogs, err := g.nodeLogsRepository.
-		GetLogs(context.TODO(), sheduledInsights.Cluster,
-			time.Unix(0, sheduledInsights.FromDateNs),
-			time.Unix(0, sheduledInsights.ToDateNs))
+		GetLogs(context.TODO(), sheduledInsights.ClusterId,
+			time.Unix(0, sheduledInsights.SinceNano),
+			time.Unix(0, sheduledInsights.ToNano))
 
 	if err != nil {
 		g.logger.Error("Failed to get application logs for scheduled insight")
