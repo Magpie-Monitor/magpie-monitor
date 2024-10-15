@@ -32,9 +32,7 @@ class ManagmentServiceApi {
   }
 
   public async logout() {
-    document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.location.href = '/';
+    await this.axiosInstance.get('/api/v1/auth/logout');
   }
 
   private async refreshToken() {

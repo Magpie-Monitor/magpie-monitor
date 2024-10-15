@@ -4,6 +4,7 @@ import { ProtectedLayout } from 'providers/AuthProvider/ProtectedLayout';
 import { AuthLayout } from 'providers/AuthProvider/AuthLayout';
 import Home from './Home/Home';
 import { getAuthInfo } from 'providers/AuthProvider/AuthProvider';
+import NotFoundError from './NotFoundError/NotFoundError';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -14,7 +15,7 @@ const router = createBrowserRouter(
           authData: getAuthInfo(),
         });
       }}
-      errorElement={<Login />}
+      errorElement={<NotFoundError />}
     >
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<ProtectedLayout />}>
