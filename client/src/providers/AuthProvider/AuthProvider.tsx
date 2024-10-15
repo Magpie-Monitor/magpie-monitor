@@ -1,15 +1,20 @@
 import { ManagmentServiceApiInstance } from 'api/managment-service';
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
-export const getAuthInfo = async (): Promise<AuthenticationInfo> => {
-  const tokenInfo = await ManagmentServiceApiInstance.getTokenInfo();
-  const userInfo = await ManagmentServiceApiInstance.getUserInfo();
+export const getAuthInfo = async (): Promise<AuthenticationInfo | null> => {
+  try {
+    const tokenInfo = await ManagmentServiceApiInstance.getTokenInfo();
+    const userInfo = await ManagmentServiceApiInstance.getUserInfo();
 
-  return {
-    expTime: tokenInfo.expTime,
-    nickname: userInfo.nickname,
-    email: userInfo.email,
-  };
+    return {
+      expTime: tokenInfo.expTime,
+      nickname: userInfo.nickname,
+      email: userInfo.email,
+    };
+  } catch (err: unknown) {
+    console.error('Failed getting authentication info', err);
+    return null;
+  }
 };
 
 export interface AuthenticationInfo {
@@ -19,37 +24,37 @@ export interface AuthenticationInfo {
 }
 
 export interface AuthenticationContext {
-  authenticationInfo: AuthenticationInfo;
-  setAuthenticationInfo: (value: AuthenticationInfo) => void;
+  authenticationInfo: AuthenticationInfo | null;
+  setAuthenticationInfo: (value: AuthenticationInfo | null) => void;
   isTokenValid: () => Promise<boolean>;
 }
 
 export const AuthContext = createContext<AuthenticationContext>({
-  authenticationInfo: { email: '', expTime: 0, nickname: '' },
+  authenticationInfo: null,
   setAuthenticationInfo: () => {},
   isTokenValid: () => Promise.resolve(false),
 });
 
 export const AuthProvider = (props: {
   children: ReactNode;
-  authenticationInfo: AuthenticationInfo;
+  authenticationInfo: AuthenticationInfo | null;
 }) => {
-  const [authenticationInfo, setAuthenticationInfo] = useState<AuthenticationInfo>(
+  const [authenticationInfo, setAuthenticationInfo] = useState<AuthenticationInfo | null>(
     props.authenticationInfo,
   );
 
   const isTokenValid = async (): Promise<boolean> => {
-    if (authenticationInfo.email && authenticationInfo.expTime <= 0) {
+    if (authenticationInfo && authenticationInfo.expTime <= 0) {
       try {
         const authInfo = await getAuthInfo();
         setAuthenticationInfo(authInfo);
-        return !!(authInfo.expTime && authInfo.expTime > 0);
+        return !!(authInfo && authInfo.expTime > 0);
       } catch {
         return false;
       }
     }
 
-    return !!(authenticationInfo.expTime && authenticationInfo.expTime > 0);
+    return !!(authenticationInfo && authenticationInfo.expTime > 0);
   };
 
   useEffect(() => {

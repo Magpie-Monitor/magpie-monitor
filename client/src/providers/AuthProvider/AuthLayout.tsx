@@ -5,7 +5,7 @@ import { AuthProvider, AuthenticationInfo } from './AuthProvider';
 
 export const AuthLayout = () => {
   const outlet = useOutlet();
-  const { authData } = useLoaderData() as { authData: AuthenticationInfo };
+  const { authData } = useLoaderData() as { authData: AuthenticationInfo | null };
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
