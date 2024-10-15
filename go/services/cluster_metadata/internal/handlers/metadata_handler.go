@@ -28,8 +28,8 @@ func NewMetadataRouter(metadataHandler *MetadataHandler, rootRouter *mux.Router)
 }
 
 func NewMetadataHandler(log *zap.Logger, service *services.MetadataService) *MetadataHandler {
-	clientSecret := os.Getenv("CLIENT_SECRET")
-	if clientSecret == "" {
+	clientSecret, present := os.LookupEnv("CLIENT_SECRET")
+	if !present {
 		panic("No value provided for CLIENT_SECRET env variable")
 	}
 
@@ -141,11 +141,12 @@ func (h *MetadataHandler) GetClusterList(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		h.log.Error("Error parsing cluster list:", zap.Error(err))
 		h.writeError(&w, "Error parsing cluster list", http.StatusInternalServerError)
+		return
 	}
 }
 
 func (h *MetadataHandler) InsertClusterMetadata(w http.ResponseWriter, r *http.Request) {
-	m2m := r.Header.Get("client_secret")
+	m2m := r.Header.Get("X-Client-Secret")
 	if m2m != h.clientSecret {
 		h.log.Error("Invalid client secret")
 		h.writeError(&w, "Unauthorized", http.StatusUnauthorized)
@@ -174,7 +175,7 @@ func (h *MetadataHandler) InsertClusterMetadata(w http.ResponseWriter, r *http.R
 }
 
 func (h *MetadataHandler) InsertNodeMetadata(w http.ResponseWriter, r *http.Request) {
-	m2m := r.Header.Get("client_secret")
+	m2m := r.Header.Get("X-Client-Secret")
 	if m2m != h.clientSecret {
 		h.log.Error("Invalid client secret")
 		h.writeError(&w, "Unauthorized", http.StatusUnauthorized)

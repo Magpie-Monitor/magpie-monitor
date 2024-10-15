@@ -32,7 +32,7 @@ func (m *MetadataWriter) sendRequest(url string, content string) (int, error) {
 	}
 
 	r.Header.Add("Content-Type", "application/json")
-	r.Header.Add("client_secret", m.clientSecret)
+	r.Header.Add("X-Client-Secret", m.clientSecret)
 	client := &http.Client{}
 	res, err := client.Do(r)
 

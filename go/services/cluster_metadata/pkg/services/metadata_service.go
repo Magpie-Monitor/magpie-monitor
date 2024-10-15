@@ -3,7 +3,9 @@ package services
 import (
 	"fmt"
 	"log"
+	"os"
 	"slices"
+	"strconv"
 	"time"
 
 	sharedrepo "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
@@ -12,8 +14,18 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewMetadataService(log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ClusterState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState]) *MetadataService {
-	return &MetadataService{log: log, clusterRepo: clusterRepo, nodeRepo: nodeRepo}
+func NewMetadataService(log *zap.Logger, clusterRepo *repositories.MongoDbCollection[repositories.ClusterState], nodeRepo *repositories.MongoDbCollection[repositories.NodeState]) *MetadataService {
+	clusterActivityWindowMillis, present := os.LookupEnv("CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS")
+	if !present {
+		panic("env variable CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS not set")
+	}
+
+	window, err := strconv.ParseInt(clusterActivityWindowMillis, 10, 64)
+	if err != nil {
+		panic("invalid value for env variable CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS, please make sure it's numeric")
+	}
+
+	return &MetadataService{log: log, clusterRepo: clusterRepo, nodeRepo: nodeRepo, clusterActivityWindowMillis: window}
 }
 
 type ApplicationMetadata struct {
@@ -34,9 +46,10 @@ type NodeMetadata struct {
 }
 
 type MetadataService struct {
-	log         *zap.Logger
-	clusterRepo *sharedrepo.MongoDbCollection[repositories.ClusterState]
-	nodeRepo    *sharedrepo.MongoDbCollection[repositories.NodeState]
+	log                         *zap.Logger
+	clusterRepo                 *sharedrepo.MongoDbCollection[repositories.ClusterState]
+	nodeRepo                    *sharedrepo.MongoDbCollection[repositories.NodeState]
+	clusterActivityWindowMillis int64
 }
 
 func (m *MetadataService) GetClusterList() ([]ClusterMetadata, error) {
@@ -48,7 +61,7 @@ func (m *MetadataService) GetClusterList() ([]ClusterMetadata, error) {
 
 	// a cluster is considered running if it reported state in the last hour
 	toMillis := time.Now().UnixMilli()
-	sinceMillis := toMillis - 3_600_000
+	sinceMillis := toMillis - m.clusterActivityWindowMillis
 
 	activeClusters, err := m.clusterRepo.GetDistinctDocumentFieldValues("clusterName",
 		bson.D{
