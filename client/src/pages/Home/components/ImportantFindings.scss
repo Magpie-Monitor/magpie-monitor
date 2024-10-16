@@ -1,0 +1,29 @@
+@import '@/variables';
+
+.important-findings {
+  margin-top: 20px;
+}
+
+.finding {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1fr;
+  background-color: $component-secondary-background;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 8px;
+  color: $font-color;
+  border-width: 1px;
+  border-style: solid;
+  border-color: $component-border-color;
+}
+
+.finding-source,
+.finding-category,
+.finding-summary,
+.finding-date {
+  padding: 5px;
+}
+
+.finding-category {
+  color: $red;
+}
