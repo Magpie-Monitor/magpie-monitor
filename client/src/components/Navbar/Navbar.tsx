@@ -14,7 +14,8 @@ const Navbar = () => {
         <div className="navbar__logo">
           <img src={magpieMonitorLogo} alt="Magpie Monitor logo" className="navbar__logo__image" />
           <div className="navbar__logo__name">
-            Magpie <br /> Monitor
+            <div>Magpie</div>
+            <div>Monitor</div>
           </div>
         </div>
         <div className="navbar__links">
