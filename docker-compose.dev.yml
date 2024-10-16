@@ -46,8 +46,8 @@ services:
       dockerfile: Dockerfile
     restart: always
     command:
-      - "--runningLocally"
-      - "true"
+      - "--runningMode"
+      - "local"
       - "--clusterFriendlyName"
       - "local-docker"
       - "--scrape"
@@ -86,8 +86,8 @@ services:
       dockerfile: Dockerfile
     restart: always
     command:
-      - "--runningLocally"
-      - "true"
+      - "--runningMode"
+      - "local"
       - "--scrape"
       - "nodes"
       - "--logScrapeIntervalSeconds"
@@ -95,7 +95,7 @@ services:
       - "--metadataScrapeIntervalSeconds"
       - ${NODE_AGENT_METADATA_SCRAPE_INTERVAL_SECONDS}
       - "--redisUrl"
-      - "redis:6379"
+      - "magpie-monitor-redis:6379"
       - "--redisPassword"
       - ${REDIS_PASSWORD}
       - "--file"
@@ -122,6 +122,7 @@ services:
     volumes:
       - ${NODE_AGENT_HOST_WATCHED_FILE_PATH:-/log/file}:/var/log/file
   redis:
+    container_name: magpie-monitor-redis
     image: redis:7.4-alpine
     restart: always
     command:

@@ -33,7 +33,7 @@ type Agent struct {
 	readTimes                         map[string]time.Time
 	results                           chan<- data.Chunk
 	metadata                          chan<- data.ClusterState
-	runningLocally                    bool
+	runningMode                       string
 }
 
 func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<- data.ClusterState) *Agent {
@@ -46,7 +46,7 @@ func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<
 		readTimes:                         make(map[string]time.Time),
 		results:                           logsChan,
 		metadata:                          metadataChan,
-		runningLocally:                    cfg.Global.RunningLocally,
+		runningMode:                       cfg.Global.RunningMode,
 	}
 }
 
@@ -60,7 +60,7 @@ func (a *Agent) Start() {
 func (a *Agent) authenticate() {
 	var config *rest.Config
 
-	if a.runningLocally {
+	if a.runningMode == "local" {
 		var kubeconfig *string
 
 		if home := homedir.HomeDir(); home != "" {
