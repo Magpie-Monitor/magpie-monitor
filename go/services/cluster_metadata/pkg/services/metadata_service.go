@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewMetadataService(log *zap.Logger, clusterRepo *repositories.MongoDbCollection[repositories.ClusterState], nodeRepo *repositories.MongoDbCollection[repositories.NodeState]) *MetadataService {
+func NewMetadataService(log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ClusterState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState]) *MetadataService {
 	clusterActivityWindowMillis, present := os.LookupEnv("CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS")
 	if !present {
 		panic("env variable CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS not set")
