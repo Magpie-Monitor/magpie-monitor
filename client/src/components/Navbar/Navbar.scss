@@ -1,19 +1,15 @@
 @import '@/variables';
 
 .navbar {
-  position: fixed;
   width: 15rem;
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 0.4rem;
   justify-content: space-between;
   margin-left: 0;
   margin-right: 0;
   padding-left: 0.2rem;
   padding-right: 0.9rem;
-  top: 0;
-  left: 0;
   background-color: $navbar-backgroud-color;
 
   &__logo {

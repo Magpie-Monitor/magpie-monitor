@@ -6,16 +6,26 @@
   cursor: pointer;
   border-radius: 1rem;
 
+  .navbar-tab__link-wrapper {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    transition: all 0.2s;
+  }
+
   &__link {
-    font-size: 1.3rem;
+    font-size: 1rem;
     font-weight: 300;
-    margin: 0 1rem;
-    margin-top: 0.6rem;
     color: $navbar-text-color;
   }
 
+
   &:hover {
     background-color: $secondary;
+
+    .navbar-tab__link-wrapper {
+      margin-left: 5px;
+    }
 
     .navbar-tab__link {
       color: $navbar-selected-color;
