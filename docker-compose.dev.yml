@@ -66,6 +66,8 @@ services:
       - ${KAFKA_CLIENT_BATCH_SIZE}
       - "--podRemoteWriteMetadataUrl"
       - ${POD_AGENT_METADATA_REMOTE_WRITE_URL}
+      - "--clusterMetadataServiceClientSecret"
+      - ${CLUSTER_METADATA_SERVICE_CLIENT_SECRET}
     develop:
       watch:
         - action: rebuild
@@ -108,6 +110,8 @@ services:
       - ${KAFKA_CLIENT_BATCH_SIZE}
       - "--nodeRemoteWriteMetadataUrl"
       - ${NODE_AGENT_METADATA_REMOTE_WRITE_URL}
+      - "--clusterMetadataServiceClientSecret"
+      - ${CLUSTER_METADATA_SERVICE_CLIENT_SECRET}
     environment:
       NODE_NAME: "mock-node-name"
     develop:
