@@ -3,7 +3,7 @@
 - "--remoteWriteBrokerUrl"
 - {{ .url | quote }}
 - "--remoteWriteNodeTopic"
-- "nodes"
+- "applications"
 - "--remoteWriteApplicationTopic"
 - "pods"
 - "--remoteWriteBatchSize"
@@ -17,9 +17,9 @@
 
 {{- define "metadata.scrapeIntervals" -}}
 - "--logScrapeIntervalSeconds"
-- "60"
+- "600"
 - "--metadataScrapeIntervalSeconds"
-- "60"
+- "600"
 {{- end -}}
 
 {{- define "redis.connection" -}}
