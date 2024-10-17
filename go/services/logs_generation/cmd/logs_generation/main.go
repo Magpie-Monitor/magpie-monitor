@@ -21,12 +21,12 @@ type LogsGenerator struct {
 func (g *LogsGenerator) WriteNodeLogs(ctx context.Context) {
 
 	nodeLogs := repositories.NodeLogs{
-		Cluster:   "cluster-1",
-		Kind:      "node",
-		Timestamp: time.Now().Unix(),
-		Name:      "host-1",
-		Namespace: "nms-1",
-		Content:   "log-contentkldj",
+		ClusterId:     "cluster-1",
+		Kind:          "node",
+		CollectedAtMs: time.Now().Unix(),
+		Name:          "host-1",
+		Filename:      "nms-1",
+		Content:       "log-contentkldj",
 	}
 
 	jsonNodeLogs, err := json.Marshal(nodeLogs)
@@ -56,19 +56,19 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 	for {
 
 		nodeLogs := repositories.NodeLogs{
-			Cluster:   "testcluster",
-			Kind:      "node",
-			Timestamp: 1728313197000000020,
-			Name:      "tools",
-			Namespace: "nms",
-			Content:   "Failed to save new nginx configuration. Out of disk space.",
+			ClusterId:     "testcluster-1",
+			Kind:          "node",
+			CollectedAtMs: 1728313197000000020,
+			Name:          "tools",
+			Filename:      "nms",
+			Content:       "Failed to save new nginx configuration. Out of disk space.",
 		}
 
 		applicationLogs := repositories.ApplicationLogs{
-			Cluster:   "testcluster",
-			Kind:      "application",
-			Timestamp: 1728313197000000010,
-			Name:      apps[rand.Intn(len(apps))],
+			ClusterId:     "testcluster-2",
+			Kind:          "application",
+			CollectedAtMs: 1728313197000000010,
+			Name:          apps[rand.Intn(len(apps))],
 			Pods: []*repositories.PodLogs{
 				{
 					Name: "pod-1",

@@ -14,13 +14,13 @@ import (
 
 // TODO: To be clarified once the contract from agent is agreed upon
 type NodeLogs struct {
-	Id        string `json:"_id,omitempty"`
-	Cluster   string `json:"cluster"`
-	Kind      string `json:"kind"`
-	Timestamp int64  `json:"timestamp"`
-	Name      string `json:"name"`
-	Namespace string `json:"namespace"`
-	Content   string `json:"content"`
+	Id            string `json:"_id,omitempty"`
+	ClusterId     string `json:"clusterId"`
+	Kind          string `json:"kind"`
+	CollectedAtMs int64  `json:"collectedAtMs"`
+	Name          string `json:"name"`
+	Filename      string `json:"filename"`
+	Content       string `json:"content"`
 }
 
 type NodeLogsDocument = NodeLogs
@@ -49,7 +49,7 @@ func (r *ElasticSearchNodeLogsRepository) doesIndexExists(index string) bool {
 }
 
 func getNodeLogsIndexName(nodeLogs *NodeLogs) string {
-	return elasticsearch.GetIndexName(nodeLogs.Cluster, "nodes", nodeLogs.Timestamp)
+	return elasticsearch.GetIndexName(nodeLogs.ClusterId, "nodes", nodeLogs.CollectedAtMs)
 }
 
 func (r *ElasticSearchNodeLogsRepository) getIndiciesWithClusterAndDateRange(cluster string,
