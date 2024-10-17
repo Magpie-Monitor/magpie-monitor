@@ -1,7 +1,7 @@
 import ImportantFindings from './components/ImportantFindings';
 import StatItem from './components/StatItem';
 import PlaceholderComponent from '../../components/PlaceholderComponent/PlaceholderComponent.tsx';
-// import SettingsIcon from '../../assets/settings_icon.svg';
+import SettingsIcon from '../../assets/settings_icon.svg';
 import './Home.scss';
 import PlaceholderComponentTitle
     from '../../components/PlaceholderComponent/PlaceholderComponentTitle/PlaceholderComponentTitle.tsx';
@@ -14,7 +14,9 @@ const Home = () => {
 
                 <div className="dashboard-page">
                     {/* eslint-disable-next-line max-len */}
-                    <PlaceholderComponent title={<PlaceholderComponentTitle source="production-services"
+                    <PlaceholderComponent
+                        icon={<img src={SettingsIcon} alt="Settings Icon" />}
+                        title={<PlaceholderComponentTitle source="production-services"
                     startTime="19.04.2023" endTime="25.04.2023"/>}>
                         <div>
                             <h3 className="scan-stats-title">Scan stats</h3>
