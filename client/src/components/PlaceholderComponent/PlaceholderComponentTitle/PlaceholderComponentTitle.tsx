@@ -14,7 +14,7 @@ const PlaceholderComponentTitle: React.FC<PlaceholderComponentProps> =
                 <p className="placeholder-title">
                     Last report from
                 </p>
-                <a>{source}</a>
+                <a href="#" className="source-link">{source}</a>
                 <p className="placeholder-title">
                     ({startTime} - {endTime})
                 </p>
