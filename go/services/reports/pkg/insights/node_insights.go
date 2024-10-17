@@ -6,9 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"sync"
-	"time"
-
 	"github.com/IBM/fp-go/array"
 	"github.com/IBM/fp-go/option"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
@@ -16,6 +13,8 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
 	reportrepo "github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"go.uber.org/zap"
+	"sync"
+	"time"
 )
 
 type NodeLogsInsight struct {
@@ -28,10 +27,11 @@ type NodeLogsInsight struct {
 }
 
 type NodeInsightMetadata struct {
-	ClusterId string `json:"clusterId"`
-	NodeName  string `json:"nodeName"`
-	Timestamp int64  `json:"timestamp"`
-	Source    string `json:"source"`
+	ClusterId     string `json:"clusterId"`
+	NodeName      string `json:"nodeName"`
+	CollectedAtMs int64  `json:"collectedAtMs"`
+	Filename      string `json:"filename"`
+	Source        string `json:"source"`
 }
 
 type NodeInsightsWithMetadata struct {
@@ -152,8 +152,8 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 	configuration []*reportrepo.NodeInsightConfiguration,
 	scheduledTime time.Time,
 	clusterId string,
-	sinceNano int64,
-	toNano int64,
+	sinceMs int64,
+	toMs int64,
 ) (*reportrepo.ScheduledNodeInsights, error) {
 
 	groupedLogs := GroupNodeLogsByName(logs)
@@ -189,8 +189,8 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 	return &reportrepo.ScheduledNodeInsights{
 		Id:                resp.Id,
 		ClusterId:         clusterId,
-		SinceNano:         sinceNano,
-		ToNano:            toNano,
+		SinceMs:           sinceMs,
+		ToMs:              toMs,
 		NodeConfiguration: configuration,
 	}, nil
 }
@@ -263,8 +263,8 @@ func (g *OpenAiInsightsGenerator) GetScheduledNodeInsights(
 
 	insightLogs, err := g.nodeLogsRepository.
 		GetLogs(context.TODO(), sheduledInsights.ClusterId,
-			time.Unix(0, sheduledInsights.SinceNano),
-			time.Unix(0, sheduledInsights.ToNano))
+			time.UnixMilli(sheduledInsights.SinceMs),
+			time.UnixMilli(sheduledInsights.ToMs))
 
 	if err != nil {
 		g.logger.Error("Failed to get application logs for scheduled insight")
@@ -321,10 +321,11 @@ func (g *OpenAiInsightsGenerator) addMetadataToNodeInsight(
 		}
 
 		nodeInsightsMetadata = append(nodeInsightsMetadata, NodeInsightMetadata{
-			Timestamp: log.Timestamp,
-			NodeName:  log.Name,
-			Source:    log.Content,
-			ClusterId: log.Cluster,
+			CollectedAtMs: log.CollectedAtMs,
+			NodeName:      log.Name,
+			Source:        log.Content,
+			ClusterId:     log.ClusterId,
+			Filename:      log.Filename,
 		},
 		)
 	}

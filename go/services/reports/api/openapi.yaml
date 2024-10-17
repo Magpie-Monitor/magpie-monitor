@@ -29,15 +29,15 @@ paths:
           description: Id of the cluster
           schema:
             type: string
-        - name: sinceNano
+        - name: sinceMs
           in: query
-          description: Filter reports starting from this date (Unix nanoseconds timestamp)
+          description: Filter reports starting from this date (Unix milliseconds timestamp)
           schema:
             type: integer
             format: int64
-        - name: toNano
+        - name: toMs
           in: query
-          description: Filter reports up to this date (Unix nanoseconds timestamp)
+          description: Filter reports up to this date (Unix milliseconds timestamp)
           schema:
             type: integer
             format: int64
@@ -123,18 +123,18 @@ components:
         clusterId:
           type: string
           description: Id of the cluster
-        SinceNano:
+        SinceMs:
           type: integer
           format: int64
-          description: Report start date (in nanoseconds)
-        toNano:
+          description: Report start date (in milliseconds)
+        toMs:
           type: integer
           format: int64
-          description: Report end date (in nanoseconds)
+          description: Report end date (in milliseconds)
         requestedAtNs:
           type: integer
           format: int64
-          description: When the report was requested (in nanoseconds)
+          description: When the report was requested (in milliseconds)
         scheduledGenerationAtMs:
           type: integer
           format: int64
@@ -240,6 +240,8 @@ components:
           format: int64
         content:
           type: string
+        filename:
+          type: string
 
     ApplicationIncidentSource:
       type: object
@@ -261,10 +263,10 @@ components:
       properties:
         id:
           type: string
-        sinceNano:
+        sinceMs:
           type: integer
           format: int64
-        toNano:
+        toMs:
           type: integer
           format: int64
         clusterId:
@@ -279,10 +281,10 @@ components:
       properties:
         id:
           type: string
-        sinceNano:
+        sinceMs:
           type: integer
           format: int64
-        toNano:
+        toMs:
           type: integer
           format: int64
         clusterId:
@@ -317,10 +319,10 @@ components:
       properties:
         clusterId:
           type: string
-        sinceNano:
+        sinceMs:
           type: integer
           format: int64
-        toNano:
+        toMs:
           type: integer
           format: int64
         applicationConfiguration:

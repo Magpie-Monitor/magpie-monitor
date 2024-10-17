@@ -51,7 +51,7 @@ func GetIndexName(cluster string, sourceName string, collectedAtMs int64) string
 		"%s-%s-%s",
 		cluster,
 		sourceName,
-		getYYYYMM(time.Unix(collectedAtMs, 0)))
+		getYYYYMM(time.UnixMilli(collectedAtMs)))
 }
 
 func GetIndexParams(index string) (clusterId string, source string, year int, month int, err error) {
