@@ -5,7 +5,7 @@ import (
 )
 
 type Chunk struct {
-	ClusterId     string          `json:"clusterId"`
+	Cluster       string          `json:"cluster"`
 	Kind          ApplicationKind `json:"kind"`
 	CollectedAtMs int64           `json:"collectedAtMs"`
 	Name          string          `json:"name"`

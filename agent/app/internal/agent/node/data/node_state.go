@@ -3,14 +3,14 @@ package data
 import "time"
 
 type NodeState struct {
-	ClusterId     string   `json:"clusterId"`
+	ClusterName   string   `json:"clusterName"`
 	NodeName      string   `json:"nodeName"`
 	CollectedAtMs int64    `json:"collectedAtMs"`
 	WatchedFiles  []string `json:"watchedFiles"`
 }
 
-func NewNodeState(clusterId, nodeName string, watchedFiles []string) NodeState {
-	return NodeState{ClusterId: clusterId, NodeName: nodeName, WatchedFiles: watchedFiles}
+func NewNodeState(clusterName, nodeName string, watchedFiles []string) NodeState {
+	return NodeState{ClusterName: clusterName, NodeName: nodeName, WatchedFiles: watchedFiles}
 }
 
 func (n *NodeState) SetTimestamp() {

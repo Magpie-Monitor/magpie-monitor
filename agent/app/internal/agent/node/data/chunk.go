@@ -1,7 +1,7 @@
 package data
 
 type Chunk struct {
-	ClusterId     string `json:"clusterId"`
+	Cluster       string `json:"cluster"`
 	Kind          string `json:"kind"`
 	CollectedAtMs int64  `json:"collectedAtMs"`
 	Name          string `json:"name"`

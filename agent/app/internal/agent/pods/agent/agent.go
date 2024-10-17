@@ -23,7 +23,7 @@ import (
 )
 
 type Agent struct {
-	clusterId                         string
+	clusterName                       string
 	excludedNamespaces                []string
 	includedNamespaces                []string
 	logCollectionIntervalSeconds      int
@@ -38,7 +38,7 @@ type Agent struct {
 
 func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<- data.ClusterState) *Agent {
 	return &Agent{
-		clusterId:                         cfg.Global.ClusterId,
+		clusterName:                       cfg.Global.ClusterName,
 		excludedNamespaces:                cfg.ExcludedNamespaces,
 		logCollectionIntervalSeconds:      cfg.Global.LogScrapeIntervalSeconds,
 		metadataCollectionIntervalSeconds: cfg.Global.MetadataScrapeIntervalSeconds,
@@ -269,7 +269,7 @@ func (a *Agent) getTimestampKey(podName, containerName string) string {
 
 func (a *Agent) sendResult(kind data.ApplicationKind, name, namespace string, pods []data.Pod) {
 	a.results <- data.Chunk{
-		ClusterId:     a.clusterId,
+		Cluster:       a.clusterName,
 		Kind:          kind,
 		CollectedAtMs: time.Now().UnixMilli(),
 		Name:          name,
@@ -329,7 +329,7 @@ func (a *Agent) getSecondFromLogTimestamp(logLine string) (int, error) {
 func (a *Agent) gatherClusterMetadata() {
 	// TODO - create kubernetes API client
 	for {
-		state := data.NewClusterState(a.clusterId)
+		state := data.NewClusterState(a.clusterName)
 		for _, namespace := range a.includedNamespaces {
 			deployments, err := a.client.AppsV1().
 				Deployments(namespace).

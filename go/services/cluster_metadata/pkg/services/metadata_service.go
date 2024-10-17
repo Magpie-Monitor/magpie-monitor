@@ -33,12 +33,12 @@ type MetadataService struct {
 	nodeRepo    *sharedrepo.MongoDbCollection[repositories.NodeState]
 }
 
-func (m *MetadataService) GetClusterMetadataForTimerange(clusterId string, sinceMillis int, toMillis int) ([]ApplicationMetadata, error) {
+func (m *MetadataService) GetClusterMetadataForTimerange(clusterName string, sinceMillis int, toMillis int) ([]ApplicationMetadata, error) {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: sinceMillis}}}},
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: toMillis}}}},
-			bson.D{{Key: "clusterId", Value: bson.D{{Key: "$eq", Value: clusterId}}}},
+			bson.D{{Key: "clusterName", Value: bson.D{{Key: "$eq", Value: clusterName}}}},
 		}},
 	}
 
@@ -83,12 +83,12 @@ func (m *MetadataService) GetClusterMetadataForTimerange(clusterId string, since
 	return apps, nil
 }
 
-func (m *MetadataService) GetNodeMetadataForTimerange(clusterId string, sinceMillis int, toMillis int) ([]NodeMetadata, error) {
+func (m *MetadataService) GetNodeMetadataForTimerange(clusterName string, sinceMillis int, toMillis int) ([]NodeMetadata, error) {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: sinceMillis}}}},
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: toMillis}}}},
-			bson.D{{Key: "clusterId", Value: bson.D{{Key: "$eq", Value: clusterId}}}},
+			bson.D{{Key: "clusterName", Value: bson.D{{Key: "$eq", Value: clusterName}}}},
 		}},
 	}
 
