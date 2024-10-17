@@ -46,7 +46,7 @@ func (c *Channels) Close() {
 type GlobalConfig struct {
 	Mode                               string
 	NodeName                           string
-	ClusterName                        string
+	ClusterId                          string
 	LogScrapeIntervalSeconds           int
 	MetadataScrapeIntervalSeconds      int
 	PodMetadataRemoteWriteUrl          string
@@ -84,7 +84,7 @@ func NewConfig() Config {
 	runningMode := flag.String("runningMode", "remote", "Determines whether an agent is running locally in a dev environment. Set to \"local\" when running locally and \"remote\" when not.")
 
 	mode := flag.String("scrape", "pods", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
-	clusterName := flag.String("clusterFriendlyName", "unknown", "Friendly name of your cluster, visible in Magpie Cloud.")
+	clusterId := flag.String("clusterFriendlyName", "unknown", "Friendly name of your cluster, visible in Magpie Cloud.")
 
 	logScrapeIntervalSeconds := flag.Int("logScrapeIntervalSeconds", 10, "Interval between scraping logs from files in \"nodes\" mode or pods in \"pods\" mode.")
 	metadataScrapeIntervalSeconds := flag.Int("metadataScrapeIntervalSeconds", 10, "Interval between scraping nodes metadata in \"nodes\" mode or cluster metadata in \"pods\".")
@@ -127,7 +127,7 @@ func NewConfig() Config {
 		Global: GlobalConfig{
 			Mode:                               *mode,
 			NodeName:                           nodeName,
-			ClusterName:                        *clusterName,
+			ClusterId:                          *clusterId,
 			LogScrapeIntervalSeconds:           *logScrapeIntervalSeconds,
 			MetadataScrapeIntervalSeconds:      *metadataScrapeIntervalSeconds,
 			PodMetadataRemoteWriteUrl:          *podRemoteWriteMetadataUrl,

@@ -48,9 +48,9 @@ paths:
                   type: integer
                   format: int64
                   description: Millisecond timestamp at which metadata was collected
-                clusterName:
+                clusterId:
                   type: string
-                  description: Name of the cluster sending metadata
+                  description: Id of the cluster sending metadata
                 applications:
                   type: array
                   items:
@@ -91,10 +91,10 @@ paths:
                   description: Millisecond timestamp at which metadata was collected
                 nodeName:
                   type: string
-                  description: Name of the node sending metadata
-                clusterName:
-                  type: string
                   description: Name of the cluster to which node sending metadata belongs to
+                clusterId:
+                  type: string
+                  description: Id of the node sending metadata
                 watchedFiles:
                   type: array
                   items:
