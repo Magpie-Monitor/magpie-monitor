@@ -15,12 +15,12 @@ import (
 
 func GetQueryByTimestamps(fromDate time.Time, toDate time.Time) *types.Query {
 
-	fromDateFilter := types.Float64(fromDate.UnixNano())
-	toDateFilter := types.Float64(toDate.UnixNano())
+	fromDateFilter := types.Float64(fromDate.UnixMilli())
+	toDateFilter := types.Float64(toDate.UnixMilli())
 
 	return &types.Query{
 		Range: map[string]types.RangeQuery{
-			"timestamp": types.NumberRangeQuery{
+			"collectedAtMs": types.NumberRangeQuery{
 				Gte: &fromDateFilter,
 				Lte: &toDateFilter,
 			},
@@ -46,15 +46,15 @@ func getYYYYMM(date time.Time) string {
 	return fmt.Sprintf("%d-%d", date.Year(), date.Month())
 }
 
-func GetIndexName(cluster string, sourceName string, timestamp int64) string {
+func GetIndexName(cluster string, sourceName string, collectedAtMs int64) string {
 	return fmt.Sprintf(
 		"%s-%s-%s",
 		cluster,
 		sourceName,
-		getYYYYMM(time.Unix(0, timestamp)))
+		getYYYYMM(time.Unix(collectedAtMs, 0)))
 }
 
-func GetIndexParams(index string) (cluster string, source string, year int, month int, err error) {
+func GetIndexParams(index string) (clusterId string, source string, year int, month int, err error) {
 	elements := strings.Split(index, "-")
 
 	if len(elements) < 3 {
@@ -76,7 +76,7 @@ func GetIndexParams(index string) (cluster string, source string, year int, mont
 
 	source = elements[len(elements)-3]
 
-	cluster = strings.Join(elements[0:len(elements)-3], "-")
+	clusterId = strings.Join(elements[0:len(elements)-3], "-")
 
 	return
 
