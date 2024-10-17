@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -41,7 +42,8 @@ public class Client implements HttpClient {
     public <T> List<T> getList(String url, Map<String, String> params, Class<T> clazz) {
         String responseBody = sendGetRequest(getUrl(url, params));
         try {
-            TypeReference<List<T>> typeReference = new TypeReference<>() {};
+            TypeReference<List<T>> typeReference = new TypeReference<>() {
+            };
             return objectMapper.readValue(responseBody, typeReference);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -49,16 +51,10 @@ public class Client implements HttpClient {
     }
 
     private String getUrl(String baseUrl, Map<String, String> params) {
-        StringBuilder urlBuilder = new StringBuilder(baseUrl);
-        urlBuilder.append("?");
-
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            urlBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
-        }
-
-        urlBuilder.deleteCharAt(urlBuilder.length() - 1);
-
-        return urlBuilder.toString();
+        String queryParams = params.entrySet().stream()
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining("&"));
+        return baseUrl + "?" + queryParams;
     }
 
     private String sendGetRequest(String url) {

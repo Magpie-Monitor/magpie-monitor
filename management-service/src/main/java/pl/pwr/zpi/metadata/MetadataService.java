@@ -43,7 +43,6 @@ public class MetadataService {
         );
     }
 
-// TODO - not yet merged, part of - https://github.com/Magpie-Monitor/magpie-monitor/pull/25
     public List<Cluster> getClusters() {
         String url = String.format("%s/v1/metadata/clusters", METADATA_SERVICE_BASE_URL);
         return httpClient.getList(
