@@ -1,0 +1,49 @@
+@import '@/variables';
+
+.placeholder-component {
+  background-color: $secondary;
+  border-radius: 8px;
+  padding: 20px;
+  color: white;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  border-width: 1px;
+  border-style: solid;
+  border-color: $component-border-color;
+  margin-top: 10px;
+
+  .header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .icon-container {
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #48b37b;
+  }
+
+  .divider {
+    height: 1px;
+    background-color: $component-border-color;
+  }
+
+  .payload {
+    flex: 1;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}

@@ -1,6 +1,6 @@
 .title {
   font-size: 32px;
-  margin: 0px;
+  margin: 0;
 }
 
 .home-container {
@@ -13,14 +13,14 @@
 
 .scan-stats {
   display: flex;
-  max-width: 100%;
+  flex-wrap: wrap;
 }
 
 .dashboard-stats {
   display: flex;
   flex-wrap: wrap;
   column-gap: 10px;
-    row-gap: 10px;
+  row-gap: 10px;
   width: 60%;
   justify-content: space-between;
 }
@@ -48,4 +48,5 @@
   align-items: center;
   justify-content: center;
   color: #aaa;
+  min-width: 250px;
 }
