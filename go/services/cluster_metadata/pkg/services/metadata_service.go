@@ -91,12 +91,12 @@ func (m *MetadataService) GetClusterList() ([]ClusterMetadata, error) {
 	return clusterMetadata, nil
 }
 
-func (m *MetadataService) GetClusterMetadataForTimerange(clusterName string, sinceMillis int, toMillis int) ([]ApplicationMetadata, error) {
+func (m *MetadataService) GetClusterMetadataForTimerange(clusterId string, sinceMillis int, toMillis int) ([]ApplicationMetadata, error) {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: sinceMillis}}}},
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: toMillis}}}},
-			bson.D{{Key: "clusterName", Value: bson.D{{Key: "$eq", Value: clusterName}}}},
+			bson.D{{Key: "clusterId", Value: bson.D{{Key: "$eq", Value: clusterId}}}},
 		}},
 	}
 
@@ -142,12 +142,12 @@ func (m *MetadataService) GetClusterMetadataForTimerange(clusterName string, sin
 	return apps, nil
 }
 
-func (m *MetadataService) GetNodeMetadataForTimerange(clusterName string, sinceMillis int, toMillis int) ([]NodeMetadata, error) {
+func (m *MetadataService) GetNodeMetadataForTimerange(clusterId string, sinceMillis int, toMillis int) ([]NodeMetadata, error) {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: sinceMillis}}}},
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: toMillis}}}},
-			bson.D{{Key: "clusterName", Value: bson.D{{Key: "$eq", Value: clusterName}}}},
+			bson.D{{Key: "clusterId", Value: bson.D{{Key: "$eq", Value: clusterId}}}},
 		}},
 	}
 
