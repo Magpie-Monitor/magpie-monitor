@@ -58,7 +58,7 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 		nodeLogs := repositories.NodeLogs{
 			ClusterId:     "testcluster-1",
 			Kind:          "node",
-			CollectedAtMs: 1728313197000000020,
+			CollectedAtMs: 1729172447902,
 			Name:          "tools",
 			Filename:      "nms",
 			Content:       "Failed to save new nginx configuration. Out of disk space.",
@@ -67,7 +67,7 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 		applicationLogs := repositories.ApplicationLogs{
 			ClusterId:     "testcluster-2",
 			Kind:          "application",
-			CollectedAtMs: 1728313197000000010,
+			CollectedAtMs: 1729172447902,
 			Name:          apps[rand.Intn(len(apps))],
 			Pods: []*repositories.PodLogs{
 				{
@@ -93,7 +93,7 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 
 		g.handleApplicationLogs(ctx, string(jsonApplicationLogs))
 		g.handleNodeLogs(ctx, string(jsonNodeLogs))
-		time.Sleep(time.Second * 3609)
+		time.Sleep(time.Second * 10)
 
 	}
 

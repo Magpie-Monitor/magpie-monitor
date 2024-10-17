@@ -10,6 +10,7 @@ import (
 type NodeIncidentSource struct {
 	Timestamp int64  `bson:"timestamp" json:"timestamp"`
 	Content   string `bson:"content" json:"content"`
+	Filename  string `bson:"filename" json:"filename"`
 }
 
 type NodeIncident struct {

@@ -16,8 +16,8 @@ import (
 
 type ReportGenerationFilters struct {
 	ClusterId                string                                          `json:"clusterId"`
-	SinceNano                int64                                           `json:"sinceNano"`
-	ToNano                   int64                                           `json:"toNano"`
+	SinceMs                  int64                                           `json:"sinceMs"`
+	ToMs                     int64                                           `json:"toMs"`
 	ApplicationConfiguration []*repositories.ApplicationInsightConfiguration `json:"applicationConfiguration"`
 	NodeConfiguration        []*repositories.NodeInsightConfiguration        `json:"nodeConfiguration"`
 	MaxLength                int                                             `json:"maxLength"`
@@ -58,8 +58,8 @@ func (s *ReportsService) ScheduleReport(
 	params ReportGenerationFilters,
 ) (*repositories.Report, error) {
 
-	sinceDate := time.Unix(0, params.SinceNano)
-	toDate := time.Unix(0, params.ToNano)
+	sinceDate := time.UnixMilli(params.SinceMs)
+	toDate := time.UnixMilli(params.ToMs)
 
 	applicationLogs, err := s.GetApplicationLogsByParams(
 		ctx,
@@ -89,16 +89,16 @@ func (s *ReportsService) ScheduleReport(
 		applicationLogs,
 		params.ApplicationConfiguration, time.Now(),
 		params.ClusterId,
-		params.SinceNano,
-		params.ToNano,
+		params.SinceMs,
+		params.ToMs,
 	)
 
 	nodeInsights, err := s.nodeInsightsGenerator.ScheduleNodeInsights(
 		nodeLogs,
 		params.NodeConfiguration, time.Now(),
 		params.ClusterId,
-		params.SinceNano,
-		params.ToNano,
+		params.SinceMs,
+		params.ToMs,
 	)
 
 	if err != nil {
@@ -110,10 +110,10 @@ func (s *ReportsService) ScheduleReport(
 		ClusterId:                    params.ClusterId,
 		Title:                        s.getTitleForReport(params.ClusterId, sinceDate, toDate),
 		Status:                       repositories.ReportState_AwaitingGeneration,
-		RequestedAtNs:                time.Now().UnixNano(),
-		ScheduledGenerationAtMs:      time.Now().UnixNano() + time.Hour.Nanoseconds(),
-		SinceNano:                    params.SinceNano,
-		ToNano:                       params.ToNano,
+		RequestedAtMs:                time.Now().UnixMilli(),
+		ScheduledGenerationAtMs:      time.Now().UnixMilli() + time.Hour.Milliseconds(),
+		SinceMs:                      params.SinceMs,
+		ToMs:                         params.ToMs,
 		TotalNodeEntries:             len(nodeLogs),
 		TotalApplicationEntries:      len(applicationLogs),
 		ScheduledApplicationInsights: applicationInsights,
@@ -201,8 +201,8 @@ func (s *ReportsService) GenerateReport(
 	ctx context.Context,
 	params ReportGenerationFilters) (*repositories.Report, error) {
 
-	sinceDate := time.Unix(0, params.SinceNano)
-	toDate := time.Unix(0, params.ToNano)
+	sinceDate := time.UnixMilli(params.SinceMs)
+	toDate := time.UnixMilli(params.ToMs)
 
 	applicationLogs, err := s.GetApplicationLogsByParams(
 		ctx,
@@ -267,11 +267,11 @@ func (s *ReportsService) GenerateReport(
 	report := repositories.Report{
 		Status:                  repositories.ReportState_Generated,
 		ClusterId:               params.ClusterId,
-		RequestedAtNs:           time.Now().UnixNano(),
-		ScheduledGenerationAtMs: time.Now().UnixNano(),
+		RequestedAtMs:           time.Now().UnixMilli(),
+		ScheduledGenerationAtMs: time.Now().UnixMilli(),
 		Title:                   s.getTitleForReport(params.ClusterId, sinceDate, toDate),
-		SinceNano:               params.SinceNano,
-		ToNano:                  params.ToNano,
+		SinceMs:                 params.SinceMs,
+		ToMs:                    params.ToMs,
 		NodeReports:             nodeReports,
 		ApplicationReports:      applicationReports,
 		TotalApplicationEntries: len(applicationLogs),
@@ -297,7 +297,7 @@ func (s *ReportsService) getApplicationIncidentFromInsight(insight insights.Appl
 			ContainerName: metadata.ContainerName,
 			PodName:       metadata.PodName,
 			Content:       metadata.Source,
-			Timestamp:     metadata.Timestamp,
+			Timestamp:     metadata.CollectedAtMs,
 			Image:         metadata.Image,
 		}
 	})(insight.Metadata)
@@ -337,6 +337,10 @@ func (s *ReportsService) getReportUrgencyFromApplicationAndNodeReports(
 
 	allUrgencies := append(flattenedApplicationUrgency, flattenedNodeUrgency...)
 
+	if len(allUrgencies) == 0 {
+		return repositories.Urgency_Low
+	}
+
 	return slices.Max(allUrgencies)
 }
 
@@ -345,7 +349,8 @@ func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsight
 	sources := array.Map(func(metadata insights.NodeInsightMetadata) repositories.NodeIncidentSource {
 		return repositories.NodeIncidentSource{
 			Content:   metadata.Source,
-			Timestamp: metadata.Timestamp,
+			Timestamp: metadata.CollectedAtMs,
+			Filename:  metadata.Filename,
 		}
 	})(insight.Metadata)
 
@@ -427,8 +432,8 @@ func (s *ReportsService) GenerateAndSaveReport(ctx context.Context, params Repor
 	report, err := s.GenerateReport(ctx,
 		ReportGenerationFilters{
 			ClusterId:                params.ClusterId,
-			SinceNano:                params.SinceNano,
-			ToNano:                   params.ToNano,
+			SinceMs:                  params.SinceMs,
+			ToMs:                     params.ToMs,
 			MaxLength:                params.MaxLength,
 			ApplicationConfiguration: params.ApplicationConfiguration,
 			NodeConfiguration:        params.NodeConfiguration,

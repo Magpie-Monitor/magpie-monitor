@@ -55,8 +55,8 @@ func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
 
 type reportsPostParams struct {
 	ClusterId                *string                                         `json:"clusterId"`
-	SinceNano                *int64                                          `json:"sinceNano"`
-	ToNano                   *int64                                          `json:"toNano"`
+	SinceMs                  *int64                                          `json:"sinceMs"`
+	ToMs                     *int64                                          `json:"toMs"`
 	ApplicationConfiguration []*repositories.ApplicationInsightConfiguration `json:"applicationConfiguration"`
 	NodeConfiguration        []*repositories.NodeInsightConfiguration        `json:"nodeConfiguration"`
 	MaxLength                *int                                            `json:"maxLength"`
@@ -120,8 +120,8 @@ func (h *ReportsHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
 	clusterId, isClusterSet := routing.LookupQueryParam(query, "clusterId")
-	sinceNano, isSinceNanoSet := routing.LookupQueryParam(query, "sinceNano")
-	toNano, isToNanoSet := routing.LookupQueryParam(query, "toNano")
+	sinceMs, isSinceMsSet := routing.LookupQueryParam(query, "sinceMs")
+	toMs, isToMsSet := routing.LookupQueryParam(query, "toMs")
 
 	filterParams := repositories.FilterParams{}
 
@@ -129,28 +129,28 @@ func (h *ReportsHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 		filterParams.ClusterId = &clusterId
 	}
 
-	if isSinceNanoSet {
-		fromDateInt, err := strconv.ParseInt(sinceNano, 10, 64)
+	if isSinceMsSet {
+		fromDateInt, err := strconv.ParseInt(sinceMs, 10, 64)
 		if err != nil {
-			h.logger.Warn("Invalid sinceNano query param", zap.Error(err))
+			h.logger.Warn("Invalid sinceMs query param", zap.Error(err))
 			w.WriteHeader(http.StatusBadRequest)
-			routing.WriteHttpError(w, "Invalid sinceNano parameter")
+			routing.WriteHttpError(w, "Invalid sinceMs parameter")
 			return
 		}
 
-		filterParams.SinceNano = &fromDateInt
+		filterParams.SinceMs = &fromDateInt
 	}
 
-	if isToNanoSet {
-		toDateInt, err := strconv.ParseInt(toNano, 10, 64)
+	if isToMsSet {
+		toDateInt, err := strconv.ParseInt(toMs, 10, 64)
 		if err != nil {
 			h.logger.Warn("Invalid toDate query param", zap.Error(err))
 			w.WriteHeader(http.StatusBadRequest)
-			routing.WriteHttpError(w, "Invalid toNano parameter")
+			routing.WriteHttpError(w, "Invalid toMs parameter")
 
 			return
 		}
-		filterParams.ToNano = &toDateInt
+		filterParams.ToMs = &toDateInt
 	}
 
 	reports, repositoryError := h.reportsService.GetAllReports(ctx, filterParams)
@@ -186,15 +186,15 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if params.SinceNano == nil {
+	if params.SinceMs == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		routing.WriteHttpError(w, "Missing sinceNano parameter")
+		routing.WriteHttpError(w, "Missing sinceMs parameter")
 		return
 	}
 
-	if params.ToNano == nil {
+	if params.ToMs == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		routing.WriteHttpError(w, "Missing toNano parameter")
+		routing.WriteHttpError(w, "Missing toMs parameter")
 		return
 	}
 
@@ -213,8 +213,8 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 	report, err := h.reportsService.GenerateAndSaveReport(ctx,
 		services.ReportGenerationFilters{
 			ClusterId:                *params.ClusterId,
-			SinceNano:                *params.SinceNano,
-			ToNano:                   *params.ToNano,
+			SinceMs:                  *params.SinceMs,
+			ToMs:                     *params.ToMs,
 			MaxLength:                *params.MaxLength,
 			ApplicationConfiguration: params.ApplicationConfiguration,
 			NodeConfiguration:        params.NodeConfiguration,
@@ -252,15 +252,15 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if params.SinceNano == nil {
+	if params.SinceMs == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		routing.WriteHttpError(w, "Missing sinceNano parameter")
+		routing.WriteHttpError(w, "Missing sinceMs parameter")
 		return
 	}
 
-	if params.ToNano == nil {
+	if params.ToMs == nil {
 		w.WriteHeader(http.StatusBadRequest)
-		routing.WriteHttpError(w, "Missing toNano parameter")
+		routing.WriteHttpError(w, "Missing toMs parameter")
 		return
 	}
 
@@ -279,8 +279,8 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.reportsService.ScheduleReport(ctx,
 		services.ReportGenerationFilters{
 			ClusterId:                *params.ClusterId,
-			SinceNano:                *params.SinceNano,
-			ToNano:                   *params.ToNano,
+			SinceMs:                  *params.SinceMs,
+			ToMs:                     *params.ToMs,
 			MaxLength:                *params.MaxLength,
 			ApplicationConfiguration: params.ApplicationConfiguration,
 			NodeConfiguration:        params.NodeConfiguration,

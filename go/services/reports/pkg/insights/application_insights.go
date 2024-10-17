@@ -28,7 +28,7 @@ type ApplicationLogsInsight struct {
 }
 
 type ApplicationInsightMetadata struct {
-	Timestamp       int64  `json:"timestamp"`
+	CollectedAtMs   int64  `json:"collectedAtMs"`
 	ApplicationName string `json:"applicationName"`
 	ClusterId       string `json:"clusterId"`
 	ContainerName   string `json:"containerName"`
@@ -109,8 +109,8 @@ func (g *OpenAiInsightsGenerator) addMetadataToApplicationInsight(
 
 		applicationInsightsMetadata = append(applicationInsightsMetadata, ApplicationInsightMetadata{
 			ApplicationName: log.ApplicationName,
-			ClusterId:       log.Cluster,
-			Timestamp:       log.Timestamp,
+			ClusterId:       log.ClusterId,
+			CollectedAtMs:   log.CollectedAtMs,
 			ContainerName:   log.ContainerName,
 			PodName:         log.PodName,
 			Source:          log.Content,
@@ -197,8 +197,8 @@ func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
 
 	insightLogs, err := g.applicationLogsRepository.
 		GetLogs(context.TODO(), sheduledInsights.ClusterId,
-			time.Unix(0, sheduledInsights.SinceNano),
-			time.Unix(0, sheduledInsights.ToNano))
+			time.UnixMilli(sheduledInsights.SinceMs),
+			time.UnixMilli(sheduledInsights.ToMs))
 
 	if err != nil {
 		g.logger.Error("Failed to get application logs for scheduled insight")
@@ -248,8 +248,8 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 	configuration []*reportrepositories.ApplicationInsightConfiguration,
 	scheduledTime time.Time,
 	clusterId string,
-	sinceNano int64,
-	toNano int64,
+	sinceMs int64,
+	toMs int64,
 ) (*reportrepositories.ScheduledApplicationInsights, error) {
 
 	groupedLogs := GroupApplicationLogsByName(logs)
@@ -286,8 +286,8 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 	return &reportrepositories.ScheduledApplicationInsights{
 		Id:                       resp.Id,
 		ClusterId:                clusterId,
-		SinceNano:                sinceNano,
-		ToNano:                   toNano,
+		SinceMs:                  sinceMs,
+		ToMs:                     toMs,
 		ApplicationConfiguration: configuration,
 	}, nil
 }
