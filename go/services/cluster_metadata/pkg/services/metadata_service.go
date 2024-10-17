@@ -81,7 +81,7 @@ func (m *MetadataService) GetClusterList() ([]ClusterMetadata, error) {
 		activeClusterSet[clusterName] = struct{}{}
 	}
 
-	clusterMetadata := make([]ClusterMetadata, len(clusters))
+	clusterMetadata := make([]ClusterMetadata, 0)
 	for _, c := range clusters {
 		clusterName := c.(string)
 		_, running := activeClusterSet[clusterName]
