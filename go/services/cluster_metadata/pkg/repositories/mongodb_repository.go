@@ -16,7 +16,7 @@ func NewNodeMetadataCollection(log *zap.Logger, client *mongo.Client) *repositor
 
 type ClusterState struct {
 	CollectedAtMs int64         `json:"collectedAtMs" bson:"collectedAtMs"`
-	ClusterName   string        `json:"clusterName" bson:"clusterName"`
+	ClusterId     string        `json:"clusterId" bson:"clusterId"`
 	Applications  []Application `json:"applications" bson:"applications"`
 }
 
@@ -26,7 +26,7 @@ type Application struct {
 }
 
 type NodeState struct {
-	ClusterName   string   `json:"clusterName" bson:"clusterName"`
+	ClusterId     string   `json:"clusterId" bson:"clusterId"`
 	NodeName      string   `json:"nodeName" bson:"nodeName"`
 	CollectedAtMs int64    `json:"collectedAtMs" bson:"collectedAtMs"`
 	WatchedFiles  []string `json:"watchedFiles" bson:"watchedFiles"`

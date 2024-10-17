@@ -19,8 +19,8 @@ public class MetadataService {
     private String METADATA_SERVICE_BASE_URL;
     private final HttpClient httpClient;
 
-    public List<ApplicationMetadata> getApplicationMetadata(String clusterName, Long sinceMillis, Long toMillis) {
-        String url = String.format("%s/v1/metadata/clusters/%s/applications", METADATA_SERVICE_BASE_URL, clusterName);
+    public List<ApplicationMetadata> getApplicationMetadata(String clusterId, Long sinceMillis, Long toMillis) {
+        String url = String.format("%s/v1/metadata/clusters/%s/applications", METADATA_SERVICE_BASE_URL, clusterId);
         return httpClient.getList(
                 url,
                 Map.of(
@@ -31,8 +31,8 @@ public class MetadataService {
         );
     }
 
-    public List<NodeMetadata> getNodeMetadata(String clusterName, Long sinceMillis, Long toMillis) {
-        String url = String.format("%s/v1/metadata/clusters/%s/nodes", METADATA_SERVICE_BASE_URL, clusterName);
+    public List<NodeMetadata> getNodeMetadata(String clusterId, Long sinceMillis, Long toMillis) {
+        String url = String.format("%s/v1/metadata/clusters/%s/nodes", METADATA_SERVICE_BASE_URL, clusterId);
         return httpClient.getList(
                 url,
                 Map.of(
