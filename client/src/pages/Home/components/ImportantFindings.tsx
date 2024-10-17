@@ -3,8 +3,14 @@ import './ImportantFindings.scss';
 const ImportantFindings = () => {
     return (
         <div className="important-findings">
-            <h3>Important findings</h3>
+            <h3 className="important-findings-title">Important findings</h3>
             <div className="table-label"></div>
+            <div className="finding-column-names">
+                <div>Source</div>
+                <div>Category</div>
+                <div>Summary</div>
+                <div>Date</div>
+            </div>
             <div className="finding">
                 <div className="finding-source">Postgres:12.19-bullseye</div>
                 <div className="finding-category">Database outage</div>

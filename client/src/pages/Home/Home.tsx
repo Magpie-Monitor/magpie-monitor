@@ -1,13 +1,10 @@
 import ImportantFindings from './components/ImportantFindings';
 import StatItem from './components/StatItem';
 import PlaceholderComponent from '../../components/PlaceholderComponent/PlaceholderComponent.tsx';
-// import ReportsIcone from 'assets/reports_icon.svg';
+// import SettingsIcon from '../../assets/settings_icon.svg';
 import './Home.scss';
-
-// /*<div className="last-report">
-//                     <p>Last report from <a href="#">production-services</a>
-//                         (19.04.2023 - 25.04.2023)</p>
-//                 </div>*/
+import PlaceholderComponentTitle
+    from '../../components/PlaceholderComponent/PlaceholderComponentTitle/PlaceholderComponentTitle.tsx';
 
 const Home = () => {
     return (
@@ -16,9 +13,11 @@ const Home = () => {
                 <p className="title">Dashboard</p>
 
                 <div className="dashboard-page">
-                    <PlaceholderComponent title="Last report ">
+                    {/* eslint-disable-next-line max-len */}
+                    <PlaceholderComponent title={<PlaceholderComponentTitle source="production-services"
+                    startTime="19.04.2023" endTime="25.04.2023"/>}>
                         <div>
-                            <h3>Scan stats</h3>
+                            <h3 className="scan-stats-title">Scan stats</h3>
                             <div className="scan-stats">
                                 <div className="dashboard-stats">
                                     <StatItem title="Analyzed apps"

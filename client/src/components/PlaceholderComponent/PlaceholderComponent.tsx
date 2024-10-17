@@ -3,16 +3,16 @@ import './PlaceholderComponent.scss';
 
 interface PlaceholderComponentProps {
     icon?: React.ReactNode;
-    title: string;
+    title: React.ReactNode;
     children: React.ReactNode;
 }
 
-const PlaceholderComponent: React.FC<PlaceholderComponentProps> = ({ icon, title, children }) => {
+const PlaceholderComponent: React.FC<PlaceholderComponentProps> = ({icon, title, children}) => {
     return (
         <div className="placeholder-component">
             <div className="header">
                 {icon && <div className="icon-container">{icon}</div>}
-                <div className="title">{title}</div>
+                <div>{title}</div>
             </div>
             <div className="divider"></div>
             <div className="payload">
