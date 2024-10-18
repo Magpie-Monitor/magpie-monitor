@@ -52,10 +52,10 @@ type Report struct {
 	Id                      string               `bson:"_id,omitempty" json:"id"`
 	Status                  ReportState          `bson:"status" json:"status"`
 	ClusterId               string               `bson:"clusterId" json:"clusterId"`
-	SinceNano               int64                `bson:"sinceNano" json:"sinceNano"`
-	ToNano                  int64                `bson:"toNano" json:"toNano"`
-	RequestedAtNs           int64                `bson:"requestedAtNs" json:"requestedAtNs"`
-	ScheduledGenerationAtMs int64                `bson:"scheduledGenerationAtNs" json:"scheduledGenerationAtNs"`
+	SinceMs                 int64                `bson:"sinceMs" json:"sinceMs"`
+	ToMs                    int64                `bson:"toMs" json:"toMs"`
+	RequestedAtMs           int64                `bson:"requestedAtMs" json:"requestedAtMs"`
+	ScheduledGenerationAtMs int64                `bson:"scheduledGenerationAtMs" json:"scheduledGenerationAtMs"`
 	Title                   string               `bson:"title" json:"title"`
 	NodeReports             []*NodeReport        `bson:"nodeReports" json:"nodeReports"`
 	ApplicationReports      []*ApplicationReport `bson:"applicationReports" json:"applicationReports"`
@@ -82,16 +82,16 @@ type NodeInsightConfiguration struct {
 
 type ScheduledApplicationInsights struct {
 	Id                       string                             `json:"id"`
-	SinceNano                int64                              `bson:"sinceNano" json:"sinceNano"`
-	ToNano                   int64                              `bson:"toNano" json:"toNano"`
+	SinceMs                  int64                              `bson:"sinceMs" json:"sinceMs"`
+	ToMs                     int64                              `bson:"toMs" json:"toMs"`
 	ClusterId                string                             `bson:"clusterId" json:"clusterId"`
 	ApplicationConfiguration []*ApplicationInsightConfiguration `json:"applicationConfiguration"`
 }
 
 type ScheduledNodeInsights struct {
 	Id                string                      `json:"id"`
-	SinceNano         int64                       `bson:"sinceNano" json:"sinceNano"`
-	ToNano            int64                       `bson:"toNano" json:"toNano"`
+	SinceMs           int64                       `bson:"sinceMs" json:"sinceMs"`
+	ToMs              int64                       `bson:"toMs" json:"toMs"`
 	ClusterId         string                      `bson:"clusterId" json:"clusterId"`
 	NodeConfiguration []*NodeInsightConfiguration `json:"nodeConfiguration"`
 }
@@ -158,8 +158,8 @@ func NewReportInternalError(err error) *ReportRepositoryError {
 
 type FilterParams struct {
 	ClusterId *string
-	SinceNano *int64
-	ToNano    *int64
+	SinceMs   *int64
+	ToMs      *int64
 }
 
 type ReportRepository interface {
@@ -205,18 +205,18 @@ func (r *MongoDbReportRepository) GetAllReports(ctx context.Context, filter Filt
 					{Key: "$eq", Value: filter.ClusterId}}},
 			})
 	}
-	if filter.ToNano != nil {
+	if filter.ToMs != nil {
 		mongoFilter = append(mongoFilter,
 			bson.D{
-				{Key: "toNano", Value: bson.D{
-					{Key: "$lte", Value: filter.ToNano}}},
+				{Key: "toMs", Value: bson.D{
+					{Key: "$lte", Value: filter.ToMs}}},
 			})
 	}
-	if filter.SinceNano != nil {
+	if filter.SinceMs != nil {
 		mongoFilter = append(mongoFilter,
 			bson.D{
-				{Key: "sinceNano", Value: bson.D{
-					{Key: "$gte", Value: filter.SinceNano}}},
+				{Key: "sinceMs", Value: bson.D{
+					{Key: "$gte", Value: filter.SinceMs}}},
 			})
 	}
 
