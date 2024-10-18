@@ -101,7 +101,6 @@ func (m *MetadataService) GetClusterMetadataForTimerange(clusterId string, since
 	}
 
 	metadata, err := m.clusterRepo.GetDocuments(filter, bson.D{})
-	log.Println("metadata:", metadata)
 	if err != nil {
 		m.log.Error("Error fetching cluster metadata:", zap.Error(err))
 		return nil, err
