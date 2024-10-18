@@ -1,6 +1,8 @@
 package pl.pwr.zpi.metadata;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.metadata.dto.ApplicationMetadata;
@@ -11,6 +13,7 @@ import pl.pwr.zpi.utils.client.HttpClient;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MetadataService {
@@ -27,7 +30,8 @@ public class MetadataService {
                         "sinceMillis", sinceMillis.toString(),
                         "toMillis", toMillis.toString()
                 ),
-                ApplicationMetadata.class
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -39,7 +43,8 @@ public class MetadataService {
                         "sinceMillis", sinceMillis.toString(),
                         "toMillis", toMillis.toString()
                 ),
-                NodeMetadata.class
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -48,7 +53,8 @@ public class MetadataService {
         return httpClient.getList(
                 url,
                 Map.of(),
-                Cluster.class
+                new TypeReference<>() {
+                }
         );
     }
 
