@@ -4,16 +4,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.stereotype.Component;
+import pl.pwr.zpi.reports.dto.report.Report;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -25,6 +26,7 @@ public class Client implements HttpClient {
     public Client() {
         this.httpClient = new OkHttpClient();
         this.objectMapper = new ObjectMapper();
+        this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
@@ -34,27 +36,27 @@ public class Client implements HttpClient {
         try {
             return objectMapper.readValue(responseBody, clazz);
         } catch (JsonProcessingException e) {
+            log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public <T> List<T> getList(String url, Map<String, String> params, Class<T> clazz) {
+    public <T> List<T> getList(String url, Map<String, String> params, TypeReference<List<T>> clazz) {
         String responseBody = sendGetRequest(getUrl(url, params));
         try {
-            TypeReference<List<T>> typeReference = new TypeReference<>() {
-            };
-            return objectMapper.readValue(responseBody, typeReference);
+            return objectMapper.readValue(responseBody, clazz);
         } catch (JsonProcessingException e) {
+            log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
 
     private String getUrl(String baseUrl, Map<String, String> params) {
-        String queryParams = params.entrySet().stream()
-                .map(entry -> entry.getKey() + "=" + entry.getValue())
-                .collect(Collectors.joining("&"));
-        return baseUrl + "?" + queryParams;
+        return params.entrySet().isEmpty()
+                ? baseUrl
+                : baseUrl + "?" + params.entrySet().stream()
+                .map(entry -> entry.getKey() + "=" + entry.getValue());
     }
 
     private String sendGetRequest(String url) {
