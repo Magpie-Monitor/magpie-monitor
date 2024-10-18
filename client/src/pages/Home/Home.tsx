@@ -1,10 +1,10 @@
 import ImportantFindings from './components/ImportantFindings';
 import StatItem from './components/StatItem';
-import PlaceholderComponent from '@components/PlaceholderComponent/PlaceholderComponent.tsx';
-import SettingsIcon from '@assets/settings_icon.svg';
+import PlaceholderComponent from '@/components/PlaceholderComponent/PlaceholderComponent.tsx';
+import SettingsIcon from '@/assets/settings_icon.svg';
 import './Home.scss';
 import PlaceholderComponentTitle
-    from '@components/PlaceholderComponent/PlaceholderComponentTitle/PlaceholderComponentTitle.tsx';
+    from '@/components/PlaceholderComponent/PlaceholderComponentTitle/PlaceholderComponentTitle.tsx';
 
 const Home = () => {
     return (
