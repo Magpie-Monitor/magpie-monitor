@@ -58,4 +58,20 @@ public class MetadataService {
         );
     }
 
+//    public void getClusters() {
+//
+//    }
+
+    public void getClusterById(String clusterId) {
+
+    }
+
+    public void getClusterNodes(String clusterId) {
+
+    }
+
+    public void getClusterApplications(String clusterId) {
+
+    }
+
 }

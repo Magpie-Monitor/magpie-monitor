@@ -42,8 +42,8 @@ public class ReportsService {
         );
     }
 
-    public List<ApplicationIncident> getReportApplicationIncidents(String reportId) {
-        String url = String.format("%s/v1/application-incidents/%s", REPORT_SERVICE_BASE_URL, reportId);
+    public List<ApplicationIncident> getReportApplicationIncidents(String incidentId) {
+        String url = String.format("%s/v1/application-incidents/%s", REPORT_SERVICE_BASE_URL, incidentId);
         return httpClient.getList(
                 url,
                 Map.of(),
@@ -52,8 +52,8 @@ public class ReportsService {
         );
     }
 
-    public List<NodeIncident> getReportNodeIncidents(String reportId) {
-        String url = String.format("%s/v1/node-incidents/%s", REPORT_SERVICE_BASE_URL, reportId);
+    public List<NodeIncident> getReportNodeIncidents(String incidentId) {
+        String url = String.format("%s/v1/node-incidents/%s", REPORT_SERVICE_BASE_URL, incidentId);
         return httpClient.getList(
                 url,
                 Map.of(),
@@ -63,25 +63,15 @@ public class ReportsService {
     }
 
     public ReportIncidents getReportIncidents(String id) {
-        List<NodeIncident> nodeIncidents = getReportNodeIncidents(id);
-        List<ApplicationIncident> applicationIncidents = getReportApplicationIncidents(id);
-        return new ReportIncidents(applicationIncidents, nodeIncidents);
-    }
-
-    public void getClusters() {
-
-    }
-
-    public void getClusterById(String clusterId) {
-
-    }
-
-    public void getClusterNodes(String clusterId) {
-
-    }
-
-    public void getClusterApplications(String clusterId) {
-
+        Report report = getReportById(id);
+        return new ReportIncidents(
+                report.applicationReports().stream().
+                        flatMap(applicationReport -> applicationReport.incidents().stream())
+                        .toList(),
+                report.nodeReports().stream()
+                        .flatMap(nodeReport -> nodeReport.nodeIncidents().stream())
+                        .toList()
+        );
     }
 
 }
