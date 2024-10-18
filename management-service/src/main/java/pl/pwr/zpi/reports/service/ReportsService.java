@@ -8,10 +8,9 @@ import org.springframework.stereotype.Service;
 import pl.pwr.zpi.reports.dto.report.Report;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncident;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncident;
-import pl.pwr.zpi.utils.client.Client;
+import pl.pwr.zpi.reports.dto.report.node.ReportIncidents;
 import pl.pwr.zpi.utils.client.HttpClient;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,8 @@ public class ReportsService {
         return httpClient.getList(
                 url,
                 Map.of(),
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -47,7 +47,8 @@ public class ReportsService {
         return httpClient.getList(
                 url,
                 Map.of(),
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -56,7 +57,14 @@ public class ReportsService {
         return httpClient.getList(
                 url,
                 Map.of(),
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
+    }
+
+    public ReportIncidents getReportIncidents(String id) {
+        List<NodeIncident> nodeIncidents = getReportNodeIncidents(id);
+        List<ApplicationIncident> applicationIncidents = getReportApplicationIncidents(id);
+        return new ReportIncidents(applicationIncidents, nodeIncidents);
     }
 }
