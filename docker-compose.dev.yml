@@ -135,3 +135,8 @@ services:
 
 volumes:
   redisdata:
+
+networks:
+  default:
+    name: magpie-network
+    external: true
