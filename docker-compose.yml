@@ -164,6 +164,7 @@ services:
       - VIRTUAL_HOST=${MANAGEMENT_PRODUCTION_HOST}
       - LETSENCRYPT_HOST=${MANAGEMENT_PRODUCTION_HOST}
       - VIRTUAL_PORT=8080
+      - REPORTS_SERVICE_BASE_URL=http://magpie-monitor-reports-service:${REPORTS_SERVICE_PORT}
     ports:
       - "${MANAGEMENT_SERVICE_PORT}:8080"
     depends_on:

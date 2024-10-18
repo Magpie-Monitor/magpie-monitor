@@ -67,4 +67,21 @@ public class ReportsService {
         List<ApplicationIncident> applicationIncidents = getReportApplicationIncidents(id);
         return new ReportIncidents(applicationIncidents, nodeIncidents);
     }
+
+    public void getClusters() {
+
+    }
+
+    public void getClusterById(String clusterId) {
+
+    }
+
+    public void getClusterNodes(String clusterId) {
+
+    }
+
+    public void getClusterApplications(String clusterId) {
+
+    }
+
 }
