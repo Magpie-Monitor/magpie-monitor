@@ -1,9 +1,12 @@
-package pl.pwr.zpi.reports;
+package pl.pwr.zpi.reports.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import pl.pwr.zpi.reports.dto.ReportSummarized;
+import pl.pwr.zpi.reports.ReportsClient;
+import pl.pwr.zpi.reports.dto.Report;
 
 import java.util.List;
 
@@ -18,7 +21,7 @@ public class ReportsService {
     private final String ALL_REPORTS_URL = "http://reports-service:8099/v1/reports";
     private final String REPORT_DETAILS_URL = "http://reports-service:8099/v1/reports/";
 
-    public List<ReportSummarizedDTO> getReport() throws Exception {
+    public List<ReportSummarized> getReport() throws Exception {
         log.info("Getting report");
         return reportsClient.sendGetRequestForList(
                 ALL_REPORTS_URL,
@@ -26,11 +29,11 @@ public class ReportsService {
         );
     }
 
-    public ReportDTO getReportById(String id) throws Exception {
+    public Report getReportById(String id) throws Exception {
         log.info("Getting report by id: {}", id);
         return reportsClient.sendGetRequest(
                 REPORT_DETAILS_URL + id,
-                ReportDTO.class
+                Report.class
         );
     }
 }
