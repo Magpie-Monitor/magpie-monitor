@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -14,14 +13,13 @@ public class MessagingService {
 
     private final KafkaTemplate<String, String> kafka;
 
-    @KafkaListener(topics = "applications")
-    public void listen(String message) {
-        log.info("received message: {}", message);
+    @KafkaListener(topics = "ApplicationMetadataStateChanged")
+    public void processApplicationMetadataStateChange(String message) {
+        log.info("Received updated application metadata state: {}", message);
     }
 
-    @Scheduled(fixedDelay = 1000)
-    public void publish() {
-        log.info("published message");
-        kafka.send("applications", "hello");
+    @KafkaListener(topics = "NodeMetadataStateChanged")
+    public void processNodeMetadataStateChange(String message) {
+        log.info("Received updated node metadata state: {}", message);
     }
 }
