@@ -48,6 +48,7 @@ type MetadataService struct {
 	log                         *zap.Logger
 	clusterRepo                 *sharedrepo.MongoDbCollection[repositories.ClusterState]
 	nodeRepo                    *sharedrepo.MongoDbCollection[repositories.NodeState]
+	eventEmitter                *EventEmitter
 	clusterActivityWindowMillis int64
 }
 
