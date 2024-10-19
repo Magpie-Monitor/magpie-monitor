@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.metadata.dto.ApplicationMetadata;
-import pl.pwr.zpi.metadata.dto.Cluster;
+import pl.pwr.zpi.metadata.dto.ClusterMetadata;
 import pl.pwr.zpi.metadata.dto.NodeMetadata;
 import pl.pwr.zpi.utils.client.HttpClient;
 
@@ -48,7 +48,7 @@ public class MetadataService {
         );
     }
 
-    public List<Cluster> getClusters() {
+    public List<ClusterMetadata> getClusters() {
         String url = String.format("%s/v1/metadata/clusters", METADATA_SERVICE_BASE_URL);
         return httpClient.getList(
                 url,
