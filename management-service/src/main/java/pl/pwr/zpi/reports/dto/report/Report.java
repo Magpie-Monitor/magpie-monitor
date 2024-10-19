@@ -1,7 +1,5 @@
 package pl.pwr.zpi.reports.dto.report;
 
-import lombok.extern.jackson.Jacksonized;
-import pl.pwr.zpi.reports.Urgency;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationReport;
 import pl.pwr.zpi.reports.dto.report.application.ScheduledApplicationInsight;
 import pl.pwr.zpi.reports.dto.report.node.NodeReport;
