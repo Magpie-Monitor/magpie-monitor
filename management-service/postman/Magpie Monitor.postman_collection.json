@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "e2444629-7cc8-498f-9375-88167ec4b06e",
+		"_postman_id": "c73249aa-51be-4545-abdd-6ccfca3cf686",
 		"name": "Magpie Monitor",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "22057309",
-		"_collection_link": "https://lively-meadow-271302.postman.co/workspace/My-Workspace~533c4214-2669-47f7-8a2e-307ff0f50f6c/collection/22057309-e2444629-7cc8-498f-9375-88167ec4b06e?action=share&source=collection_link&creator=22057309"
+		"_exporter_id": "35122031"
 	},
 	"item": [
 		{
@@ -16,11 +15,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/v1/notification-channels/mails",
+							"raw": "{{base-url}}/api/v1/notification-channels/mails",
 							"host": [
-								"localhost"
+								"{{base-url}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"v1",
@@ -46,11 +44,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/api/v1/notification-channels/mails",
+							"raw": "{{base-url}}/api/v1/notification-channels/mails",
 							"host": [
-								"localhost"
+								"{{base-url}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"v1",
@@ -76,11 +73,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/api/v1/notification-channels/mails/1",
+							"raw": "{{base-url}}/api/v1/notification-channels/mails/1",
 							"host": [
-								"localhost"
+								"{{base-url}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"v1",
@@ -98,11 +94,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/v1/notification-channels/mails/1/test-notification",
+							"raw": "{{base-url}}/api/v1/notification-channels/mails/1/test-notification",
 							"host": [
-								"localhost"
+								"{{base-url}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"v1",
@@ -121,11 +116,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/v1/notification-channels/slack",
+							"raw": "{{base-url}}/api/v1/notification-channels/slack",
 							"host": [
-								"localhost"
+								"{{base-url}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"v1",
@@ -151,11 +145,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/api/v1/notification-channels/slack",
+							"raw": "{{base-url}}/api/v1/notification-channels/slack",
 							"host": [
-								"localhost"
+								"{{base-url}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"v1",
@@ -181,11 +174,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/api/v1/notification-channels/slack/1",
+							"raw": "{{base-url}}/api/v1/notification-channels/slack/1",
 							"host": [
-								"localhost"
+								"{{base-url}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"v1",
@@ -203,11 +195,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/v1/notification-channels/slack/3/test-notification",
+							"raw": "{{base-url}}/api/v1/notification-channels/slack/3/test-notification",
 							"host": [
-								"localhost"
+								"{{base-url}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"v1",
@@ -226,11 +217,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/v1/notification-channels/discord",
+							"raw": "{{base-url}}/api/v1/notification-channels/discord",
 							"host": [
-								"localhost"
+								"{{base-url}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"v1",
@@ -256,11 +246,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/api/v1/notification-channels/discord",
+							"raw": "{{base-url}}/api/v1/notification-channels/discord",
 							"host": [
-								"localhost"
+								"{{base-url}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"v1",
@@ -286,11 +275,10 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/api/v1/notification-channels/discord/1",
+							"raw": "{{base-url}}/api/v1/notification-channels/discord/1",
 							"host": [
-								"localhost"
+								"{{base-url}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"v1",
@@ -308,11 +296,10 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/api/v1/notification-channels/discord/1/test-notification",
+							"raw": "{{base-url}}/api/v1/notification-channels/discord/1/test-notification",
 							"host": [
-								"localhost"
+								"{{base-url}}"
 							],
-							"port": "8080",
 							"path": [
 								"api",
 								"v1",
@@ -326,6 +313,142 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "reports",
+			"item": [
+				{
+					"name": "/api/v1/reports",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/reports",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/reports/{reportId}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/reports/67126517e084e6c0159aef38",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reports",
+								"67126517e084e6c0159aef38"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/reports/node-incidents/{incidentId}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/reports/node-incidents/1",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reports",
+								"node-incidents",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/reports/application-incidents/{incidentId}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/reports/application-incidents/1",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reports",
+								"application-incidents",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/reports/{id}/incidents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/reports/67126517e084e6c0159aef38/incidents",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reports",
+								"67126517e084e6c0159aef38",
+								"incidents"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base-url",
+			"value": "",
+			"type": "string"
 		}
 	]
 }
