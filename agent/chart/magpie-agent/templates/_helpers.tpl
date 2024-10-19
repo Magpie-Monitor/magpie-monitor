@@ -3,9 +3,9 @@
 - "--remoteWriteBrokerUrl"
 - {{ .url | quote }}
 - "--remoteWriteNodeTopic"
-- "applications"
+- "nodes"
 - "--remoteWriteApplicationTopic"
-- "pods"
+- "applications"
 - "--remoteWriteBatchSize"
 - "0"
 - "--remoteWriteBrokerUsername"

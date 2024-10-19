@@ -10,6 +10,7 @@ agent:
     image: woojciech/agent:latest 
     files:
       - /var/log/calico/cni/cni.log
+      - /var/log/magpie-monitor/journal.log
   redis:
     enabled: true # Set enabled: false if running custom Redis instance
     image: redis:6
