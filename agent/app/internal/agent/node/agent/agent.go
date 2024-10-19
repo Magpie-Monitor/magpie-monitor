@@ -120,6 +120,7 @@ func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results c
 			}
 
 			results <- data.Chunk{
+				ClusterId:     r.clusterId,
 				Kind:          "Node",
 				Name:          r.nodeName,
 				CollectedAtMs: time.Now().UnixMilli(),
