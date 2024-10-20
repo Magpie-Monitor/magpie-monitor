@@ -25,3 +25,14 @@
   @extend .svg-icon;
   mask: url('/src/assets/settings_icon.svg') no-repeat center;
 }
+
+.drop-down-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/drop-down-icon.svg') no-repeat center;
+}
+
+.reverse-drop-down-icon {
+  @extend .svg-icon;
+  transform: rotate(180deg);
+  mask: url('/src/assets/drop-down-icon.svg') no-repeat center;
+}
