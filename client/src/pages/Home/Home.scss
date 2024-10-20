@@ -23,31 +23,6 @@
         font-weight: bold;
         margin: 12px;
       }
-
-      .stats {
-        display: flex;
-        flex-wrap: wrap;
-
-        .stats-items {
-          display: flex;
-          flex-wrap: wrap;
-          column-gap: 10px;
-          row-gap: 10px;
-          width: 60%;
-          justify-content: space-between;
-        }
-
-        .chart {
-          flex-grow: 1;
-          margin: 20px;
-          background-color: #2a2a2a;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: $navbar-text-color;
-          min-width: 250px;
-        }
-      }
     }
   }
 }
