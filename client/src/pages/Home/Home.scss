@@ -1,54 +1,53 @@
-.title {
-  font-size: 32px;
-  margin: 0;
-}
+@import '@/variables';
 
-.scan-stats-title {
-  font-size: 24px;
-  font-weight: bolder;
-  margin: 12px;
-}
-
-.home-container {
+.home {
   display: flex;
   height: 100vh;
   width: 100%;
   overflow-y: scroll;
   max-height: 100vh;
-}
 
-.scan-stats {
-  display: flex;
-  flex-wrap: wrap;
-}
+  .content {
+    flex-grow: 1;
+    padding: 20px;
+    max-width: 100vw;
 
-.dashboard-stats {
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: 10px;
-  row-gap: 10px;
-  width: 60%;
-  justify-content: space-between;
-}
+    .heading {
+      font-size: 32px;
+      margin: 0;
+    }
 
-.main-content {
-  flex-grow: 1;
-  padding: 20px;
-  max-width: 100vw;
-}
+    .dashboard {
+      .stats-heading {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 12px;
+      }
 
-.last-report {
-  margin-bottom: 20px;
-  font-size: 14px;
-}
+      .stats {
+        display: flex;
+        flex-wrap: wrap;
 
-.chart-placeholder {
-  flex-grow: 1;
-  margin: 20px;
-  background-color: #2a2a2a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #aaa;
-  min-width: 250px;
+        .stats-items {
+          display: flex;
+          flex-wrap: wrap;
+          column-gap: 10px;
+          row-gap: 10px;
+          width: 60%;
+          justify-content: space-between;
+        }
+
+        .chart {
+          flex-grow: 1;
+          margin: 20px;
+          background-color: #2a2a2a;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: $navbar-text-color;
+          min-width: 250px;
+        }
+      }
+    }
+  }
 }

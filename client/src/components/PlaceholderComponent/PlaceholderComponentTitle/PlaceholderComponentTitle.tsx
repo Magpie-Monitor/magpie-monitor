@@ -10,12 +10,12 @@ interface PlaceholderComponentProps {
 const PlaceholderComponentTitle: React.FC<PlaceholderComponentProps> =
     ({source, startTime, endTime}) => {
         return (
-            <div className="placeholder-title-div">
-                <p className="placeholder-title">
+            <div className="placeholder">
+                <p className="title">
                     Last report from
                 </p>
-                <a href="#" className="source-link">{source}</a>
-                <p className="placeholder-title">
+                <a href="#" className="source">{source}</a>
+                <p className="date-range">
                     ({startTime} - {endTime})
                 </p>
             </div>

@@ -1,23 +1,28 @@
 @import '@/variables';
 
-.placeholder-title {
-  margin: 0;
-  font-size: 18px;
-}
-
-.placeholder-title-div {
+.placeholder {
   display: flex;
   flex-wrap: wrap;
   column-gap: 5px;
-}
 
-.source-link {
-  color: $green;
-  font-size: 18px;
-  text-decoration: underline;
-  cursor: pointer;
-}
+  .title {
+    margin: 0;
+    font-size: 18px;
+  }
 
-.source-link:hover {
-  text-decoration: none;
+  .source {
+    color: $green;
+    font-size: 18px;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  .date-range {
+    margin: 0;
+    font-size: 18px;
+  }
 }

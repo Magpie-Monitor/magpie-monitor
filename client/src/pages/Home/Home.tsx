@@ -8,20 +8,19 @@ import PlaceholderComponentTitle
 
 const Home = () => {
     return (
-        <div className="home-container">
-            <div className="main-content">
-                <p className="title">Dashboard</p>
+        <div className="home">
+            <div className="content">
+                <p className="heading">Dashboard</p>
 
-                <div className="dashboard-page">
-                    {/* eslint-disable-next-line max-len */}
+                <div className="dashboard">
                     <PlaceholderComponent
                         icon={<img src={SettingsIcon} alt="Settings Icon" />}
                         title={<PlaceholderComponentTitle source="production-services"
-                    startTime="19.04.2023" endTime="25.04.2023"/>}>
+                                startTime="19.04.2023" endTime="25.04.2023"/>}>
                         <div>
-                            <h3 className="scan-stats-title">Scan stats</h3>
-                            <div className="scan-stats">
-                                <div className="dashboard-stats">
+                            <h3 className="stats-heading">Scan stats</h3>
+                            <div className="stats">
+                                <div className="stats-items">
                                     <StatItem title="Analyzed apps"
                                               value={368} unit="applications" valueColor="#5CD060"/>
                                     <StatItem title="Analyzed hosts"
@@ -35,7 +34,7 @@ const Home = () => {
                                     <StatItem title="Node entries"
                                               value={12938} unit="entries" valueColor="#5CD060"/>
                                 </div>
-                                <div className="chart-placeholder">
+                                <div className="chart">
                                     <p>Chart Placeholder</p>
                                 </div>
                             </div>

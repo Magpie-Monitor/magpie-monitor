@@ -1,6 +1,6 @@
 @import '@/variables';
 
-.placeholder-component {
+.placeholder {
   background-color: $secondary;
   border-radius: 8px;
   padding: 18px;
@@ -9,35 +9,33 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  border-width: 1px;
-  border-style: solid;
-  border-color: $component-border-color;
+  border: 1px solid $component-border-color;
   margin-top: 10px;
 
-  .header {
+  &__header {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
   }
 
-  .icon-container {
+  &__icon {
     margin-right: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  .title {
+  &__title {
     font-size: 16px;
     font-weight: bold;
   }
 
-  .divider {
+  &__divider {
     height: 1px;
     background-color: $component-border-color;
   }
 
-  .payload {
+  &__content {
     flex: 1;
     border-radius: 8px;
     display: flex;

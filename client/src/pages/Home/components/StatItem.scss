@@ -1,6 +1,6 @@
 @import '@/variables';
 
-.stat-item {
+.stat {
   background-color: $component-secondary-background;
   padding: 15px 15px 15px 20px;
   border-radius: 8px;
@@ -8,29 +8,27 @@
   color: $font-color;
   width: 180px;
   height: 75px;
-  border-width: 1px;
-  border-style: solid;
-  border-color: $component-border-color;
+  border: 1px solid $component-border-color;
   flex-grow: 1;
-}
 
-.stat-title {
-  font-size: 15px;
-  font-weight: bold;
-  color: $font-color;
-}
+  &__title {
+    font-size: 15px;
+    font-weight: bold;
+    color: $font-color;
+  }
 
-.stat-value {
-  display: flex;
-  align-items: baseline;
-}
+  &__value {
+    display: flex;
+    align-items: baseline;
+  }
 
-.value {
-  font-size: 36px;
-  font-weight: bold;
-}
+  &__number {
+    font-size: 36px;
+    font-weight: bold;
+  }
 
-.unit {
-  font-size: 14px;
-  margin-left: 5px;
+  &__unit {
+    font-size: 14px;
+    margin-left: 5px;
+  }
 }
