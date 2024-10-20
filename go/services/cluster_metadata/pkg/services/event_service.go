@@ -34,13 +34,13 @@ func NewNodeMetadataStreamWriter(credentials *sharedkafka.KafkaCredentials) *sha
 }
 
 type ApplicationMetadataUpdated struct {
-	RequestId string
-	Metadata  repositories.AggregatedApplicationMetadata
+	RequestId string                                     `json:"requestId"`
+	Metadata  repositories.AggregatedApplicationMetadata `json:"metadata"`
 }
 
 type NodeMetadataUpdated struct {
-	RequestId string
-	Metadata  repositories.AggregatedNodeMetadata
+	RequestId string                              `json:"requestId"`
+	Metadata  repositories.AggregatedNodeMetadata `json:"metadata"`
 }
 
 type EventEmitter struct {
