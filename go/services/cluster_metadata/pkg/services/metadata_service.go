@@ -313,7 +313,7 @@ func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles
 		return err
 	}
 
-	nodes := make([]repositories.NodeMetadata, 0, len(nodeSet))
+	nodes := make([]repositories.NodeMetadata, 0)
 	for _, n := range nodeSet {
 		nodes = append(nodes, repositories.NodeMetadata{Name: n.(string), Files: fileset, Running: true})
 	}

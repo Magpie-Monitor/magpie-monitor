@@ -13,12 +13,12 @@ public class MessagingService {
 
     private final KafkaTemplate<String, String> kafka;
 
-    @KafkaListener(topics = "ApplicationMetadataStateChanged")
+    @KafkaListener(topics = "ApplicationMetadataUpdated")
     public void processApplicationMetadataStateChange(String message) {
         log.info("Received updated application metadata state: {}", message);
     }
 
-    @KafkaListener(topics = "NodeMetadataStateChanged")
+    @KafkaListener(topics = "NodeMetadataUpdated")
     public void processNodeMetadataStateChange(String message) {
         log.info("Received updated node metadata state: {}", message);
     }
