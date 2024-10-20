@@ -55,12 +55,14 @@ func (s *StreamWriter) Write(content string) {
 	msg := kafka.Message{Value: []byte(content)}
 	s.buffer = append(s.buffer, msg)
 
-	if len(s.buffer) > s.batchSize {
+	if len(s.buffer) >= s.batchSize {
 		log.Printf("Buffer reached the batch size of: %d, sending messages.", s.batchSize)
 
 		err := s.writer.WriteMessages(context.Background(), s.buffer...)
 		if err != nil {
 			log.Printf("Error writing message: %v. Buffering, buffer size: %d.", err, len(s.buffer))
+		} else {
+			s.buffer = make([]kafka.Message, 0)
 		}
 	}
 }
