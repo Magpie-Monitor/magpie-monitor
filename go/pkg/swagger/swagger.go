@@ -2,11 +2,12 @@ package swagger
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
-	"go.uber.org/zap"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 )
 
 type SwaggerRouter struct {
