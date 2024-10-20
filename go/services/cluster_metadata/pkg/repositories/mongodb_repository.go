@@ -23,8 +23,9 @@ func NewNodeAggregatedMetadataCollection(log *zap.Logger, client *mongo.Client) 
 }
 
 type AggregatedApplicationMetadata struct {
-	CollectedAtMs int64
-	Metadata      []ApplicationMetadata
+	CollectedAtMs int64                 `json:"collectedAtMs" bson:"collectedAtMs"`
+	ClusterId     string                `json:"clusterId" bson:"clusterId"`
+	Metadata      []ApplicationMetadata `json:"metadata" bson:"metadata"`
 }
 
 type AggregatedNodeMetadata struct {
@@ -33,9 +34,9 @@ type AggregatedNodeMetadata struct {
 }
 
 type ApplicationMetadata struct {
-	Name    string `json:"name"`
-	Kind    string `json:"kind"`
-	Running bool   `json:"running"`
+	Name    string `json:"name" bson:"name"`
+	Kind    string `json:"kind" bson:"kind"`
+	Running bool   `json:"running" bson:"running"`
 }
 
 type NodeMetadata struct {

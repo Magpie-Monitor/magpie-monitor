@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -103,4 +104,8 @@ func (m *MongoDbCollection[T]) ReplaceDocument(ctx context.Context, id primitive
 	}
 
 	return nil
+}
+
+func (m *MongoDbCollection[T]) Count(filter bson.D) (int64, error) {
+	return m.Client.Database(m.Db).Collection(m.Col).CountDocuments(context.TODO(), filter)
 }
