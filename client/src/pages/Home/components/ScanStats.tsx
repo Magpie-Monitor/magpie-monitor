@@ -1,4 +1,4 @@
-import StatItem from './StatItem';
+import StatItem from '@/components/StatItem/StatItem.tsx';
 import './ScanStats.scss';
 
 const ScanStats = () => {
