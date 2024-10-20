@@ -182,39 +182,68 @@ func (m *MetadataService) InsertClusterMetadata(metadata repositories.ClusterSta
 		applicationSet[app.Name] = app
 	}
 
+	count, err := m.applicationAggregatedRepo.Count(bson.D{{Key: "clusterId", Value: metadata.ClusterId}})
+
+	m.log.Info("Aggregated application state count:", zap.Int64("count", count))
+
+	if err != nil {
+		m.log.Error("Error fetching document count for application aggregated collection", zap.Error(err))
+		return err
+	}
+
+	if count == 0 {
+		return m.updateApplicationMetadataState(metadata.ClusterId, applicationSet)
+	}
+
 	latestState, err := m.applicationAggregatedRepo.GetDocument(bson.D{{Key: "clusterId", Value: metadata.ClusterId}}, bson.D{{Key: "collectedAtMs", Value: -1}})
 	if err != nil {
 		m.log.Error("Error fetching aggregated application metadata", zap.Error(err))
 		return err
 	}
 
-	// find the first occurrence of state difference
-	stateUpdated := true
+	m.log.Info("Latest aggregated application state: ", zap.Any("state", latestState))
+
+	if len(applicationSet) != len(latestState.Metadata) {
+		return m.updateApplicationMetadataState(metadata.ClusterId, applicationSet)
+	}
+
 	for _, app := range latestState.Metadata {
 		_, ok := applicationSet[app.Name]
-		if ok {
-			if !app.Running {
-				app.Running = true
-				stateUpdated = true
-			}
-		} else {
-			stateUpdated = true
+		if !ok {
+			return m.updateApplicationMetadataState(metadata.ClusterId, applicationSet)
 		}
 	}
 
-	if stateUpdated {
-		m.log.Info("Application metadata aggregated state has changed, performing an update")
-
-		newState := repositories.AggregatedApplicationMetadata{}
-		newState.CollectedAtMs = time.Now().UnixMilli()
-
-		for _, app := range applicationSet {
-			newState.Metadata = append(newState.Metadata, repositories.ApplicationMetadata{Name: app.Name, Kind: app.Kind, Running: true})
+	for _, app := range applicationSet {
+		ok := slices.Contains(latestState.Metadata, repositories.ApplicationMetadata{Name: app.Name, Kind: app.Kind, Running: true})
+		if !ok {
+			return m.updateApplicationMetadataState(metadata.ClusterId, applicationSet)
 		}
+	}
 
-		m.applicationAggregatedRepo.InsertDocument(newState)
+	return nil
+}
 
-		m.eventEmitter.EmitApplicationMetadataUpdatedEvent(newState)
+func (m *MetadataService) updateApplicationMetadataState(clusterId string, applicationSet map[string]repositories.Application) error {
+	m.log.Info("Application metadata aggregated state has changed, performing an update")
+
+	newState := repositories.AggregatedApplicationMetadata{ClusterId: clusterId}
+	newState.CollectedAtMs = time.Now().UnixMilli()
+
+	for _, app := range applicationSet {
+		newState.Metadata = append(newState.Metadata, repositories.ApplicationMetadata{Name: app.Name, Kind: app.Kind, Running: true})
+	}
+
+	_, err := m.applicationAggregatedRepo.InsertDocument(newState)
+	if err != nil {
+		m.log.Error("Error inserting updated application metadata", zap.Error(err))
+		return err
+	}
+
+	err = m.eventEmitter.EmitApplicationMetadataUpdatedEvent(newState)
+	if err != nil {
+		m.log.Error("Error emitting application metadata updated event", zap.Error(err))
+		return err
 	}
 
 	return nil
