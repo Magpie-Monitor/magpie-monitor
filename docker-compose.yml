@@ -244,6 +244,11 @@ services:
       LETSENCRYPT_HOST: ${CLUSTER_METADATA_PRODUCTION_HOST}
       VIRTUAL_PORT: ${CLUSTER_METADATA_HTTP_PORT}
       CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS: ${CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS}
+      KAFKA_BROKER_URL: ${KAFKA_BROKER_URL}
+      KAFKA_CLIENT_USERNAME: ${KAFKA_CLIENT_USERNAME}
+      KAFKA_CLIENT_PASSWORD: ${KAFKA_CLIENT_PASSWORD}
+      CLUSTER_METADATA_APPLICATION_TOPIC: ${CLUSTER_METADATA_APPLICATION_TOPIC}
+      CLUSTER_METADATA_NODE_TOPIC: ${CLUSTER_METADATA_NODE_TOPIC}
     develop:
       watch:
         - action: rebuild
@@ -254,6 +259,7 @@ services:
           target: /src
     depends_on:
       - metadata-mongodb
+      - kafka
     healthcheck:
       test: curl --fail http://localhost:9090/v1/metadata/healthz || exit 1
       interval: 10s

@@ -5,12 +5,13 @@ import (
 	"os"
 
 	kafka "github.com/Magpie-Monitor/magpie-monitor/pkg/kafka"
+	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
-func NewEventEmitter(log *zap.Logger, appWriter, nodeWriter *kafka.StreamWriter) *EventEmitter {
-	return &EventEmitter{log: log, applicationMetadataWriter: appWriter, nodeMetadataWriter: nodeWriter}
+func NewEventEmitter(log *zap.Logger, credentials *kafka.KafkaCredentials) *EventEmitter {
+	return &EventEmitter{log: log, applicationMetadataWriter: NewApplicationMetadataStreamWriter(credentials), nodeMetadataWriter: NewNodeMetadataStreamWriter(credentials)}
 }
 
 func NewApplicationMetadataStreamWriter(credentials *kafka.KafkaCredentials) *kafka.StreamWriter {
@@ -31,20 +32,14 @@ func NewNodeMetadataStreamWriter(credentials *kafka.KafkaCredentials) *kafka.Str
 	return kafka.NewStreamWriter(credentials, nodeTopic, 0)
 }
 
-type ApplicationMetadataRequested struct {
-}
-
-type NodeMetadataRequested struct {
-}
-
-type ApplicationMetadataCollected struct {
+type ApplicationMetadataUpdated struct {
 	requestId string
-	metadata  []ApplicationMetadata
+	metadata  repositories.AggregatedApplicationMetadata
 }
 
-type NodeMetadataCollected struct {
+type NodeMetadataUpdated struct {
 	requestId string
-	metadata  []NodeMetadata
+	metadata  repositories.AggregatedNodeMetadata
 }
 
 type EventEmitter struct {
@@ -53,17 +48,19 @@ type EventEmitter struct {
 	nodeMetadataWriter        *kafka.StreamWriter
 }
 
-func (e *EventEmitter) EmitApplicationMetadataEvent(metadata []ApplicationMetadata) error {
-	event := ApplicationMetadataCollected{requestId: uuid.New().String(), metadata: metadata}
+func (e *EventEmitter) EmitApplicationMetadataUpdatedEvent(metadata repositories.AggregatedApplicationMetadata) error {
+	event := ApplicationMetadataUpdated{requestId: uuid.New().String(), metadata: metadata}
 	return e.emitEvent(event, e.applicationMetadataWriter)
 }
 
-func (e *EventEmitter) EmitNodeMetadataEvent(metadata []NodeMetadata) error {
-	event := NodeMetadataCollected{requestId: uuid.New().String(), metadata: metadata}
+func (e *EventEmitter) EmitNodeMetadataUpdatedEvent(metadata repositories.AggregatedNodeMetadata) error {
+	event := NodeMetadataUpdated{requestId: uuid.New().String(), metadata: metadata}
 	return e.emitEvent(event, e.nodeMetadataWriter)
 }
 
 func (e *EventEmitter) emitEvent(event interface{}, writer *kafka.StreamWriter) error {
+	e.log.Info("Emitting an event:", zap.Any("event", event))
+
 	jsonEvent, err := json.Marshal(&event)
 	if err != nil {
 		e.log.Error("Error converting metadata event to JSON", zap.Error(err))

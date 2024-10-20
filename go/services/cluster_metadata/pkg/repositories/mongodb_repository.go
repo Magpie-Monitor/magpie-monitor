@@ -14,6 +14,41 @@ func NewNodeMetadataCollection(log *zap.Logger, client *mongo.Client) *repositor
 	return &repositories.MongoDbCollection[NodeState]{Log: log, Db: "METADATA", Col: "NODE_STATE", Client: client}
 }
 
+func NewApplicationAggregatedMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[AggregatedApplicationMetadata] {
+	return &repositories.MongoDbCollection[AggregatedApplicationMetadata]{Log: log, Db: "METADATA", Col: "AGGREGATED_APPLICATION_METADATA", Client: client}
+}
+
+func NewNodeAggregatedMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[AggregatedNodeMetadata] {
+	return &repositories.MongoDbCollection[AggregatedNodeMetadata]{Log: log, Db: "METADATA", Col: "AGGREGATED_NODE_METADATA", Client: client}
+}
+
+type AggregatedApplicationMetadata struct {
+	CollectedAtMs int64
+	Metadata      []ApplicationMetadata
+}
+
+type AggregatedNodeMetadata struct {
+	CollectedAtMs int64
+	Metadata      []NodeMetadata
+}
+
+type ApplicationMetadata struct {
+	Name    string `json:"name"`
+	Kind    string `json:"kind"`
+	Running bool   `json:"running"`
+}
+
+type NodeMetadata struct {
+	Name    string        `json:"name"`
+	Running bool          `json:"running"`
+	Files   []interface{} `json:"files"`
+}
+
+type ClusterMetadata struct {
+	Name    string `json:"name"`
+	Running bool   `json:"running"`
+}
+
 type ClusterState struct {
 	CollectedAtMs int64         `json:"collectedAtMs" bson:"collectedAtMs"`
 	ClusterId     string        `json:"clusterId" bson:"clusterId"`

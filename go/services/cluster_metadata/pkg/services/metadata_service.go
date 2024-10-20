@@ -13,7 +13,8 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewMetadataService(log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ClusterState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState]) *MetadataService {
+func NewMetadataService(log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ClusterState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState],
+	applicationAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata], eventEmitter *EventEmitter) *MetadataService {
 	clusterActivityWindowMillis, present := os.LookupEnv("CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS")
 	if !present {
 		panic("env variable CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS not set")
@@ -24,35 +25,26 @@ func NewMetadataService(log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollecti
 		panic("invalid value for env variable CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS, please make sure it's numeric")
 	}
 
-	return &MetadataService{log: log, clusterRepo: clusterRepo, nodeRepo: nodeRepo, clusterActivityWindowMillis: window}
-}
-
-type ApplicationMetadata struct {
-	Name    string `json:"name"`
-	Kind    string `json:"kind"`
-	Running bool   `json:"running"`
-}
-
-type ClusterMetadata struct {
-	Name    string `json:"name"`
-	Running bool   `json:"running"`
-}
-
-type NodeMetadata struct {
-	Name    string        `json:"name"`
-	Running bool          `json:"running"`
-	Files   []interface{} `json:"files"`
+	return &MetadataService{
+		log:                         log,
+		clusterRepo:                 clusterRepo,
+		nodeRepo:                    nodeRepo,
+		applicationAggregatedRepo:   applicationAggregatedRepo,
+		eventEmitter:                eventEmitter,
+		clusterActivityWindowMillis: window,
+	}
 }
 
 type MetadataService struct {
 	log                         *zap.Logger
 	clusterRepo                 *sharedrepo.MongoDbCollection[repositories.ClusterState]
 	nodeRepo                    *sharedrepo.MongoDbCollection[repositories.NodeState]
+	applicationAggregatedRepo   *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
 	eventEmitter                *EventEmitter
 	clusterActivityWindowMillis int64
 }
 
-func (m *MetadataService) GetClusterList() ([]ClusterMetadata, error) {
+func (m *MetadataService) GetClusterList() ([]repositories.ClusterMetadata, error) {
 	clusters, err := m.clusterRepo.GetDistinctDocumentFieldValues("clusterName", bson.D{})
 	if err != nil {
 		m.log.Error("Error fetching cluster list:", zap.Error(err))
@@ -81,17 +73,17 @@ func (m *MetadataService) GetClusterList() ([]ClusterMetadata, error) {
 		activeClusterSet[clusterName] = struct{}{}
 	}
 
-	clusterMetadata := make([]ClusterMetadata, 0)
+	clusterMetadata := make([]repositories.ClusterMetadata, 0)
 	for _, c := range clusters {
 		clusterName := c.(string)
 		_, running := activeClusterSet[clusterName]
-		clusterMetadata = append(clusterMetadata, ClusterMetadata{Name: clusterName, Running: running})
+		clusterMetadata = append(clusterMetadata, repositories.ClusterMetadata{Name: clusterName, Running: running})
 	}
 
 	return clusterMetadata, nil
 }
 
-func (m *MetadataService) GetClusterMetadataForTimerange(clusterId string, sinceMillis int, toMillis int) ([]ApplicationMetadata, error) {
+func (m *MetadataService) GetClusterMetadataForTimerange(clusterId string, sinceMillis int, toMillis int) ([]repositories.ApplicationMetadata, error) {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: sinceMillis}}}},
@@ -106,14 +98,14 @@ func (m *MetadataService) GetClusterMetadataForTimerange(clusterId string, since
 		return nil, err
 	}
 
-	applicationSet := map[string]ApplicationMetadata{}
+	applicationSet := map[string]repositories.ApplicationMetadata{}
 	for _, md := range metadata {
 		for _, app := range md.Applications {
 			// TODO - ADD NAMESPACE
 			key := fmt.Sprintf("%s-%s", app.Name, app.Kind)
 			_, ok := applicationSet[key]
 			if !ok {
-				applicationSet[key] = ApplicationMetadata{Name: app.Name, Kind: app.Kind, Running: false}
+				applicationSet[key] = repositories.ApplicationMetadata{Name: app.Name, Kind: app.Kind, Running: false}
 			}
 		}
 	}
@@ -133,7 +125,7 @@ func (m *MetadataService) GetClusterMetadataForTimerange(clusterId string, since
 		}
 	}
 
-	apps := make([]ApplicationMetadata, 0, len(applicationSet))
+	apps := make([]repositories.ApplicationMetadata, 0, len(applicationSet))
 	for _, v := range applicationSet {
 		apps = append(apps, v)
 	}
@@ -141,7 +133,7 @@ func (m *MetadataService) GetClusterMetadataForTimerange(clusterId string, since
 	return apps, nil
 }
 
-func (m *MetadataService) GetNodeMetadataForTimerange(clusterId string, sinceMillis int, toMillis int) ([]NodeMetadata, error) {
+func (m *MetadataService) GetNodeMetadataForTimerange(clusterId string, sinceMillis int, toMillis int) ([]repositories.NodeMetadata, error) {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: sinceMillis}}}},
@@ -169,10 +161,10 @@ func (m *MetadataService) GetNodeMetadataForTimerange(clusterId string, sinceMil
 		return nil, err
 	}
 
-	nodes := make([]NodeMetadata, 0, len(nodeSet))
+	nodes := make([]repositories.NodeMetadata, 0, len(nodeSet))
 	for _, n := range nodeSet {
 		running := slices.Contains(running, n)
-		nodes = append(nodes, NodeMetadata{Name: n.(string), Files: fileSet, Running: running})
+		nodes = append(nodes, repositories.NodeMetadata{Name: n.(string), Files: fileSet, Running: running})
 	}
 
 	return nodes, err
@@ -180,7 +172,52 @@ func (m *MetadataService) GetNodeMetadataForTimerange(clusterId string, sinceMil
 
 func (m *MetadataService) InsertClusterMetadata(metadata repositories.ClusterState) error {
 	_, err := m.clusterRepo.InsertDocuments([]interface{}{metadata})
-	return err
+	if err != nil {
+		m.log.Error("Failed to insert cluster metadata", zap.Error(err))
+		return err
+	}
+
+	applicationSet := make(map[string]repositories.Application, 0)
+	for _, app := range metadata.Applications {
+		applicationSet[app.Name] = app
+	}
+
+	latestState, err := m.applicationAggregatedRepo.GetDocument(bson.D{{Key: "clusterId", Value: metadata.ClusterId}}, bson.D{{Key: "collectedAtMs", Value: -1}})
+	if err != nil {
+		m.log.Error("Error fetching aggregated application metadata", zap.Error(err))
+		return err
+	}
+
+	// find the first occurrence of state difference
+	stateUpdated := true
+	for _, app := range latestState.Metadata {
+		_, ok := applicationSet[app.Name]
+		if ok {
+			if !app.Running {
+				app.Running = true
+				stateUpdated = true
+			}
+		} else {
+			stateUpdated = true
+		}
+	}
+
+	if stateUpdated {
+		m.log.Info("Application metadata aggregated state has changed, performing an update")
+
+		newState := repositories.AggregatedApplicationMetadata{}
+		newState.CollectedAtMs = time.Now().UnixMilli()
+
+		for _, app := range applicationSet {
+			newState.Metadata = append(newState.Metadata, repositories.ApplicationMetadata{Name: app.Name, Kind: app.Kind, Running: true})
+		}
+
+		m.applicationAggregatedRepo.InsertDocument(newState)
+
+		m.eventEmitter.EmitApplicationMetadataUpdatedEvent(newState)
+	}
+
+	return nil
 }
 
 func (m *MetadataService) InsertNodeMetadata(metadata repositories.NodeState) error {
