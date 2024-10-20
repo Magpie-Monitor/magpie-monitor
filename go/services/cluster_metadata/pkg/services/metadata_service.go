@@ -14,7 +14,8 @@ import (
 )
 
 func NewMetadataService(log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ClusterState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState],
-	applicationAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata], eventEmitter *EventEmitter) *MetadataService {
+	applicationAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata], nodeAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata],
+	eventEmitter *EventEmitter) *MetadataService {
 	clusterActivityWindowMillis, present := os.LookupEnv("CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS")
 	if !present {
 		panic("env variable CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS not set")
@@ -30,6 +31,7 @@ func NewMetadataService(log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollecti
 		clusterRepo:                 clusterRepo,
 		nodeRepo:                    nodeRepo,
 		applicationAggregatedRepo:   applicationAggregatedRepo,
+		nodeAggregatedRepo:          nodeAggregatedRepo,
 		eventEmitter:                eventEmitter,
 		clusterActivityWindowMillis: window,
 	}
@@ -40,6 +42,7 @@ type MetadataService struct {
 	clusterRepo                 *sharedrepo.MongoDbCollection[repositories.ClusterState]
 	nodeRepo                    *sharedrepo.MongoDbCollection[repositories.NodeState]
 	applicationAggregatedRepo   *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
+	nodeAggregatedRepo          *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
 	eventEmitter                *EventEmitter
 	clusterActivityWindowMillis int64
 }
@@ -183,9 +186,7 @@ func (m *MetadataService) InsertClusterMetadata(metadata repositories.ClusterSta
 	}
 
 	count, err := m.applicationAggregatedRepo.Count(bson.D{{Key: "clusterId", Value: metadata.ClusterId}})
-
 	m.log.Info("Aggregated application state count:", zap.Int64("count", count))
-
 	if err != nil {
 		m.log.Error("Error fetching document count for application aggregated collection", zap.Error(err))
 		return err
@@ -251,5 +252,84 @@ func (m *MetadataService) updateApplicationMetadataState(clusterId string, appli
 
 func (m *MetadataService) InsertNodeMetadata(metadata repositories.NodeState) error {
 	_, err := m.nodeRepo.InsertDocuments([]interface{}{metadata})
-	return err
+	if err != nil {
+		m.log.Error("Failed to insert node metadata", zap.Error(err))
+		return err
+	}
+
+	count, err := m.nodeAggregatedRepo.Count(bson.D{{Key: "clusterId", Value: metadata.ClusterId}})
+	m.log.Info("Aggregated application state count:", zap.Int64("count", count))
+	if err != nil {
+		m.log.Error("Error fetching document count for node aggregated collection", zap.Error(err))
+		return err
+	}
+
+	if count == 0 {
+		return m.updateNodeMetadataState(metadata.ClusterId, metadata.WatchedFiles)
+	}
+
+	latestState, err := m.nodeAggregatedRepo.GetDocument(bson.D{{Key: "clusterId", Value: metadata.ClusterId}}, bson.D{{Key: "collectedAtMs", Value: -1}})
+	if err != nil {
+		m.log.Error("Error fetching aggregated node metadata", zap.Error(err))
+		return err
+	}
+
+	nodeSet := make(map[string]repositories.NodeMetadata, 0)
+	for _, node := range latestState.Metadata {
+		nodeSet[node.Name] = node
+	}
+
+	node, exists := nodeSet[metadata.NodeName]
+	if !exists || len(node.Files) != len(metadata.WatchedFiles) {
+		return m.updateNodeMetadataState(metadata.ClusterId, metadata.WatchedFiles)
+	}
+
+	for _, file := range node.Files {
+		if !slices.Contains(metadata.WatchedFiles, file.(string)) {
+			return m.updateNodeMetadataState(metadata.ClusterId, metadata.WatchedFiles)
+		}
+	}
+
+	return nil
+}
+
+func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles []string) error {
+	filter := bson.D{
+		{Key: "$and", Value: bson.A{
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: time.Now().UnixMilli() - 300_000}}}},
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: time.Now().UnixMilli()}}}},
+			bson.D{{Key: "clusterId", Value: bson.D{{Key: "$eq", Value: clusterId}}}},
+		}},
+	}
+
+	fileset := []interface{}{}
+	for _, file := range watchedFiles {
+		fileset = append(fileset, file)
+	}
+
+	nodeSet, err := m.nodeRepo.GetDistinctDocumentFieldValues("nodeName", filter)
+	if err != nil {
+		m.log.Error("Error fetching node metadata:", zap.Error(err))
+		return err
+	}
+
+	nodes := make([]repositories.NodeMetadata, 0, len(nodeSet))
+	for _, n := range nodeSet {
+		nodes = append(nodes, repositories.NodeMetadata{Name: n.(string), Files: fileset, Running: true})
+	}
+
+	aggregate := repositories.AggregatedNodeMetadata{ClusterId: clusterId, CollectedAtMs: time.Now().UnixMilli(), Metadata: nodes}
+	_, err = m.nodeAggregatedRepo.InsertDocument(aggregate)
+	if err != nil {
+		m.log.Error("Error inserting updated application metadata", zap.Error(err))
+		return err
+	}
+
+	err = m.eventEmitter.EmitNodeMetadataUpdatedEvent(aggregate)
+	if err != nil {
+		m.log.Error("Error emitting node metadata updated event", zap.Error(err))
+		return err
+	}
+
+	return nil
 }
