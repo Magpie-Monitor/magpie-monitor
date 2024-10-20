@@ -237,6 +237,11 @@ func (g *OpenAiInsightsGenerator) getApplicationInsightsFromBatchEntries(
 			return g.addMetadataToApplicationInsight(insight, logs)
 		})(applicationInsights.Insights)
 
+		// We ignore insights without valid source
+		insightsWithMetadata = array.Filter(func(insight ApplicationInsightsWithMetadata) bool {
+			return len(insight.Metadata) > 0
+		})(insightsWithMetadata)
+
 		res = append(res, insightsWithMetadata...)
 	}
 
@@ -258,23 +263,28 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 
 	// Generate insights for each application separately.
 	for applicationName, logs := range groupedLogs {
-		messages, err := g.createMessagesFromApplicationLogs(
-			logs,
-			configurationsByApplication[applicationName],
-		)
-		if err != nil {
-			g.logger.Error("Failed to create messages from application logs", zap.Error(err), zap.String("app", applicationName))
-			return nil, err
-		}
 
-		completionRequests = append(completionRequests,
-			&openai.CompletionRequest{
-				Messages:       messages,
-				Temperature:    0.6,
-				ResponseFormat: openai.CreateJsonReponseFormat("insights", applicationInsightsResponseDto{}),
-				Model:          g.client.Model(),
-			},
-		)
+		logPackets := repositories.SplitLogsIntoPackets(logs, 2000)
+
+		for _, logPacket := range logPackets {
+			messages, err := g.createMessagesFromApplicationLogs(
+				logPacket,
+				configurationsByApplication[applicationName],
+			)
+			if err != nil {
+				g.logger.Error("Failed to create messages from application logs", zap.Error(err), zap.String("app", applicationName))
+				return nil, err
+			}
+
+			completionRequests = append(completionRequests,
+				&openai.CompletionRequest{
+					Messages:       messages,
+					Temperature:    0.6,
+					ResponseFormat: openai.CreateJsonReponseFormat("insights", applicationInsightsResponseDto{}),
+					Model:          g.client.Model(),
+				},
+			)
+		}
 	}
 
 	resp, err := g.client.UploadAndCreateBatch(completionRequests)

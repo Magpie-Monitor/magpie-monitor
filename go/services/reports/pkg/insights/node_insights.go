@@ -71,6 +71,7 @@ func (g *OpenAiInsightsGenerator) getNodeLogById(logId string, logs []*repositor
 	first, isSome := option.Unwrap(firstById(logs))
 	if !isSome {
 		g.logger.Error("Failed to find log by id", zap.String("id", logId))
+		return nil, errors.New("No logs by id")
 	}
 
 	return first, nil
@@ -162,22 +163,28 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 
 	// Generate insights for each application separately.
 	for nodeName, logs := range groupedLogs {
-		messages, err := g.createMessagesFromNodeLogs(
-			logs,
-			configurationsByApplication[nodeName],
-		)
-		if err != nil {
-			g.logger.Error("Failed to messages from logs", zap.Error(err), zap.String("node", nodeName))
+
+		logPackets := repositories.SplitLogsIntoPackets(logs, 2000)
+
+		for _, logPacket := range logPackets {
+			messages, err := g.createMessagesFromNodeLogs(
+				logPacket,
+				configurationsByApplication[nodeName],
+			)
+			if err != nil {
+				g.logger.Error("Failed to messages from logs", zap.Error(err), zap.String("node", nodeName))
+			}
+
+			completionRequests = append(completionRequests,
+				&openai.CompletionRequest{
+					Messages:       messages,
+					Temperature:    0.6,
+					ResponseFormat: openai.CreateJsonReponseFormat("insigts", applicationInsightsResponseDto{}),
+					Model:          g.client.Model(),
+				},
+			)
 		}
 
-		completionRequests = append(completionRequests,
-			&openai.CompletionRequest{
-				Messages:       messages,
-				Temperature:    0.6,
-				ResponseFormat: openai.CreateJsonReponseFormat("insigts", applicationInsightsResponseDto{}),
-				Model:          g.client.Model(),
-			},
-		)
 	}
 
 	resp, err := g.client.UploadAndCreateBatch(completionRequests)
@@ -312,6 +319,7 @@ func (g *OpenAiInsightsGenerator) addMetadataToNodeInsight(
 
 	nodeInsightsMetadata := make([]NodeInsightMetadata, 0, len(insight.SourceLogIds))
 	for _, sourceLogId := range insight.SourceLogIds {
+
 		log, err := g.getNodeLogById(sourceLogId, logs)
 		if err != nil {
 			g.logger.Error("Failed to source node insights", zap.Error(err))
@@ -340,8 +348,10 @@ func GroupInsightsByNode(nodeInsights []NodeInsightsWithMetadata) map[string][]N
 	insightsByNode := make(map[string][]NodeInsightsWithMetadata)
 
 	for _, insight := range nodeInsights {
-		nodeName := insight.Metadata[0].NodeName
-		insightsByNode[nodeName] = append(insightsByNode[nodeName], insight)
+		if len(insight.Metadata) > 0 {
+			nodeName := insight.Metadata[0].NodeName
+			insightsByNode[nodeName] = append(insightsByNode[nodeName], insight)
+		}
 	}
 	return insightsByNode
 }

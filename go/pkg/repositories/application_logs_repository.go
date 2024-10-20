@@ -34,6 +34,10 @@ type ContainerLogs struct {
 	Content string `json:"content"`
 }
 
+func (l *ApplicationLogsDocument) GetContent() string {
+	return l.Content
+}
+
 type ApplicationLogsDocument struct {
 	Id              string `json:"_id,omitempty" bson:"id,omitempty"`
 	ClusterId       string `json:"clusterId" bson:"clusterId"`

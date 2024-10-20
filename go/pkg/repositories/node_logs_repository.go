@@ -38,6 +38,10 @@ func ProvideAsNodeLogsRepository(f any) any {
 	)
 }
 
+func (l *NodeLogsDocument) GetContent() string {
+	return l.Content
+}
+
 type ElasticSearchNodeLogsRepository struct {
 	esClient *es.TypedClient
 	logger   *zap.Logger
