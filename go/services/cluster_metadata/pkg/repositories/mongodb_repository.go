@@ -29,8 +29,9 @@ type AggregatedApplicationMetadata struct {
 }
 
 type AggregatedNodeMetadata struct {
-	CollectedAtMs int64
-	Metadata      []NodeMetadata
+	CollectedAtMs int64          `json:"collectedAtMs" bson:"collectedAtMs"`
+	ClusterId     string         `json:"clusterId" bson:"clusterId"`
+	Metadata      []NodeMetadata `json:"metadata" bson:"metadata"`
 }
 
 type ApplicationMetadata struct {
