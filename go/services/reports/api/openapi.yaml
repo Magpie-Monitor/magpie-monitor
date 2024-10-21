@@ -261,8 +261,10 @@ components:
     ScheduledApplicationInsights:
       type: object
       properties:
-        id:
-          type: string
+        scheduledJobIds:
+          type: array
+          items:
+            type: string
         sinceMs:
           type: integer
           format: int64
@@ -279,8 +281,10 @@ components:
     ScheduledNodeInsights:
       type: object
       properties:
-        id:
-          type: string
+        scheduledJobIds:
+          type: array
+          items:
+            type: string
         sinceMs:
           type: integer
           format: int64

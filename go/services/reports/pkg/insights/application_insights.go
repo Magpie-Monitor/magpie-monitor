@@ -21,7 +21,7 @@ type ApplicationInsightConfiguration struct {
 }
 
 type ScheduledApplicationInsights struct {
-	ScheduledJobIds          []string                           `json:"sheduledJobIds"`
+	ScheduledJobIds          []string                           `json:"scheduledJobIds"`
 	SinceMs                  int64                              `bson:"sinceMs" json:"sinceMs"`
 	ToMs                     int64                              `bson:"toMs" json:"toMs"`
 	ClusterId                string                             `bson:"clusterId" json:"clusterId"`
