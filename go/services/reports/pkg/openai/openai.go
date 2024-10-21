@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/IBM/fp-go/array"
@@ -314,16 +315,57 @@ func (c *Client) createBatch(batchParams CreateBatchRequest) (*Batch, error) {
 	return &decodedResponse, nil
 }
 
+func (c *Client) UploadAndCreateBatchesWithMaxSize(completionRequests []*CompletionRequest, maxBatchSize int) ([]*Batch, error) {
+
+	requestsByBatch, err := c.splitCompletionReqestsByEncodedSize(completionRequests, maxBatchSize)
+	if err != nil {
+		c.logger.Error("Failed to split completion requests by batch", zap.Error(err))
+		return nil, err
+	}
+
+	return parallelRequest(requestsByBatch, func(requests []*CompletionRequest) (*Batch, error) {
+
+		batch, err := c.UploadAndCreateBatch(requests)
+		if err != nil {
+			c.logger.Error("Failed to create and upload a completion request batch", zap.Error(err))
+			return nil, err
+		}
+		return batch, nil
+	})
+}
+
+func (c *Client) splitCompletionReqestsByEncodedSize(completionRequests []*CompletionRequest, maxPacketSize int) ([][]*CompletionRequest, error) {
+
+	var requestPackets [][]*CompletionRequest
+	var lastPacket []*CompletionRequest
+	var lastPacketSize = 0
+
+	for _, request := range completionRequests {
+
+		encodedPacket, err := json.Marshal(request)
+
+		if err != nil {
+			c.logger.Error("Failed to enode completion request packet", zap.Error(err))
+			return nil, err
+		}
+
+		if lastPacketSize+len(encodedPacket) > maxPacketSize {
+			requestPackets = append(requestPackets, lastPacket)
+			lastPacket = []*CompletionRequest{request}
+			lastPacketSize = len(encodedPacket)
+
+		} else {
+			lastPacket = append(lastPacket, request)
+			lastPacketSize += len(encodedPacket)
+		}
+
+	}
+	return requestPackets, nil
+}
+
 func (c *Client) UploadAndCreateBatch(completionRequests []*CompletionRequest) (*Batch, error) {
 
-	batchRequestEntries := array.Map(func(req *CompletionRequest) *BatchFileCompletionRequestEntry {
-		return &BatchFileCompletionRequestEntry{
-			CustomId: fmt.Sprintf("report-%s", time.Now().String()),
-			Method:   "POST",
-			Url:      COMPLETION_PATH,
-			Body:     req,
-		}
-	})(completionRequests)
+	batchRequestEntries := array.Map(NewBatchEntryFromCompletionRequet)(completionRequests)
 
 	batchFile := bytes.NewBufferString("")
 	err := jsonl.NewJsonLinesEncoder(batchFile).Encode(batchRequestEntries)
@@ -352,6 +394,59 @@ func (c *Client) UploadAndCreateBatch(completionRequests []*CompletionRequest) (
 	}
 
 	return batchCreateResponse, nil
+}
+
+func NewBatchEntryFromCompletionRequet(completionRequest *CompletionRequest) *BatchFileCompletionRequestEntry {
+	return &BatchFileCompletionRequestEntry{
+		CustomId: fmt.Sprintf("report-%s", time.Now().String()),
+		Method:   "POST",
+		Url:      COMPLETION_PATH,
+		Body:     completionRequest,
+	}
+}
+
+func (c *Client) Batches(ids []string) ([]*Batch, error) {
+
+	return parallelRequest(ids, func(id string) (*Batch, error) {
+		batch, err := c.Batch(id)
+		if err != nil {
+			c.logger.Error("Failed to retrieve batch", zap.Error(err))
+			return nil, err
+		}
+		return batch, nil
+	})
+
+}
+
+func parallelRequest[Key any, Value any](keys []Key, f func(Key) (Value, error)) ([]Value, error) {
+
+	var valueChannel = make(chan Value, len(keys))
+	var values = make([]Value, 0, len(keys))
+
+	var wg sync.WaitGroup
+	for _, key := range keys {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+
+			value, err := f(key)
+			if err != nil {
+				return
+			}
+
+			valueChannel <- value
+		}()
+	}
+
+	wg.Wait()
+	close(valueChannel)
+
+	for batch := range valueChannel {
+		values = append(values, batch)
+	}
+
+	return values, nil
 }
 
 func (c *Client) Batch(id string) (*Batch, error) {
@@ -394,6 +489,72 @@ func (c *Client) Batch(id string) (*Batch, error) {
 	}
 
 	return &decodedResponse, nil
+}
+
+func (c *Client) CompletionResponseEntriesFromBatch(batch *Batch) ([]*BatchFileCompletionResponseEntry, error) {
+
+	outputFile, err := c.File(batch.OutputFileId)
+	if err != nil {
+		c.logger.Error("Failed to get batch output file", zap.Error(err))
+		return nil, err
+	}
+
+	var responses []*BatchFileCompletionResponseEntry
+	err = jsonl.NewJsonLinesDecoder(bytes.NewReader(outputFile)).Decode(&responses)
+	if err != nil {
+		c.logger.Error("Failed to decode completion batch response ", zap.Error(err))
+		return nil, err
+	}
+
+	return responses, nil
+}
+func (c *Client) CompletionResponseEntriesFromBatches(batches []*Batch) ([]*BatchFileCompletionResponseEntry, error) {
+	allResponses, err := parallelRequest(batches, func(batch *Batch) ([]*BatchFileCompletionResponseEntry, error) {
+		responseEntries, err := c.CompletionResponseEntriesFromBatch(batch)
+		if err != nil {
+			c.logger.Error("Failed to get response entries from completion batch")
+			return nil, err
+		}
+		return responseEntries, nil
+	})
+
+	if err != nil {
+		c.logger.Error("Failed to get completions requests form batches")
+		return nil, err
+	}
+
+	var flattenedResponses []*BatchFileCompletionResponseEntry
+	for _, batchResponses := range allResponses {
+		flattenedResponses = append(flattenedResponses, batchResponses...)
+	}
+
+	return flattenedResponses, nil
+}
+
+func (c *Client) BatchOutputFiles(batches []*Batch) ([][]byte, error) {
+
+	return parallelRequest(batches, func(batch *Batch) ([]byte, error) {
+		file, err := c.File(batch.OutputFileId)
+		if err != nil {
+			c.logger.Error("Failed to retrieve batch output file", zap.Error(err))
+			return nil, err
+		}
+		return file, nil
+	})
+
+}
+
+func (c *Client) Files(ids []string) ([][]byte, error) {
+
+	return parallelRequest(ids, func(id string) ([]byte, error) {
+		file, err := c.File(id)
+		if err != nil {
+			c.logger.Error("Failed to retrieve file", zap.Error(err))
+			return nil, err
+		}
+		return file, nil
+	})
+
 }
 
 func (c *Client) File(id string) ([]byte, error) {
