@@ -205,7 +205,7 @@ func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
 
 	completionResponses, err := g.client.CompletionResponseEntriesFromBatches(batches)
 	if err != nil {
-		g.logger.Error("Failed to get completion responses from batches", zap.Error(err))
+		g.logger.Error("Failed to get application completion responses from batches", zap.Error(err))
 		return nil, err
 	}
 
@@ -346,7 +346,7 @@ func (g *OpenAiInsightsGenerator) createMessagesFromApplicationLogs(
 			Always declare a unmodified sources with every insight you give.  
 			Always give a recommendation on how to resolve the issue. Always give a source. Never repeat insights, ie. 
 			if you once use the source do not create an insight for it again. One insight per source. If you recognize the 
-			same events on different containers/pods. For each incident assign urgency as an integer number between 1 and 3.
+			same events on different containers/pods. For each incident assign urgency as an integer number between 0 and 2.
 			Add all logs (from all pods/containers) which belong to the same insight to the sourceIds array of a single insight.
 			Ignore logs which do not explicitly suggest an issue. Ignore logs which are describing usual actions.
 			If there are no errors or warnings don't even mention an insight. Here is the additional configuration 
