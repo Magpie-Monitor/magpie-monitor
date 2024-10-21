@@ -15,30 +15,30 @@ import (
 
 // TODO: To be clarified once the contract from agent is agreed upon
 type ApplicationLogs struct {
-	Cluster   string
-	Kind      string
-	Timestamp int64
-	Name      string
-	Namespace string
-	Pods      []*PodLogs
+	ClusterId     string     `json:"clusterId"`
+	Kind          string     `json:"kind"`
+	CollectedAtMs int64      `json:"collectedAtMs"`
+	Name          string     `json:"name"`
+	Namespace     string     `json:"namespace"`
+	Pods          []*PodLogs `json:"pods"`
 }
 
 type PodLogs struct {
-	Name       string
-	Containers []*ContainerLogs
+	Name       string           `json:"name"`
+	Containers []*ContainerLogs `json:"containers"`
 }
 
 type ContainerLogs struct {
-	Name    string
-	Image   string
-	Content string
+	Name    string `json:"name"`
+	Image   string `json:"image"`
+	Content string `json:"content"`
 }
 
 type ApplicationLogsDocument struct {
 	Id              string `json:"_id,omitempty" bson:"id,omitempty"`
-	Cluster         string `json:"cluster" bson:"cluster"`
+	ClusterId       string `json:"clusterId" bson:"clusterId"`
 	Kind            string `json:"kind" bson:"kind"`
-	Timestamp       int64  `json:"timestamp" bson:"timestamp"`
+	CollectedAtMs   int64  `json:"collectedAtMs"`
 	ApplicationName string `json:"applicationName" bson:"applicationName"`
 	Namespace       string `json:"namespace" bson:"namespace"`
 	PodName         string `json:"podName" bson:"podName"`
@@ -52,9 +52,9 @@ func (l *ApplicationLogs) Flatten() []*ApplicationLogsDocument {
 	for _, pod := range l.Pods {
 		for _, container := range pod.Containers {
 			documents = append(documents, &ApplicationLogsDocument{
-				Cluster:         l.Cluster,
+				ClusterId:       l.ClusterId,
 				Kind:            l.Kind,
-				Timestamp:       l.Timestamp,
+				CollectedAtMs:   l.CollectedAtMs,
 				Namespace:       l.Namespace,
 				PodName:         pod.Name,
 				ContainerName:   container.Name,
@@ -93,7 +93,7 @@ func (r *ElasticSearchApplicationLogsRepository) doesIndexExists(index string) b
 
 func getApplicationLogsIndexName(applicationLogs *ApplicationLogs) string {
 
-	val := elasticsearch.GetIndexName(applicationLogs.Cluster, "applications", applicationLogs.Timestamp)
+	val := elasticsearch.GetIndexName(applicationLogs.ClusterId, "applications", applicationLogs.CollectedAtMs)
 	return val
 }
 

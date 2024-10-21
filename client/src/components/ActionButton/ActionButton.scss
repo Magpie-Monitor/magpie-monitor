@@ -1,0 +1,30 @@
+@import '@/variables';
+
+.action-button {
+  cursor: pointer;
+
+  &--green {
+    border-color: $navbar-selected-color;
+    color: $navbar-selected-color;
+    background-color: transparent;
+    border-radius: 5px;
+
+    &:hover {
+      color: $secondary;
+      background-color: $navbar-selected-color;
+    }
+  }
+
+  &--red {
+    border-color: $cancel-color;
+    color: $cancel-color;
+    background-color: transparent;
+    border-radius: 5px;
+
+    &:hover {
+        color: $secondary;
+        background-color: $cancel-color;
+    }
+  }
+
+}
