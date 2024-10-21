@@ -10,6 +10,7 @@ import pl.pwr.zpi.metadata.dto.ClusterMetadata;
 import pl.pwr.zpi.metadata.dto.NodeMetadata;
 import pl.pwr.zpi.utils.client.HttpClient;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +53,7 @@ public class MetadataService {
         String url = String.format("%s/v1/metadata/clusters", METADATA_SERVICE_BASE_URL);
         return httpClient.getList(
                 url,
-                Map.of(),
+                Collections.emptyMap(),
                 new TypeReference<>() {
                 }
         );

@@ -56,7 +56,7 @@ public class Client implements HttpClient {
         return params.entrySet().isEmpty()
                 ? baseUrl
                 : baseUrl + "?" + params.entrySet().stream()
-                .map(entry -> entry.getKey() + "=" + entry.getValue());
+                .map(entry -> String.join("=", entry.getKey(), entry.getValue()));
     }
 
     private String sendGetRequest(String url) {

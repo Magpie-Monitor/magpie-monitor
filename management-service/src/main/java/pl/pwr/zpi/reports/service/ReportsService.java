@@ -13,6 +13,7 @@ import pl.pwr.zpi.reports.dto.report.node.NodeIncident;
 import pl.pwr.zpi.reports.dto.report.node.ReportIncidents;
 import pl.pwr.zpi.utils.client.HttpClient;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class ReportsService {
         String url = String.format("%s/v1/reports/%s", REPORT_SERVICE_BASE_URL, reportId);
         return httpClient.get(
                 url,
-                Map.of(),
+                Collections.emptyMap(),
                 clazz
         );
     }
@@ -38,7 +39,7 @@ public class ReportsService {
         String url = String.format("%s/v1/reports", REPORT_SERVICE_BASE_URL);
         return httpClient.getList(
                 url,
-                Map.of(),
+                Collections.emptyMap(),
                 typeReference
         );
     }
@@ -56,7 +57,7 @@ public class ReportsService {
         String url = String.format("%s/v1/application-incidents/%s", REPORT_SERVICE_BASE_URL, incidentId);
         return httpClient.getList(
                 url,
-                Map.of(),
+                Collections.emptyMap(),
                 new TypeReference<>() {
                 }
         );
@@ -66,7 +67,7 @@ public class ReportsService {
         String url = String.format("%s/v1/node-incidents/%s", REPORT_SERVICE_BASE_URL, incidentId);
         return httpClient.getList(
                 url,
-                Map.of(),
+                Collections.emptyMap(),
                 new TypeReference<>() {
                 }
         );
