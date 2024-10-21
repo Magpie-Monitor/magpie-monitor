@@ -11,6 +11,7 @@
   flex-direction: column;
   border: 1px solid $component-border-color;
   margin-top: 10px;
+  max-width: 1900px;
 
   &__header {
     display: flex;
