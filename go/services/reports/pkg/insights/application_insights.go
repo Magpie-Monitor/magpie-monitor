@@ -171,6 +171,7 @@ func (g *OpenAiInsightsGenerator) OnDemandApplicationInsights(
 
 			if err != nil {
 				g.logger.Error("Failed to get insights for an application", zap.Error(err), zap.String("app", applicationName))
+				return
 			}
 
 			// Add metadata about insights (container/pod)
@@ -277,7 +278,7 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 	// Generate insights for each application separately.
 	for applicationName, logs := range groupedLogs {
 
-		logPackets := repositories.SplitLogsIntoPackets(logs, 2000)
+		logPackets := repositories.SplitLogsIntoPackets(logs, g.client.ContextSizeBytes)
 
 		for _, logPacket := range logPackets {
 			messages, err := g.createMessagesFromApplicationLogs(
@@ -300,7 +301,7 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 		}
 	}
 
-	batches, err := g.client.UploadAndCreateBatchesWithMaxSize(completionRequests, 10000)
+	batches, err := g.client.UploadAndCreateBatches(completionRequests)
 	if err != nil {
 		g.logger.Error("Failed to create a batch", zap.Error(err))
 		return nil, err
@@ -382,6 +383,11 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleApplication(
 	}
 
 	var insights applicationInsightsResponseDto
+
+	if len(openAiResponse.Choices) == 0 {
+		g.logger.Error("No insight choices were returned for", zap.Any("application", configuration.ApplicationName))
+		return nil, err
+	}
 
 	err = json.Unmarshal([]byte(openAiResponse.Choices[0].Message.Content), &insights)
 	if err != nil {

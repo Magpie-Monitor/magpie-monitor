@@ -4,24 +4,35 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/IBM/fp-go/array"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
+	"go.uber.org/zap"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
+)
 
-	"github.com/IBM/fp-go/array"
-	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
-	"go.uber.org/zap"
+const (
+	API_URL_KEY      = "REPORTS_OPENAI_API_URL"
+	MODEL_KEY        = "REPORTS_OPENAI_API_MODEL"
+	API_KEY          = "REPORTS_OPENAI_API_KEY"
+	BATCH_SIZE_KEY   = "REPORTS_OPENAI_BATCH_SIZE_BYTES"
+	CONTEXT_SIZE_KEY = "REPORTS_OPENAI_BATCH_SIZE_BYTES"
 )
 
 type Client struct {
-	model   string
-	authKey string
-	apiUrl  string
-	logger  *zap.Logger
+	model            string
+	authKey          string
+	apiUrl           string
+	logger           *zap.Logger
+	BatchSizeBytes   int
+	ContextSizeBytes int
 }
 
 type CompletionRequest struct {
@@ -90,15 +101,32 @@ const (
 
 func NewOpenAiClient(logger *zap.Logger) *Client {
 
-	apiUrl := os.Getenv("OPENAI_API_URL")
-	model := os.Getenv("OPENAI_API_MODEL")
-	authKey := os.Getenv("OPENAI_API_KEY")
+	envs.ValidateEnvs("OpenAI client parameters are not set", []string{
+		API_URL_KEY, MODEL_KEY, API_KEY, BATCH_SIZE_KEY, CONTEXT_SIZE_KEY,
+	})
 
+	apiUrl := os.Getenv(API_URL_KEY)
+	model := os.Getenv(MODEL_KEY)
+	authKey := os.Getenv(API_KEY)
+	batchSize := os.Getenv(BATCH_SIZE_KEY)
+	contextSize := os.Getenv(CONTEXT_SIZE_KEY)
+
+	batchSizeInt, err := strconv.Atoi(batchSize)
+	if err != nil {
+		panic("OpenAI batch size is not a number")
+	}
+
+	contextSizeInt, err := strconv.Atoi(contextSize)
+	if err != nil {
+		panic("OpenAI context size is not a number")
+	}
 	return &Client{
-		model:   model,
-		authKey: authKey,
-		apiUrl:  apiUrl,
-		logger:  logger,
+		model:            model,
+		authKey:          authKey,
+		apiUrl:           apiUrl,
+		logger:           logger,
+		BatchSizeBytes:   batchSizeInt,
+		ContextSizeBytes: contextSizeInt,
 	}
 }
 
@@ -315,9 +343,10 @@ func (c *Client) createBatch(batchParams CreateBatchRequest) (*Batch, error) {
 	return &decodedResponse, nil
 }
 
-func (c *Client) UploadAndCreateBatchesWithMaxSize(completionRequests []*CompletionRequest, maxBatchSize int) ([]*Batch, error) {
+func (c *Client) UploadAndCreateBatches(completionRequests []*CompletionRequest) ([]*Batch, error) {
 
-	requestsByBatch, err := c.splitCompletionReqestsByEncodedSize(completionRequests, maxBatchSize)
+	// Split requests to batches of size not greater than OpenAi's maximum batch size (~100MB)
+	requestsByBatch, err := c.splitCompletionReqestsByBatchSize(completionRequests)
 	if err != nil {
 		c.logger.Error("Failed to split completion requests by batch", zap.Error(err))
 		return nil, err
@@ -334,7 +363,7 @@ func (c *Client) UploadAndCreateBatchesWithMaxSize(completionRequests []*Complet
 	})
 }
 
-func (c *Client) splitCompletionReqestsByEncodedSize(completionRequests []*CompletionRequest, maxPacketSize int) ([][]*CompletionRequest, error) {
+func (c *Client) splitCompletionReqestsByBatchSize(completionRequests []*CompletionRequest) ([][]*CompletionRequest, error) {
 
 	var requestPackets [][]*CompletionRequest
 	var lastPacket []*CompletionRequest
@@ -349,7 +378,7 @@ func (c *Client) splitCompletionReqestsByEncodedSize(completionRequests []*Compl
 			return nil, err
 		}
 
-		if lastPacketSize+len(encodedPacket) > maxPacketSize {
+		if lastPacketSize+len(encodedPacket) > c.BatchSizeBytes {
 			requestPackets = append(requestPackets, lastPacket)
 			lastPacket = []*CompletionRequest{request}
 			lastPacketSize = len(encodedPacket)
@@ -360,6 +389,7 @@ func (c *Client) splitCompletionReqestsByEncodedSize(completionRequests []*Compl
 		}
 
 	}
+	requestPackets = append(requestPackets, lastPacket)
 	return requestPackets, nil
 }
 

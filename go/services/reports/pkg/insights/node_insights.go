@@ -118,6 +118,7 @@ func (g *OpenAiInsightsGenerator) OnDemandNodeInsights(
 			insights, err := g.getInsightsForSingleNode(logs, configurationsByNode[nodeName])
 			if err != nil {
 				g.logger.Error("Failed to get insights for an node", zap.Error(err), zap.String("node", nodeName))
+				return
 			}
 
 			mapper := array.Map(func(insight NodeLogsInsight) NodeInsightsWithMetadata {
@@ -159,6 +160,11 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleNode(
 
 	var insights nodeInsightsResponseDto
 
+	if len(openAiResponse.Choices) == 0 {
+		g.logger.Error("No insight choices were returned for", zap.Any("node", configuration.NodeName))
+		return nil, errors.New(fmt.Sprintf("No insight choices were returned for %s", configuration.NodeName))
+	}
+
 	err = json.Unmarshal([]byte(openAiResponse.Choices[0].Message.Content), &insights)
 	if err != nil {
 		g.logger.Error("Failed to decode node insights from openai client", zap.Error(err))
@@ -184,7 +190,8 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 	// Generate insights for each application separately.
 	for nodeName, logs := range groupedLogs {
 
-		logPackets := repositories.SplitLogsIntoPackets(logs, 2000)
+		// Split completion request to packets not greater than OpenAi model's context
+		logPackets := repositories.SplitLogsIntoPackets(logs, g.client.ContextSizeBytes)
 
 		for _, logPacket := range logPackets {
 			messages, err := g.createMessagesFromNodeLogs(
@@ -199,7 +206,7 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 				&openai.CompletionRequest{
 					Messages:       messages,
 					Temperature:    0.6,
-					ResponseFormat: openai.CreateJsonReponseFormat("insigts", applicationInsightsResponseDto{}),
+					ResponseFormat: openai.CreateJsonReponseFormat("insights", nodeInsightsResponseDto{}),
 					Model:          g.client.Model(),
 				},
 			)
@@ -207,7 +214,7 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 
 	}
 
-	batches, err := g.client.UploadAndCreateBatchesWithMaxSize(completionRequests, 10000)
+	batches, err := g.client.UploadAndCreateBatches(completionRequests)
 	if err != nil {
 		g.logger.Error("Failed to create a batch", zap.Error(err))
 		return nil, err
