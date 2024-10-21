@@ -61,13 +61,6 @@ func TestDecode(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			logPackets := SplitLogsIntoPackets(tc.allLogs, 20)
 
-			// testCaseReader := strings.NewReader(tc.rawString)
-			// results := make([]decodingTestCase, 0)
-			//
-			// err := jsonl.NewJsonLinesDecoder(testCaseReader).Decode(&results)
-			// if err != nil {
-			// 	t.Fatalf("Failed to decode an rawString into jsonl")
-			// }
 			if !reflect.DeepEqual(tc.expect, logPackets) {
 				t.Fatalf("Wanted %+v, got %+v", tc.expect, logPackets)
 			}

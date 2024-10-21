@@ -3,11 +3,8 @@ package openai
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/IBM/fp-go/array"
-	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
-	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
-	"go.uber.org/zap"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -16,6 +13,11 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/IBM/fp-go/array"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
+	"go.uber.org/zap"
 )
 
 const (
@@ -352,7 +354,7 @@ func (c *Client) UploadAndCreateBatches(completionRequests []*CompletionRequest)
 		return nil, err
 	}
 
-	return parallelRequest(requestsByBatch, func(requests []*CompletionRequest) (*Batch, error) {
+	batches, batchErrors := parallelRequest(requestsByBatch, func(requests []*CompletionRequest) (*Batch, error) {
 
 		batch, err := c.UploadAndCreateBatch(requests)
 		if err != nil {
@@ -361,6 +363,13 @@ func (c *Client) UploadAndCreateBatches(completionRequests []*CompletionRequest)
 		}
 		return batch, nil
 	})
+
+	if len(batchErrors) != 0 {
+		c.logger.Error("Failed to upload batches", zap.Error(errors.Join(batchErrors...)))
+		return nil, errors.Join(batchErrors...)
+	}
+
+	return batches, nil
 }
 
 func (c *Client) splitCompletionReqestsByBatchSize(completionRequests []*CompletionRequest) ([][]*CompletionRequest, error) {
@@ -437,7 +446,7 @@ func NewBatchEntryFromCompletionRequet(completionRequest *CompletionRequest) *Ba
 
 func (c *Client) Batches(ids []string) ([]*Batch, error) {
 
-	return parallelRequest(ids, func(id string) (*Batch, error) {
+	batches, err := parallelRequest(ids, func(id string) (*Batch, error) {
 		batch, err := c.Batch(id)
 		if err != nil {
 			c.logger.Error("Failed to retrieve batch", zap.Error(err))
@@ -446,12 +455,22 @@ func (c *Client) Batches(ids []string) ([]*Batch, error) {
 		return batch, nil
 	})
 
+	if len(err) != 0 {
+		c.logger.Error("Failed to get OpenAI batches by ids", zap.Error(errors.Join(err...)))
+		return nil, errors.Join(err...)
+	}
+
+	return batches, nil
+
 }
 
-func parallelRequest[Key any, Value any](keys []Key, f func(Key) (Value, error)) ([]Value, error) {
+func parallelRequest[Key any, Value any](keys []Key, f func(Key) (Value, error)) ([]Value, []error) {
 
 	var valueChannel = make(chan Value, len(keys))
 	var values = make([]Value, 0, len(keys))
+
+	var errorChannel = make(chan error, len(keys))
+	var errors = make([]error, 0, len(keys))
 
 	var wg sync.WaitGroup
 	for _, key := range keys {
@@ -462,6 +481,7 @@ func parallelRequest[Key any, Value any](keys []Key, f func(Key) (Value, error))
 
 			value, err := f(key)
 			if err != nil {
+				errorChannel <- err
 				return
 			}
 
@@ -471,9 +491,17 @@ func parallelRequest[Key any, Value any](keys []Key, f func(Key) (Value, error))
 
 	wg.Wait()
 	close(valueChannel)
+	close(errorChannel)
 
 	for batch := range valueChannel {
 		values = append(values, batch)
+	}
+
+	for err := range errorChannel {
+		errors = append(errors, err)
+	}
+	if len(errors) != 0 {
+		return nil, errors
 	}
 
 	return values, nil
@@ -548,9 +576,9 @@ func (c *Client) CompletionResponseEntriesFromBatches(batches []*Batch) ([]*Batc
 		return responseEntries, nil
 	})
 
-	if err != nil {
+	if len(err) != 0 {
 		c.logger.Error("Failed to get completions requests form batches")
-		return nil, err
+		return nil, errors.Join(err...)
 	}
 
 	var flattenedResponses []*BatchFileCompletionResponseEntry
@@ -563,7 +591,7 @@ func (c *Client) CompletionResponseEntriesFromBatches(batches []*Batch) ([]*Batc
 
 func (c *Client) BatchOutputFiles(batches []*Batch) ([][]byte, error) {
 
-	return parallelRequest(batches, func(batch *Batch) ([]byte, error) {
+	files, err := parallelRequest(batches, func(batch *Batch) ([]byte, error) {
 		file, err := c.File(batch.OutputFileId)
 		if err != nil {
 			c.logger.Error("Failed to retrieve batch output file", zap.Error(err))
@@ -572,11 +600,17 @@ func (c *Client) BatchOutputFiles(batches []*Batch) ([][]byte, error) {
 		return file, nil
 	})
 
+	if len(err) != 0 {
+		c.logger.Error("Failed to get output files from batches", zap.Error(errors.Join(err...)))
+		return nil, errors.Join(err...)
+	}
+
+	return files, nil
 }
 
 func (c *Client) Files(ids []string) ([][]byte, error) {
 
-	return parallelRequest(ids, func(id string) ([]byte, error) {
+	files, err := parallelRequest(ids, func(id string) ([]byte, error) {
 		file, err := c.File(id)
 		if err != nil {
 			c.logger.Error("Failed to retrieve file", zap.Error(err))
@@ -584,6 +618,13 @@ func (c *Client) Files(ids []string) ([][]byte, error) {
 		}
 		return file, nil
 	})
+
+	if len(err) != 0 {
+		c.logger.Error("Failed to get files from OpenAI Files API")
+		return nil, errors.Join(err...)
+	}
+
+	return files, nil
 
 }
 

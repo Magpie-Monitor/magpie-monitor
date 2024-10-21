@@ -259,7 +259,7 @@ func (g *OpenAiInsightsGenerator) createMessagesFromNodeLogs(
 			Always declare a unmodified source log with every insight you give.  
 			Always give a recommendation on how to resolve the issue. Always give a source. Never repeat insights, ie. 
 			if you once use the source do not create an insight for it again. One insight per source. Do not duplicate insights, 
-			only mention the same issue once. For each incident assign urgency as an integer number between 1 and 3. 
+			only mention the same issue once. For each incident assign urgency as an integer number between 0 and 2. 
 			Ignore logs which do not explicitly suggest an issue. Ignore logs which are describing usual actions.
 			If there are no errors or warnings don't even mention an insight. Here is the additional configuration 
 			that you should consider while generating insights %s`, customPrompt),
