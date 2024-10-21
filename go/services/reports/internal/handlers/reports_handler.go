@@ -9,6 +9,7 @@ import (
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/services"
+	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"github.com/gorilla/mux"
 	"go.uber.org/fx"
@@ -54,12 +55,12 @@ func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
 }
 
 type reportsPostParams struct {
-	ClusterId                *string                                         `json:"clusterId"`
-	SinceMs                  *int64                                          `json:"sinceMs"`
-	ToMs                     *int64                                          `json:"toMs"`
-	ApplicationConfiguration []*repositories.ApplicationInsightConfiguration `json:"applicationConfiguration"`
-	NodeConfiguration        []*repositories.NodeInsightConfiguration        `json:"nodeConfiguration"`
-	MaxLength                *int                                            `json:"maxLength"`
+	ClusterId                *string                                     `json:"clusterId"`
+	SinceMs                  *int64                                      `json:"sinceMs"`
+	ToMs                     *int64                                      `json:"toMs"`
+	ApplicationConfiguration []*insights.ApplicationInsightConfiguration `json:"applicationConfiguration"`
+	NodeConfiguration        []*insights.NodeInsightConfiguration        `json:"nodeConfiguration"`
+	MaxLength                *int                                        `json:"maxLength"`
 }
 
 func (h *ReportsHandler) handleResponseHeaderFromRepositoryError(w http.ResponseWriter, err repositories.ReportRepositoryError) {

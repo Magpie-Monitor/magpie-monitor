@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
+	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -20,7 +21,7 @@ type NodeIncident struct {
 	Category       string               `bson:"category" json:"category"`
 	Summary        string               `bson:"summary" json:"summary"`
 	Recommendation string               `bson:"recommendation" json:"recommendation"`
-	Urgency        Urgency              `bson:"urgency" json:"urgency"`
+	Urgency        insights.Urgency     `bson:"urgency" json:"urgency"`
 	Sources        []NodeIncidentSource `bson:"sources" json:"sources"`
 }
 
