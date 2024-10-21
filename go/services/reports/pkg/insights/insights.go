@@ -30,3 +30,12 @@ func NewOpenAiInsightsGenerator(params OpenAiInsightsGeneratorParams) *OpenAiIns
 		nodeLogsRepository:        params.NodeLogsRepository,
 	}
 }
+
+type Urgency int
+
+const (
+	_ Urgency = iota
+	Urgency_Low
+	Urgency_Medium
+	Urgency_High
+)

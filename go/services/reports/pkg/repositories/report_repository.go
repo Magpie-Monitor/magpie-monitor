@@ -2,10 +2,10 @@ package repositories
 
 import (
 	"context"
-
 	"fmt"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
+	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -39,15 +39,6 @@ const (
 	ReportState_Generated          ReportState = "generated"
 )
 
-type Urgency int
-
-const (
-	_ Urgency = iota
-	Urgency_Low
-	Urgency_Medium
-	Urgency_High
-)
-
 type Report struct {
 	Id                      string               `bson:"_id,omitempty" json:"id"`
 	Status                  ReportState          `bson:"status" json:"status"`
@@ -61,57 +52,11 @@ type Report struct {
 	ApplicationReports      []*ApplicationReport `bson:"applicationReports" json:"applicationReports"`
 	TotalApplicationEntries int                  `bson:"totalApplicationEntries" json:"totalApplicationEntries"`
 	TotalNodeEntries        int                  `bson:"totalNodeEntries" json:"totalNodeEntries"`
-	Urgency                 Urgency              `bson:"urgency" json:"urgency"`
+	Urgency                 insights.Urgency     `bson:"urgency" json:"urgency"`
 
 	// Filled only when report is scheduled
-	ScheduledApplicationInsights *ScheduledApplicationInsights `bson:"scheduledApplicationInsights" json:"scheduledApplicationInsights"`
-	ScheduledNodeInsights        *ScheduledNodeInsights        `bson:"scheduledNodeInsights" json:"scheduledNodeInsights"`
-}
-
-type ApplicationInsightConfiguration struct {
-	ApplicationName string `json:"applicationName"`
-	Precision       string `json:"precision"`
-	CustomPrompt    string `json:"customPrompt"`
-}
-
-type NodeInsightConfiguration struct {
-	NodeName     string `json:"nodeName"`
-	Precision    string `json:"precision"`
-	CustomPrompt string `json:"customPrompt"`
-}
-
-type ScheduledApplicationInsights struct {
-	Id                       string                             `json:"id"`
-	SinceMs                  int64                              `bson:"sinceMs" json:"sinceMs"`
-	ToMs                     int64                              `bson:"toMs" json:"toMs"`
-	ClusterId                string                             `bson:"clusterId" json:"clusterId"`
-	ApplicationConfiguration []*ApplicationInsightConfiguration `json:"applicationConfiguration"`
-}
-
-type ScheduledNodeInsights struct {
-	Id                string                      `json:"id"`
-	SinceMs           int64                       `bson:"sinceMs" json:"sinceMs"`
-	ToMs              int64                       `bson:"toMs" json:"toMs"`
-	ClusterId         string                      `bson:"clusterId" json:"clusterId"`
-	NodeConfiguration []*NodeInsightConfiguration `json:"nodeConfiguration"`
-}
-
-func MapApplicationNameToConfiguration(configurations []*ApplicationInsightConfiguration) map[string]*ApplicationInsightConfiguration {
-	groupedConfigurations := make(map[string]*ApplicationInsightConfiguration)
-	for _, conf := range configurations {
-		groupedConfigurations[conf.ApplicationName] = conf
-	}
-
-	return groupedConfigurations
-}
-
-func MapNodeNameToConfiguration(configurations []*NodeInsightConfiguration) map[string]*NodeInsightConfiguration {
-	groupedConfigurations := make(map[string]*NodeInsightConfiguration)
-	for _, conf := range configurations {
-		groupedConfigurations[conf.NodeName] = conf
-	}
-
-	return groupedConfigurations
+	ScheduledApplicationInsights *insights.ScheduledApplicationInsights `bson:"scheduledApplicationInsights" json:"scheduledApplicationInsights"`
+	ScheduledNodeInsights        *insights.ScheduledNodeInsights        `bson:"scheduledNodeInsights" json:"scheduledNodeInsights"`
 }
 
 type ReportRepositoryErrorKind string
