@@ -61,7 +61,6 @@ func main() {
 
 			routing.NewRootRouter,
 
-			// TODO - fix
 			swagger.NewSwaggerRouter,
 			swagger.NewSwaggerHandler,
 			swagger.ProvideSwaggerConfig(),

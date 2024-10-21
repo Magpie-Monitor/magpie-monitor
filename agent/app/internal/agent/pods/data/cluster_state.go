@@ -8,7 +8,7 @@ import (
 
 type ClusterState struct {
 	CollectedAtMs int64         `json:"collectedAtMs"`
-	ClusterName   string        `json:"clusterName"`
+	ClusterId     string        `json:"clusterId"`
 	Applications  []Application `json:"applications"`
 }
 
@@ -17,8 +17,8 @@ type Application struct {
 	Name string          `json:"name"`
 }
 
-func NewClusterState(clusterName string) ClusterState {
-	return ClusterState{ClusterName: clusterName, Applications: []Application{}}
+func NewClusterState(clusterId string) ClusterState {
+	return ClusterState{ClusterId: clusterId, Applications: []Application{}}
 }
 
 func (c *ClusterState) SetTimestamp() {

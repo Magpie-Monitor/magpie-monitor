@@ -44,14 +44,15 @@ func (c *Channels) Close() {
 }
 
 type GlobalConfig struct {
-	Mode                          string
-	NodeName                      string
-	ClusterName                   string
-	LogScrapeIntervalSeconds      int
-	MetadataScrapeIntervalSeconds int
-	PodMetadataRemoteWriteUrl     string
-	NodeMetadataRemoteWriteUrl    string
-	RunningLocally                bool
+	Mode                               string
+	NodeName                           string
+	ClusterId                          string
+	LogScrapeIntervalSeconds           int
+	MetadataScrapeIntervalSeconds      int
+	PodMetadataRemoteWriteUrl          string
+	NodeMetadataRemoteWriteUrl         string
+	ClusterMetadataServiceClientSecret string
+	RunningMode                        string
 }
 
 type RedisConfig struct {
@@ -80,10 +81,10 @@ type Config struct {
 func NewConfig() Config {
 	nodeName := os.Getenv("NODE_NAME")
 
-	runningLocally := flag.Bool("runningLocally", false, "Determines whether an agent is running locally in a dev environment.")
+	runningMode := flag.String("runningMode", "remote", "Determines whether an agent is running locally in a dev environment. Set to \"local\" when running locally and \"remote\" when not.")
 
 	mode := flag.String("scrape", "pods", "Mode in which log collector runs, either \"nodes\" to scrape nodes or \"pods\" to scrape pods.")
-	clusterName := flag.String("clusterFriendlyName", "unknown", "Friendly name of your cluster, visible in Magpie Cloud.")
+	clusterId := flag.String("clusterFriendlyName", "unknown", "Friendly name of your cluster, visible in Magpie Cloud.")
 
 	logScrapeIntervalSeconds := flag.Int("logScrapeIntervalSeconds", 10, "Interval between scraping logs from files in \"nodes\" mode or pods in \"pods\" mode.")
 	metadataScrapeIntervalSeconds := flag.Int("metadataScrapeIntervalSeconds", 10, "Interval between scraping nodes metadata in \"nodes\" mode or cluster metadata in \"pods\".")
@@ -102,6 +103,8 @@ func NewConfig() Config {
 
 	podRemoteWriteMetadataUrl := flag.String("podRemoteWriteMetadataUrl", "", "URL for cluster metadata remote write.")
 	nodeRemoteWriteMetadataUrl := flag.String("nodeRemoteWriteMetadataUrl", "", "URL for node metadata remote write.")
+
+	clusterMetadataServiceClientSecret := flag.String("clusterMetadataServiceClientSecret", "", "Client secret for metadata service remote write.")
 
 	var watchedFiles arrayFlags
 	flag.Var(&watchedFiles, "file", "Log files that are watched for log collector running in \"nodes\" mode.")
@@ -122,14 +125,15 @@ func NewConfig() Config {
 
 	return Config{
 		Global: GlobalConfig{
-			Mode:                          *mode,
-			NodeName:                      nodeName,
-			ClusterName:                   *clusterName,
-			LogScrapeIntervalSeconds:      *logScrapeIntervalSeconds,
-			MetadataScrapeIntervalSeconds: *metadataScrapeIntervalSeconds,
-			PodMetadataRemoteWriteUrl:     *podRemoteWriteMetadataUrl,
-			NodeMetadataRemoteWriteUrl:    *nodeRemoteWriteMetadataUrl,
-			RunningLocally:                *runningLocally,
+			Mode:                               *mode,
+			NodeName:                           nodeName,
+			ClusterId:                          *clusterId,
+			LogScrapeIntervalSeconds:           *logScrapeIntervalSeconds,
+			MetadataScrapeIntervalSeconds:      *metadataScrapeIntervalSeconds,
+			PodMetadataRemoteWriteUrl:          *podRemoteWriteMetadataUrl,
+			NodeMetadataRemoteWriteUrl:         *nodeRemoteWriteMetadataUrl,
+			ClusterMetadataServiceClientSecret: *clusterMetadataServiceClientSecret,
+			RunningMode:                        *runningMode,
 		},
 		Redis: RedisConfig{
 			Url:      *redisUrl,

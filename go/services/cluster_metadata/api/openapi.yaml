@@ -4,6 +4,33 @@ info:
   version: 1.0.0
 paths:
   /v1/metadata/clusters:
+    get:
+      summary: Get metadata for all clusters
+      description: Returns metadata for all clusters, indicating whether they are currently running
+      operationId: getAllClusters
+      tags:
+        - metadata
+      responses:
+        "200":
+          description: Successfully fetched cluster metadata
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClusterMetadata"
+        "400":
+          description: Unauthorized access
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     post:
       summary: Insert cluster metadata
       description: Inserts metadata for a cluster 
@@ -21,9 +48,9 @@ paths:
                   type: integer
                   format: int64
                   description: Millisecond timestamp at which metadata was collected
-                clusterName:
+                clusterId:
                   type: string
-                  description: Name of the cluster sending metadata
+                  description: Id of the cluster sending metadata
                 applications:
                   type: array
                   items:
@@ -43,7 +70,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-                
+
   /v1/metadata/nodes:
     post:
       summary: Insert node metadata
@@ -65,9 +92,9 @@ paths:
                 nodeName:
                   type: string
                   description: Name of the cluster to which node sending metadata belongs to
-                clusterName:
+                clusterId:
                   type: string
-                  description: Name of the node sending metadata
+                  description: Id of the node sending metadata
                 watchedFiles:
                   type: array
                   items:
@@ -170,7 +197,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NodeMetadata"
+                type: array
+                items:
+                  $ref: "#/components/schemas/NodeMetadata"
         "400":
           description: Invalid request
           content:
@@ -214,7 +243,7 @@ components:
       properties:
         name:
           type: string
-          description: Name of an application
+          description: Name of a node
         files:
           type: array
           items:
@@ -223,6 +252,16 @@ components:
         running:
           type: boolean
           description: Whether the node is currently running
+
+    ClusterMetadata:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the cluster
+        running:
+          type: boolean
+          description: Whether the cluster is currently running
 
     Application:
       type: object
@@ -240,7 +279,7 @@ components:
         timestampMillis:
           type: integer
           format: int64
-          description: Millisecond timestamp when error occured
+          description: Millisecond timestamp when error occurred
         error:
           type: string
           description: Error message

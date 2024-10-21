@@ -137,6 +137,7 @@ services:
   # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in a dev environment.
   management-service:
     container_name: magpie-monitor-management-service
+    restart: unless-stopped
     image: magpiemonitor/management-service
     build:
       context: ./management-service
@@ -153,6 +154,7 @@ services:
       - MANAGEMENT_EMAIL_PASSWORD=${MANAGEMENT_EMAIL_PASSWORD}
       - MANAGEMENT_EMAIL_HOST=${MANAGEMENT_EMAIL_HOST}
       - MANAGEMENT_CIPHER_ENCRYPTION_KEY=${MANAGEMENT_CIPHER_ENCRYPTION_KEY}
+      - CLUSTER_METADATA_SERVICE_BASE_URL=http://magpie-monitor-cluster-metadata-service:${CLUSTER_METADATA_HTTP_PORT}
       - MANAGEMENT_SERVER_DOMAINNAME=${MANAGEMENT_SERVER_DOMAINNAME}
       - MANAGEMENT_SERVER_REDIRECT_URI=${MANAGEMENT_SERVER_REDIRECT_URI}
       - CLIENT_BASE_URL=${CLIENT_BASE_URL}
@@ -160,7 +162,7 @@ services:
       - LETSENCRYPT_HOST=${MANAGEMENT_PRODUCTION_HOST}
       - VIRTUAL_PORT=8080
     ports:
-      - "8080:8080"
+      - "${MANAGEMENT_SERVICE_PORT}:8080"
     depends_on:
       - management-postgresdb
     develop:
@@ -232,6 +234,7 @@ services:
       - ${CLUSTER_METADATA_HTTP_PORT:-8092}:${CLUSTER_METADATA_HTTP_PORT:-8092}
     environment:
       HTTP_PORT: ${CLUSTER_METADATA_HTTP_PORT}
+      CLIENT_SECRET: ${CLUSTER_METADATA_SERVICE_CLIENT_SECRET}
       METADATADB_USER: ${CLUSTER_METADATA_MONGODB_USER}
       METADATADB_PASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
       METADATADB_HOST: ${CLUSTER_METADATA_MONGODB_HOST}
@@ -240,6 +243,7 @@ services:
       VIRTUAL_HOST: ${CLUSTER_METADATA_PRODUCTION_HOST}
       LETSENCRYPT_HOST: ${CLUSTER_METADATA_PRODUCTION_HOST}
       VIRTUAL_PORT: ${CLUSTER_METADATA_HTTP_PORT}
+      CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS: ${CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS}
     develop:
       watch:
         - action: rebuild

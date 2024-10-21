@@ -5,7 +5,7 @@
 - "--remoteWriteNodeTopic"
 - "nodes"
 - "--remoteWriteApplicationTopic"
-- "pods"
+- "applications"
 - "--remoteWriteBatchSize"
 - "0"
 - "--remoteWriteBrokerUsername"
@@ -17,9 +17,9 @@
 
 {{- define "metadata.scrapeIntervals" -}}
 - "--logScrapeIntervalSeconds"
-- "60"
+- "600"
 - "--metadataScrapeIntervalSeconds"
-- "60"
+- "600"
 {{- end -}}
 
 {{- define "redis.connection" -}}

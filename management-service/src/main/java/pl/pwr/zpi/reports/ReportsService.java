@@ -11,9 +11,13 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class ReportsService {
+
     private final ReportsClient reportsClient;
+
+    // TODO - refactor
     private final String ALL_REPORTS_URL = "http://reports-service:8099/v1/reports";
     private final String REPORT_DETAILS_URL = "http://reports-service:8099/v1/reports/";
+
     public List<ReportSummarizedDTO> getReport() throws Exception {
         log.info("Getting report");
         return reportsClient.sendGetRequestForList(
@@ -27,5 +31,6 @@ public class ReportsService {
         return reportsClient.sendGetRequest(
                 REPORT_DETAILS_URL + id,
                 ReportDTO.class
-        );      }
+        );
+    }
 }

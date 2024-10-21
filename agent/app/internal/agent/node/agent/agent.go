@@ -13,7 +13,7 @@ import (
 )
 
 type IncrementalReader struct {
-	clusterName                   string
+	clusterId                     string
 	nodeName                      string
 	files                         []string
 	scrapeIntervalSeconds         int
@@ -25,7 +25,7 @@ type IncrementalReader struct {
 
 func NewReader(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<- data.NodeState) IncrementalReader {
 	return IncrementalReader{
-		clusterName:                   cfg.Global.ClusterName,
+		clusterId:                     cfg.Global.ClusterId,
 		nodeName:                      cfg.Global.NodeName,
 		files:                         cfg.WatchedFiles,
 		scrapeIntervalSeconds:         cfg.Global.LogScrapeIntervalSeconds,
@@ -120,6 +120,7 @@ func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results c
 			}
 
 			results <- data.Chunk{
+				ClusterId:     r.clusterId,
 				Kind:          "Node",
 				Name:          r.nodeName,
 				CollectedAtMs: time.Now().UnixMilli(),
@@ -134,7 +135,7 @@ func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results c
 
 func (r *IncrementalReader) gatherNodeMetadata() {
 	for {
-		state := data.NewNodeState(r.clusterName, r.nodeName, r.files)
+		state := data.NewNodeState(r.clusterId, r.nodeName, r.files)
 		state.SetTimestamp()
 		r.metadata <- state
 
