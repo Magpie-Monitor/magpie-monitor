@@ -205,7 +205,7 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 			completionRequests = append(completionRequests,
 				&openai.CompletionRequest{
 					Messages:       messages,
-					Temperature:    0.6,
+					Temperature:    g.client.Temperature,
 					ResponseFormat: openai.CreateJsonReponseFormat("insights", nodeInsightsResponseDto{}),
 					Model:          g.client.Model(),
 				},

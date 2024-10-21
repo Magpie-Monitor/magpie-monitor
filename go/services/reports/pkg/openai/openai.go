@@ -21,11 +21,12 @@ import (
 )
 
 const (
-	API_URL_KEY      = "REPORTS_OPENAI_API_URL"
-	MODEL_KEY        = "REPORTS_OPENAI_API_MODEL"
-	API_KEY          = "REPORTS_OPENAI_API_KEY"
-	BATCH_SIZE_KEY   = "REPORTS_OPENAI_BATCH_SIZE_BYTES"
-	CONTEXT_SIZE_KEY = "REPORTS_OPENAI_CONTEXT_SIZE_BYTES"
+	API_URL_KEY           = "REPORTS_OPENAI_API_URL"
+	MODEL_KEY             = "REPORTS_OPENAI_API_MODEL"
+	API_KEY               = "REPORTS_OPENAI_API_KEY"
+	BATCH_SIZE_KEY        = "REPORTS_OPENAI_BATCH_SIZE_BYTES"
+	CONTEXT_SIZE_KEY      = "REPORTS_OPENAI_CONTEXT_SIZE_BYTES"
+	MODEL_TEMPERATURE_KEY = "REPORTS_OPENAI_MODEL_TEMPERATURE"
 )
 
 type Client struct {
@@ -35,6 +36,7 @@ type Client struct {
 	logger           *zap.Logger
 	BatchSizeBytes   int
 	ContextSizeBytes int
+	Temperature      float32
 }
 
 type CompletionRequest struct {
@@ -104,7 +106,7 @@ const (
 func NewOpenAiClient(logger *zap.Logger) *Client {
 
 	envs.ValidateEnvs("OpenAI client parameters are not set", []string{
-		API_URL_KEY, MODEL_KEY, API_KEY, BATCH_SIZE_KEY, CONTEXT_SIZE_KEY,
+		API_URL_KEY, MODEL_KEY, API_KEY, BATCH_SIZE_KEY, CONTEXT_SIZE_KEY, MODEL_TEMPERATURE_KEY,
 	})
 
 	apiUrl := os.Getenv(API_URL_KEY)
@@ -112,6 +114,7 @@ func NewOpenAiClient(logger *zap.Logger) *Client {
 	authKey := os.Getenv(API_KEY)
 	batchSize := os.Getenv(BATCH_SIZE_KEY)
 	contextSize := os.Getenv(CONTEXT_SIZE_KEY)
+	temperature := os.Getenv(MODEL_TEMPERATURE_KEY)
 
 	batchSizeInt, err := strconv.Atoi(batchSize)
 	if err != nil {
@@ -122,6 +125,11 @@ func NewOpenAiClient(logger *zap.Logger) *Client {
 	if err != nil {
 		panic("OpenAI context size is not a number")
 	}
+
+	temperatureFloat, err := strconv.ParseFloat(temperature, 2)
+	if err != nil {
+		panic("OpenAI model temperature is not a float")
+	}
 	return &Client{
 		model:            model,
 		authKey:          authKey,
@@ -129,6 +137,7 @@ func NewOpenAiClient(logger *zap.Logger) *Client {
 		logger:           logger,
 		BatchSizeBytes:   batchSizeInt,
 		ContextSizeBytes: contextSizeInt,
+		Temperature:      float32(temperatureFloat),
 	}
 }
 
@@ -164,7 +173,7 @@ func (c *Client) Complete(messages []*Message, responseFormat any) (*CompletionR
 	completionRequest := CompletionRequest{
 		Model:          c.model,
 		Messages:       messages,
-		Temperature:    0.6,
+		Temperature:    c.Temperature,
 		ResponseFormat: responseFormat,
 	}
 
@@ -493,8 +502,8 @@ func parallelRequest[Key any, Value any](keys []Key, f func(Key) (Value, error))
 	close(valueChannel)
 	close(errorChannel)
 
-	for batch := range valueChannel {
-		values = append(values, batch)
+	for value := range valueChannel {
+		values = append(values, value)
 	}
 
 	for err := range errorChannel {
@@ -566,6 +575,7 @@ func (c *Client) CompletionResponseEntriesFromBatch(batch *Batch) ([]*BatchFileC
 
 	return responses, nil
 }
+
 func (c *Client) CompletionResponseEntriesFromBatches(batches []*Batch) ([]*BatchFileCompletionResponseEntry, error) {
 	allResponses, err := parallelRequest(batches, func(batch *Batch) ([]*BatchFileCompletionResponseEntry, error) {
 		responseEntries, err := c.CompletionResponseEntriesFromBatch(batch)
