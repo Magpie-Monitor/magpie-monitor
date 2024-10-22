@@ -1,17 +1,17 @@
 @import '@/variables';
 
-.placeholder-title {
+.section-title {
   display: flex;
   flex-wrap: wrap;
   column-gap: 5px;
   font-weight: 400;
 
-  .title {
+  &__title {
     margin: 0;
     font-size: 22px;
   }
 
-  .source {
+  &__source {
     color: $green;
     font-size: 20px;
     text-decoration: underline;
@@ -23,7 +23,7 @@
     }
   }
 
-  .date-range {
+  &__date-range {
     margin: 0;
     font-size: 16px;
     align-self: center;
