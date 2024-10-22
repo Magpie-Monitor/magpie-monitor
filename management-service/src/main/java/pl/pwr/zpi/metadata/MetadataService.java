@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 import pl.pwr.zpi.metadata.dto.ApplicationMetadata;
 import pl.pwr.zpi.metadata.dto.ClusterMetadata;
 import pl.pwr.zpi.metadata.dto.NodeMetadata;
+import pl.pwr.zpi.metadata.messaging.event.application.AggregatedApplicationMetadata;
+import pl.pwr.zpi.metadata.messaging.event.node.AggregatedNodeMetadata;
+import pl.pwr.zpi.metadata.repository.AggregatedApplicationMetadataRepository;
+import pl.pwr.zpi.metadata.repository.AggregatedNodeMetadataRepository;
 import pl.pwr.zpi.utils.client.HttpClient;
 
 import java.util.Collections;
@@ -23,6 +27,18 @@ public class MetadataService {
     private String METADATA_SERVICE_BASE_URL;
     private final HttpClient httpClient;
 
+    private final AggregatedApplicationMetadataRepository applicationMetadataRepository;
+    private final AggregatedNodeMetadataRepository nodeMetadataRepository;
+
+    public void saveApplicationMetadata(AggregatedApplicationMetadata applicationMetadata) {
+        applicationMetadataRepository.save(applicationMetadata);
+    }
+
+    public void saveNodeMetadata(AggregatedNodeMetadata nodeMetadata) {
+        nodeMetadataRepository.save(nodeMetadata);
+    }
+
+    @Deprecated
     public List<ApplicationMetadata> getApplicationMetadata(String clusterName, Long sinceMillis, Long toMillis) {
         String url = String.format("%s/v1/metadata/clusters/%s/applications", METADATA_SERVICE_BASE_URL, clusterName);
         return httpClient.getList(
@@ -36,6 +52,7 @@ public class MetadataService {
         );
     }
 
+    @Deprecated
     public List<NodeMetadata> getNodeMetadata(String clusterName, Long sinceMillis, Long toMillis) {
         String url = String.format("%s/v1/metadata/clusters/%s/nodes", METADATA_SERVICE_BASE_URL, clusterName);
         return httpClient.getList(
@@ -49,6 +66,7 @@ public class MetadataService {
         );
     }
 
+    @Deprecated
     public List<ClusterMetadata> getClusters() {
         String url = String.format("%s/v1/metadata/clusters", METADATA_SERVICE_BASE_URL);
         return httpClient.getList(
