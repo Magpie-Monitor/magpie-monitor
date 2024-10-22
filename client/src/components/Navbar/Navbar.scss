@@ -1,19 +1,15 @@
 @import '@/variables';
 
 .navbar {
-  position: fixed;
-  width: 15rem;
+  width: 12rem;
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 0.4rem;
   justify-content: space-between;
   margin-left: 0;
   margin-right: 0;
   padding-left: 0.2rem;
   padding-right: 0.9rem;
-  top: 0;
-  left: 0;
   background-color: $navbar-backgroud-color;
 
   &__logo {
@@ -21,6 +17,7 @@
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
+    margin: 10px;
 
     &__image {
       width: 3.5rem;
@@ -29,8 +26,9 @@
     }
 
     &__name {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       color: $navbar-text-color;
+      line-height: 1.4rem;
     }
   }
 

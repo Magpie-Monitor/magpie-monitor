@@ -1,5 +1,11 @@
 import { ManagmentServiceApiInstance } from 'api/managment-service';
-import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
+import {
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
 export const getAuthInfo = async (): Promise<AuthenticationInfo | null> => {
   try {
@@ -31,7 +37,7 @@ export interface AuthenticationContext {
 
 export const AuthContext = createContext<AuthenticationContext>({
   authenticationInfo: null,
-  setAuthenticationInfo: () => {},
+  setAuthenticationInfo: () => { },
   isTokenValid: () => Promise.resolve(false),
 });
 
@@ -39,9 +45,8 @@ export const AuthProvider = (props: {
   children: ReactNode;
   authenticationInfo: AuthenticationInfo | null;
 }) => {
-  const [authenticationInfo, setAuthenticationInfo] = useState<AuthenticationInfo | null>(
-    props.authenticationInfo,
-  );
+  const [authenticationInfo, setAuthenticationInfo] =
+    useState<AuthenticationInfo | null>(props.authenticationInfo);
 
   const isTokenValid = async (): Promise<boolean> => {
     if (authenticationInfo && authenticationInfo.expTime <= 0) {
@@ -62,7 +67,9 @@ export const AuthProvider = (props: {
   }, [props, setAuthenticationInfo]);
 
   return (
-    <AuthContext.Provider value={{ authenticationInfo, setAuthenticationInfo, isTokenValid }}>
+    <AuthContext.Provider
+      value={{ authenticationInfo, setAuthenticationInfo, isTokenValid }}
+    >
       {props.children}
     </AuthContext.Provider>
   );

@@ -1,0 +1,34 @@
+@import '@/variables';
+
+.stat {
+  background-color: $component-secondary-background;
+  padding: 15px 15px 15px 20px;
+  border-radius: 8px;
+  text-align: left;
+  color: $font-color;
+  width: 180px;
+  height: 75px;
+  border: 1px solid $component-border-color;
+  flex-grow: 1;
+
+  &__title {
+    font-size: 15px;
+    font-weight: bold;
+    color: $font-color;
+  }
+
+  &__value {
+    display: flex;
+    align-items: baseline;
+  }
+
+  &__number {
+    font-size: 36px;
+    font-weight: bold;
+  }
+
+  &__unit {
+    font-size: 14px;
+    margin-left: 5px;
+  }
+}

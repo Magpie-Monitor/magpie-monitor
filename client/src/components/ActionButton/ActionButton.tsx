@@ -12,8 +12,8 @@ export interface ActionButtonProps {
 }
 
 const actionButtonColorToClass = {
-    [ActionButtonColor.GREEN]: 'action-button--green',
-    [ActionButtonColor.RED]: 'action-button--red',
+  [ActionButtonColor.GREEN]: 'action-button--green',
+  [ActionButtonColor.RED]: 'action-button--red',
 };
 
 const ActionButton = ({ onClick, description, color }: ActionButtonProps) => {
