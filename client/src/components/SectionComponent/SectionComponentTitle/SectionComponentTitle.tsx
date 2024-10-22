@@ -1,5 +1,5 @@
 import React from 'react';
-import './PlaceholderComponentTitle.scss';
+import './SectionComponentTitle.scss';
 
 interface PlaceholderComponentProps {
     source: string;
@@ -7,7 +7,7 @@ interface PlaceholderComponentProps {
     endTime: string;
 }
 
-const PlaceholderComponentTitle: React.FC<PlaceholderComponentProps> =
+const SectionComponentTitle: React.FC<PlaceholderComponentProps> =
     ({source, startTime, endTime}) => {
         return (
             <div className="placeholder-title">
@@ -22,4 +22,4 @@ const PlaceholderComponentTitle: React.FC<PlaceholderComponentProps> =
         );
     };
 
-export default PlaceholderComponentTitle;
+export default SectionComponentTitle;

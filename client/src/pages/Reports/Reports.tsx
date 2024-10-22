@@ -1,5 +1,5 @@
 import './Reports.scss';
-import PlaceholderComponent from '@/components/PlaceholderComponent/PlaceholderComponent.tsx';
+import SectionComponent from '@/components/SectionComponent/SectionComponent.tsx';
 // import Table from '@/components/Table/Table.tsx';
 
 const Reports = () => {
@@ -8,13 +8,13 @@ const Reports = () => {
             <div className="reports__content">
                 <p className="reports__content__heading">Reports</p>
                 <div className="reports__content__dashboard">
-                    <PlaceholderComponent
+                    <SectionComponent
                         icon={'setting-icon'}
                         title={<p> Weekly reports</p>}>
                         <div>
                             {/*<Table></Table>*/}
                         </div>
-                    </PlaceholderComponent>
+                    </SectionComponent>
                 </div>
             </div>
         </div>

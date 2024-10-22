@@ -1,11 +1,9 @@
 import ImportantFindings from './components/ImportantFindings';
-import PlaceholderComponent from '@/components/PlaceholderComponent/PlaceholderComponent.tsx';
+import SectionComponent from '@/components/SectionComponent/SectionComponent.tsx';
 import './Home.scss';
-import PlaceholderComponentTitle
-    from '@/components/PlaceholderComponent/PlaceholderComponentTitle/PlaceholderComponentTitle.tsx';
+import SectionComponentTitle
+    from '@/components/SectionComponent/SectionComponentTitle/SectionComponentTitle.tsx';
 import ScanStats from './components/ScanStats';
-
-//panel name should be aligned to the left of the content
 
 const Home = () => {
     return (
@@ -14,15 +12,15 @@ const Home = () => {
                 <div>
                     <p className="home__content__heading">Dashboard</p>
                     <div>
-                        <PlaceholderComponent
+                        <SectionComponent
                             icon={'setting-icon'}
-                            title={<PlaceholderComponentTitle source="production-services"
+                            title={<SectionComponentTitle source="production-services"
                                                               startTime="19.04.2023" endTime="25.04.2023"/>}>
                             <div>
                                 <ScanStats/>
                                 <ImportantFindings/>
                             </div>
-                        </PlaceholderComponent>
+                        </SectionComponent>
                     </div>
                 </div>
             </div>

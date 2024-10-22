@@ -1,5 +1,5 @@
 import './Settings.scss';
-import PlaceholderComponent from '@/components/PlaceholderComponent/PlaceholderComponent.tsx';
+import SectionComponent from '@/components/SectionComponent/SectionComponent.tsx';
 // import Table from '@/components/Table/Table.tsx';
 
 const Settings = () => {
@@ -8,31 +8,31 @@ const Settings = () => {
             <div className="settings__content">
                 <p className="settings__content__heading">Notification channels</p>
                 <div className="settings__content__dashboard">
-                    <PlaceholderComponent
+                    <SectionComponent
                         icon={'setting-icon'}
                         title={<p> Slack</p>}>
                         <div>
                             {/*<Table></Table>*/}
                         </div>
-                    </PlaceholderComponent>
+                    </SectionComponent>
                 </div>
                 <div className="settings__content__dashboard">
-                    <PlaceholderComponent
+                    <SectionComponent
                         icon={'setting-icon'}
                         title={<p> Discord</p>}>
                         <div>
                             {/*<Table></Table>*/}
                         </div>
-                    </PlaceholderComponent>
+                    </SectionComponent>
                 </div>
                 <div className="settings__content__dashboard">
-                    <PlaceholderComponent
+                    <SectionComponent
                         icon={'setting-icon'}
                         title={<p> Email</p>}>
                         <div>
                             {/*<Table></Table>*/}
                         </div>
-                    </PlaceholderComponent>
+                    </SectionComponent>
                 </div>
             </div>
         </div>
