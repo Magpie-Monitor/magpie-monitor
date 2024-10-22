@@ -1,9 +1,8 @@
-import ImportantFindings from './components/ImportantFindings';
-import SectionComponent from '@/components/SectionComponent/SectionComponent.tsx';
+import ImportantFindings from './components/ImportantFindings/ImportantFindings';
+import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
 import './Home.scss';
-import SectionComponentTitle
-    from '@/components/SectionComponent/SectionComponentTitle/SectionComponentTitle.tsx';
-import ScanStats from './components/ScanStats';
+import LastReportTitle from './components/LastReportTitle/LestReportTitle';
+import ScanStats from './components/ScanStats/ScanStats';
 
 const Home = () => {
     return (
@@ -14,11 +13,17 @@ const Home = () => {
                     <div>
                         <SectionComponent
                             icon={'setting-icon'}
-                            title={<SectionComponentTitle source="production-services"
-                                                              startTime="19.04.2023" endTime="25.04.2023"/>}>
+                            title={
+                                <LastReportTitle
+                                    source="production-services"
+                                    startTime="19.04.2023"
+                                    endTime="25.04.2023"
+                                />
+                            }
+                        >
                             <div>
-                                <ScanStats/>
-                                <ImportantFindings/>
+                                <ScanStats />
+                                <ImportantFindings />
                             </div>
                         </SectionComponent>
                     </div>

@@ -7,8 +7,14 @@ export interface TagButtonProps {
   chosenItem: string;
 }
 
-const TagButton = ({ listItems, chosenItem = listItems[0] }: TagButtonProps) => {
-  const [isOpen, toggle] = useReducer((isOpenToChange) => !isOpenToChange, false);
+const TagButton = ({
+  listItems,
+  chosenItem = listItems[0],
+}: TagButtonProps) => {
+  const [isOpen, toggle] = useReducer(
+    (isOpenToChange) => !isOpenToChange,
+    false,
+  );
   const [selectedOption, setSelectedOption] = useState(chosenItem);
 
   const handleOptionClick = (item: string) => {
@@ -19,8 +25,10 @@ const TagButton = ({ listItems, chosenItem = listItems[0] }: TagButtonProps) => 
   return (
     <div className="tag-button">
       <div className="tag-button__toggle" onClick={toggle}>
-        <div className='tag-button__toggle__description'>{selectedOption}</div>
-        <SVGIcon iconName={isOpen ? 'reverse-drop-down-icon' : 'drop-down-icon'}/>
+        <div className="tag-button__toggle__description">{selectedOption}</div>
+        <SVGIcon
+          iconName={isOpen ? 'reverse-drop-down-icon' : 'drop-down-icon'}
+        />
       </div>
       {isOpen && (
         <ul className="tag-button__menu">

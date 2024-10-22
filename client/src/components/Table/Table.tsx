@@ -58,8 +58,14 @@ function TableBodyRow<Row extends TableRow>({
   return (
     <div className="table__row">
       {columns.map((column: TableColumn<Row>) => (
-        <div key="index" className={'table__cell'} style={getCellRowSpan(columns, alignLeft)}>
-          {column.customComponent ? column.customComponent(row) : row[column.columnKey]}
+        <div
+          key="index"
+          className={'table__cell'}
+          style={getCellRowSpan(columns, alignLeft)}
+        >
+          {column.customComponent
+            ? column.customComponent(row)
+            : row[column.columnKey]}
         </div>
       ))}
     </div>
@@ -78,14 +84,23 @@ function Table<T extends TableRow>({
     <div className="table">
       <div className="table__headers">
         {columns.map((column: TableColumn<T>, index: number) => (
-          <div key={index} className="table__header" style={getCellRowSpan(columns, alignLeft)}>
+          <div
+            key={index}
+            className="table__header"
+            style={getCellRowSpan(columns, alignLeft)}
+          >
             {column.header}
           </div>
         ))}
       </div>
       <div className="table__body" style={tableStyle}>
         {rows.map((row: T, index: number) => (
-          <TableBodyRow key={index} row={row} columns={columns} alignLeft={alignLeft} />
+          <TableBodyRow
+            key={index}
+            row={row}
+            columns={columns}
+            alignLeft={alignLeft}
+          />
         ))}
       </div>
     </div>

@@ -7,12 +7,19 @@ interface PopupProps {
   children: React.ReactNode;
 }
 
-export const Popup = ({ isDisplayed, setIsDisplayed, children }: PopupProps) => {
+export const Popup = ({
+  isDisplayed,
+  setIsDisplayed,
+  children,
+}: PopupProps) => {
   const popupRef = createRef<HTMLDivElement>();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(event.target as Node)
+      ) {
         setIsDisplayed(false);
       }
     };

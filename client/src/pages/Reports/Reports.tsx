@@ -1,5 +1,5 @@
 import './Reports.scss';
-import SectionComponent from '@/components/SectionComponent/SectionComponent.tsx';
+import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
 // import Table from '@/components/Table/Table.tsx';
 
 const Reports = () => {
@@ -10,10 +10,9 @@ const Reports = () => {
                 <div className="reports__content__dashboard">
                     <SectionComponent
                         icon={'setting-icon'}
-                        title={<p> Weekly reports</p>}>
-                        <div>
-                            {/*<Table></Table>*/}
-                        </div>
+                        title={<p> Weekly reports</p>}
+                    >
+                        <div>{/*<Table></Table>*/}</div>
                     </SectionComponent>
                 </div>
             </div>

@@ -1,4 +1,9 @@
-import { Route, createBrowserRouter, createRoutesFromElements, defer } from 'react-router-dom';
+import {
+  Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+  defer,
+} from 'react-router-dom';
 import Login from './Login/Login';
 import { ProtectedLayout } from 'providers/AuthProvider/ProtectedLayout';
 import { AuthLayout } from 'providers/AuthProvider/AuthLayout';
@@ -23,8 +28,8 @@ const router = createBrowserRouter(
       <Route path="/" element={<ProtectedLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Home />} />
-        <Route path="/reports" element={<Reports/>} />
-          <Route path="/settings" element={<Settings/>} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/settings" element={<Settings />} />
       </Route>
     </Route>,
   ),
