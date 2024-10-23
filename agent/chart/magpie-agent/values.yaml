@@ -2,12 +2,12 @@ agent:
   friendlyName: magpie-cloud-dev-cluster
   application:
     enabled: true
-    image: woojciech/agent:latest 
+    image: magpiemonitor/agent
     excludedNamespaces:
       - kube-system
   node:
     enabled: true
-    image: woojciech/agent:latest 
+    image: magpiemonitor/agent 
     files:
       - /var/log/calico/cni/cni.log
       - /var/log/magpie-monitor/journal.log
@@ -20,6 +20,7 @@ agent:
   remoteWrite:
     metadata:
       url: <URL>
+      clientSecret: <SECRET>
     logs:
       url: <URL>
       username: <USERNAME>
