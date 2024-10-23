@@ -121,6 +121,7 @@ services:
           target: /src
     volumes:
       - ${NODE_AGENT_HOST_WATCHED_FILE_PATH:-/log/file}:/var/log/file
+  # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in a dev environment.
   redis:
     container_name: magpie-monitor-redis
     image: redis:7.4-alpine
