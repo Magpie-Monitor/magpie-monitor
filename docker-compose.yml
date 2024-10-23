@@ -137,7 +137,6 @@ services:
       VIRTUAL_PORT: 8081
     depends_on:
       - reports-mongodb
-  # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in a dev environment.
   management-service:
     container_name: magpie-monitor-management-service
     restart: unless-stopped
