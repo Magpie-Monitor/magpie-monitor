@@ -48,7 +48,9 @@
 - "--scrape"
 - "pods"
 - "--podRemoteWriteMetadataUrl"
-- {{ .Values.agent.remoteWrite.metadata.url | quote }}
+- "{{ .Values.agent.remoteWrite.metadata.url }}/v1/metadata/clusters"
+- "--clusterMetadataServiceClientSecret"
+- {{ .Values.agent.remoteWrite.metadata.clientSecret | quote }}
 {{- end -}}
 
 {{- define "agent.pod.excludedNamespaces" }}
@@ -64,7 +66,9 @@
 - "--scrape"
 - "nodes"
 - "--nodeRemoteWriteMetadataUrl"
-- {{ .Values.agent.remoteWrite.metadata.url | quote }}
+- "{{ .Values.agent.remoteWrite.metadata.url }}/v1/metadata/nodes"
+- "--clusterMetadataServiceClientSecret"
+- {{ .Values.agent.remoteWrite.metadata.clientSecret | quote }}
 {{- end -}}
 
 {{- define "agent.node.watchedFiles" }}
