@@ -3,18 +3,102 @@ package openai
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/IBM/fp-go/array"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
+	"go.uber.org/zap"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"strings"
 	"time"
-
-	"github.com/IBM/fp-go/array"
-	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
-	"go.uber.org/zap"
 )
+
+const (
+	API_URL_KEY           = "REPORTS_OPENAI_API_URL"
+	MODEL_KEY             = "REPORTS_OPENAI_API_MODEL"
+	API_KEY               = "REPORTS_OPENAI_API_KEY"
+	BATCH_SIZE_KEY        = "REPORTS_OPENAI_BATCH_SIZE_BYTES"
+	CONTEXT_SIZE_KEY      = "REPORTS_OPENAI_CONTEXT_SIZE_BYTES"
+	MODEL_TEMPERATURE_KEY = "REPORTS_OPENAI_MODEL_TEMPERATURE"
+)
+
+type BatchPoller struct {
+	batches                chan *Batch
+	client                 *Client
+	listeners              []BatchUpdateListener
+	pendingBatchRepository PendingBatchsRepository
+}
+
+type BatchUpdateListener = func(batch *Batch) error
+
+func NewBatchPoller(client *Client, pendingBatchRepository PendingBatchsRepository) *BatchPoller {
+
+	poller := &BatchPoller{
+		batches:                make(chan *Batch),
+		client:                 client,
+		listeners:              []BatchUpdateListener{},
+		pendingBatchRepository: pendingBatchRepository,
+	}
+
+	go poller.Start()
+
+	return poller
+}
+
+func (p *BatchPoller) Start() {
+	for {
+		batchIds, err := p.pendingBatchRepository.GetAll()
+		p.client.logger.Debug("Got batchIds from repository %+v", zap.Any("ids", batchIds))
+
+		if err != nil {
+			p.client.logger.Error("Failed to get pending batches", zap.Error(err))
+			continue
+		}
+
+		for _, batchId := range batchIds {
+			batch, err := p.client.Batch(batchId)
+			p.client.logger.Debug("Got Batch from OpenAi %+v", zap.Any("batch", batch))
+			if err != nil {
+				p.client.logger.Error("Failed to getch batch from OpenAI", zap.Error(err))
+				continue
+			}
+
+			if batch.Status == "completed" {
+				p.client.logger.Debug("Batch from OpenAi has been completed %+v", zap.Any("batch", batch))
+				p.pendingBatchRepository.Remove(batchId)
+			}
+		}
+
+		time.Sleep(100000)
+	}
+}
+
+func (p *BatchPoller) GetBatches(batchIds []string) ([]*Batch, error) {
+	rawBatches, err := p.pendingBatchRepository.GetMany(batchIds)
+	if err != nil {
+		p.client.logger.Error("Failed to fetch pending batches", zap.Error(err), zap.Any("batchIds", batchIds))
+	}
+
+	batches := make([]string, 0, len(batchIds))
+	for _, rawBatch := range rawBatches {
+		batches = append(batches, rawBatch.(string))
+	}
+
+	for _, batch := range batches {
+		if batch == "error" {
+			p.client.logger.Error("Failed fetch a batch", zap.Any("batch", batch))
+			return nil, errors.New(fmt.Sprintf("Failed batch %s", batch))
+		}
+		if batch == "pending" {
+
+		}
+	}
+
+	return []*Batch{}, nil
+}
 
 type Client struct {
 	model   string
