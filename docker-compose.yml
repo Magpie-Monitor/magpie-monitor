@@ -84,6 +84,11 @@ services:
         - action: rebuild
           path: ./go/pkg
           target: /src
+    deploy:
+      resources:
+        limits:
+          cpus: "0.8"
+          memory: 1G
     volumes:
       - es-certs:/usr/local/share
     depends_on:
