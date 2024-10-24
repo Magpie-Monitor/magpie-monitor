@@ -43,6 +43,8 @@ type MetadataService struct {
 	nodeRepo                    *sharedrepo.MongoDbCollection[repositories.NodeState]
 	applicationAggregatedRepo   *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
 	nodeAggregatedRepo          *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
+	clusterStateAggregatedRepo  *sharedrepo.MongoDbCollection[repositories.AggregatedClusterState]
+	nodeStateAggregatedRepo     *sharedrepo.MongoDbCollection[repositories.AggregatedClusterNodesState]
 	eventEmitter                *EventEmitter
 	clusterActivityWindowMillis int64
 }
@@ -333,3 +335,69 @@ func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles
 
 	return nil
 }
+
+// func (m *MetadataService) updateClusterAggregatedState(clusterId string) error {
+// 	// compute latest state
+// 	// compare with current state
+// 	// if diff -> push event
+
+// 	filter := bson.D{
+// 		{Key: "$and", Value: bson.A{
+// 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: time.Now().UnixMilli() - 300_000}}}},
+// 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: time.Now().UnixMilli()}}}},
+// 		}},
+// 	}
+
+// 	appClusterSet, err := m.applicationAggregatedRepo.GetDistinctDocumentFieldValues("clusterId", filter)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	// nodeClusterSet, err := m.nodeRepo.GetDistinctDocumentFieldValues("clusterId", filter)
+// 	// if err != nil {
+// 	// 	return
+// 	// }
+
+// 	latestState, err := m.nodeAggregatedRepo.GetDocument(nil, bson.D{{Key: "collectedAtMs", Value: -1}})
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	if len(appClusterSet) != len(latestState.Metadata) {
+// 		newState := m.createAggregatedClusterState(appClusterSet)
+// 		m.clusterStateAggregatedRepo.InsertDocument(newState)
+// 		return err
+// 	}
+
+// 	clusterSet := make(map[string]struct{}, len(latestState.Metadata))
+// 	for _, metadata := range latestState.Metadata {
+// 		clusterSet[metadata.Name] = struct{}{}
+// 	}
+
+// 	for _, cluster := range appClusterSet {
+// 		_, ok := clusterSet[cluster.(string)]
+// 		if !ok {
+// 			newState := m.createAggregatedClusterState(appClusterSet)
+// 			m.clusterStateAggregatedRepo.InsertDocument(newState)
+// 			return err
+// 		}
+// 	}
+
+// 	return nil
+// }
+
+// func (m *MetadataService) createAggregatedClusterState(clusterSet []interface{}) repositories.AggregatedClusterState {
+// 	state := make([]repositories.ClusterMetadata, len(clusterSet))
+// 	for _, cluster := range clusterSet {
+// 		state = append(state, repositories.ClusterMetadata{Name: cluster.(string), Running: true})
+// 	}
+
+// 	return repositories.AggregatedClusterState{CollectedAtMs: time.Now().UnixMilli(), Metadata: state}
+// }
+
+// func (m *MetadataService) updateClusterNodeMetadataAggregatedState() {
+// compute latest state
+// compare with current state
+// if diff -> push event
+
+// }

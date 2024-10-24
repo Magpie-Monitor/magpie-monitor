@@ -38,6 +38,22 @@ public class MetadataService {
         nodeMetadataRepository.save(nodeMetadata);
     }
 
+    public List<Cluster> getClusters() {
+        return null;
+    }
+
+    public Cluster getClusterById(String clusterId) {
+        return null;
+    }
+
+    public void getClusterNodes(String clusterId) {
+        nodeMetadataRepository.findFirstByClusterIdAndOrderByCollectedAtMs(clusterId);
+    }
+
+    public void getClusterApplications() {
+
+    }
+
     @Deprecated
     public List<ApplicationMetadata> getApplicationMetadata(String clusterName, Long sinceMillis, Long toMillis) {
         String url = String.format("%s/v1/metadata/clusters/%s/applications", METADATA_SERVICE_BASE_URL, clusterName);
