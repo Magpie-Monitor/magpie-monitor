@@ -22,6 +22,14 @@ func NewNodeAggregatedMetadataCollection(log *zap.Logger, client *mongo.Client) 
 	return &repositories.MongoDbCollection[AggregatedNodeMetadata]{Log: log, Db: "METADATA", Col: "AGGREGATED_NODE_METADATA", Client: client}
 }
 
+func NewClusterAggregatedStateCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[AggregatedClusterState] {
+	return &repositories.MongoDbCollection[AggregatedClusterState]{Log: log, Db: "METADATA", Col: "AGGREGATED_CLUSTER_STATE", Client: client}
+}
+
+func NewNodeAggregatedStateCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[AggregatedClusterNodesState] {
+	return &repositories.MongoDbCollection[AggregatedClusterNodesState]{Log: log, Db: "METADATA", Col: "AGGREGATED_NODE_STATE", Client: client}
+}
+
 type AggregatedApplicationMetadata struct {
 	CollectedAtMs int64                 `json:"collectedAtMs" bson:"collectedAtMs"`
 	ClusterId     string                `json:"clusterId" bson:"clusterId"`
@@ -46,7 +54,23 @@ type NodeMetadata struct {
 	Files   []interface{} `json:"files"`
 }
 
+type AggregatedClusterState struct {
+	CollectedAtMs int64
+	Metadata      []ClusterMetadata `json:"metadata"`
+}
+
+type AggregatedClusterNodesState struct {
+	CollectedAtMs int64
+	ClusterId     string                `json:"clusterId"`
+	Metadata      []GenericNodeMetadata `json:"metadata"`
+}
+
 type ClusterMetadata struct {
+	Name    string `json:"name"`
+	Running bool   `json:"running"`
+}
+
+type GenericNodeMetadata struct {
 	Name    string `json:"name"`
 	Running bool   `json:"running"`
 }
