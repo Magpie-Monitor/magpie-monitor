@@ -95,6 +95,12 @@ func main() {
 				repositories.NewMongoDbApplicationIncidentRepository,
 			),
 
+			openai.NewBatchPoller,
+
+			openai.ProvideAsPendingBatchRepository(
+				openai.NewRedisPendingBatchRepository,
+			),
+
 			elasticsearch.NewElasticSearchLogsDbClient,
 			sharedrepositories.ProvideAsNodeLogsRepository(
 				sharedrepositories.NewElasticSearchNodeLogsRepository,
