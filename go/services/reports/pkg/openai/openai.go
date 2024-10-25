@@ -53,7 +53,7 @@ func NewBatchPoller(client *Client, pendingBatchRepository PendingBatchsReposito
 
 func (p *BatchPoller) Start() {
 	for {
-		batchIds, err := p.pendingBatchRepository.GetAll()
+		batchIds, err := p.pendingBatchRepository.GetAllPending()
 		p.client.logger.Debug("Got batchIds from repository %+v", zap.Any("ids", batchIds))
 
 		if err != nil {
@@ -71,7 +71,7 @@ func (p *BatchPoller) Start() {
 
 			if batch.Status == "completed" {
 				p.client.logger.Debug("Batch from OpenAi has been completed %+v", zap.Any("batch", batch))
-				p.pendingBatchRepository.Remove(batchId)
+				p.pendingBatchRepository.CompleteBatch(batchId)
 			}
 		}
 
@@ -79,29 +79,86 @@ func (p *BatchPoller) Start() {
 	}
 }
 
-func (p *BatchPoller) GetBatches(batchIds []string) ([]*Batch, error) {
-	rawBatches, err := p.pendingBatchRepository.GetMany(batchIds)
+func (p *BatchPoller) Batch(batchId string) (*Batch, error) {
+
+	batch, err := p.pendingBatchRepository.GetPendingBatch(batchId)
 	if err != nil {
-		p.client.logger.Error("Failed to fetch pending batches", zap.Error(err), zap.Any("batchIds", batchIds))
+		p.client.logger.Error("Batch is not pending", zap.String("batch", batchId), zap.Error(err))
+		// return nil, err
 	}
 
-	batches := make([]string, 0, len(batchIds))
-	for _, rawBatch := range rawBatches {
-		batches = append(batches, rawBatch.(string))
+	if batch != nil {
+		return batch, nil
 	}
 
-	for _, batch := range batches {
-		if batch == "error" {
-			p.client.logger.Error("Failed fetch a batch", zap.Any("batch", batch))
-			return nil, errors.New(fmt.Sprintf("Failed batch %s", batch))
-		}
-		if batch == "pending" {
+	// If the batch is not pending, then fetch it from OpenAi
+	batch, err = p.client.Batch(batchId)
 
-		}
+	if err != nil {
+		p.client.logger.Error("Failed to fetch completed batch from openai", zap.Error(err), zap.Any("batch", batchId))
+		// p.client.Batch(batchId)
+		return nil, err
 	}
 
-	return []*Batch{}, nil
+	return batch, nil
 }
+
+func (p *BatchPoller) ManyBatches(batchIds []string) (map[string]*Batch, error) {
+
+	batches := make(map[string]*Batch, 0)
+
+	for _, batchId := range batchIds {
+		batch, err := p.Batch(batchId)
+		if err != nil {
+			p.client.logger.Error("Failed to get batch from poller", zap.Error(err), zap.Any("batch", batchId))
+			return nil, err
+		}
+		batches[batchId] = batch
+	}
+
+	return batches, nil
+
+}
+
+func (p *BatchPoller) InsertPendingBatch(batch *Batch) error {
+	if err := p.pendingBatchRepository.AddPendingBatch(batch); err != nil {
+		p.client.logger.Error("Failed to set pending batch", zap.Error(err), zap.Any("batch", batch))
+		return err
+	}
+	return nil
+}
+
+func (p *BatchPoller) InsertPendingBatches(batches []*Batch) error {
+	if err := p.pendingBatchRepository.AddPendingBatches(batches); err != nil {
+		p.client.logger.Error("Failed to set pending batch", zap.Error(err), zap.Any("batches", batches))
+		return err
+	}
+	return nil
+}
+
+// func (p *BatchPoller) GetBatches(batchIds []string) ([]*Batch, error) {
+// 	rawBatches, err := p.pendingBatchRepository.GetMany(batchIds)
+// 	if err != nil {
+// 		p.client.logger.Error("Failed to fetch pending batches", zap.Error(err), zap.Any("batchIds", batchIds))
+// 	}
+//
+// 	batches := make([]string, 0, len(batchIds))
+// 	for _, rawBatch := range rawBatches {
+// 		batches = append(batches, rawBatch.(string))
+// 	}
+//
+// 	for _, batch := range batches {
+// 		if batch == "error" {
+// 			p.client.logger.Error("Failed fetch a batch", zap.Any("batch", batch))
+// 			return nil, errors.New(fmt.Sprintf("Failed batch %s", batch))
+// 		}
+// 		if batch == "pending" {
+//
+// 		}
+// 	}
+//
+// 	return []*Batch{}, nil
+// }
 
 type Client struct {
 	model            string
@@ -367,17 +424,17 @@ type BatchRequestCount struct {
 }
 
 type Batch struct {
-	Id               string            `json:"id"`
-	InputFileId      string            `json:"input_field_id"`
-	CompletionWindow string            `json:"completion_window"`
-	Status           string            `json:"status"`
-	OutputFileId     string            `json:"output_file_id"`
-	CreatedAt        int64             `json:"created_at"`
-	ExpiresAt        int64             `json:"expires_at"`
-	CompletedAt      int64             `json:"completed_at"`
-	FailedAt         int64             `json:"failed_at"`
-	ExpiredAt        int64             `json:"expired_at"`
-	RequestCounts    BatchRequestCount `json:"request_counts"`
+	Id               string            `json:"id" redis:"id"`
+	InputFileId      string            `json:"input_field_id" redis:"input_field_id"`
+	CompletionWindow string            `json:"completion_window" redis:"completion_window"`
+	Status           string            `json:"status" redis:"status"`
+	OutputFileId     string            `json:"output_file_id" redis:"output_file_id"`
+	CreatedAt        int64             `json:"created_at" redis:"created_at"`
+	ExpiresAt        int64             `json:"expires_at" redis:"expires_at"`
+	CompletedAt      int64             `json:"completed_at" redis:"completed_at"`
+	FailedAt         int64             `json:"failed_at" redis:"failed_at"`
+	ExpiredAt        int64             `json:"expired_at" redis:"expired_at"`
+	RequestCounts    BatchRequestCount `json:"request_counts" redis:"request_counts"`
 }
 
 func (c *Client) createBatch(batchParams CreateBatchRequest) (*Batch, error) {

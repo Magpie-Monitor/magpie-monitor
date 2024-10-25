@@ -198,6 +198,9 @@ func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
 	sheduledInsights *ScheduledApplicationInsights,
 ) ([]ApplicationInsightsWithMetadata, error) {
 	batches, err := g.client.Batches(sheduledInsights.ScheduledJobIds)
+
+	// batches, err := g.batchPoller.ManyBatches(sheduledInsights.ScheduledJobIds)
+
 	if err != nil {
 		g.logger.Error("Failed to get batch from id", zap.Error(err))
 		return nil, err
@@ -310,6 +313,11 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 	batchIds := array.Map(func(batch *openai.Batch) string {
 		return batch.Id
 	})(batches)
+
+	if err = g.batchPoller.InsertPendingBatches(batches); err != nil {
+		g.logger.Error("Failed to add pending application batches to poller", zap.Error(err), zap.Any("batches", batches))
+		return nil, err
+	}
 
 	return &ScheduledApplicationInsights{
 		ScheduledJobIds:          batchIds,
