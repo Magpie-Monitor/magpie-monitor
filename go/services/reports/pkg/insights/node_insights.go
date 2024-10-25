@@ -220,6 +220,11 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 		return nil, err
 	}
 
+	if err = g.batchPoller.InsertPendingBatches(batches); err != nil {
+		g.logger.Error("Failed to add pending node batches to poller", zap.Error(err), zap.Any("batches", batches))
+		return nil, err
+	}
+
 	batchIds := array.Map(func(batch *openai.Batch) string {
 		return batch.Id
 	})(batches)

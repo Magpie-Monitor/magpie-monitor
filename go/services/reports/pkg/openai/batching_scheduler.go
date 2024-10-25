@@ -1,12 +1,14 @@
 package openai
 
 import (
+	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/redis"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"os"
-	"strconv"
 )
 
 const (
@@ -16,10 +18,12 @@ const (
 )
 
 type PendingBatchsRepository interface {
-	Add(batchId string) error
-	Remove(batchId string) error
-	GetAll() ([]string, error)
-	GetMany(keys []string) ([]interface{}, error)
+	AddPendingBatch(batch *Batch) error
+	AddPendingBatches(batch []*Batch) error
+	CompleteBatch(batchId string) error
+	// FailBatch(batchId string) error
+	GetAllPending() ([]string, error)
+	GetPendingBatch(id string) (*Batch, error)
 }
 
 type RedisPendingBatchRepository struct {
@@ -54,9 +58,9 @@ func NewRedisPendingBatchRepository(params RedisPendingBatchRepositoryParams) *R
 	}
 }
 
-func (r *RedisPendingBatchRepository) Add(batchId string) error {
+func (r *RedisPendingBatchRepository) AddPendingBatch(batch *Batch) error {
 
-	if err := r.redisClient.Set(batchId, "pending", 1000); err != nil {
+	if err := r.redisClient.HSet(fmt.Sprintf("in_progress:%s", batch.Id), batch); err != nil {
 		r.logger.Error("Failed to add pending batch to repository")
 		return err
 	}
@@ -64,9 +68,21 @@ func (r *RedisPendingBatchRepository) Add(batchId string) error {
 	return nil
 }
 
-func (r *RedisPendingBatchRepository) Remove(batchId string) error {
+func (r *RedisPendingBatchRepository) AddPendingBatches(batches []*Batch) error {
 
-	if err := r.redisClient.Set(batchId, "completed", 1000); err != nil {
+	for _, batch := range batches {
+		if err := r.redisClient.HSet(fmt.Sprintf("in_progress:%s", batch.Id), batch); err != nil {
+			r.logger.Error("Failed to add pending batch to repository")
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *RedisPendingBatchRepository) CompleteBatch(batchId string) error {
+
+	if err := r.redisClient.Del(fmt.Sprintf("in_progress:%s", batchId)); err != nil {
 		r.logger.Error("Failed to remove pending batch to repository")
 		return err
 	}
@@ -74,21 +90,20 @@ func (r *RedisPendingBatchRepository) Remove(batchId string) error {
 	return nil
 }
 
-func (r *RedisPendingBatchRepository) GetAll() ([]string, error) {
+func (r *RedisPendingBatchRepository) GetPendingBatch(batchId string) (*Batch, error) {
 
-	res, err := r.redisClient.GetKeys()
-	if err != nil {
-		r.logger.Error("Failed to remove pending batch to repository")
+	var resultBatch Batch
+	if err := r.redisClient.HGetAll(fmt.Sprintf("in_progress:%s", batchId), &resultBatch); err != nil {
+		r.logger.Error("Failed to get a pending batch")
 		return nil, err
 	}
 
-	return res, nil
+	return &resultBatch, nil
 }
 
-func (r *RedisPendingBatchRepository) GetMany(keys []string) ([]interface{}, error) {
+func (r *RedisPendingBatchRepository) GetAllPending() ([]string, error) {
 
-	res, err := r.redisClient.MGet(keys)
-	r.logger.Debug("Got many entries from pending batch repository %+v", zap.Any("batches", res))
+	res, err := r.redisClient.HKeys("in_progress:*")
 	if err != nil {
 		r.logger.Error("Failed to remove pending batch to repository")
 		return nil, err
