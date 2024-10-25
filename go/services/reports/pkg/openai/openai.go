@@ -2,13 +2,10 @@ package openai
 
 import (
 	"bytes"
+	"encoding"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/IBM/fp-go/array"
-	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
-	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
-	"go.uber.org/zap"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -17,6 +14,11 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/IBM/fp-go/array"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
+	"go.uber.org/zap"
 )
 
 const (
@@ -54,7 +56,7 @@ func NewBatchPoller(client *Client, pendingBatchRepository PendingBatchsReposito
 func (p *BatchPoller) Start() {
 	for {
 		batchIds, err := p.pendingBatchRepository.GetAllPending()
-		p.client.logger.Debug("Got batchIds from repository %+v", zap.Any("ids", batchIds))
+		p.client.logger.Debug("Got batchIds from repository", zap.Any("ids", batchIds))
 
 		if err != nil {
 			p.client.logger.Error("Failed to get pending batches", zap.Error(err))
@@ -63,7 +65,7 @@ func (p *BatchPoller) Start() {
 
 		for _, batchId := range batchIds {
 			batch, err := p.client.Batch(batchId)
-			p.client.logger.Debug("Got Batch from OpenAi %+v", zap.Any("batch", batch))
+			p.client.logger.Sugar().Debugf("Got Batch from OpenAi", zap.Any("batch", batch))
 			if err != nil {
 				p.client.logger.Error("Failed to getch batch from OpenAI", zap.Error(err))
 				continue
@@ -75,7 +77,7 @@ func (p *BatchPoller) Start() {
 			}
 		}
 
-		time.Sleep(100000)
+		time.Sleep(time.Second * 10)
 	}
 }
 
@@ -120,6 +122,55 @@ func (p *BatchPoller) ManyBatches(batchIds []string) (map[string]*Batch, error) 
 
 }
 
+func (p *BatchPoller) AwaitPendingBatches(batchIds []string) ([]*Batch, error) {
+
+	completedBatchesChannel := make(chan *Batch, len(batchIds))
+	errorsChannel := make(chan error, len(batchIds))
+	completedBatches := make([]*Batch, len(batchIds))
+
+	var wg sync.WaitGroup
+
+	for _, batchId := range batchIds {
+		wg.Add(1)
+		go func() {
+			for {
+				defer wg.Done()
+				batch, err := p.Batch(batchId)
+				if err != nil {
+					p.client.logger.Error("Failed to await an openAi batch", zap.Error(err), zap.Any("batchId", batchId))
+					errorsChannel <- err
+					return
+				}
+
+				if batch.Status != "pending" {
+					p.client.logger.Debug("Batch was finished!", zap.Any("batch", batch))
+					completedBatchesChannel <- batch
+					return
+				}
+
+				time.Sleep(100000)
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	close(completedBatchesChannel)
+	close(errorsChannel)
+
+	for err := range errorsChannel {
+		return nil, err
+	}
+
+	for batch := range completedBatchesChannel {
+		// completedBatches[batch.Id] = batch
+		completedBatches = append(completedBatches, batch)
+	}
+
+	return completedBatches, nil
+
+}
+
 func (p *BatchPoller) InsertPendingBatch(batch *Batch) error {
 	if err := p.pendingBatchRepository.AddPendingBatch(batch); err != nil {
 		p.client.logger.Error("Failed to set pending batch", zap.Error(err), zap.Any("batch", batch))
@@ -129,6 +180,7 @@ func (p *BatchPoller) InsertPendingBatch(batch *Batch) error {
 }
 
 func (p *BatchPoller) InsertPendingBatches(batches []*Batch) error {
+	p.client.logger.Info("Batches", zap.Any("batches", batches))
 	if err := p.pendingBatchRepository.AddPendingBatches(batches); err != nil {
 		p.client.logger.Error("Failed to set pending batch", zap.Error(err), zap.Any("batches", batches))
 		return err
@@ -434,7 +486,7 @@ type Batch struct {
 	CompletedAt      int64             `json:"completed_at" redis:"completed_at"`
 	FailedAt         int64             `json:"failed_at" redis:"failed_at"`
 	ExpiredAt        int64             `json:"expired_at" redis:"expired_at"`
-	RequestCounts    BatchRequestCount `json:"request_counts" redis:"request_counts"`
+	RequestCounts    BatchRequestCount `json:"-" redis:"-"`
 }
 
 func (c *Client) createBatch(batchParams CreateBatchRequest) (*Batch, error) {
@@ -801,3 +853,10 @@ func (c *Client) File(id string) ([]byte, error) {
 
 	return respBody, nil
 }
+
+// Implement the BinaryMarshaller interface
+func (b *Batch) MarshalBinary() ([]byte, error) {
+	return json.Marshal(b)
+}
+
+var _ encoding.BinaryMarshaler = &Batch{}

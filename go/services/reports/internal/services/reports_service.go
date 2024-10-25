@@ -43,7 +43,7 @@ type ReportsServerParams struct {
 }
 
 func NewReportsService(p ReportsServerParams) *ReportsService {
-	return &ReportsService{
+	reportsService := &ReportsService{
 		logger:                       p.Logger,
 		reportRepository:             p.ReportRepository,
 		applicationLogsRepository:    p.ApplicationLogsRepository,
@@ -51,6 +51,10 @@ func NewReportsService(p ReportsServerParams) *ReportsService {
 		applicationInsightsGenerator: p.ApplicationInsightsGenerator,
 		nodeInsightsGenerator:        p.NodeInsightsGenerator,
 	}
+
+	go reportsService.PollReports(context.Background())
+
+	return reportsService
 }
 
 func (s *ReportsService) ScheduleReport(
@@ -125,6 +129,109 @@ func (s *ReportsService) ScheduleReport(
 	return report, nil
 }
 
+func (s *ReportsService) PollReports(ctx context.Context) error {
+
+	pendingReports := make(map[string]bool)
+
+	for {
+		reports, err := s.reportRepository.GetPendingReports(ctx)
+		s.logger.Info("Checking pending reports", zap.Any("reports", reports))
+
+		if err != nil {
+			s.logger.Error("Failed to get pending reports", zap.Error(err))
+			continue
+		}
+
+		for _, report := range reports {
+			if isAlreadyPending := pendingReports[report.Id]; isAlreadyPending == true {
+				continue
+			}
+
+			pendingReports[report.Id] = true
+			go func() {
+				applicationInsights, err := s.applicationInsightsGenerator.AwaitScheduledApplicationInsights(report.ScheduledApplicationInsights)
+				if err != nil {
+					s.logger.Error("Failed to await for application insights", zap.Error(err), zap.Any("insights", report.ScheduledApplicationInsights))
+					return
+				}
+				nodeInsights, err := s.nodeInsightsGenerator.AwaitScheduledNodeInsights(report.ScheduledNodeInsights)
+				if err != nil {
+					s.logger.Error("Failed to await for node insights", zap.Error(err), zap.Any("insights", report.ScheduledNodeInsights))
+					return
+				}
+
+				report, err := s.CompletePendingReport(report.Id, applicationInsights, nodeInsights)
+				if err != nil {
+					s.logger.Error("Failed to await for node insights", zap.Error(err), zap.Any("insights", report.ScheduledNodeInsights))
+					return
+				}
+
+				s.logger.Debug("GOT A REPORT!", zap.Any("report", report))
+
+			}()
+		}
+
+		time.Sleep(time.Second * 10)
+	}
+}
+
+func (s *ReportsService) CompletePendingReport(reportId string, applicationInsights []insights.ApplicationInsightsWithMetadata,
+	nodeInsights []insights.NodeInsightsWithMetadata) (*repositories.Report, error) {
+
+	scheduledReport, repoErr := s.reportRepository.GetSingleReport(
+		context.TODO(),
+		reportId,
+	)
+	if repoErr != nil {
+		s.logger.Error("Failed to fetch scheduled report", zap.Error(repoErr))
+		return nil, repoErr
+	}
+
+	applicationReports, err := s.GetApplicationReportsFromInsights(applicationInsights, scheduledReport.ScheduledApplicationInsights.ApplicationConfiguration)
+	if err != nil {
+		s.logger.Error("Failed to build applicatin reports from insights", zap.Error(err))
+		return nil, err
+	}
+
+	nodeReports, err := s.GetNodeReportsFromInsights(nodeInsights, scheduledReport.ScheduledNodeInsights.NodeConfiguration)
+	if err != nil {
+		s.logger.Error("Failed to build applicatin reports from insights", zap.Error(err))
+		return nil, err
+	}
+
+	err = s.reportRepository.InsertNodeIncidents(context.TODO(), nodeReports)
+	if err != nil {
+		s.logger.Error("Failed to insert node incidents")
+		return nil, err
+	}
+
+	err = s.reportRepository.InsertApplicationIncidents(context.TODO(), applicationReports)
+	if err != nil {
+		s.logger.Error("Failed to insert application incidents")
+		return nil, err
+	}
+
+	scheduledReport.ApplicationReports = applicationReports
+	scheduledReport.NodeReports = nodeReports
+	scheduledReport.Status = repositories.ReportState_Generated
+	scheduledReport.Urgency = s.getReportUrgencyFromApplicationAndNodeReports(applicationReports, nodeReports)
+
+	repoErr = s.reportRepository.UpdateReport(context.TODO(), scheduledReport)
+	if repoErr != nil {
+		s.logger.Error("Failed to update a scheduled report", zap.Error(repoErr))
+		return nil, repoErr
+	}
+
+	updatedReport, repoErr := s.reportRepository.GetSingleReport(context.TODO(), scheduledReport.Id)
+	if repoErr != nil {
+		s.logger.Error("Failed to update a scheduled report", zap.Error(repoErr))
+		return nil, repoErr
+	}
+
+	return updatedReport, nil
+}
+
+// TODO: Remove once CompletePendingReport is confirmed to be working as expeted
 func (s *ReportsService) RetrieveScheduledReport(scheduledReportId string) (*repositories.Report, error) {
 
 	scheduledReport, repoErr := s.reportRepository.GetSingleReport(

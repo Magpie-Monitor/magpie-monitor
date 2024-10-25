@@ -60,6 +60,9 @@ func NewRedisPendingBatchRepository(params RedisPendingBatchRepositoryParams) *R
 
 func (r *RedisPendingBatchRepository) AddPendingBatch(batch *Batch) error {
 
+	r.logger.Debug(fmt.Sprintf("in_progress:%s", batch.Id))
+	r.logger.Debug(fmt.Sprintf("batch %+v", batch))
+
 	if err := r.redisClient.HSet(fmt.Sprintf("in_progress:%s", batch.Id), batch); err != nil {
 		r.logger.Error("Failed to add pending batch to repository")
 		return err
@@ -71,6 +74,9 @@ func (r *RedisPendingBatchRepository) AddPendingBatch(batch *Batch) error {
 func (r *RedisPendingBatchRepository) AddPendingBatches(batches []*Batch) error {
 
 	for _, batch := range batches {
+
+		r.logger.Debug(fmt.Sprintf("in_progress:%s", batch.Id))
+		r.logger.Debug(fmt.Sprintf("batch %+v", batch))
 		if err := r.redisClient.HSet(fmt.Sprintf("in_progress:%s", batch.Id), batch); err != nil {
 			r.logger.Error("Failed to add pending batch to repository")
 			return err

@@ -114,6 +114,18 @@ type ReportRepository interface {
 	UpdateReport(ctx context.Context, report *Report) *ReportRepositoryError
 	InsertApplicationIncidents(ctx context.Context, reports []*ApplicationReport) error
 	InsertNodeIncidents(ctx context.Context, reports []*NodeReport) error
+	GetPendingReports(ctx context.Context) ([]*Report, error)
+}
+
+func (r *MongoDbReportRepository) GetPendingReports(ctx context.Context) ([]*Report, error) {
+
+	result, err := r.mongoDbCollection.GetDocuments(primitive.D{{Key: "status", Value: ReportState_AwaitingGeneration}}, primitive.D{})
+	if err != nil {
+		r.logger.Error("Failed to get all pending reports", zap.Error(err))
+		return nil, err
+	}
+
+	return result, nil
 }
 
 type MongoDbReportRepository struct {

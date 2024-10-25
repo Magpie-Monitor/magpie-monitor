@@ -12,7 +12,7 @@ type OpenAiInsightsGenerator struct {
 	logger                    *zap.Logger
 	applicationLogsRepository repositories.ApplicationLogsRepository
 	nodeLogsRepository        repositories.NodeLogsRepository
-	batchPoller               openai.BatchPoller
+	batchPoller               *openai.BatchPoller
 }
 
 type OpenAiInsightsGeneratorParams struct {
@@ -21,7 +21,7 @@ type OpenAiInsightsGeneratorParams struct {
 	Logger                    *zap.Logger
 	ApplicationLogsRepository repositories.ApplicationLogsRepository
 	NodeLogsRepository        repositories.NodeLogsRepository
-	BatchPoller               openai.BatchPoller
+	BatchPoller               *openai.BatchPoller
 }
 
 func NewOpenAiInsightsGenerator(params OpenAiInsightsGeneratorParams) *OpenAiInsightsGenerator {
