@@ -67,6 +67,10 @@ type NodeInsightsGenerator interface {
 	GetScheduledNodeInsights(
 		sheduledInsights *ScheduledNodeInsights,
 	) ([]NodeInsightsWithMetadata, error)
+
+	AwaitScheduledNodeInsights(
+		sheduledInsights *ScheduledNodeInsights,
+	) ([]NodeInsightsWithMetadata, error)
 }
 
 type nodeInsightsResponseDto struct {
@@ -280,11 +284,47 @@ func (g *OpenAiInsightsGenerator) createMessagesFromNodeLogs(
 	return messages, nil
 }
 
+// TODO: Remove once the AwaitScheduledNodeInsights is working
 func (g *OpenAiInsightsGenerator) GetScheduledNodeInsights(
 	sheduledInsights *ScheduledNodeInsights,
 ) ([]NodeInsightsWithMetadata, error) {
 
 	batches, err := g.client.Batches(sheduledInsights.ScheduledJobIds)
+	if err != nil {
+		g.logger.Error("Failed to get batch from id", zap.Error(err))
+		return nil, err
+	}
+
+	completionResponses, err := g.client.CompletionResponseEntriesFromBatches(batches)
+	if err != nil {
+		g.logger.Error("Failed to get node batch completion responses", zap.Error(err))
+		return nil, err
+	}
+
+	insightLogs, err := g.nodeLogsRepository.
+		GetLogs(context.TODO(), sheduledInsights.ClusterId,
+			time.UnixMilli(sheduledInsights.SinceMs),
+			time.UnixMilli(sheduledInsights.ToMs))
+
+	if err != nil {
+		g.logger.Error("Failed to get application logs for scheduled insight")
+		return nil, err
+	}
+
+	insights, err := g.getNodeInsightsFromBatchEntries(completionResponses, insightLogs)
+	if err != nil {
+		g.logger.Error("Failed to transform batch entries into node insights")
+		return nil, err
+	}
+
+	return insights, nil
+}
+
+func (g *OpenAiInsightsGenerator) AwaitScheduledNodeInsights(
+	sheduledInsights *ScheduledNodeInsights,
+) ([]NodeInsightsWithMetadata, error) {
+
+	batches, err := g.batchPoller.AwaitPendingBatches(sheduledInsights.ScheduledJobIds)
 	if err != nil {
 		g.logger.Error("Failed to get batch from id", zap.Error(err))
 		return nil, err
