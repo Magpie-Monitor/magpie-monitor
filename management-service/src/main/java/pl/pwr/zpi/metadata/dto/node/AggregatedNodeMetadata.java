@@ -1,4 +1,4 @@
-package pl.pwr.zpi.metadata.messaging.event.node;
+package pl.pwr.zpi.metadata.dto.node;
 
 import java.util.List;
 
