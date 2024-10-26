@@ -1,7 +1,6 @@
 @import '/src/variables.scss';
 
 .svg-icon {
-  background-color: $navbar-text-color;
   width: 35px;
   height: 35px;
 }
@@ -9,21 +8,43 @@
 .dashboard-icon {
   @extend .svg-icon;
   mask: url('/src/assets/dashboard_icon.svg') no-repeat center;
+  .svg-icon {
+    background-color: $navbar-text-color;
+  }
 }
 
 .reports-icon {
   @extend .svg-icon;
   mask: url('/src/assets/reports_icon.svg') no-repeat center;
+  .svg-icon {
+    background-color: $navbar-text-color;
+  }
 }
 
 .sign-out-icon {
   @extend .svg-icon;
   mask: url('/src/assets/sign_out_icon.svg') no-repeat center;
+  .svg-icon {
+    background-color: $navbar-text-color;
+  }
 }
 
 .setting-icon {
   @extend .svg-icon;
-  mask: url('/src/assets/settings_icon.svg') no-repeat center;
+  mask: url('/src/assets/settings-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $navbar-text-color;
+  }
+}
+
+.chart-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/chart-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $green;
+  }
 }
 
 .drop-down-icon {
@@ -46,6 +67,13 @@
   @extend .svg-icon;
   background-color: $component-border-color;
   mask: url('/src/assets/plus-icon.svg') no-repeat center;
+
+  .svg-icon {
+    transition: fill 0.3s ease;
+    &:hover {
+      background-color: $green;
+    }
+  }
 }
 
 .notification-icon {
