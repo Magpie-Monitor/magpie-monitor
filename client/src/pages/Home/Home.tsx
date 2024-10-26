@@ -12,7 +12,7 @@ const Home = () => {
           <p className="home__content__heading">Dashboard</p>
           <div>
             <SectionComponent
-              icon={'setting-icon'}
+              icon={'chart-icon'}
               title={
                 <LastReportTitle
                   source="production-services"

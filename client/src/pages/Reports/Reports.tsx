@@ -1,9 +1,9 @@
 import './Reports.scss';
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
-import Table, {TableColumn} from 'components/Table/Table.tsx';
-import {useEffect, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
-import {ManagmentServiceApiInstance, ReportSummary} from 'api/managment-service';
+import Table, { TableColumn } from 'components/Table/Table.tsx';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ManagmentServiceApiInstance, ReportSummary } from 'api/managment-service';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import UrgencyBadge from 'components/UrgencyBadge/UrgencyBadge.tsx';
 
@@ -16,7 +16,11 @@ const Reports = () => {
         navigate(`/reports/${id}`);
     };
 
-    const columns: Array<TableColumn<ReportSummary>>  = [
+    const handleAddNewReport = () => {
+        navigate('/reports/new');
+    };
+
+    const columns: Array<TableColumn<ReportSummary>> = [
         {
             header: 'Cluster',
             columnKey: 'clusterId',
@@ -26,14 +30,14 @@ const Reports = () => {
                 </a>
             )
         },
-        {header: 'Title', columnKey: 'title'},
+        { header: 'Title', columnKey: 'title' },
         {
             header: 'Urgency',
             columnKey: 'urgency',
-            customComponent: (row: ReportSummary) => <UrgencyBadge label={row.urgency}/>
+            customComponent: (row: ReportSummary) => <UrgencyBadge label={row.urgency} />
         },
-        {header: 'Start date', columnKey: 'startDate'},
-        {header: 'End date', columnKey: 'endDate'}
+        { header: 'Start date', columnKey: 'startDate' },
+        { header: 'End date', columnKey: 'endDate' }
     ];
 
     const fetchReports = async () => {
@@ -61,13 +65,14 @@ const Reports = () => {
             <div className="reports__content">
                 <div>
                     <div className='reports__content__heading'>
-                        <SVGIcon iconName='reports-list-icon'/>
+                        <SVGIcon iconName='reports-list-icon' />
                         <p className="reports__content__heading__paragraph">Reports</p>
                     </div>
                     <div className="reports__content__dashboard">
                         <SectionComponent
-                            icon={'setting-icon'}
+                            icon={'chart-icon'}
                             title={'Weekly reports'}
+                            callback={handleAddNewReport}
                         >
                             <div className="reports__content__dashboard__content">
                                 {loading ? (
@@ -79,7 +84,8 @@ const Reports = () => {
                                         columns={columns}
                                         rows={rows}
                                     />
-                                )}</div>
+                                )}
+                            </div>
                         </SectionComponent>
                     </div>
                 </div>
