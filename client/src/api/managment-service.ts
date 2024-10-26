@@ -20,8 +20,11 @@ export interface ReportSummary {
 }
 
 const MANAGMENT_SERVICE_URL = import.meta.env.VITE_BACKEND_URL;
-const VALID_URGENCY_VALUES: ReportSummary['urgency'][] = ['HIGH', 'MEDIUM', 'LOW'];
-
+const VALID_URGENCY_VALUES: ReportSummary['urgency'][] = [
+  'HIGH',
+  'MEDIUM',
+  'LOW',
+];
 
 class ManagmentServiceApi {
   private axiosInstance: AxiosInstance;
@@ -96,7 +99,9 @@ class ManagmentServiceApi {
     const reports: ReportSummary[] = response.data;
     reports.forEach((report) => {
       if (!VALID_URGENCY_VALUES.includes(report.urgency)) {
-        throw new Error(`Invalid urgency value "${report.urgency}" for report ID ${report.id}. Allowed values are: ${VALID_URGENCY_VALUES.join(', ')}`);
+        throw new Error(
+          `Invalid urgency value "${report.urgency}" for report ID ${report.id}. Allowed values are: ${VALID_URGENCY_VALUES.join(', ')}`,
+        );
       }
     });
 

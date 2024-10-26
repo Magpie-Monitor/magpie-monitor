@@ -1,9 +1,11 @@
 package openai
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/redis"
@@ -107,15 +109,36 @@ func (r *RedisPendingBatchRepository) GetPendingBatch(batchId string) (*Batch, e
 	return &resultBatch, nil
 }
 
+func (r *RedisPendingBatchRepository) getBatchIdFromKey(key string) (string, error) {
+	parts := strings.Split(key, ":")
+	if len(parts) < 2 {
+		return "", errors.New("Incorrect key (missing key type or separator :)")
+	}
+
+	return parts[1], nil
+}
+
 func (r *RedisPendingBatchRepository) GetAllPending() ([]string, error) {
 
-	res, err := r.redisClient.HKeys("in_progress:*")
+	keys, err := r.redisClient.Keys("in_progress:*")
 	if err != nil {
 		r.logger.Error("Failed to remove pending batch to repository")
 		return nil, err
 	}
 
-	return res, nil
+	batchIds := make([]string, 0, len(keys))
+
+	for _, key := range keys {
+		batchId, err := r.getBatchIdFromKey(key)
+		if err != nil {
+			r.logger.Error("Failed to get pending batch key", zap.Error(err), zap.Any("batchId", batchId))
+			return nil, err
+		}
+
+		batchIds = append(batchIds, batchId)
+	}
+
+	return batchIds, nil
 }
 
 func ProvideAsPendingBatchRepository(f any) any {

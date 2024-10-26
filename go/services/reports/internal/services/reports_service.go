@@ -89,6 +89,8 @@ func (s *ReportsService) ScheduleReport(
 		return nil, err
 	}
 
+	s.logger.Debug("logs", zap.Any("logs", applicationLogs))
+
 	applicationInsights, err := s.applicationInsightsGenerator.ScheduleApplicationInsights(
 		applicationLogs,
 		params.ApplicationConfiguration, time.Now(),
@@ -135,7 +137,7 @@ func (s *ReportsService) PollReports(ctx context.Context) error {
 
 	for {
 		reports, err := s.reportRepository.GetPendingReports(ctx)
-		s.logger.Info("Checking pending reports", zap.Any("reports", reports))
+		// s.logger.Info("Checking pending reports", zap.Any("reports", reports))
 
 		if err != nil {
 			s.logger.Error("Failed to get pending reports", zap.Error(err))
@@ -149,11 +151,15 @@ func (s *ReportsService) PollReports(ctx context.Context) error {
 
 			pendingReports[report.Id] = true
 			go func() {
+
+				s.logger.Info("Checking pending reports", zap.Any("report", report))
 				applicationInsights, err := s.applicationInsightsGenerator.AwaitScheduledApplicationInsights(report.ScheduledApplicationInsights)
 				if err != nil {
 					s.logger.Error("Failed to await for application insights", zap.Error(err), zap.Any("insights", report.ScheduledApplicationInsights))
 					return
 				}
+
+				s.logger.Info("Got application insights", zap.Any("ins", applicationInsights))
 				nodeInsights, err := s.nodeInsightsGenerator.AwaitScheduledNodeInsights(report.ScheduledNodeInsights)
 				if err != nil {
 					s.logger.Error("Failed to await for node insights", zap.Error(err), zap.Any("insights", report.ScheduledNodeInsights))
@@ -165,6 +171,8 @@ func (s *ReportsService) PollReports(ctx context.Context) error {
 					s.logger.Error("Failed to await for node insights", zap.Error(err), zap.Any("insights", report.ScheduledNodeInsights))
 					return
 				}
+
+				s.logger.Info("Completed Report", zap.Any("ins", report))
 
 				s.logger.Debug("GOT A REPORT!", zap.Any("report", report))
 

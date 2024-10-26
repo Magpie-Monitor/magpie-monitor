@@ -65,7 +65,8 @@ func (p *BatchPoller) Start() {
 
 		for _, batchId := range batchIds {
 			batch, err := p.client.Batch(batchId)
-			p.client.logger.Sugar().Debugf("Got Batch from OpenAi", zap.Any("batch", batch))
+			p.client.logger.Debug("Got Batch from OpenAi", zap.Any("batch", batch), zap.Any("batchId", batchId))
+
 			if err != nil {
 				p.client.logger.Error("Failed to getch batch from OpenAI", zap.Error(err))
 				continue
@@ -74,10 +75,12 @@ func (p *BatchPoller) Start() {
 			if batch.Status == "completed" {
 				p.client.logger.Debug("Batch from OpenAi has been completed %+v", zap.Any("batch", batch))
 				p.pendingBatchRepository.CompleteBatch(batchId)
+				// return
 			}
 		}
 
-		time.Sleep(time.Second * 10)
+		p.client.logger.Debug("All batches", zap.Any("batches", batchIds))
+		time.Sleep(time.Second * 60)
 	}
 }
 
@@ -86,8 +89,10 @@ func (p *BatchPoller) Batch(batchId string) (*Batch, error) {
 	batch, err := p.pendingBatchRepository.GetPendingBatch(batchId)
 	if err != nil {
 		p.client.logger.Error("Batch is not pending", zap.String("batch", batchId), zap.Error(err))
-		// return nil, err
+		return nil, err
 	}
+
+	// p.client.logger.Debug("Polling batch", zap.Any("Fetched batch", batch))
 
 	if batch != nil {
 		return batch, nil
@@ -98,7 +103,6 @@ func (p *BatchPoller) Batch(batchId string) (*Batch, error) {
 
 	if err != nil {
 		p.client.logger.Error("Failed to fetch completed batch from openai", zap.Error(err), zap.Any("batch", batchId))
-		// p.client.Batch(batchId)
 		return nil, err
 	}
 
@@ -124,9 +128,10 @@ func (p *BatchPoller) ManyBatches(batchIds []string) (map[string]*Batch, error) 
 
 func (p *BatchPoller) AwaitPendingBatches(batchIds []string) ([]*Batch, error) {
 
+	p.client.logger.Debug("Awaiting batchIds", zap.Any("ids", batchIds))
 	completedBatchesChannel := make(chan *Batch, len(batchIds))
 	errorsChannel := make(chan error, len(batchIds))
-	completedBatches := make([]*Batch, len(batchIds))
+	completedBatches := make([]*Batch, 0, len(batchIds))
 
 	var wg sync.WaitGroup
 
@@ -142,13 +147,13 @@ func (p *BatchPoller) AwaitPendingBatches(batchIds []string) ([]*Batch, error) {
 					return
 				}
 
-				if batch.Status != "pending" {
+				if batch.Status == "completed" {
 					p.client.logger.Debug("Batch was finished!", zap.Any("batch", batch))
 					completedBatchesChannel <- batch
 					return
 				}
 
-				time.Sleep(100000)
+				time.Sleep(time.Second * 60)
 			}
 		}()
 	}
@@ -530,7 +535,7 @@ func (c *Client) createBatch(batchParams CreateBatchRequest) (*Batch, error) {
 	var decodedResponse Batch
 	err = json.Unmarshal(respBody, &decodedResponse)
 	if err != nil {
-		c.logger.Error("Failed to decode batch response", zap.Error(err))
+		c.logger.Error("Failed to decode batch response", zap.Error(err), zap.Any("body", respBody))
 		return nil, err
 	}
 
@@ -545,6 +550,8 @@ func (c *Client) UploadAndCreateBatches(completionRequests []*CompletionRequest)
 		c.logger.Error("Failed to split completion requests by batch", zap.Error(err))
 		return nil, err
 	}
+
+	// c.logger.Debug("Creating requests", zap.Any("requests", completionRequests))
 
 	batches, batchErrors := parallelRequest(requestsByBatch, func(requests []*CompletionRequest) (*Batch, error) {
 
@@ -561,6 +568,8 @@ func (c *Client) UploadAndCreateBatches(completionRequests []*CompletionRequest)
 		return nil, errors.Join(batchErrors...)
 	}
 
+	c.logger.Debug("Creating batches", zap.Any("batches", batches))
+
 	return batches, nil
 }
 
@@ -569,6 +578,10 @@ func (c *Client) splitCompletionReqestsByBatchSize(completionRequests []*Complet
 	var requestPackets [][]*CompletionRequest
 	var lastPacket []*CompletionRequest
 	var lastPacketSize = 0
+
+	if len(completionRequests) == 0 {
+		return requestPackets, nil
+	}
 
 	for _, request := range completionRequests {
 
@@ -590,7 +603,7 @@ func (c *Client) splitCompletionReqestsByBatchSize(completionRequests []*Complet
 		}
 
 	}
-	requestPackets = append(requestPackets, lastPacket)
+
 	return requestPackets, nil
 }
 
@@ -734,7 +747,7 @@ func (c *Client) Batch(id string) (*Batch, error) {
 	var decodedResponse Batch
 	err = json.Unmarshal(respBody, &decodedResponse)
 	if err != nil {
-		c.logger.Error("Failed to decode batch response", zap.Error(err))
+		c.logger.Error("Failed to decode batch response", zap.Error(err), zap.Any("body", respBody))
 		return nil, err
 	}
 
@@ -760,6 +773,9 @@ func (c *Client) CompletionResponseEntriesFromBatch(batch *Batch) ([]*BatchFileC
 }
 
 func (c *Client) CompletionResponseEntriesFromBatches(batches []*Batch) ([]*BatchFileCompletionResponseEntry, error) {
+
+	c.logger.Debug("Reponse batches", zap.Any("batches", batches))
+
 	allResponses, err := parallelRequest(batches, func(batch *Batch) ([]*BatchFileCompletionResponseEntry, error) {
 		responseEntries, err := c.CompletionResponseEntriesFromBatch(batch)
 		if err != nil {

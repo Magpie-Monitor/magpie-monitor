@@ -25,6 +25,7 @@ func SplitLogsIntoPackets[T Log](logs []T, maxPacketSize int) [][]T {
 		}
 
 	}
+
 	logsPackets = append(logsPackets, currentPacket)
 
 	return logsPackets
