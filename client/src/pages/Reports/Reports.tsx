@@ -1,9 +1,9 @@
 import './Reports.scss';
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
 import Table from 'components/Table/Table.tsx';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ManagmentServiceApiInstance, ReportSummary } from 'api/managment-service';
+import {useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {ManagmentServiceApiInstance, ReportSummary} from 'api/managment-service';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import UrgencyBadge from 'components/UrgencyBadge/UrgencyBadge.tsx';
 
@@ -26,14 +26,14 @@ const Reports = () => {
                 </a>
             )
         },
-        { header: 'Title', columnKey: 'title' },
+        {header: 'Title', columnKey: 'title'},
         {
             header: 'Urgency',
             columnKey: 'urgency',
-            customComponent: (row: ReportSummary) => <UrgencyBadge label={row.urgency} />
+            customComponent: (row: ReportSummary) => <UrgencyBadge label={row.urgency}/>
         },
-        { header: 'Start date', columnKey: 'startDate' },
-        { header: 'End date', columnKey: 'endDate' }
+        {header: 'Start date', columnKey: 'startDate'},
+        {header: 'End date', columnKey: 'endDate'}
     ];
 
     const fetchReports = async () => {
@@ -61,7 +61,7 @@ const Reports = () => {
             <div className="reports__content">
                 <div>
                     <div className='reports__content__heading'>
-                        <SVGIcon iconName='reports-list-icon' />
+                        <SVGIcon iconName='reports-list-icon'/>
                         <p className="reports__content__heading__paragraph">Reports</p>
                     </div>
                     <div className="reports__content__dashboard">
@@ -69,15 +69,18 @@ const Reports = () => {
                             icon={'setting-icon'}
                             title={'Weekly reports'}
                         >
-                            {loading ? (
-                                <p>Loading...</p>
-                            ) : (
-                                <Table
-                                    columns={columns}
-                                    rows={rows}
-                                    maxHeight="400px"
-                                />
-                            )}
+                            <div className="reports__content__dashboard__content">
+                                {loading ? (
+                                    <p>Loading...</p>
+                                ) : rows.length === 0 ? (
+                                    <p className="reports__content__dashboard__content__paragraph">No reports. Generate new report (TBA: link)</p>
+                                ) : (
+                                    <Table
+                                        columns={columns}
+                                        rows={rows}
+                                        maxHeight="400px"
+                                    />
+                                )}</div>
                         </SectionComponent>
                     </div>
                 </div>

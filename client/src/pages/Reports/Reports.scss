@@ -36,7 +36,16 @@
     }
 
     &__dashboard {
+      &__content{
+        min-width: 900px;
 
+        @media (max-width: $md) {
+          width: 300px;
+        }
+        &__paragraph {
+          text-align: center;
+        }
+      }
       .svg-icon {
         background-color: $green;
       }
