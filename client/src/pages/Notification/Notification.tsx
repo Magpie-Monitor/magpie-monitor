@@ -6,7 +6,6 @@ import './Notification.scss';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import {
   NotificationContext,
-  NotificationsChannel,
 } from 'pages/Notification/NotificationContext';
 
 const slackNotificationTableRow: WebhookTableRowProps[] = [
@@ -48,32 +47,7 @@ const mailNotificationTableRow: EmailTableRowProps[] = [
 ];
 
 const Notification = () => {
-  const showUpdate = (
-    channel: NotificationsChannel,
-    adress: string,
-    linkName: string,
-    destination: string,
-    createdAt: string,
-    updateAt: string,
-  ) => {
-    const showUpdateSlack = () => {};
-
-    const showUpdateDiscord = () => {};
-
-    const showUpdateEmail = () => {};
-
-    switch (channel) {
-      case 'SLACK':
-        showUpdateSlack();
-        return;
-      case 'DISCORD':
-        showUpdateDiscord();
-        return;
-      case 'EMAIL':
-        showUpdateEmail();
-        return;
-    }
-  };
+  const showUpdate = () => {};
 
   return (
     <NotificationContext.Provider value={showUpdate}>
