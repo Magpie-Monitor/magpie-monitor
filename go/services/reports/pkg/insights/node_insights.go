@@ -218,6 +218,7 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 
 	}
 
+	g.logger.Error("Node completion requests", zap.Any("requets", completionRequests))
 	batches, err := g.client.UploadAndCreateBatches(completionRequests)
 	if err != nil {
 		g.logger.Error("Failed to create a batch", zap.Error(err))

@@ -322,6 +322,8 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 
 		logPackets := repositories.SplitLogsIntoPackets(logs, g.client.ContextSizeBytes)
 
+		g.logger.Debug("Packets", zap.Any("packets", logPackets))
+
 		for _, logPacket := range logPackets {
 			messages, err := g.createMessagesFromApplicationLogs(
 				logPacket,

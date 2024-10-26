@@ -3,7 +3,6 @@ package redis
 import (
 	"context"
 	"encoding/json"
-	// "encoding"
 	"log"
 	"time"
 
@@ -38,17 +37,13 @@ func (r *Redis) Set(key, value string, ttl int) error {
 }
 
 func (r *Redis) Get(key string) string {
-	// r.client.Keys()
 	return r.client.Get(context.Background(), key).Val()
 }
 
-func (r *Redis) HKeys(pattern string) ([]string, error) {
-	return r.client.HKeys(context.Background(), pattern).Result()
+func (r *Redis) Keys(pattern string) ([]string, error) {
+	return r.client.Keys(context.Background(), pattern).Result()
 }
 
-//	func (r *Redis) HDel(key string) error {
-//		return r.client.HDel()
-//	}
 func (r *Redis) Del(key string) error {
 	cmd := r.client.Del(context.Background(), key)
 	return cmd.Err()
