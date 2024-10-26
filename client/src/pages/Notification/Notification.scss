@@ -1,0 +1,34 @@
+@import '@/variables';
+
+.notification {
+  height: 100vh;
+  width: 100%;
+  overflow-y: scroll;
+  flex-grow: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+
+  &__header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 1.7rem;
+
+    .svg-icon {
+      background-color: $green;
+    }
+
+    &__description {
+      margin-left: 0.5rem;
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    gap: 2rem;
+  }
+}

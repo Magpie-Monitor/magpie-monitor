@@ -1,0 +1,23 @@
+@import '@/variables';
+
+.hidden-webhook {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  &__url {
+    text-align: center;
+  }
+
+  &__button {
+    background-color: transparent;
+    width: 35px;
+    height: 35px;
+
+    &:hover {
+      .svg-icon {
+        background-color: $green;
+      }
+    }
+  }
+}

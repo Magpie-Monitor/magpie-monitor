@@ -1,0 +1,9 @@
+@import '/src/variables.scss';
+
+.notification-link-name {
+  color: $green;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
