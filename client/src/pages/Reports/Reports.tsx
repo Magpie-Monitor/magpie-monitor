@@ -41,8 +41,8 @@ const Reports = () => {
             const reports = await ManagmentServiceApiInstance.getReports();
             const mappedReports = reports.map((report: ReportSummary) => ({
                 ...report,
-                startDate: new Date(report.sinceMs / 1e6).toLocaleString(),
-                endDate: new Date(report.toMs / 1e6).toLocaleString(),
+                startDate: new Date(report.sinceMs).toLocaleString(),
+                endDate: new Date(report.toMs).toLocaleString(),
             }));
             setRows(mappedReports);
         } catch (error) {
