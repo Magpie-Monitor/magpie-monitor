@@ -247,13 +247,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
   management-mongo-express:
     container_name: magpie-monitor-management-service-mongo-express
     image: mongo-express
     ports:
       - 8079:8081
     environment:
-      ME_CONFIG_MONGODB_SERVER: magpie-monitor-management-service-mongodb:27017
+      ME_CONFIG_MONGODB_SERVER: magpie-monitor-management-service-mongodb
       ME_CONFIG_BASICAUTH_USERNAME: mongo
       ME_CONFIG_BASICAUTH_PASSWORD: mongo
       ME_CONFIG_MONGODB_ADMINPASSWORD: mongo

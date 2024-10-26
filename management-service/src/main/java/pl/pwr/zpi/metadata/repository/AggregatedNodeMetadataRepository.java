@@ -1,10 +1,10 @@
 package pl.pwr.zpi.metadata.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
-import pl.pwr.zpi.metadata.messaging.event.node.AggregatedNodeMetadata;
+import pl.pwr.zpi.metadata.dto.node.AggregatedNodeMetadata;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface AggregatedNodeMetadataRepository extends MongoRepository<AggregatedNodeMetadata, String> {
-    List<AggregatedNodeMetadata> findFirstByClusterIdAndOrderByCollectedAtMs(String clusterId);
+    Optional<AggregatedNodeMetadata> findFirstByClusterIdOrderByCollectedAtMs(String clusterId);
 }
