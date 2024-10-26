@@ -71,7 +71,7 @@ const Reports = () => {
                         >
                             <div className="reports__content__dashboard__content">
                                 {loading ? (
-                                    <p>Loading...</p>
+                                    <p className="reports__content__dashboard__content__paragraph">Loading...</p>
                                 ) : rows.length === 0 ? (
                                     <p className="reports__content__dashboard__content__paragraph">No reports. Generate new report (TBA: link)</p>
                                 ) : (
