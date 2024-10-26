@@ -27,13 +27,15 @@
   }
 
   &__title {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 22px;
+    margin: 0;
+    font-weight: 400;
   }
 
   &__divider {
     height: 1px;
     background-color: $component-border-color;
+    margin-bottom: 15px;
   }
 
   &__content {

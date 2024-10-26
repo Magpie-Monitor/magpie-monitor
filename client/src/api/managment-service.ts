@@ -9,6 +9,16 @@ interface TokenInfo {
   expTime: number;
 }
 
+export interface ReportSummary {
+  id: string;
+  clusterId: string;
+  title: string;
+  urgency: string;
+  sinceMs: number;
+  toMs: number;
+}
+
+
 const MANAGMENT_SERVICE_URL = import.meta.env.VITE_BACKEND_URL;
 
 class ManagmentServiceApi {
@@ -59,6 +69,12 @@ class ManagmentServiceApi {
     await this.refreshTokenIfExpired();
     const user = await this.axiosInstance.get('/api/v1/auth/user-details');
     return user.data;
+  }
+
+  public async getReports(): Promise<ReportSummary[]> {
+    await this.refreshTokenIfExpired();
+    const response = await this.axiosInstance.get('/api/v1/reports');
+    return response.data;
   }
 }
 

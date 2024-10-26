@@ -1,19 +1,85 @@
 import './Reports.scss';
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
-// import Table from '@/components/Table/Table.tsx';
+import Table from 'components/Table/Table.tsx';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ManagmentServiceApiInstance, ReportSummary } from 'api/managment-service';
+import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
+import UrgencyBadge from 'components/UrgencyBadge/UrgencyBadge.tsx';
 
 const Reports = () => {
+    const [rows, setRows] = useState<ReportSummary[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const navigate = useNavigate();
+
+    const handleRowClick = (id: string) => {
+        navigate(`/reports/${id}`);
+    };
+
+    const columns = [
+        {
+            header: 'Cluster',
+            columnKey: 'clusterId',
+            customComponent: (row: ReportSummary) => (
+                <a className='reports__content__link' href="#" onClick={() => handleRowClick(row.id)}>
+                    {row.clusterId}
+                </a>
+            )
+        },
+        { header: 'Title', columnKey: 'title' },
+        {
+            header: 'Urgency',
+            columnKey: 'urgency',
+            customComponent: (row: ReportSummary) => <UrgencyBadge label={row.urgency} />
+        },
+        { header: 'Start date', columnKey: 'startDate' },
+        { header: 'End date', columnKey: 'endDate' }
+    ];
+
+    const fetchReports = async () => {
+        try {
+            const reports = await ManagmentServiceApiInstance.getReports();
+            const mappedReports = reports.map((report: ReportSummary) => ({
+                ...report,
+                startDate: new Date(report.sinceMs / 1e6).toLocaleString(),
+                endDate: new Date(report.toMs / 1e6).toLocaleString(),
+            }));
+            setRows(mappedReports);
+        } catch (error) {
+            console.error('Error fetching reports:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchReports();
+    }, []);
+
     return (
         <div className="reports">
             <div className="reports__content">
-                <p className="reports__content__heading">Reports</p>
-                <div className="reports__content__dashboard">
-                    <SectionComponent
-                        icon={'setting-icon'}
-                        title={<p> Weekly reports</p>}
-                    >
-                        <div>{/*<Table></Table>*/}</div>
-                    </SectionComponent>
+                <div>
+                    <div className='reports__content__heading'>
+                        <SVGIcon iconName='reports-list-icon' />
+                        <p className="reports__content__heading__paragraph">Reports</p>
+                    </div>
+                    <div className="reports__content__dashboard">
+                        <SectionComponent
+                            icon={'setting-icon'}
+                            title={'Weekly reports'}
+                        >
+                            {loading ? (
+                                <p>Loading...</p>
+                            ) : (
+                                <Table
+                                    columns={columns}
+                                    rows={rows}
+                                    maxHeight="400px"
+                                />
+                            )}
+                        </SectionComponent>
+                    </div>
                 </div>
             </div>
         </div>

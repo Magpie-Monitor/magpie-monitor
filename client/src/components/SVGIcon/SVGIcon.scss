@@ -36,3 +36,8 @@
   transform: rotate(180deg);
   mask: url('/src/assets/drop-down-icon.svg') no-repeat center;
 }
+
+.reports-list-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/reports_list_icon.svg') no-repeat center;
+}
