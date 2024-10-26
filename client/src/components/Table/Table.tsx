@@ -57,9 +57,9 @@ function TableBodyRow<Row extends TableRow>({
 }: TableRowProps<Row>): React.ReactNode {
   return (
     <div className="table__row">
-      {columns.map((column: TableColumn<Row>) => (
+      {columns.map((column: TableColumn<Row>, index) => (
         <div
-          key="index"
+          key={index}
           className={'table__cell'}
           style={getCellRowSpan(columns, alignLeft)}
         >
