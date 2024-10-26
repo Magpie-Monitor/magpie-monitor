@@ -1,0 +1,24 @@
+@import '@/variables';
+
+.urgency-badge {
+  padding: 0 20px;
+  border-radius: 5px;
+  font-weight: 500;
+  color: $white;
+  display: inline-block;
+  text-align: center;
+  font-size: 14px;
+  width: 50px;
+
+  &--high {
+    background-color: $red;
+  }
+
+  &--medium {
+    background-color: $medium-urgency-background;
+  }
+
+  &--low {
+    background-color: $low-urgency-background;
+  }
+}
