@@ -26,7 +26,7 @@ const VALID_URGENCY_VALUES: ReportSummary['urgency'][] = ['HIGH', 'MEDIUM', 'LOW
 class ManagmentServiceApi {
   private axiosInstance: AxiosInstance;
 
-  private expiresIn: number;
+  private expiresIn: number | null;
 
   constructor() {
     this.axiosInstance = axios.create({
@@ -36,7 +36,8 @@ class ManagmentServiceApi {
       },
       withCredentials: true,
     });
-    this.expiresIn = 0;
+
+    this.expiresIn = null;
   }
 
   public async login() {
@@ -51,20 +52,36 @@ class ManagmentServiceApi {
     await this.axiosInstance.get('/api/v1/auth/refresh-token');
   }
 
-  public isTokenExpired(): boolean {
+  public async isTokenExpired(): Promise<boolean> {
+    if (this.expiresIn == null) {
+      try {
+        const tokenInfo = await this.getTokenInfoWithoutRefreshing();
+        this.expiresIn = tokenInfo.expTime;
+      } catch {
+        this.expiresIn = 0;
+      }
+    }
+
     return this.expiresIn <= 0;
   }
 
   private async refreshTokenIfExpired() {
-    if (this.isTokenExpired()) {
+    if (await this.isTokenExpired()) {
       await this.refreshToken();
     }
   }
 
+  public async getTokenInfoWithoutRefreshing(): Promise<TokenInfo> {
+    const response = await this.axiosInstance.get(
+      '/api/v1/auth/auth-token/validation-time',
+    );
+    return response.data;
+  }
+
   public async getTokenInfo(): Promise<TokenInfo> {
     await this.refreshTokenIfExpired();
-    const response = await this.axiosInstance.get('/api/v1/auth/auth-token/validation-time');
-    return response.data;
+    const data = this.getTokenInfoWithoutRefreshing();
+    return data;
   }
 
   public async getUserInfo(): Promise<UserInfo> {
