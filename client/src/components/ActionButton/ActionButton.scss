@@ -1,29 +1,42 @@
 @import '@/variables';
 
-.action-button {
-  cursor: pointer;
+.default-button-size {
+  border-radius: 5px;
+  font-size: 0.6rem;
+  background-color: transparent;
+}
 
+.action-button {
   &--green {
-    border-color: $navbar-selected-color;
-    color: $navbar-selected-color;
-    background-color: transparent;
-    border-radius: 5px;
+    border-color: $green;
+    color: $green;
+    @extend .default-button-size;
 
     &:hover {
       color: $secondary;
-      background-color: $navbar-selected-color;
+      background-color: $green;
     }
   }
 
   &--red {
-    border-color: $cancel-color;
-    color: $cancel-color;
-    background-color: transparent;
-    border-radius: 5px;
+    border-color: $red;
+    color: $red;
+    @extend .default-button-size;
 
     &:hover {
       color: $secondary;
-      background-color: $cancel-color;
+      background-color: $red;
+    }
+  }
+
+  &--olive {
+    border-color: $olive;
+    color: $olive;
+    @extend .default-button-size;
+
+    &:hover {
+      color: $secondary;
+      background-color: $olive;
     }
   }
 }

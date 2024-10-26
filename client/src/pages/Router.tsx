@@ -11,8 +11,8 @@ import Home from './Home/Home';
 import { getAuthInfo } from 'providers/AuthProvider/AuthProvider';
 import NotFoundError from './NotFoundError/NotFoundError';
 import Reports from './Reports/Reports.tsx';
-import Settings from './Settings/Settings.tsx';
 import ReportDetails from './ReportDetails/ReportDetails.tsx';
+import Notification from './Notification/Notification.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,7 +33,8 @@ const router = createBrowserRouter(
           <Route path="" element={<Reports />} />
           <Route path=":id" element={<ReportDetails />} />
         </Route>
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/settings" element={<Notification />} />
       </Route>
     </Route>,
   ),

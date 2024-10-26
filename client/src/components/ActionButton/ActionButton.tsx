@@ -2,7 +2,8 @@ import './ActionButton.scss';
 
 export enum ActionButtonColor {
   GREEN,
-  RED,
+  OLIVE,
+  RED
 }
 
 export interface ActionButtonProps {
@@ -14,6 +15,7 @@ export interface ActionButtonProps {
 const actionButtonColorToClass = {
   [ActionButtonColor.GREEN]: 'action-button--green',
   [ActionButtonColor.RED]: 'action-button--red',
+  [ActionButtonColor.OLIVE]: 'action-button--olive',
 };
 
 const ActionButton = ({ onClick, description, color }: ActionButtonProps) => {

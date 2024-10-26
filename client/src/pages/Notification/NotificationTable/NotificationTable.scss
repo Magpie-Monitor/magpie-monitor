@@ -1,0 +1,48 @@
+@import '@/variables';
+
+.notification-table {
+  background-color: $component-background;
+  border-radius: 0.5rem;
+  padding-left: 1rem;
+  margin-right: 0.5rem;
+  padding-right: 1rem;
+  padding-bottom: 2rem;
+  border: 1px solid $component-border-color;
+
+  &__heading {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    &__text {
+      font-size: 16px;
+      font-weight: bold;
+      margin-left: 0.7rem;
+    }
+
+    .svg-icon {
+      width: 35px;
+      height: 35px;
+    }
+
+    &__button {
+      background-color: transparent;
+
+      .svg-icon {
+        background-color: $component-border-color;
+
+        &:hover {
+          background-color: $green;
+        }
+      }
+    }
+  }
+
+  &__line {
+    border: 0;
+    background-color: $component-border-color;
+    height: 1px;
+    margin-bottom: 1rem;
+  }
+}

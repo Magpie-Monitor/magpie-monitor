@@ -41,3 +41,25 @@
   @extend .svg-icon;
   mask: url('/src/assets/reports_list_icon.svg') no-repeat center;
 }
+
+.plus-icon {
+  @extend .svg-icon;
+  background-color: $component-border-color;
+  mask: url('/src/assets/plus-icon.svg') no-repeat center;
+}
+
+.notification-icon {
+  @extend .svg-icon;
+  background-color: $green;
+  mask: url('/src/assets/notification-icon.svg') no-repeat center;
+}
+
+.eye-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/eye-icon.svg') no-repeat center;
+}
+
+.closed-eye-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/closed-eye-icon.svg') no-repeat center;
+}
