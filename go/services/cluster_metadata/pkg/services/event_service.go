@@ -12,7 +12,12 @@ import (
 )
 
 func NewEventEmitter(log *zap.Logger, credentials *sharedkafka.KafkaCredentials) *EventEmitter {
-	return &EventEmitter{log: log, applicationMetadataWriter: NewApplicationMetadataStreamWriter(credentials), nodeMetadataWriter: NewNodeMetadataStreamWriter(credentials)}
+	return &EventEmitter{
+		log:                       log,
+		applicationMetadataWriter: NewApplicationMetadataStreamWriter(credentials),
+		nodeMetadataWriter:        NewNodeMetadataStreamWriter(credentials),
+		clusterMetadataWriter:     NewClusterMetadataStreamWriter(credentials),
+	}
 }
 
 func NewApplicationMetadataStreamWriter(credentials *sharedkafka.KafkaCredentials) *sharedkafka.StreamWriter {
@@ -33,6 +38,15 @@ func NewNodeMetadataStreamWriter(credentials *sharedkafka.KafkaCredentials) *sha
 	return sharedkafka.NewStreamWriter(credentials, nodeTopic, 0)
 }
 
+func NewClusterMetadataStreamWriter(credentials *sharedkafka.KafkaCredentials) *sharedkafka.StreamWriter {
+	clusterTopic, ok := os.LookupEnv("CLUSTER_METADATA_CLUSTER_TOPIC")
+	if !ok {
+		panic("CLUSTER_METADATA_NODE_TOPIC env variable not provided")
+	}
+
+	return sharedkafka.NewStreamWriter(credentials, clusterTopic, 0)
+}
+
 type ApplicationMetadataUpdated struct {
 	RequestId string                                     `json:"requestId"`
 	Metadata  repositories.AggregatedApplicationMetadata `json:"metadata"`
@@ -43,10 +57,16 @@ type NodeMetadataUpdated struct {
 	Metadata  repositories.AggregatedNodeMetadata `json:"metadata"`
 }
 
+type ClusterMetadataUpdated struct {
+	RequestId string                              `json:"requestId"`
+	Metadata  repositories.AggregatedClusterState `json:"metadata"`
+}
+
 type EventEmitter struct {
 	log                       *zap.Logger
 	applicationMetadataWriter *sharedkafka.StreamWriter
 	nodeMetadataWriter        *sharedkafka.StreamWriter
+	clusterMetadataWriter     *sharedkafka.StreamWriter
 }
 
 func (e *EventEmitter) EmitApplicationMetadataUpdatedEvent(metadata repositories.AggregatedApplicationMetadata) error {
@@ -55,9 +75,13 @@ func (e *EventEmitter) EmitApplicationMetadataUpdatedEvent(metadata repositories
 }
 
 func (e *EventEmitter) EmitNodeMetadataUpdatedEvent(metadata repositories.AggregatedNodeMetadata) error {
-	fmt.Println("metadata emitted:", metadata)
 	event := NodeMetadataUpdated{RequestId: uuid.New().String(), Metadata: metadata}
 	return e.emitEvent(event, e.nodeMetadataWriter)
+}
+
+func (e *EventEmitter) EmitClusterMetadataUpdatedEvent(metadata repositories.AggregatedClusterState) error {
+	event := ClusterMetadataUpdated{RequestId: uuid.New().String(), Metadata: metadata}
+	return e.emitEvent(event, e.clusterMetadataWriter)
 }
 
 func (e *EventEmitter) emitEvent(event interface{}, writer *sharedkafka.StreamWriter) error {

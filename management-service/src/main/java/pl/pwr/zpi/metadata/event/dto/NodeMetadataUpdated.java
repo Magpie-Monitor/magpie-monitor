@@ -1,4 +1,4 @@
-package pl.pwr.zpi.metadata.messaging.event;
+package pl.pwr.zpi.metadata.event.dto;
 
 import pl.pwr.zpi.metadata.dto.node.AggregatedNodeMetadata;
 
