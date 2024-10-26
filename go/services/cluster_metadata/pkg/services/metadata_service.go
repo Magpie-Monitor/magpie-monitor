@@ -336,64 +336,64 @@ func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles
 	return nil
 }
 
-// func (m *MetadataService) updateClusterAggregatedState(clusterId string) error {
-// 	// compute latest state
-// 	// compare with current state
-// 	// if diff -> push event
+func (m *MetadataService) updateClusterAggregatedState(clusterId string) error {
+	// compute latest state
+	// compare with current state
+	// if diff -> push event
 
-// 	filter := bson.D{
-// 		{Key: "$and", Value: bson.A{
-// 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: time.Now().UnixMilli() - 300_000}}}},
-// 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: time.Now().UnixMilli()}}}},
-// 		}},
-// 	}
+	filter := bson.D{
+		{Key: "$and", Value: bson.A{
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: time.Now().UnixMilli() - 300_000}}}},
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: time.Now().UnixMilli()}}}},
+		}},
+	}
 
-// 	appClusterSet, err := m.applicationAggregatedRepo.GetDistinctDocumentFieldValues("clusterId", filter)
-// 	if err != nil {
-// 		return err
-// 	}
+	appClusterSet, err := m.applicationAggregatedRepo.GetDistinctDocumentFieldValues("clusterId", filter)
+	if err != nil {
+		return err
+	}
 
-// 	// nodeClusterSet, err := m.nodeRepo.GetDistinctDocumentFieldValues("clusterId", filter)
-// 	// if err != nil {
-// 	// 	return
-// 	// }
+	// nodeClusterSet, err := m.nodeRepo.GetDistinctDocumentFieldValues("clusterId", filter)
+	// if err != nil {
+	// 	return
+	// }
 
-// 	latestState, err := m.nodeAggregatedRepo.GetDocument(nil, bson.D{{Key: "collectedAtMs", Value: -1}})
-// 	if err != nil {
-// 		return err
-// 	}
+	latestState, err := m.nodeAggregatedRepo.GetDocument(nil, bson.D{{Key: "collectedAtMs", Value: -1}})
+	if err != nil {
+		return err
+	}
 
-// 	if len(appClusterSet) != len(latestState.Metadata) {
-// 		newState := m.createAggregatedClusterState(appClusterSet)
-// 		m.clusterStateAggregatedRepo.InsertDocument(newState)
-// 		return err
-// 	}
+	if len(appClusterSet) != len(latestState.Metadata) {
+		newState := m.createAggregatedClusterState(appClusterSet)
+		m.clusterStateAggregatedRepo.InsertDocument(newState)
+		return err
+	}
 
-// 	clusterSet := make(map[string]struct{}, len(latestState.Metadata))
-// 	for _, metadata := range latestState.Metadata {
-// 		clusterSet[metadata.Name] = struct{}{}
-// 	}
+	clusterSet := make(map[string]struct{}, len(latestState.Metadata))
+	for _, metadata := range latestState.Metadata {
+		clusterSet[metadata.Name] = struct{}{}
+	}
 
-// 	for _, cluster := range appClusterSet {
-// 		_, ok := clusterSet[cluster.(string)]
-// 		if !ok {
-// 			newState := m.createAggregatedClusterState(appClusterSet)
-// 			m.clusterStateAggregatedRepo.InsertDocument(newState)
-// 			return err
-// 		}
-// 	}
+	for _, cluster := range appClusterSet {
+		_, ok := clusterSet[cluster.(string)]
+		if !ok {
+			newState := m.createAggregatedClusterState(appClusterSet)
+			m.clusterStateAggregatedRepo.InsertDocument(newState)
+			return err
+		}
+	}
 
-// 	return nil
-// }
+	return nil
+}
 
-// func (m *MetadataService) createAggregatedClusterState(clusterSet []interface{}) repositories.AggregatedClusterState {
-// 	state := make([]repositories.ClusterMetadata, len(clusterSet))
-// 	for _, cluster := range clusterSet {
-// 		state = append(state, repositories.ClusterMetadata{Name: cluster.(string), Running: true})
-// 	}
+func (m *MetadataService) createAggregatedClusterState(clusterSet []interface{}) repositories.AggregatedClusterState {
+	state := make([]repositories.ClusterMetadata, len(clusterSet))
+	for _, cluster := range clusterSet {
+		state = append(state, repositories.ClusterMetadata{Name: cluster.(string), Running: true})
+	}
 
-// 	return repositories.AggregatedClusterState{CollectedAtMs: time.Now().UnixMilli(), Metadata: state}
-// }
+	return repositories.AggregatedClusterState{CollectedAtMs: time.Now().UnixMilli(), Metadata: state}
+}
 
 // func (m *MetadataService) updateClusterNodeMetadataAggregatedState() {
 // compute latest state
