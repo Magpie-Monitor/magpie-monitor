@@ -1,6 +1,6 @@
 import './Reports.scss';
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
-import Table from 'components/Table/Table.tsx';
+import Table, {TableColumn} from 'components/Table/Table.tsx';
 import {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {ManagmentServiceApiInstance, ReportSummary} from 'api/managment-service';
@@ -16,7 +16,7 @@ const Reports = () => {
         navigate(`/reports/${id}`);
     };
 
-    const columns = [
+    const columns: Array<TableColumn<ReportSummary>>  = [
         {
             header: 'Cluster',
             columnKey: 'clusterId',
@@ -78,7 +78,6 @@ const Reports = () => {
                                     <Table
                                         columns={columns}
                                         rows={rows}
-                                        maxHeight="400px"
                                     />
                                 )}</div>
                         </SectionComponent>
