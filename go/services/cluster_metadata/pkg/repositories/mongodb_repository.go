@@ -55,8 +55,8 @@ type NodeMetadata struct {
 }
 
 type AggregatedClusterState struct {
-	CollectedAtMs int64
-	Metadata      []ClusterMetadata `json:"metadata"`
+	CollectedAtMs int64             `json:"collectedAtMs" bson:"collectedAtMs"`
+	Metadata      []ClusterMetadata `json:"metadata" bson:"metadata"`
 }
 
 type AggregatedClusterNodesState struct {

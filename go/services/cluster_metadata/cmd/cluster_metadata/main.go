@@ -80,6 +80,7 @@ func main() {
 			repositories.NewNodeMetadataCollection,
 			repositories.NewApplicationAggregatedMetadataCollection,
 			repositories.NewNodeAggregatedMetadataCollection,
+			repositories.NewClusterAggregatedStateCollection,
 
 			zap.NewProduction,
 		),

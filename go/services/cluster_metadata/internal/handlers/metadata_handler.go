@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
@@ -15,9 +14,6 @@ import (
 
 func NewMetadataRouter(metadataHandler *MetadataHandler, rootRouter *mux.Router) *MetadataRouter {
 	router := rootRouter.PathPrefix("/metadata").Subrouter()
-	router.Methods(http.MethodGet).Path("/clusters/{clusterId}/applications").HandlerFunc(metadataHandler.GetClusterMetadataForTimerange)
-	router.Methods(http.MethodGet).Path("/clusters/{clusterId}/nodes").HandlerFunc(metadataHandler.GetNodeMetadataForTimerange)
-	router.Methods(http.MethodGet).Path("/clusters").HandlerFunc(metadataHandler.GetClusterList)
 	router.Methods(http.MethodPost).Path("/clusters").HandlerFunc(metadataHandler.InsertClusterMetadata)
 	router.Methods(http.MethodPost).Path("/nodes").HandlerFunc(metadataHandler.InsertNodeMetadata)
 	router.Methods(http.MethodGet).Path("/healthz").HandlerFunc(metadataHandler.Healthz)
@@ -62,87 +58,6 @@ func (h *MetadataHandler) writeError(w *http.ResponseWriter, msg string, status 
 		TimestampMillis: time.Now().UnixMilli(),
 		Error:           msg,
 	})
-}
-
-func (h *MetadataHandler) GetClusterMetadataForTimerange(w http.ResponseWriter, r *http.Request) {
-	sinceMillis, err := strconv.Atoi(r.URL.Query().Get("sinceMillis"))
-	if err != nil {
-		h.log.Error("Error parsing sinceMillis:", zap.Error(err))
-		h.writeError(&w, "Invalid value for sinceMillis", http.StatusBadRequest)
-		return
-	}
-
-	toMillis, err := strconv.Atoi(r.URL.Query().Get("toMillis"))
-	if err != nil {
-		h.log.Error("Error parsing toMillis:", zap.Error(err))
-		h.writeError(&w, "Invalid value for toMillis", http.StatusBadRequest)
-		return
-	}
-
-	clusterId := mux.Vars(r)["clusterId"]
-
-	metadata, err := h.metadataService.GetClusterMetadataForTimerange(clusterId, sinceMillis, toMillis)
-	if err != nil {
-		h.log.Error("Error fetching cluster metadata:", zap.Error(err))
-		h.writeError(&w, "Error fetching cluster metadata", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(&metadata)
-	if err != nil {
-		h.log.Error("Error parsing cluster metadata", zap.Error(err))
-		h.writeError(&w, "Error parsing cluster metadata", http.StatusInternalServerError)
-	}
-}
-
-func (h *MetadataHandler) GetNodeMetadataForTimerange(w http.ResponseWriter, r *http.Request) {
-	sinceMillis, err := strconv.Atoi(r.URL.Query().Get("sinceMillis"))
-	if err != nil {
-		h.log.Error("Error parsing sinceMillis:", zap.Error(err))
-		h.writeError(&w, "Invalid value for sinceMillis", http.StatusBadRequest)
-		return
-	}
-
-	toMillis, err := strconv.Atoi(r.URL.Query().Get("toMillis"))
-	if err != nil {
-		h.log.Error("Error parsing toMillis:", zap.Error(err))
-		h.writeError(&w, "Invalid value for toMillis", http.StatusBadRequest)
-		return
-	}
-
-	clusterId := mux.Vars(r)["clusterId"]
-
-	metadata, err := h.metadataService.GetNodeMetadataForTimerange(clusterId, sinceMillis, toMillis)
-	if err != nil {
-		h.log.Error("Error reading node metadata:", zap.Error(err))
-		h.writeError(&w, "Error reading node metadata", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(&metadata)
-	if err != nil {
-		h.log.Error("Error parsing node metadata:", zap.Error(err))
-		h.writeError(&w, "Error parsing node metadata", http.StatusInternalServerError)
-	}
-}
-
-func (h *MetadataHandler) GetClusterList(w http.ResponseWriter, r *http.Request) {
-	metadata, err := h.metadataService.GetClusterList()
-	if err != nil {
-		h.log.Error("Error fetching cluster list:", zap.Error(err))
-		h.writeError(&w, "Error fetching cluster list", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(&metadata)
-	if err != nil {
-		h.log.Error("Error parsing cluster list:", zap.Error(err))
-		h.writeError(&w, "Error parsing cluster list", http.StatusInternalServerError)
-		return
-	}
 }
 
 func (h *MetadataHandler) InsertClusterMetadata(w http.ResponseWriter, r *http.Request) {

@@ -5,9 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.pwr.zpi.metadata.dto.Cluster;
-import pl.pwr.zpi.metadata.dto.node.Node;
 import pl.pwr.zpi.metadata.dto.application.ApplicationMetadata;
+import pl.pwr.zpi.metadata.dto.cluster.ClusterMetadata;
+import pl.pwr.zpi.metadata.dto.node.Node;
 
 import java.util.List;
 
@@ -29,15 +29,13 @@ public class TestController {
     }
 
     @GetMapping("/clusters")
-    public ResponseEntity<List<Cluster>> getClusters() {
+    public ResponseEntity<List<ClusterMetadata>> getClusters() {
         return ResponseEntity.ok(metadataService.getClusters());
-//        return ResponseEntity.ok().body(metadataService.getClusterNodes("local-docker"));
     }
 
 
     @GetMapping("/cluster")
-    public ResponseEntity<Cluster> getCluster() {
-        return ResponseEntity.ok(metadataService.getClusterById("local-docker"));
-//        return ResponseEntity.ok().body(metadataService.getClusterNodes("local-docker"));
+    public ResponseEntity<ClusterMetadata> getCluster() {
+        return ResponseEntity.of(metadataService.getClusterById("bccec-1aaa"));
     }
 }
