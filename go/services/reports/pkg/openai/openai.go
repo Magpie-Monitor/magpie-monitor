@@ -89,7 +89,7 @@ func (p *BatchPoller) Batch(batchId string) (*Batch, error) {
 	batch, err := p.pendingBatchRepository.GetPendingBatch(batchId)
 	if err != nil {
 		p.client.logger.Error("Batch is not pending", zap.String("batch", batchId), zap.Error(err))
-		return nil, err
+		// return nil, err
 	}
 
 	// p.client.logger.Debug("Polling batch", zap.Any("Fetched batch", batch))
@@ -128,7 +128,7 @@ func (p *BatchPoller) ManyBatches(batchIds []string) (map[string]*Batch, error) 
 
 func (p *BatchPoller) AwaitPendingBatches(batchIds []string) ([]*Batch, error) {
 
-	p.client.logger.Debug("Awaiting batchIds", zap.Any("ids", batchIds))
+	p.client.logger.Info("Awaiting batches", zap.Any("ids", batchIds))
 	completedBatchesChannel := make(chan *Batch, len(batchIds))
 	errorsChannel := make(chan error, len(batchIds))
 	completedBatches := make([]*Batch, 0, len(batchIds))
@@ -138,8 +138,8 @@ func (p *BatchPoller) AwaitPendingBatches(batchIds []string) ([]*Batch, error) {
 	for _, batchId := range batchIds {
 		wg.Add(1)
 		go func() {
+			defer wg.Done()
 			for {
-				defer wg.Done()
 				batch, err := p.Batch(batchId)
 				if err != nil {
 					p.client.logger.Error("Failed to await an openAi batch", zap.Error(err), zap.Any("batchId", batchId))
@@ -151,9 +151,10 @@ func (p *BatchPoller) AwaitPendingBatches(batchIds []string) ([]*Batch, error) {
 					p.client.logger.Debug("Batch was finished!", zap.Any("batch", batch))
 					completedBatchesChannel <- batch
 					return
+
 				}
 
-				time.Sleep(time.Second * 60)
+				time.Sleep(time.Second * 5)
 			}
 		}()
 	}
@@ -168,7 +169,6 @@ func (p *BatchPoller) AwaitPendingBatches(batchIds []string) ([]*Batch, error) {
 	}
 
 	for batch := range completedBatchesChannel {
-		// completedBatches[batch.Id] = batch
 		completedBatches = append(completedBatches, batch)
 	}
 
@@ -604,6 +604,8 @@ func (c *Client) splitCompletionReqestsByBatchSize(completionRequests []*Complet
 
 	}
 
+	requestPackets = append(requestPackets, lastPacket)
+
 	return requestPackets, nil
 }
 
@@ -774,7 +776,7 @@ func (c *Client) CompletionResponseEntriesFromBatch(batch *Batch) ([]*BatchFileC
 
 func (c *Client) CompletionResponseEntriesFromBatches(batches []*Batch) ([]*BatchFileCompletionResponseEntry, error) {
 
-	c.logger.Debug("Reponse batches", zap.Any("batches", batches))
+	// c.logger.Debug("Reponse batches", zap.Any("batches", batches))
 
 	allResponses, err := parallelRequest(batches, func(batch *Batch) ([]*BatchFileCompletionResponseEntry, error) {
 		responseEntries, err := c.CompletionResponseEntriesFromBatch(batch)

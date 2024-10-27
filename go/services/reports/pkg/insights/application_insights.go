@@ -285,8 +285,10 @@ func (g *OpenAiInsightsGenerator) getApplicationInsightsFromBatchEntries(
 		messageContent := response.Response.Body.Choices[0].Message.Content
 		err := json.Unmarshal([]byte(messageContent), &applicationInsights)
 		if err != nil {
-			g.logger.Error("Failed to decode application insight", zap.Error(err))
-			return nil, err
+
+			//OpenAI returned incorrectly structured output (skipping to minimize impact)
+			g.logger.Error("OpenAI returned incorrectly formatted application insights output", zap.Error(err), zap.Any("content", messageContent))
+			continue
 		}
 
 		insightsWithMetadata := array.Map(func(insight ApplicationLogsInsight) ApplicationInsightsWithMetadata {
@@ -322,7 +324,7 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 
 		logPackets := repositories.SplitLogsIntoPackets(logs, g.client.ContextSizeBytes)
 
-		g.logger.Debug("Packets", zap.Any("packets", logPackets))
+		// g.logger.Debug("Packets", zap.Any("packets", logPackets))
 
 		for _, logPacket := range logPackets {
 			messages, err := g.createMessagesFromApplicationLogs(

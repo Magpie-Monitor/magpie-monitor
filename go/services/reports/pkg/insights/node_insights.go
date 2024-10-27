@@ -358,7 +358,7 @@ func (g *OpenAiInsightsGenerator) AwaitScheduledNodeInsights(
 
 func (g OpenAiInsightsGenerator) getNodeInsightsFromBatchEntries(batchEntries []*openai.BatchFileCompletionResponseEntry, logs []*repositories.NodeLogsDocument) ([]NodeInsightsWithMetadata, error) {
 
-	// Each jsonl entry contains insights for a single application
+	// Each jsonl entry contains insights for a single node
 	insights := []NodeInsightsWithMetadata{}
 	for _, response := range batchEntries {
 		var nodeInsights nodeInsightsResponseDto
@@ -368,8 +368,9 @@ func (g OpenAiInsightsGenerator) getNodeInsightsFromBatchEntries(batchEntries []
 		messageContent := response.Response.Body.Choices[0].Message.Content
 		err := json.Unmarshal([]byte(messageContent), &nodeInsights)
 		if err != nil {
-			g.logger.Error("Failed to decode node insight", zap.Error(err))
-			return nil, err
+			//OpenAI returned incorrectly structured output (skipping to minimize impact)
+			g.logger.Error("OpenAI returned incorrectly formatted node insights output", zap.Error(err), zap.Any("content", messageContent))
+			continue
 		}
 
 		insightsWithMetadata := array.Map(func(insight NodeLogsInsight) NodeInsightsWithMetadata {
