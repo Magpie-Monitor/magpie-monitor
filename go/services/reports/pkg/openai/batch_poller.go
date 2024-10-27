@@ -21,36 +21,43 @@ const (
 	OpenAiBatchStatus__Cancelled  = "cancelled"
 )
 
-const BATCH_AWAITING_INTERVAL_SECONDS = 10
+const (
+	BATCH_AWAITING_INTERVAL_SECONDS_KEY = "REPORTS_BATCH_AWAITING_INTERVAL_SECONDS"
+)
 
 type BatchPoller struct {
-	batches                chan *Batch
-	client                 *Client
-	pendingBatchRepository PendingBatchRepository
-	pollingIntervalSeconds int
+	batches                      chan *Batch
+	client                       *Client
+	pendingBatchRepository       PendingBatchRepository
+	pollingIntervalSeconds       int
+	batchAwaitingIntervalSeconds int
 }
 
 func NewBatchPoller(client *Client, pendingBatchRepository PendingBatchRepository) *BatchPoller {
 
-	envs.ValidateEnvs("Missing envs for openai batch poller", []string{POLLING_INTERVAL_SECONDS_KEY})
+	envs.ValidateEnvs("Missing envs for openai batch poller",
+		[]string{POLLING_INTERVAL_SECONDS_KEY,
+			BATCH_AWAITING_INTERVAL_SECONDS_KEY})
 
 	pollingIntervalSeconds := os.Getenv(POLLING_INTERVAL_SECONDS_KEY)
 	pollingIntervalSecondsInt, err := strconv.Atoi(pollingIntervalSeconds)
-
 	if err != nil {
 		panic(fmt.Sprintf("%s is not a number", POLLING_INTERVAL_SECONDS_KEY))
 	}
 
-	poller := &BatchPoller{
-		batches:                make(chan *Batch),
-		client:                 client,
-		pendingBatchRepository: pendingBatchRepository,
-		pollingIntervalSeconds: pollingIntervalSecondsInt,
+	batchAwaitingIntervalSeconds := os.Getenv(BATCH_AWAITING_INTERVAL_SECONDS_KEY)
+	batchAwaitingIntervalSecondsInt, err := strconv.Atoi(batchAwaitingIntervalSeconds)
+	if err != nil {
+		panic(fmt.Sprintf("%s is not a number", BATCH_AWAITING_INTERVAL_SECONDS_KEY))
 	}
 
-	go poller.Start()
-
-	return poller
+	return &BatchPoller{
+		batches:                      make(chan *Batch),
+		client:                       client,
+		pendingBatchRepository:       pendingBatchRepository,
+		pollingIntervalSeconds:       pollingIntervalSecondsInt,
+		batchAwaitingIntervalSeconds: batchAwaitingIntervalSecondsInt,
+	}
 }
 
 func (p *BatchPoller) Start() {
@@ -174,7 +181,7 @@ func (p *BatchPoller) AwaitPendingBatches(batchIds []string) ([]*Batch, []*Batch
 					return
 				}
 
-				time.Sleep(time.Second * BATCH_AWAITING_INTERVAL_SECONDS)
+				time.Sleep(time.Second * time.Duration(p.batchAwaitingIntervalSeconds))
 			}
 		}()
 	}

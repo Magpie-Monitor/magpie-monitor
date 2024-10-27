@@ -138,7 +138,7 @@ services:
     container_name: magpie-monitor-redisinsight
     image: redis/redisinsight:latest
     ports:
-      - "5540:5540"
+      - ${REPORTS_REDISINSIGHT_PORT}:5540
     volumes:
       - redisinsight:/data
 
