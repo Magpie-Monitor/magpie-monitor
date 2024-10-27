@@ -22,12 +22,24 @@ import (
 )
 
 const (
-	API_URL_KEY           = "REPORTS_OPENAI_API_URL"
-	MODEL_KEY             = "REPORTS_OPENAI_API_MODEL"
-	API_KEY               = "REPORTS_OPENAI_API_KEY"
-	BATCH_SIZE_KEY        = "REPORTS_OPENAI_BATCH_SIZE_BYTES"
-	CONTEXT_SIZE_KEY      = "REPORTS_OPENAI_CONTEXT_SIZE_BYTES"
-	MODEL_TEMPERATURE_KEY = "REPORTS_OPENAI_MODEL_TEMPERATURE"
+	API_URL_KEY                  = "REPORTS_OPENAI_API_URL"
+	MODEL_KEY                    = "REPORTS_OPENAI_API_MODEL"
+	API_KEY                      = "REPORTS_OPENAI_API_KEY"
+	BATCH_SIZE_KEY               = "REPORTS_OPENAI_BATCH_SIZE_BYTES"
+	CONTEXT_SIZE_KEY             = "REPORTS_OPENAI_CONTEXT_SIZE_BYTES"
+	MODEL_TEMPERATURE_KEY        = "REPORTS_OPENAI_MODEL_TEMPERATURE"
+	POLLING_INTERVAL_SECONDS_KEY = "REPORTS_OPENAI_POLLING_INTERVAL_SECONDS_KEY"
+)
+
+const (
+	OpenAiBatchStatus__Validating = "validating"
+	OpenAiBatchStatus__Failed     = "failed"
+	OpenAiBatchStatus__InProgress = "in_progress"
+	OpenAiBatchStatus__Finalizing = "finalizing"
+	OpenAiBatchStatus__Completed  = "completed"
+	OpenAiBatchStatus__Expired    = "expired"
+	OpenAiBatchStatus__Cancelling = "cancelling"
+	OpenAiBatchStatus__Cancelled  = "cancelled"
 )
 
 type BatchPoller struct {
@@ -35,17 +47,28 @@ type BatchPoller struct {
 	client                 *Client
 	listeners              []BatchUpdateListener
 	pendingBatchRepository PendingBatchsRepository
+	pollingIntervalSeconds int
 }
 
 type BatchUpdateListener = func(batch *Batch) error
 
 func NewBatchPoller(client *Client, pendingBatchRepository PendingBatchsRepository) *BatchPoller {
 
+	envs.ValidateEnvs("Missing envs for openai batch scheduler", []string{POLLING_INTERVAL_SECONDS_KEY})
+
+	pollingIntervalSeconds := os.Getenv(POLLING_INTERVAL_SECONDS_KEY)
+	pollingIntervalSecondsInt, err := strconv.Atoi(pollingIntervalSeconds)
+
+	if err != nil {
+		panic(fmt.Sprintf("%s is not a number", POLLING_INTERVAL_SECONDS_KEY))
+	}
+
 	poller := &BatchPoller{
 		batches:                make(chan *Batch),
 		client:                 client,
 		listeners:              []BatchUpdateListener{},
 		pendingBatchRepository: pendingBatchRepository,
+		pollingIntervalSeconds: pollingIntervalSecondsInt,
 	}
 
 	go poller.Start()
@@ -65,22 +88,30 @@ func (p *BatchPoller) Start() {
 
 		for _, batchId := range batchIds {
 			batch, err := p.client.Batch(batchId)
-			p.client.logger.Debug("Got Batch from OpenAi", zap.Any("batch", batch), zap.Any("batchId", batchId))
 
 			if err != nil {
-				p.client.logger.Error("Failed to getch batch from OpenAI", zap.Error(err))
+				p.client.logger.Error("Failed to getch batch from OpenAI", zap.Error(err), zap.Any("batch", batch))
 				continue
 			}
 
-			if batch.Status == "completed" {
-				p.client.logger.Debug("Batch from OpenAi has been completed %+v", zap.Any("batch", batch))
+			if batch.isCompleted() {
+				p.client.logger.Debug("Batch from OpenAi has been completed", zap.Any("batch", batch))
 				p.pendingBatchRepository.CompleteBatch(batchId)
-				// return
+			}
+
+			if batch.isFailed() {
+				p.client.logger.Error("Batch from OpenAi has been failed", zap.Any("batch", batch))
+				p.pendingBatchRepository.FailBatch(batchId)
+			}
+
+			if batch.isExpired() {
+				p.client.logger.Error("Batch from OpenAi has expired", zap.Any("batch", batch))
+				p.pendingBatchRepository.FailBatch(batchId)
 			}
 		}
 
-		p.client.logger.Debug("All batches", zap.Any("batches", batchIds))
-		time.Sleep(time.Second * 60)
+		p.client.logger.Info("Currenly pending batches", zap.Any("batchIds", batchIds))
+		time.Sleep(time.Second * time.Duration(p.pollingIntervalSeconds))
 	}
 }
 
@@ -88,11 +119,9 @@ func (p *BatchPoller) Batch(batchId string) (*Batch, error) {
 
 	batch, err := p.pendingBatchRepository.GetPendingBatch(batchId)
 	if err != nil {
-		p.client.logger.Error("Batch is not pending", zap.String("batch", batchId), zap.Error(err))
-		// return nil, err
+		p.client.logger.Error("Failed to check if batch is pending", zap.String("batchId", batchId), zap.Error(err))
+		return nil, err
 	}
-
-	// p.client.logger.Debug("Polling batch", zap.Any("Fetched batch", batch))
 
 	if batch != nil {
 		return batch, nil
@@ -492,6 +521,30 @@ type Batch struct {
 	FailedAt         int64             `json:"failed_at" redis:"failed_at"`
 	ExpiredAt        int64             `json:"expired_at" redis:"expired_at"`
 	RequestCounts    BatchRequestCount `json:"-" redis:"-"`
+}
+
+func (b *Batch) isCompleted() bool {
+	if b == nil {
+		return false
+	}
+
+	return b.Status == OpenAiBatchStatus__Completed
+}
+
+func (b *Batch) isFailed() bool {
+	if b == nil {
+		return false
+	}
+
+	return b.Status == OpenAiBatchStatus__Failed
+}
+
+func (b *Batch) isExpired() bool {
+	if b == nil {
+		return false
+	}
+
+	return b.Status == OpenAiBatchStatus__Expired
 }
 
 func (c *Client) createBatch(batchParams CreateBatchRequest) (*Batch, error) {
