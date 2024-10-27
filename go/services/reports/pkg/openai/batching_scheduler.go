@@ -106,6 +106,11 @@ func (r *RedisPendingBatchRepository) GetPendingBatch(batchId string) (*Batch, e
 		return nil, err
 	}
 
+	// r.logger.Debug("GOT BATCH FROM REPO", zap.Any("batch", resultBatch))
+	if resultBatch.Id == "" {
+		return nil, nil
+	}
+
 	return &resultBatch, nil
 }
 

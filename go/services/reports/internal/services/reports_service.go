@@ -89,7 +89,7 @@ func (s *ReportsService) ScheduleReport(
 		return nil, err
 	}
 
-	s.logger.Debug("logs", zap.Any("logs", applicationLogs))
+	// s.logger.Debug("logs", zap.Any("logs", applicationLogs))
 
 	applicationInsights, err := s.applicationInsightsGenerator.ScheduleApplicationInsights(
 		applicationLogs,
@@ -152,7 +152,11 @@ func (s *ReportsService) PollReports(ctx context.Context) error {
 			pendingReports[report.Id] = true
 			go func() {
 
-				s.logger.Info("Checking pending reports", zap.Any("report", report))
+				s.logger.Info("Checking pending reports", zap.Any("id", report.Id),
+					zap.Any("status", report.Status),
+					zap.Any("scheduled", report.ScheduledApplicationInsights),
+				)
+
 				applicationInsights, err := s.applicationInsightsGenerator.AwaitScheduledApplicationInsights(report.ScheduledApplicationInsights)
 				if err != nil {
 					s.logger.Error("Failed to await for application insights", zap.Error(err), zap.Any("insights", report.ScheduledApplicationInsights))
