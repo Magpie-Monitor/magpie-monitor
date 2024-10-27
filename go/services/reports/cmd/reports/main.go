@@ -118,6 +118,13 @@ func main() {
 			),
 
 			zap.NewExample),
-		fx.Invoke(func(*http.Server) {}),
+		fx.Invoke(func(server *http.Server, reportsService *services.ReportsService, batchPoller *openai.BatchPoller) {
+
+			// Poll for pending reports
+			go reportsService.PollReports(context.Background())
+
+			// Poll for pending OpenAi batches
+			go batchPoller.Start()
+		}),
 	).Run()
 }

@@ -320,26 +320,14 @@ type BatchError struct {
 }
 
 func (b *Batch) isCompleted() bool {
-	if b == nil {
-		return false
-	}
-
 	return b.Status == OpenAiBatchStatus__Completed
 }
 
 func (b *Batch) isFailed() bool {
-	if b == nil {
-		return false
-	}
-
 	return b.Status == OpenAiBatchStatus__Failed
 }
 
 func (b *Batch) isExpired() bool {
-	if b == nil {
-		return false
-	}
-
 	return b.Status == OpenAiBatchStatus__Expired
 }
 
@@ -399,8 +387,6 @@ func (c *Client) UploadAndCreateBatches(completionRequests []*CompletionRequest)
 		c.logger.Error("Failed to split completion requests by batch", zap.Error(err))
 		return nil, err
 	}
-
-	// c.logger.Debug("Creating requests", zap.Any("requests", completionRequests))
 
 	batches, batchErrors := parallelRequest(requestsByBatch, func(requests []*CompletionRequest) (*Batch, error) {
 

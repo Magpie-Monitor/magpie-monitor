@@ -3,18 +3,24 @@ package services
 import (
 	"context"
 	"fmt"
+	"math"
+	"os"
+	"slices"
+	"strconv"
+	"time"
+
 	"github.com/IBM/fp-go/array"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"math"
-	"slices"
-	"time"
 )
 
-const REPORTS_POLLING_INTERVAL_SECONDS = 10
+const (
+	REPORTS_POLLING_INTERVAL_SECONDS_KEY = "REPORTS_POLLING_INTERVAL_SECONDS"
+)
 
 type ReportGenerationFilters struct {
 	ClusterId                string                                      `json:"clusterId"`
@@ -32,6 +38,7 @@ type ReportsService struct {
 	nodeLogsRepository           sharedrepositories.NodeLogsRepository
 	applicationInsightsGenerator insights.ApplicationInsightsGenerator
 	nodeInsightsGenerator        insights.NodeInsightsGenerator
+	pollingIntervalSeconds       int
 }
 
 type ReportsServerParams struct {
@@ -45,18 +52,26 @@ type ReportsServerParams struct {
 }
 
 func NewReportsService(p ReportsServerParams) *ReportsService {
-	reportsService := &ReportsService{
+
+	envs.ValidateEnvs("Failed to create ReportsService, missing envs", []string{
+		REPORTS_POLLING_INTERVAL_SECONDS_KEY,
+	})
+
+	reportsPollingIntervalSeconds := os.Getenv(REPORTS_POLLING_INTERVAL_SECONDS_KEY)
+	pollingIntervalSecondsInt, err := strconv.Atoi(reportsPollingIntervalSeconds)
+	if err != nil {
+		panic(fmt.Sprintf("%s is not a number", REPORTS_POLLING_INTERVAL_SECONDS_KEY))
+	}
+
+	return &ReportsService{
 		logger:                       p.Logger,
 		reportRepository:             p.ReportRepository,
 		applicationLogsRepository:    p.ApplicationLogsRepository,
 		nodeLogsRepository:           p.NodeLogsRepository,
 		applicationInsightsGenerator: p.ApplicationInsightsGenerator,
 		nodeInsightsGenerator:        p.NodeInsightsGenerator,
+		pollingIntervalSeconds:       pollingIntervalSecondsInt,
 	}
-
-	go reportsService.PollReports(context.Background())
-
-	return reportsService
 }
 
 func (s *ReportsService) ScheduleReport(
@@ -174,11 +189,12 @@ func (s *ReportsService) PollReports(ctx context.Context) error {
 					return
 				}
 
+				delete(pendingReports, report.Id)
 				s.logger.Info("Completed report", zap.Any("reportId", report.Id))
 			}()
 		}
 
-		time.Sleep(time.Second * REPORTS_POLLING_INTERVAL_SECONDS)
+		time.Sleep(time.Second * time.Duration(s.pollingIntervalSeconds))
 	}
 }
 
