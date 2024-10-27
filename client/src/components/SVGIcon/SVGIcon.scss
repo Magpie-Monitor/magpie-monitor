@@ -91,3 +91,16 @@
   @extend .svg-icon;
   mask: url('/src/assets/closed-eye-icon.svg') no-repeat center;
 }
+
+.fire-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/fire-icon.svg') no-repeat center;
+  width: 25px;
+  height: 25px;
+  margin-right: 3px;
+  .svg-icon {
+    background-color: $red;
+    width: 25px;
+    height: 25px;
+  }
+}

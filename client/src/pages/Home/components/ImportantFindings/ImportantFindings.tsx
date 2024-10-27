@@ -1,3 +1,4 @@
+import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import './ImportantFindings.scss';
 
 const ImportantFindings = () => {
@@ -16,7 +17,7 @@ const ImportantFindings = () => {
                     Postgres:12.19-bullseye
                 </div>
                 <div className="important-findings__finding__category">
-                    Database outage
+                    <SVGIcon iconName={'fire-icon'} /> Database outage
                 </div>
                 <div className="important-findings__finding__summary">
                     Multiple failed authentication attempts after an update
@@ -30,7 +31,7 @@ const ImportantFindings = () => {
                     OpenJDK:24-ea-8-jdk
                 </div>
                 <div className="important-findings__finding__category">
-                    Internal service issue
+                    <SVGIcon iconName={'fire-icon'}/> Internal service issue
                 </div>
                 <div className="important-findings__finding__summary">
                     Abnormal amount of failed requests due to CORS
@@ -44,7 +45,7 @@ const ImportantFindings = () => {
                     Kubernetes CNI
                 </div>
                 <div className="important-findings__finding__category">
-                    Internal network error
+                    <SVGIcon iconName={'fire-icon'}/> Internal network error
                 </div>
                 <div className="important-findings__finding__summary">
                     Couldn’t start internal DNS server due to configuration error
