@@ -97,6 +97,7 @@ func CreateJsonReponseFormat(schemaName string, responseShape any) ResponseForma
 		Type: "json_schema",
 		JsonSchema: JsonSchema{
 			Name:   "incident_report",
+			Strict: true,
 			Schema: *getSchemaFromStruct(responseShape),
 		},
 	}
