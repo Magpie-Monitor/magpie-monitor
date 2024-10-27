@@ -28,223 +28,8 @@ const (
 	BATCH_SIZE_KEY               = "REPORTS_OPENAI_BATCH_SIZE_BYTES"
 	CONTEXT_SIZE_KEY             = "REPORTS_OPENAI_CONTEXT_SIZE_BYTES"
 	MODEL_TEMPERATURE_KEY        = "REPORTS_OPENAI_MODEL_TEMPERATURE"
-	POLLING_INTERVAL_SECONDS_KEY = "REPORTS_OPENAI_POLLING_INTERVAL_SECONDS_KEY"
+	POLLING_INTERVAL_SECONDS_KEY = "REPORTS_OPENAI_POLLING_INTERVAL_SECONDS"
 )
-
-const (
-	OpenAiBatchStatus__Validating = "validating"
-	OpenAiBatchStatus__Failed     = "failed"
-	OpenAiBatchStatus__InProgress = "in_progress"
-	OpenAiBatchStatus__Finalizing = "finalizing"
-	OpenAiBatchStatus__Completed  = "completed"
-	OpenAiBatchStatus__Expired    = "expired"
-	OpenAiBatchStatus__Cancelling = "cancelling"
-	OpenAiBatchStatus__Cancelled  = "cancelled"
-)
-
-type BatchPoller struct {
-	batches                chan *Batch
-	client                 *Client
-	listeners              []BatchUpdateListener
-	pendingBatchRepository PendingBatchsRepository
-	pollingIntervalSeconds int
-}
-
-type BatchUpdateListener = func(batch *Batch) error
-
-func NewBatchPoller(client *Client, pendingBatchRepository PendingBatchsRepository) *BatchPoller {
-
-	envs.ValidateEnvs("Missing envs for openai batch scheduler", []string{POLLING_INTERVAL_SECONDS_KEY})
-
-	pollingIntervalSeconds := os.Getenv(POLLING_INTERVAL_SECONDS_KEY)
-	pollingIntervalSecondsInt, err := strconv.Atoi(pollingIntervalSeconds)
-
-	if err != nil {
-		panic(fmt.Sprintf("%s is not a number", POLLING_INTERVAL_SECONDS_KEY))
-	}
-
-	poller := &BatchPoller{
-		batches:                make(chan *Batch),
-		client:                 client,
-		listeners:              []BatchUpdateListener{},
-		pendingBatchRepository: pendingBatchRepository,
-		pollingIntervalSeconds: pollingIntervalSecondsInt,
-	}
-
-	go poller.Start()
-
-	return poller
-}
-
-func (p *BatchPoller) Start() {
-	for {
-		batchIds, err := p.pendingBatchRepository.GetAllPending()
-		p.client.logger.Debug("Got batchIds from repository", zap.Any("ids", batchIds))
-
-		if err != nil {
-			p.client.logger.Error("Failed to get pending batches", zap.Error(err))
-			continue
-		}
-
-		for _, batchId := range batchIds {
-			batch, err := p.client.Batch(batchId)
-
-			if err != nil {
-				p.client.logger.Error("Failed to getch batch from OpenAI", zap.Error(err), zap.Any("batch", batch))
-				continue
-			}
-
-			if batch.isCompleted() {
-				p.client.logger.Debug("Batch from OpenAi has been completed", zap.Any("batch", batch))
-				p.pendingBatchRepository.CompleteBatch(batchId)
-			}
-
-			if batch.isFailed() {
-				p.client.logger.Error("Batch from OpenAi has been failed", zap.Any("batch", batch))
-				p.pendingBatchRepository.FailBatch(batchId)
-			}
-
-			if batch.isExpired() {
-				p.client.logger.Error("Batch from OpenAi has expired", zap.Any("batch", batch))
-				p.pendingBatchRepository.FailBatch(batchId)
-			}
-		}
-
-		p.client.logger.Info("Currenly pending batches", zap.Any("batchIds", batchIds))
-		time.Sleep(time.Second * time.Duration(p.pollingIntervalSeconds))
-	}
-}
-
-func (p *BatchPoller) Batch(batchId string) (*Batch, error) {
-
-	batch, err := p.pendingBatchRepository.GetPendingBatch(batchId)
-	if err != nil {
-		p.client.logger.Error("Failed to check if batch is pending", zap.String("batchId", batchId), zap.Error(err))
-		return nil, err
-	}
-
-	if batch != nil {
-		return batch, nil
-	}
-
-	// If the batch is not pending, then fetch it from OpenAi
-	batch, err = p.client.Batch(batchId)
-
-	if err != nil {
-		p.client.logger.Error("Failed to fetch completed batch from openai", zap.Error(err), zap.Any("batch", batchId))
-		return nil, err
-	}
-
-	return batch, nil
-}
-
-func (p *BatchPoller) ManyBatches(batchIds []string) (map[string]*Batch, error) {
-
-	batches := make(map[string]*Batch, 0)
-
-	for _, batchId := range batchIds {
-		batch, err := p.Batch(batchId)
-		if err != nil {
-			p.client.logger.Error("Failed to get batch from poller", zap.Error(err), zap.Any("batch", batchId))
-			return nil, err
-		}
-		batches[batchId] = batch
-	}
-
-	return batches, nil
-
-}
-
-func (p *BatchPoller) AwaitPendingBatches(batchIds []string) ([]*Batch, error) {
-
-	p.client.logger.Info("Awaiting batches", zap.Any("ids", batchIds))
-	completedBatchesChannel := make(chan *Batch, len(batchIds))
-	errorsChannel := make(chan error, len(batchIds))
-	completedBatches := make([]*Batch, 0, len(batchIds))
-
-	var wg sync.WaitGroup
-
-	for _, batchId := range batchIds {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for {
-				batch, err := p.Batch(batchId)
-				if err != nil {
-					p.client.logger.Error("Failed to await an openAi batch", zap.Error(err), zap.Any("batchId", batchId))
-					errorsChannel <- err
-					return
-				}
-
-				if batch.Status == "completed" {
-					p.client.logger.Debug("Batch was finished!", zap.Any("batch", batch))
-					completedBatchesChannel <- batch
-					return
-
-				}
-
-				time.Sleep(time.Second * 5)
-			}
-		}()
-	}
-
-	wg.Wait()
-
-	close(completedBatchesChannel)
-	close(errorsChannel)
-
-	for err := range errorsChannel {
-		return nil, err
-	}
-
-	for batch := range completedBatchesChannel {
-		completedBatches = append(completedBatches, batch)
-	}
-
-	return completedBatches, nil
-
-}
-
-func (p *BatchPoller) InsertPendingBatch(batch *Batch) error {
-	if err := p.pendingBatchRepository.AddPendingBatch(batch); err != nil {
-		p.client.logger.Error("Failed to set pending batch", zap.Error(err), zap.Any("batch", batch))
-		return err
-	}
-	return nil
-}
-
-func (p *BatchPoller) InsertPendingBatches(batches []*Batch) error {
-	p.client.logger.Info("Batches", zap.Any("batches", batches))
-	if err := p.pendingBatchRepository.AddPendingBatches(batches); err != nil {
-		p.client.logger.Error("Failed to set pending batch", zap.Error(err), zap.Any("batches", batches))
-		return err
-	}
-	return nil
-}
-
-// func (p *BatchPoller) GetBatches(batchIds []string) ([]*Batch, error) {
-// 	rawBatches, err := p.pendingBatchRepository.GetMany(batchIds)
-// 	if err != nil {
-// 		p.client.logger.Error("Failed to fetch pending batches", zap.Error(err), zap.Any("batchIds", batchIds))
-// 	}
-//
-// 	batches := make([]string, 0, len(batchIds))
-// 	for _, rawBatch := range rawBatches {
-// 		batches = append(batches, rawBatch.(string))
-// 	}
-//
-// 	for _, batch := range batches {
-// 		if batch == "error" {
-// 			p.client.logger.Error("Failed fetch a batch", zap.Any("batch", batch))
-// 			return nil, errors.New(fmt.Sprintf("Failed batch %s", batch))
-// 		}
-// 		if batch == "pending" {
-//
-// 		}
-// 	}
-//
-// 	return []*Batch{}, nil
-// }
 
 type Client struct {
 	model            string
@@ -510,17 +295,28 @@ type BatchRequestCount struct {
 }
 
 type Batch struct {
-	Id               string            `json:"id" redis:"id"`
-	InputFileId      string            `json:"input_field_id" redis:"input_field_id"`
-	CompletionWindow string            `json:"completion_window" redis:"completion_window"`
-	Status           string            `json:"status" redis:"status"`
-	OutputFileId     string            `json:"output_file_id" redis:"output_file_id"`
-	CreatedAt        int64             `json:"created_at" redis:"created_at"`
-	ExpiresAt        int64             `json:"expires_at" redis:"expires_at"`
-	CompletedAt      int64             `json:"completed_at" redis:"completed_at"`
-	FailedAt         int64             `json:"failed_at" redis:"failed_at"`
-	ExpiredAt        int64             `json:"expired_at" redis:"expired_at"`
-	RequestCounts    BatchRequestCount `json:"-" redis:"-"`
+	Id               string             `json:"id" redis:"id"`
+	InputFileId      string             `json:"input_field_id" redis:"input_field_id"`
+	CompletionWindow string             `json:"completion_window" redis:"completion_window"`
+	Status           string             `json:"status" redis:"status"`
+	Errors           BatchErrorsWrapper `json:"-" redis:"-"`
+	OutputFileId     string             `json:"output_file_id" redis:"output_file_id"`
+	CreatedAt        int64              `json:"created_at" redis:"created_at"`
+	ExpiresAt        int64              `json:"expires_at" redis:"expires_at"`
+	CompletedAt      int64              `json:"completed_at" redis:"completed_at"`
+	FailedAt         int64              `json:"failed_at" redis:"failed_at"`
+	ExpiredAt        int64              `json:"expired_at" redis:"expired_at"`
+	RequestCounts    BatchRequestCount  `json:"-" redis:"-"`
+}
+
+type BatchErrorsWrapper struct {
+	Object string       `json:"object" redis:"object"`
+	Data   []BatchError `json:"data" redis:"data"`
+}
+
+type BatchError struct {
+	Code    string `json:"code" redis:"code"`
+	Message string `json:"message" redis:"message"`
 }
 
 func (b *Batch) isCompleted() bool {
@@ -811,13 +607,19 @@ func (c *Client) Batch(id string) (*Batch, error) {
 
 func (c *Client) CompletionResponseEntriesFromBatch(batch *Batch) ([]*BatchFileCompletionResponseEntry, error) {
 
+	responses := make([]*BatchFileCompletionResponseEntry, 0)
+
+	if batch.OutputFileId == "" {
+		c.logger.Error("Batch doesn't have an output file, skipping", zap.Any("batch", batch))
+		return responses, nil
+	}
+
 	outputFile, err := c.File(batch.OutputFileId)
 	if err != nil {
 		c.logger.Error("Failed to get batch output file", zap.Error(err))
 		return nil, err
 	}
 
-	var responses []*BatchFileCompletionResponseEntry
 	err = jsonl.NewJsonLinesDecoder(bytes.NewReader(outputFile)).Decode(&responses)
 	if err != nil {
 		c.logger.Error("Failed to decode completion batch response ", zap.Error(err))
@@ -828,8 +630,6 @@ func (c *Client) CompletionResponseEntriesFromBatch(batch *Batch) ([]*BatchFileC
 }
 
 func (c *Client) CompletionResponseEntriesFromBatches(batches []*Batch) ([]*BatchFileCompletionResponseEntry, error) {
-
-	// c.logger.Debug("Reponse batches", zap.Any("batches", batches))
 
 	allResponses, err := parallelRequest(batches, func(batch *Batch) ([]*BatchFileCompletionResponseEntry, error) {
 		responseEntries, err := c.CompletionResponseEntriesFromBatch(batch)
@@ -847,6 +647,12 @@ func (c *Client) CompletionResponseEntriesFromBatches(batches []*Batch) ([]*Batc
 
 	var flattenedResponses []*BatchFileCompletionResponseEntry
 	for _, batchResponses := range allResponses {
+
+		// Skip batch in case of an error
+		if batchResponses == nil {
+			continue
+		}
+
 		flattenedResponses = append(flattenedResponses, batchResponses...)
 	}
 

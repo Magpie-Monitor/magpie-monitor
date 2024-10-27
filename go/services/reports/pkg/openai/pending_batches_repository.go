@@ -18,7 +18,7 @@ const (
 	REDIS_DB_KEY       = "REPORTS_PENDING_BATCH_REDIS_DB"
 )
 
-type PendingBatchsRepository interface {
+type PendingBatchRepository interface {
 	AddPendingBatch(batch *Batch) error
 	AddPendingBatches(batch []*Batch) error
 	CompleteBatch(batchId string) error
@@ -78,7 +78,7 @@ func (r *RedisPendingBatchRepository) AddPendingBatches(batches []*Batch) error 
 
 	for _, batch := range batches {
 		if err := r.redisClient.HSet(r.getPendingKeyFromBatchId(batch.Id), batch); err != nil {
-			r.logger.Error("Failed to add pending batch to repository")
+			r.logger.Error("Failed to add pending batches to repository")
 			return err
 		}
 	}
@@ -92,8 +92,8 @@ func (r *RedisPendingBatchRepository) FailBatch(batchId string) error {
 
 func (r *RedisPendingBatchRepository) CompleteBatch(batchId string) error {
 
-	if err := r.redisClient.Del(fmt.Sprintf("in_progress:%s", batchId)); err != nil {
-		r.logger.Error("Failed to remove pending batch to repository")
+	if err := r.redisClient.Del(r.getPendingKeyFromBatchId(batchId)); err != nil {
+		r.logger.Error("Failed to remove pending batch from repository")
 		return err
 	}
 
@@ -155,8 +155,8 @@ func (r *RedisPendingBatchRepository) GetAllPending() ([]string, error) {
 func ProvideAsPendingBatchRepository(f any) any {
 	return fx.Annotate(
 		f,
-		fx.As(new(PendingBatchsRepository)),
+		fx.As(new(PendingBatchRepository)),
 	)
 }
 
-var _ PendingBatchsRepository = &RedisPendingBatchRepository{}
+var _ PendingBatchRepository = &RedisPendingBatchRepository{}
