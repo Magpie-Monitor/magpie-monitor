@@ -218,10 +218,9 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 
 	}
 
-	g.logger.Error("Node completion requests", zap.Any("requets", completionRequests))
 	batches, err := g.client.UploadAndCreateBatches(completionRequests)
 	if err != nil {
-		g.logger.Error("Failed to create a batch", zap.Error(err))
+		g.logger.Error("Failed to create a batch for node insights", zap.Error(err))
 		return nil, err
 	}
 
@@ -325,10 +324,15 @@ func (g *OpenAiInsightsGenerator) AwaitScheduledNodeInsights(
 	sheduledInsights *ScheduledNodeInsights,
 ) ([]NodeInsightsWithMetadata, error) {
 
-	batches, err := g.batchPoller.AwaitPendingBatches(sheduledInsights.ScheduledJobIds)
+	batches, failedBatches, err := g.batchPoller.AwaitPendingBatches(sheduledInsights.ScheduledJobIds)
 	if err != nil {
 		g.logger.Error("Failed to get batch from id", zap.Error(err))
 		return nil, err
+	}
+
+	// Ignoring failed batches
+	if len(failedBatches) > 0 {
+		g.logger.Error("Some of the node batches have failed", zap.Any("failedBatches", failedBatches))
 	}
 
 	completionResponses, err := g.client.CompletionResponseEntriesFromBatches(batches)

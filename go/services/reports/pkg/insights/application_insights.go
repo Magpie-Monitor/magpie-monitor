@@ -203,8 +203,6 @@ func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
 ) ([]ApplicationInsightsWithMetadata, error) {
 	batches, err := g.client.Batches(sheduledInsights.ScheduledJobIds)
 
-	// batches, err := g.batchPoller.ManyBatches(sheduledInsights.ScheduledJobIds)
-
 	if err != nil {
 		g.logger.Error("Failed to get batch from id", zap.Error(err))
 		return nil, err
@@ -238,11 +236,16 @@ func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
 func (g *OpenAiInsightsGenerator) AwaitScheduledApplicationInsights(
 	sheduledInsights *ScheduledApplicationInsights,
 ) ([]ApplicationInsightsWithMetadata, error) {
-	batches, err := g.batchPoller.AwaitPendingBatches(sheduledInsights.ScheduledJobIds)
+	batches, failedBatches, err := g.batchPoller.AwaitPendingBatches(sheduledInsights.ScheduledJobIds)
 
 	if err != nil {
-		g.logger.Error("Failed to get batch from id", zap.Error(err))
+		g.logger.Error("Failed to wait for pending application batches", zap.Error(err))
 		return nil, err
+	}
+
+	// Ignoring failed batches
+	if len(failedBatches) > 0 {
+		g.logger.Error("Some of the application batches have failed", zap.Any("failedBatches", failedBatches))
 	}
 
 	completionResponses, err := g.client.CompletionResponseEntriesFromBatches(batches)
@@ -323,8 +326,6 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 	for applicationName, logs := range groupedLogs {
 
 		logPackets := repositories.SplitLogsIntoPackets(logs, g.client.ContextSizeBytes)
-
-		// g.logger.Debug("Packets", zap.Any("packets", logPackets))
 
 		for _, logPacket := range logPackets {
 			messages, err := g.createMessagesFromApplicationLogs(

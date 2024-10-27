@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+const REPORTS_POLLING_INTERVAL_SECONDS = 10
+
 type ReportGenerationFilters struct {
 	ClusterId                string                                      `json:"clusterId"`
 	SinceMs                  int64                                       `json:"sinceMs"`
@@ -89,8 +91,6 @@ func (s *ReportsService) ScheduleReport(
 		return nil, err
 	}
 
-	// s.logger.Debug("logs", zap.Any("logs", applicationLogs))
-
 	applicationInsights, err := s.applicationInsightsGenerator.ScheduleApplicationInsights(
 		applicationLogs,
 		params.ApplicationConfiguration, time.Now(),
@@ -137,7 +137,6 @@ func (s *ReportsService) PollReports(ctx context.Context) error {
 
 	for {
 		reports, err := s.reportRepository.GetPendingReports(ctx)
-		// s.logger.Info("Checking pending reports", zap.Any("reports", reports))
 
 		if err != nil {
 			s.logger.Error("Failed to get pending reports", zap.Error(err))
@@ -152,7 +151,7 @@ func (s *ReportsService) PollReports(ctx context.Context) error {
 			pendingReports[report.Id] = true
 			go func() {
 
-				s.logger.Info("Checking pending reports", zap.Any("id", report.Id),
+				s.logger.Info("Pending reports", zap.Any("id", report.Id),
 					zap.Any("status", report.Status),
 					zap.Any("scheduled", report.ScheduledApplicationInsights),
 				)
@@ -163,7 +162,6 @@ func (s *ReportsService) PollReports(ctx context.Context) error {
 					return
 				}
 
-				s.logger.Info("Got application insights", zap.Any("ins", applicationInsights))
 				nodeInsights, err := s.nodeInsightsGenerator.AwaitScheduledNodeInsights(report.ScheduledNodeInsights)
 				if err != nil {
 					s.logger.Error("Failed to await for node insights", zap.Error(err), zap.Any("insights", report.ScheduledNodeInsights))
@@ -172,18 +170,15 @@ func (s *ReportsService) PollReports(ctx context.Context) error {
 
 				report, err := s.CompletePendingReport(report.Id, applicationInsights, nodeInsights)
 				if err != nil {
-					s.logger.Error("Failed to await for node insights", zap.Error(err), zap.Any("insights", report.ScheduledNodeInsights))
+					s.logger.Error("Failed to complete pending report", zap.Error(err), zap.Any("insights", report.ScheduledNodeInsights))
 					return
 				}
 
-				s.logger.Info("Completed Report", zap.Any("ins", report))
-
-				s.logger.Debug("GOT A REPORT!", zap.Any("report", report))
-
+				s.logger.Info("Completed report", zap.Any("reportId", report.Id))
 			}()
 		}
 
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Second * REPORTS_POLLING_INTERVAL_SECONDS)
 	}
 }
 
