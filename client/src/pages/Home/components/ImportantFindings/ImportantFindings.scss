@@ -9,9 +9,6 @@
     margin: 12px;
   }
 
-  &__table-label {
-  }
-
   &__columns {
     display: grid;
     grid-template-columns: 1fr 1fr 2fr 1fr;
@@ -43,6 +40,8 @@
 
     &__category {
       color: $red;
+      display: flex;
+      align-items: center;
     }
   }
 }
