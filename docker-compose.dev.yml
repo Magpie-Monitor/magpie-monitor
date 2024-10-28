@@ -144,7 +144,6 @@ services:
 volumes:
   redisdata:
   redisinsight:
-  kafkaui_data:
 
 networks:
   default:

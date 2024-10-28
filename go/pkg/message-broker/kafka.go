@@ -65,16 +65,16 @@ func (b *KafkaMessageBroker) Publish(ctx context.Context, key []byte, value []by
 	return nil
 }
 
-func (b *KafkaMessageBroker) Subscribe(ctx context.Context, channel chan<- []byte, errChannel chan<- error) {
+func (b *KafkaMessageBroker) Subscribe(ctx context.Context, messages chan<- []byte, errors chan<- error) {
 	for {
 		msg, err := b.reader.ReadMessage(ctx)
 
 		if err != nil {
 			b.logger.Error("Failed to read message", zap.Error(err))
-			errChannel <- err
+			errors <- err
 		}
 
-		channel <- msg.Value
+		messages <- msg.Value
 	}
 }
 

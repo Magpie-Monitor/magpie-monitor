@@ -29,11 +29,11 @@ func (b *KafkaJsonMessageBroker[T]) Publish(key string, message T) error {
 	return b.broker.Publish(context.Background(), []byte(key), encodedMessage)
 }
 
-func (b *KafkaJsonMessageBroker[T]) Subscribe(ch chan<- T, errChn chan<- error) {
+func (b *KafkaJsonMessageBroker[T]) Subscribe(messages chan<- T, errors chan<- error) {
 
 	msgChannel := make(chan []byte)
 
-	go b.broker.Subscribe(context.Background(), msgChannel, errChn)
+	go b.broker.Subscribe(context.Background(), msgChannel, errors)
 
 	for {
 		message := <-msgChannel
@@ -41,12 +41,12 @@ func (b *KafkaJsonMessageBroker[T]) Subscribe(ch chan<- T, errChn chan<- error) 
 
 		err := json.Unmarshal(message, &decodedMessage)
 		if err != nil {
-			b.logger.Error("Failed to decode a broker json message", zap.Error(err),
+			b.logger.Error("Failed to decode broker json message", zap.Error(err),
 				zap.Any("messsage", message))
-			errChn <- err
+			errors <- err
 		}
 
-		ch <- decodedMessage
+		messages <- decodedMessage
 	}
 
 }

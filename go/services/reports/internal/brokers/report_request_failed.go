@@ -22,7 +22,7 @@ const (
 
 type ReportRequestFailed struct {
 	CorrelationId string             `json:"correlationId"`
-	ErrorType     ReportRequestError `json:"reportRequest"`
+	ErrorType     ReportRequestError `json:"errorType"`
 	ErrorMessage  string             `json:"errorMessage"`
 	TimestampMs   int64              `json:"timestampMs"`
 }
