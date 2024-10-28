@@ -24,6 +24,7 @@ const (
 
 type ReportGenerationFilters struct {
 	ClusterId                string                                      `json:"clusterId"`
+	CorrelationId            string                                      `json:"correlationId"`
 	SinceMs                  int64                                       `json:"sinceMs"`
 	ToMs                     int64                                       `json:"toMs"`
 	ApplicationConfiguration []*insights.ApplicationInsightConfiguration `json:"applicationConfiguration"`
@@ -129,6 +130,7 @@ func (s *ReportsService) ScheduleReport(
 
 	report, err := s.reportRepository.InsertReport(ctx, &repositories.Report{
 		ClusterId:                    params.ClusterId,
+		CorrelationId:                params.CorrelationId,
 		Title:                        s.getTitleForReport(params.ClusterId, sinceDate, toDate),
 		Status:                       repositories.ReportState_AwaitingGeneration,
 		RequestedAtMs:                time.Now().UnixMilli(),
@@ -146,7 +148,12 @@ func (s *ReportsService) ScheduleReport(
 	return report, nil
 }
 
-func (s *ReportsService) PollReports(ctx context.Context) error {
+type ReportGenerationError struct {
+	Msg    string
+	Report *repositories.Report
+}
+
+func (s *ReportsService) PollReports(ctx context.Context, reportsChn chan<- *repositories.Report, errChn chan<- *ReportGenerationError) {
 
 	pendingReports := make(map[string]bool)
 
@@ -174,23 +181,38 @@ func (s *ReportsService) PollReports(ctx context.Context) error {
 				applicationInsights, err := s.applicationInsightsGenerator.AwaitScheduledApplicationInsights(report.ScheduledApplicationInsights)
 				if err != nil {
 					s.logger.Error("Failed to await for application insights", zap.Error(err), zap.Any("insights", report.ScheduledApplicationInsights))
+					errChn <- &ReportGenerationError{
+						Msg:    fmt.Sprintf("Failed to await for application insights: %s", err.Error()),
+						Report: report,
+					}
 					return
 				}
 
 				nodeInsights, err := s.nodeInsightsGenerator.AwaitScheduledNodeInsights(report.ScheduledNodeInsights)
 				if err != nil {
 					s.logger.Error("Failed to await for node insights", zap.Error(err), zap.Any("insights", report.ScheduledNodeInsights))
+
+					errChn <- &ReportGenerationError{
+						Msg:    fmt.Sprintf("Failed to await for application insights: %s", err.Error()),
+						Report: report,
+					}
 					return
 				}
 
 				report, err := s.CompletePendingReport(report.Id, applicationInsights, nodeInsights)
 				if err != nil {
 					s.logger.Error("Failed to complete pending report", zap.Error(err), zap.Any("insights", report.ScheduledNodeInsights))
+					errChn <- &ReportGenerationError{
+						Msg:    fmt.Sprintf("Failed to complete pending report: %s", err.Error()),
+						Report: report,
+					}
 					return
 				}
 
 				delete(pendingReports, report.Id)
+
 				s.logger.Info("Completed report", zap.Any("reportId", report.Id))
+				reportsChn <- report
 			}()
 		}
 
