@@ -41,6 +41,7 @@ const (
 
 type Report struct {
 	Id                      string               `bson:"_id,omitempty" json:"id"`
+	CorrelationId           string               `bson:"correlationId" json:"correlationId"`
 	Status                  ReportState          `bson:"status" json:"status"`
 	ClusterId               string               `bson:"clusterId" json:"clusterId"`
 	SinceMs                 int64                `bson:"sinceMs" json:"sinceMs"`
