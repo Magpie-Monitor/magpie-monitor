@@ -133,7 +133,6 @@ services:
       - "6380:6379"
     volumes:
       - redisdata:/data
-
   redisinsight:
     container_name: magpie-monitor-redisinsight
     image: redis/redisinsight:latest
@@ -142,19 +141,10 @@ services:
     volumes:
       - redisinsight:/data
 
-  kafka-ui:
-    container_name: kafka-ui
-    image: provectuslabs/kafka-ui:latest
-    ports:
-      - 8077:8080
-    environment:
-      DYNAMIC_CONFIG_ENABLED: "true"
-    # volumes:
-    #   - ~/kui/config.yml:/etc/kafkaui/dynamic_config.yaml
-
 volumes:
   redisdata:
   redisinsight:
+  kafkaui_data:
 
 networks:
   default:
