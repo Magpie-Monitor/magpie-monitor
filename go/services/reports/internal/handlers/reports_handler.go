@@ -67,6 +67,7 @@ func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
 
 type reportsPostParams struct {
 	ClusterId                *string                                     `json:"clusterId"`
+	CorrelationId            *string                                     `json:"correlationId"`
 	SinceMs                  *int64                                      `json:"sinceMs"`
 	ToMs                     *int64                                      `json:"toMs"`
 	ApplicationConfiguration []*insights.ApplicationInsightConfiguration `json:"applicationConfiguration"`
@@ -216,6 +217,12 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if params.CorrelationId == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		routing.WriteHttpError(w, "Missing correlationId parameter")
+		return
+	}
+
 	if params.MaxLength == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		routing.WriteHttpError(w, "Missing maxLength parameter")
@@ -225,6 +232,7 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 	report, err := h.reportsService.GenerateAndSaveReport(ctx,
 		services.ReportGenerationFilters{
 			ClusterId:                *params.ClusterId,
+			CorrelationId:            *params.CorrelationId,
 			SinceMs:                  *params.SinceMs,
 			ToMs:                     *params.ToMs,
 			MaxLength:                *params.MaxLength,
@@ -292,6 +300,7 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.reportsService.ScheduleReport(ctx,
 		services.ReportGenerationFilters{
 			ClusterId:                *params.ClusterId,
+			CorrelationId:            *params.CorrelationId,
 			SinceMs:                  *params.SinceMs,
 			ToMs:                     *params.ToMs,
 			MaxLength:                *params.MaxLength,

@@ -7,6 +7,7 @@ import (
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/swagger"
+	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/brokers"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/database"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/handlers"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/services"
@@ -90,6 +91,18 @@ func main() {
 				repositories.NewMongoDbNodeIncidentRepository,
 			),
 
+			brokers.ProvideAsReportGeneratedBroker(
+				brokers.NewReportGeneratedBroker,
+			),
+
+			brokers.ProvideAsReportRequestedBroker(
+				brokers.NewReportRequestedBroker,
+			),
+
+			brokers.ProvideAsReportRequestFailedBroker(
+				brokers.NewReportRequestFailedBroker,
+			),
+
 			repositories.NewApplicationIncidentsCollection,
 			repositories.ProvideAsApplicationIncidentRepository(
 				repositories.NewMongoDbApplicationIncidentRepository,
@@ -118,10 +131,16 @@ func main() {
 			),
 
 			zap.NewExample),
-		fx.Invoke(func(server *http.Server, reportsService *services.ReportsService, batchPoller *openai.BatchPoller) {
+		fx.Invoke(func(server *http.Server,
+			reportsService *services.ReportsService,
+			batchPoller *openai.BatchPoller,
+			reportsHandler *handlers.ReportsHandler) {
+
+			// Listen for ReportRequested messages
+			go reportsHandler.ListenForReportRequests()
 
 			// Poll for pending reports
-			go reportsService.PollReports(context.Background())
+			go reportsHandler.PollReports()
 
 			// Poll for pending OpenAi batches
 			go batchPoller.Start()
