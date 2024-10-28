@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"strconv"
 
+	messagebroker "github.com/Magpie-Monitor/magpie-monitor/pkg/message-broker"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
+	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/brokers"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/services"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
@@ -37,20 +39,29 @@ func (router *ReportsRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type ReportsHandler struct {
-	logger         *zap.Logger
-	reportsService *services.ReportsService
+	logger                    *zap.Logger
+	reportsService            *services.ReportsService
+	reportRequestedBroker     messagebroker.MessageBroker[*brokers.ReportRequested]
+	reportGeneratedBroker     messagebroker.MessageBroker[*brokers.ReportGenerated]
+	reportRequestFailedBroker messagebroker.MessageBroker[*brokers.ReportRequestFailed]
 }
 
 type ReportsHandlerParams struct {
 	fx.In
-	Logger         *zap.Logger
-	ReportsService *services.ReportsService
+	Logger                    *zap.Logger
+	ReportsService            *services.ReportsService
+	ReportRequestedBroker     messagebroker.MessageBroker[*brokers.ReportRequested]
+	ReportGeneratedBroker     messagebroker.MessageBroker[*brokers.ReportGenerated]
+	ReportRequestFailedBroker messagebroker.MessageBroker[*brokers.ReportRequestFailed]
 }
 
 func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
 	return &ReportsHandler{
-		logger:         p.Logger,
-		reportsService: p.ReportsService,
+		logger:                    p.Logger,
+		reportsService:            p.ReportsService,
+		reportRequestedBroker:     p.ReportRequestedBroker,
+		reportRequestFailedBroker: p.ReportRequestFailedBroker,
+		reportGeneratedBroker:     p.ReportGeneratedBroker,
 	}
 }
 
@@ -239,6 +250,7 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 	w.Write(reportJson)
 }
 
+// TODO: Remove once the system is migrated to microservices
 func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
@@ -306,4 +318,108 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write(reportJson)
+}
+
+// TODO: Remove everything above, once the system is migrated to microservices
+func (h *ReportsHandler) ListenForReportRequests() {
+
+	requests := make(chan *brokers.ReportRequested)
+	errChan := make(chan error)
+	ctx := context.Background()
+
+	go h.reportRequestedBroker.Subscribe(requests, errChan)
+	for {
+		select {
+		case request := <-requests:
+			err := h.ScheduleReport(ctx, request.CorrelationId, &request.ReportRequest)
+			if err != nil {
+				h.logger.Error("Failed to schedule a report", zap.Any("err", err), zap.Any("request", request))
+				h.reportRequestFailedBroker.Publish(request.CorrelationId, err)
+			}
+
+		case err := <-errChan:
+			h.logger.Error("Recieved a malformed message", zap.Any("err", err))
+		}
+
+	}
+}
+
+func (h *ReportsHandler) ScheduleReport(ctx context.Context, correlationId string,
+	reportRequest *brokers.ReportRequest) *brokers.ReportRequestFailed {
+
+	if reportRequest.SinceMs == nil {
+		return brokers.NewReportRequestFailedValidation(
+			correlationId,
+			"Missing sinceMs parameter",
+		)
+	}
+
+	if reportRequest.ToMs == nil {
+		return brokers.NewReportRequestFailedValidation(
+			correlationId,
+			"Missing toMs parameter",
+		)
+	}
+
+	if reportRequest.ClusterId == nil {
+		return brokers.NewReportRequestFailedValidation(
+			correlationId,
+			"Missing clusterId parameter",
+		)
+	}
+
+	if reportRequest.ClusterId == nil {
+		return brokers.NewReportRequestFailedValidation(
+			correlationId,
+			"Missing maxLength parameter",
+		)
+	}
+
+	resp, err := h.reportsService.ScheduleReport(ctx,
+		services.ReportGenerationFilters{
+			ClusterId:                *reportRequest.ClusterId,
+			CorrelationId:            correlationId,
+			SinceMs:                  *reportRequest.SinceMs,
+			ToMs:                     *reportRequest.ToMs,
+			MaxLength:                *reportRequest.MaxLength,
+			ApplicationConfiguration: reportRequest.ApplicationConfiguration,
+			NodeConfiguration:        reportRequest.NodeConfiguration,
+		},
+	)
+
+	if err != nil {
+		h.logger.Error("Failed to generate report", zap.Error(err))
+		return brokers.NewReportRequestFailedInternalError(
+			correlationId,
+			fmt.Sprintf("Failed to generate report %s", err.Error()),
+		)
+	}
+
+	h.logger.Info("Scheduled report", zap.Any("report", resp))
+
+	return nil
+}
+
+func (h *ReportsHandler) PollReports() {
+
+	errChannel := make(chan *services.ReportGenerationError)
+	reportsChannel := make(chan *repositories.Report)
+
+	go h.reportsService.PollReports(context.Background(), reportsChannel, errChannel)
+
+	for {
+		select {
+		case report := <-reportsChannel:
+			h.reportGeneratedBroker.Publish(report.CorrelationId, brokers.NewReportGenerated(
+				report,
+			))
+
+		case err := <-errChannel:
+			h.reportRequestFailedBroker.Publish(err.Report.CorrelationId, brokers.NewReportRequestFailedInternalError(
+				err.Report.CorrelationId,
+				err.Msg,
+			))
+		}
+	}
+
 }
