@@ -26,7 +26,7 @@ type ReportRequested struct {
 	ReportRequest ReportRequest `json:"reportRequest"`
 }
 
-func NewReportRequestedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessageBroker[*ReportRequested] {
+func NewReportRequestedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessageBroker[ReportRequested] {
 
 	envs.ValidateEnvs(
 		"address/username/password/topic for ReportRequestedBroker is not set",
@@ -43,7 +43,7 @@ func NewReportRequestedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessag
 	address := os.Getenv(MESSAGE_BROKER_ADDRESS_KEY)
 	topic := os.Getenv(REPORT_REQUESTED_TOPIC_KEY)
 
-	return messagebroker.NewKafkaJsonMessageBroker[*ReportRequested](
+	return messagebroker.NewKafkaJsonMessageBroker[ReportRequested](
 		logger,
 		address,
 		topic,
@@ -55,6 +55,6 @@ func NewReportRequestedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessag
 func ProvideAsReportRequestedBroker(f any) any {
 	return fx.Annotate(
 		f,
-		fx.As(new(messagebroker.MessageBroker[*ReportRequested])),
+		fx.As(new(messagebroker.MessageBroker[ReportRequested])),
 	)
 }

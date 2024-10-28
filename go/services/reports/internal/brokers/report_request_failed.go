@@ -52,7 +52,7 @@ func NewReportRequestFailedInternalError(correlationId string, msg string) *Repo
 	)
 }
 
-func NewReportRequestFailedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessageBroker[*ReportRequestFailed] {
+func NewReportRequestFailedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessageBroker[ReportRequestFailed] {
 
 	envs.ValidateEnvs(
 		"address/username/password/topic for ReportRequestFailedBroker is not set",
@@ -69,7 +69,7 @@ func NewReportRequestFailedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMe
 	address := os.Getenv(MESSAGE_BROKER_ADDRESS_KEY)
 	topic := os.Getenv(REPORT_REQUEST_FAILED_TOPIC_KEY)
 
-	return messagebroker.NewKafkaJsonMessageBroker[*ReportRequestFailed](
+	return messagebroker.NewKafkaJsonMessageBroker[ReportRequestFailed](
 		logger,
 		address,
 		topic,
@@ -81,6 +81,6 @@ func NewReportRequestFailedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMe
 func ProvideAsReportRequestFailedBroker(f any) any {
 	return fx.Annotate(
 		f,
-		fx.As(new(messagebroker.MessageBroker[*ReportRequestFailed])),
+		fx.As(new(messagebroker.MessageBroker[ReportRequestFailed])),
 	)
 }

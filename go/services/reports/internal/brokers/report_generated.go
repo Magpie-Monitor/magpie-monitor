@@ -19,9 +19,9 @@ type ReportGenerated struct {
 	TimestampMs   int64                `json:"timestampMs"`
 }
 
-func NewReportGenerated(report *repositories.Report) *ReportGenerated {
+func NewReportGenerated(report *repositories.Report) ReportGenerated {
 
-	return &ReportGenerated{
+	return ReportGenerated{
 		CorrelationId: report.CorrelationId,
 		Report:        report,
 		TimestampMs:   time.Now().UnixMilli(),
@@ -29,7 +29,7 @@ func NewReportGenerated(report *repositories.Report) *ReportGenerated {
 
 }
 
-func NewReportGeneratedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessageBroker[*ReportGenerated] {
+func NewReportGeneratedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessageBroker[ReportGenerated] {
 
 	envs.ValidateEnvs(
 		"address/username/password/topic for ReportGeneratedBroker is not set",
@@ -46,7 +46,7 @@ func NewReportGeneratedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessag
 	address := os.Getenv(MESSAGE_BROKER_ADDRESS_KEY)
 	topic := os.Getenv(REPORT_GENERATED_TOPIC_KEY)
 
-	return messagebroker.NewKafkaJsonMessageBroker[*ReportGenerated](
+	return messagebroker.NewKafkaJsonMessageBroker[ReportGenerated](
 		logger,
 		address,
 		topic,
@@ -58,6 +58,6 @@ func NewReportGeneratedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessag
 func ProvideAsReportGeneratedBroker(f any) any {
 	return fx.Annotate(
 		f,
-		fx.As(new(messagebroker.MessageBroker[*ReportGenerated])),
+		fx.As(new(messagebroker.MessageBroker[ReportGenerated])),
 	)
 }
