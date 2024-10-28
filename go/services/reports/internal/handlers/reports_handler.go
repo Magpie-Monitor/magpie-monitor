@@ -41,18 +41,18 @@ func (router *ReportsRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type ReportsHandler struct {
 	logger                    *zap.Logger
 	reportsService            *services.ReportsService
-	reportRequestedBroker     messagebroker.MessageBroker[*brokers.ReportRequested]
-	reportGeneratedBroker     messagebroker.MessageBroker[*brokers.ReportGenerated]
-	reportRequestFailedBroker messagebroker.MessageBroker[*brokers.ReportRequestFailed]
+	reportRequestedBroker     messagebroker.MessageBroker[brokers.ReportRequested]
+	reportGeneratedBroker     messagebroker.MessageBroker[brokers.ReportGenerated]
+	reportRequestFailedBroker messagebroker.MessageBroker[brokers.ReportRequestFailed]
 }
 
 type ReportsHandlerParams struct {
 	fx.In
 	Logger                    *zap.Logger
 	ReportsService            *services.ReportsService
-	ReportRequestedBroker     messagebroker.MessageBroker[*brokers.ReportRequested]
-	ReportGeneratedBroker     messagebroker.MessageBroker[*brokers.ReportGenerated]
-	ReportRequestFailedBroker messagebroker.MessageBroker[*brokers.ReportRequestFailed]
+	ReportRequestedBroker     messagebroker.MessageBroker[brokers.ReportRequested]
+	ReportGeneratedBroker     messagebroker.MessageBroker[brokers.ReportGenerated]
+	ReportRequestFailedBroker messagebroker.MessageBroker[brokers.ReportRequestFailed]
 }
 
 func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
@@ -332,7 +332,7 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 // TODO: Remove everything above, once the system is migrated to microservices
 func (h *ReportsHandler) ListenForReportRequests() {
 
-	requests := make(chan *brokers.ReportRequested)
+	requests := make(chan brokers.ReportRequested)
 	errChan := make(chan error)
 	ctx := context.Background()
 
@@ -343,7 +343,7 @@ func (h *ReportsHandler) ListenForReportRequests() {
 			err := h.ScheduleReport(ctx, request.CorrelationId, &request.ReportRequest)
 			if err != nil {
 				h.logger.Error("Failed to schedule a report", zap.Any("err", err), zap.Any("request", request))
-				h.reportRequestFailedBroker.Publish(request.CorrelationId, err)
+				h.reportRequestFailedBroker.Publish(request.CorrelationId, *err)
 			}
 
 		case err := <-errChan:
@@ -424,7 +424,7 @@ func (h *ReportsHandler) PollReports() {
 			))
 
 		case err := <-errChannel:
-			h.reportRequestFailedBroker.Publish(err.Report.CorrelationId, brokers.NewReportRequestFailedInternalError(
+			h.reportRequestFailedBroker.Publish(err.Report.CorrelationId, *brokers.NewReportRequestFailedInternalError(
 				err.Report.CorrelationId,
 				err.Msg,
 			))
