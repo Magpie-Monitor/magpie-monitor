@@ -1,0 +1,54 @@
+package messagebroker
+
+import (
+	"context"
+	"encoding/json"
+	"go.uber.org/zap"
+)
+
+type KafkaJsonMessageBroker[T any] struct {
+	broker *KafkaMessageBroker
+	logger *zap.Logger
+}
+
+func NewKafkaJsonMessageBroker[T any](logger *zap.Logger, addr string, topic string, username string, password string) *KafkaJsonMessageBroker[T] {
+	return &KafkaJsonMessageBroker[T]{
+		logger: logger,
+		broker: NewKafkaMessageBroker(addr, topic, username, password, logger),
+	}
+}
+
+func (b *KafkaJsonMessageBroker[T]) Publish(key string, message T) error {
+
+	encodedMessage, err := json.Marshal(message)
+	if err != nil {
+		b.logger.Error("Failed to encode broker json message", zap.Error(err), zap.Any("message", message))
+		return err
+	}
+
+	return b.broker.Publish(context.Background(), []byte(key), encodedMessage)
+}
+
+func (b *KafkaJsonMessageBroker[T]) Subscribe(ch chan<- T, errChn chan<- error) {
+
+	msgChannel := make(chan []byte)
+
+	go b.broker.Subscribe(context.Background(), msgChannel, errChn)
+
+	for {
+		message := <-msgChannel
+		var decodedMessage T
+
+		err := json.Unmarshal(message, &decodedMessage)
+		if err != nil {
+			b.logger.Error("Failed to decode a broker json message", zap.Error(err),
+				zap.Any("messsage", message))
+			errChn <- err
+		}
+
+		ch <- decodedMessage
+	}
+
+}
+
+var _ MessageBroker[any] = &KafkaJsonMessageBroker[any]{}
