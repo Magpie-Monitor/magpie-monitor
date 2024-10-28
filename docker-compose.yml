@@ -289,6 +289,16 @@ services:
       timeout: 5s
       retries: 5
 
+  kafka-ui:
+    container_name: magpie-monitor-kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - ${KAFKA_UI_PORT:-8011}:8080
+    environment:
+      DYNAMIC_CONFIG_ENABLED: "true"
+    volumes:
+      - kafkaui-data:/etc/kafkaui
+
 volumes:
   redisdata:
   db-reports-data:
@@ -297,6 +307,7 @@ volumes:
     external: true
   db-management-data:
   management-pgadmin-data:
+  kafkaui-data:
 
 networks:
   default:
