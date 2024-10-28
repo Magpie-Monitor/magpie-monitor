@@ -317,10 +317,11 @@ components:
           type: string
         customPrompt:
           type: string
-
     reportsPostParams:
       type: object
       properties:
+        correlationId:
+          type: string
         clusterId:
           type: string
         sinceMs:
