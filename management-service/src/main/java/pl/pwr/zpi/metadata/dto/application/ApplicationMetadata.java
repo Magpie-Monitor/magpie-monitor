@@ -1,4 +1,9 @@
 package pl.pwr.zpi.metadata.dto.application;
 
-public record ApplicationMetadata(String name, String kind, boolean running) {
+import java.io.Serializable;
+
+public record ApplicationMetadata(
+        String name,
+        String kind,
+        boolean running) implements Serializable {
 }
