@@ -79,7 +79,7 @@ func (h *MetadataHandler) InsertClusterMetadata(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	err = h.metadataService.InsertClusterMetadata(metadata)
+	err = h.metadataService.InsertApplicationMetadata(metadata)
 	if err != nil {
 		h.log.Error("Error inserting cluster metadata:", zap.Error(err))
 		h.writeError(&w, "Error inserting cluster metadata", http.StatusInternalServerError)
