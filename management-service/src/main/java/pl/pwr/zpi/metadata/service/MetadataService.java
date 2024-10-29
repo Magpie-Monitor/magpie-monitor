@@ -3,17 +3,20 @@ package pl.pwr.zpi.metadata.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import pl.pwr.zpi.metadata.dto.application.AggregatedApplicationMetadata;
-import pl.pwr.zpi.metadata.dto.application.ApplicationMetadata;
-import pl.pwr.zpi.metadata.dto.cluster.AggregatedClusterMetadata;
-import pl.pwr.zpi.metadata.dto.cluster.ClusterMetadata;
-import pl.pwr.zpi.metadata.dto.node.AggregatedNodeMetadata;
+import pl.pwr.zpi.metadata.dto.application.Application;
+import pl.pwr.zpi.metadata.dto.cluster.Cluster;
 import pl.pwr.zpi.metadata.dto.node.Node;
+import pl.pwr.zpi.metadata.event.dto.application.AggregatedApplicationMetadata;
+import pl.pwr.zpi.metadata.event.dto.cluster.AggregatedClusterMetadata;
+import pl.pwr.zpi.metadata.event.dto.node.AggregatedNodeMetadata;
 import pl.pwr.zpi.metadata.repository.AggregatedApplicationMetadataRepository;
 import pl.pwr.zpi.metadata.repository.AggregatedClusterMetadataRepository;
 import pl.pwr.zpi.metadata.repository.AggregatedNodeMetadataRepository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,41 +29,39 @@ public class MetadataService {
     private final AggregatedClusterMetadataRepository clusterMetadataRepository;
     private final MetadataHistoryService metadataHistoryService;
 
-    public List<ClusterMetadata> getAllClusters() {
-        List<ClusterMetadata> activeClusters = getActiveClusters();
+    public List<Cluster> getAllClusters() {
+        List<Cluster> activeClusters = getActiveClusters();
 
-        Set<ClusterMetadata> inactiveClusters = filterInactiveClusters(activeClusters);
+        Set<Cluster> inactiveClusters = filterInactiveClusters(activeClusters);
         activeClusters.addAll(inactiveClusters);
 
         return activeClusters;
     }
 
-    public List<ClusterMetadata> getActiveClusters() {
+    public List<Cluster> getActiveClusters() {
         return clusterMetadataRepository.findFirstByOrderByCollectedAtMsDesc()
-                .map(AggregatedClusterMetadata::metadata)
-                .orElse(Collections.emptyList());
+                .map(metadata -> metadata.metadata()
+                        .stream()
+                        .map(cluster -> new Cluster(cluster.clusterId(), true))
+                        .collect(Collectors.toCollection(ArrayList::new))
+                )
+                .orElse(new ArrayList<>());
     }
 
-    private Set<ClusterMetadata> filterInactiveClusters(List<ClusterMetadata> activeClusters) {
-        Set<String> activeClustersIds = activeClusters.stream().map(ClusterMetadata::clusterId).collect(Collectors.toSet());
+    private Set<Cluster> filterInactiveClusters(List<Cluster> activeClusters) {
+        Set<String> activeClusterIds = activeClusters.stream().map(Cluster::clusterId).collect(Collectors.toSet());
 
         return metadataHistoryService.getClustersHistory().stream()
-                .map(clusterHistory -> new ClusterMetadata(clusterHistory.id(), false))
-                .filter(clusterMetadata -> !activeClustersIds.contains(clusterMetadata.clusterId()))
+                .map(clusterHistory -> new Cluster(clusterHistory.id(), false))
+                .filter(cluster -> !activeClusterIds.contains(cluster.clusterId()))
                 .collect(Collectors.toSet());
     }
 
-    public Optional<ClusterMetadata> getClusterById(String clusterId) {
+    public Optional<Cluster> getClusterById(String clusterId) {
         if (!clusterMetadataRepository.existsByMetadataClusterId(clusterId)) {
             return Optional.empty();
         }
-
-        boolean running = !getActiveClusters().stream()
-                .filter(clusterMetadata -> clusterMetadata.clusterId().equals(clusterId))
-                .toList()
-                .isEmpty();
-
-        return Optional.of(new ClusterMetadata(clusterId, running));
+        return Optional.of(new Cluster(clusterId, getActiveClusters().contains(new Cluster(clusterId, false))));
     }
 
     public List<Node> getClusterNodes(String clusterId) {
@@ -81,31 +82,35 @@ public class MetadataService {
     }
 
     private Set<Node> filterInactiveNodesForClusterId(String clusterId, List<Node> activeNodes) {
-        Set<String> activeNodeIds = activeNodes.stream().map(Node::name).collect(Collectors.toSet());
+        Set<String> activeNodeIs = activeNodes.stream().map(Node::name).collect(Collectors.toSet());
 
-        return metadataHistoryService.getNodeHistory(clusterId).stream()
-                .filter(node -> !activeNodeIds.contains(node.name()))
+        return metadataHistoryService.getNodeHistory(clusterId)
+                .stream()
+                .filter(node -> !activeNodeIs.contains(node.name()))
                 .collect(Collectors.toSet());
     }
 
-    public List<ApplicationMetadata> getClusterApplications(String clusterId) {
-        List<ApplicationMetadata> activeApplications = getActiveApplicationsForClusterId(clusterId);
+    public List<Application> getClusterApplications(String clusterId) {
+        List<Application> activeApplications = getActiveApplicationsForClusterId(clusterId);
 
-        Set<ApplicationMetadata> inactiveApplications = filterInactiveApplicationsForClusterId(clusterId, activeApplications);
+        Set<Application> inactiveApplications = filterInactiveApplicationsForClusterId(clusterId, activeApplications);
         activeApplications.addAll(inactiveApplications);
 
         return activeApplications;
     }
 
-    private List<ApplicationMetadata> getActiveApplicationsForClusterId(String clusterId) {
+    private List<Application> getActiveApplicationsForClusterId(String clusterId) {
         return applicationMetadataRepository.findFirstByClusterIdOrderByCollectedAtMs(clusterId)
-                .map(AggregatedApplicationMetadata::metadata)
-                .orElse(Collections.emptyList());
+                .map(metadata -> metadata.metadata().stream()
+                        .map(application -> new Application(application.name(), application.kind(), true))
+                        .collect(Collectors.toCollection(ArrayList::new))
+                )
+                .orElse(new ArrayList<>());
     }
 
-    private Set<ApplicationMetadata> filterInactiveApplicationsForClusterId(String clusterId, List<ApplicationMetadata> activeApplications) {
+    private Set<Application> filterInactiveApplicationsForClusterId(String clusterId, List<Application> activeApplications) {
         Set<String> activeApplicationIds = activeApplications.stream()
-                .map(ApplicationMetadata::name)
+                .map(Application::name)
                 .collect(Collectors.toSet());
 
         return metadataHistoryService.getApplicationHistory(clusterId).stream()

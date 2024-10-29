@@ -1,7 +1,4 @@
-package pl.pwr.zpi.metadata.event.dto;
-
-import pl.pwr.zpi.metadata.dto.application.AggregatedApplicationMetadata;
-import pl.pwr.zpi.metadata.dto.application.ApplicationMetadata;
+package pl.pwr.zpi.metadata.event.dto.application;
 
 import java.util.List;
 

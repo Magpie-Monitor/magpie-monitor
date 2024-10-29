@@ -33,9 +33,8 @@ type AggregatedApplicationMetadata struct {
 }
 
 type ApplicationMetadata struct {
-	Name    string `json:"name" bson:"name"`
-	Kind    string `json:"kind" bson:"kind"`
-	Running bool   `json:"running" bson:"running"`
+	Name string `json:"name" bson:"name"`
+	Kind string `json:"kind" bson:"kind"`
 }
 
 type AggregatedNodeMetadata struct {
@@ -45,9 +44,8 @@ type AggregatedNodeMetadata struct {
 }
 
 type NodeMetadata struct {
-	Name    string        `json:"name"`
-	Running bool          `json:"running"`
-	Files   []interface{} `json:"files"`
+	Name  string        `json:"name"`
+	Files []interface{} `json:"files"`
 }
 
 type AggregatedClusterState struct {
@@ -57,7 +55,6 @@ type AggregatedClusterState struct {
 
 type ClusterMetadata struct {
 	ClusterId string `json:"clusterId"`
-	Running   bool   `json:"running"`
 }
 
 type ClusterState struct {

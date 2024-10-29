@@ -1,7 +1,4 @@
-package pl.pwr.zpi.metadata.event.dto;
-
-import pl.pwr.zpi.metadata.dto.cluster.AggregatedClusterMetadata;
-import pl.pwr.zpi.metadata.dto.cluster.ClusterMetadata;
+package pl.pwr.zpi.metadata.event.dto.cluster;
 
 import java.util.List;
 

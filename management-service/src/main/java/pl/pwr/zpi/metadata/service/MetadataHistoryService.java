@@ -2,11 +2,12 @@ package pl.pwr.zpi.metadata.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.pwr.zpi.metadata.dto.application.ApplicationMetadata;
-import pl.pwr.zpi.metadata.dto.cluster.ClusterHistory;
-import pl.pwr.zpi.metadata.dto.cluster.ClusterMetadata;
+import pl.pwr.zpi.metadata.dto.application.Application;
 import pl.pwr.zpi.metadata.dto.node.Node;
-import pl.pwr.zpi.metadata.dto.node.NodeMetadata;
+import pl.pwr.zpi.metadata.entity.ClusterHistory;
+import pl.pwr.zpi.metadata.event.dto.application.ApplicationMetadata;
+import pl.pwr.zpi.metadata.event.dto.cluster.ClusterMetadata;
+import pl.pwr.zpi.metadata.event.dto.node.NodeMetadata;
 import pl.pwr.zpi.metadata.repository.ClusterHistoryRepository;
 
 import java.util.HashSet;
@@ -29,7 +30,7 @@ public class MetadataHistoryService {
         return history.nodes();
     }
 
-    public Set<ApplicationMetadata> getApplicationHistory(String clusterId) {
+    public Set<Application> getApplicationHistory(String clusterId) {
         ClusterHistory history = clusterHistoryRepository.findById(clusterId)
                 .orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
         return history.applications();
@@ -54,7 +55,7 @@ public class MetadataHistoryService {
         ClusterHistory history = clusterHistoryRepository.findById(clusterId)
                 .orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
 
-        metadata.forEach(m -> history.applications().add(new ApplicationMetadata(m.name(), m.kind(), false)));
+        metadata.forEach(m -> history.applications().add(new Application(m.name(), m.kind(), false)));
 
         clusterHistoryRepository.save(history);
     }

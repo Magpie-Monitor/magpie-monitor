@@ -6,9 +6,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import pl.pwr.zpi.metadata.service.MetadataHistoryService;
 import pl.pwr.zpi.metadata.service.MetadataService;
-import pl.pwr.zpi.metadata.event.dto.ApplicationMetadataUpdated;
-import pl.pwr.zpi.metadata.event.dto.ClusterMetadataUpdated;
-import pl.pwr.zpi.metadata.event.dto.NodeMetadataUpdated;
+import pl.pwr.zpi.metadata.event.dto.application.ApplicationMetadataUpdated;
+import pl.pwr.zpi.metadata.event.dto.cluster.ClusterMetadataUpdated;
+import pl.pwr.zpi.metadata.event.dto.node.NodeMetadataUpdated;
 import pl.pwr.zpi.utils.mapper.JsonMapper;
 
 @Slf4j
