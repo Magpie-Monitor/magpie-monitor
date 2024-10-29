@@ -1,4 +1,4 @@
-package pl.pwr.zpi.metadata;
+package pl.pwr.zpi.metadata.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,10 +13,7 @@ import pl.pwr.zpi.metadata.repository.AggregatedApplicationMetadataRepository;
 import pl.pwr.zpi.metadata.repository.AggregatedClusterMetadataRepository;
 import pl.pwr.zpi.metadata.repository.AggregatedNodeMetadataRepository;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,11 +29,11 @@ public class MetadataService {
     public List<ClusterMetadata> getAllClusters() {
         List<ClusterMetadata> activeClusters = getActiveClusters();
 
-        Set<String> activeClustersIds = activeClusters.stream().map(ClusterMetadata::name).collect(Collectors.toSet());
+        Set<String> activeClustersIds = activeClusters.stream().map(ClusterMetadata::clusterId).collect(Collectors.toSet());
 
         Set<ClusterMetadata> inactiveClusters = metadataHistoryService.getClustersHistory().stream()
                 .map(clusterHistory -> new ClusterMetadata(clusterHistory.id(), false))
-                .filter(clusterMetadata -> !activeClustersIds.contains(clusterMetadata.name()))
+                .filter(clusterMetadata -> !activeClustersIds.contains(clusterMetadata.clusterId()))
                 .collect(Collectors.toSet());
 
 
@@ -51,13 +48,13 @@ public class MetadataService {
     }
 
     public Optional<ClusterMetadata> getClusterById(String clusterId) {
-        Optional<AggregatedClusterMetadata> metadata = clusterMetadataRepository.findFirstByMetadataName(clusterId);
+        Optional<AggregatedClusterMetadata> metadata = clusterMetadataRepository.findFirstByMetadataClusterId(clusterId);
         if (metadata.isEmpty()) {
             return Optional.empty();
         }
 
         boolean running = !getActiveClusters().stream()
-                .filter(clusterMetadata -> clusterMetadata.name().equals(clusterId))
+                .filter(clusterMetadata -> clusterMetadata.clusterId().equals(clusterId))
                 .toList()
                 .isEmpty();
 
@@ -68,12 +65,11 @@ public class MetadataService {
         List<Node> activeNodes = nodeMetadataRepository.findFirstByClusterIdOrderByCollectedAtMs(clusterId)
                 .map(aggregatedNodeMetadata -> aggregatedNodeMetadata.metadata().stream()
                         .map(nodeMetadata -> new Node(nodeMetadata.name(), true))
-                        .toList()
-                ).orElse(Collections.emptyList());
+                        .collect(Collectors.toCollection(ArrayList::new))
+                ).orElse(new ArrayList<>());
 
         Set<String> activeNodeIds = activeNodes.stream().map(Node::name).collect(Collectors.toSet());
 
-        // todo custom comparator
         Set<Node> inactiveNodes = metadataHistoryService.getNodeHistory(clusterId).stream()
                 .filter(node -> !activeNodeIds.contains(node.name()))
                 .collect(Collectors.toSet());
