@@ -1,7 +1,7 @@
 import './Table.scss';
 
 interface TableRow {
-  [key: string]: string | number | boolean;
+  [key: string]: string | number | boolean | unknown;
 }
 
 export interface TableProps<Row extends TableRow> {
@@ -65,7 +65,7 @@ function TableBodyRow<Row extends TableRow>({
         >
           {column.customComponent
             ? column.customComponent(row)
-            : row[column.columnKey]}
+            : (row[column.columnKey] as string)}
         </div>
       ))}
     </div>

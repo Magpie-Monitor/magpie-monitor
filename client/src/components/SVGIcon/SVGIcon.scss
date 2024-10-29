@@ -8,6 +8,7 @@
 .dashboard-icon {
   @extend .svg-icon;
   mask: url('/src/assets/dashboard_icon.svg') no-repeat center;
+
   .svg-icon {
     background-color: $navbar-text-color;
   }
@@ -16,6 +17,7 @@
 .reports-icon {
   @extend .svg-icon;
   mask: url('/src/assets/reports_icon.svg') no-repeat center;
+
   .svg-icon {
     background-color: $navbar-text-color;
   }
@@ -24,6 +26,25 @@
 .sign-out-icon {
   @extend .svg-icon;
   mask: url('/src/assets/sign_out_icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $navbar-text-color;
+  }
+}
+
+.clusters-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/clusters-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $green;
+  }
+}
+
+.clusters-icon--white {
+  @extend .svg-icon;
+  mask: url('/src/assets/clusters-icon.svg') no-repeat center;
+
   .svg-icon {
     background-color: $navbar-text-color;
   }
@@ -61,6 +82,10 @@
 .reports-list-icon {
   @extend .svg-icon;
   mask: url('/src/assets/reports_list_icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $green;
+  }
 }
 
 .plus-icon {
@@ -70,6 +95,7 @@
 
   .svg-icon {
     transition: fill 0.3s ease;
+
     &:hover {
       background-color: $green;
     }
@@ -98,6 +124,7 @@
   width: 25px;
   height: 25px;
   margin-right: 3px;
+
   .svg-icon {
     background-color: $red;
     width: 25px;

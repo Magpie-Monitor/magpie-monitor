@@ -34,9 +34,9 @@ const Navbar = () => {
             iconName={'reports-icon'}
           />
           <NavbarTab
-            label={'Settings'}
-            destination={'/settings'}
-            iconName={'setting-icon'}
+            label={'Clusters'}
+            destination={'/clusters'}
+            iconName={'clusters-icon--white'}
           />
         </div>
       </div>
