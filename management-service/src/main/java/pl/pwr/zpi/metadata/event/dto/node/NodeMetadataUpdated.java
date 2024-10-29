@@ -1,7 +1,4 @@
-package pl.pwr.zpi.metadata.event.dto;
-
-import pl.pwr.zpi.metadata.dto.node.AggregatedNodeMetadata;
-import pl.pwr.zpi.metadata.dto.node.NodeMetadata;
+package pl.pwr.zpi.metadata.event.dto.node;
 
 import java.util.List;
 

@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.pwr.zpi.metadata.dto.application.ApplicationMetadata;
-import pl.pwr.zpi.metadata.dto.cluster.ClusterMetadata;
+import pl.pwr.zpi.metadata.dto.application.Application;
+import pl.pwr.zpi.metadata.dto.cluster.Cluster;
 import pl.pwr.zpi.metadata.dto.node.Node;
 import pl.pwr.zpi.metadata.service.MetadataService;
 
@@ -22,12 +22,12 @@ public class MetadataController {
     private final MetadataService metadataService;
 
     @GetMapping
-    public ResponseEntity<List<ClusterMetadata>> getClusters() {
+    public ResponseEntity<List<Cluster>> getClusters() {
         return ResponseEntity.ok(metadataService.getAllClusters());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClusterMetadata> getClusterById(@PathVariable String id) {
+    public ResponseEntity<Cluster> getClusterById(@PathVariable String id) {
         return ResponseEntity.of(metadataService.getClusterById(id));
     }
 
@@ -37,7 +37,7 @@ public class MetadataController {
     }
 
     @GetMapping("/{id}/applications")
-    public ResponseEntity<List<ApplicationMetadata>> getClusterApplications(@PathVariable String id) {
+    public ResponseEntity<List<Application>> getClusterApplications(@PathVariable String id) {
         return ResponseEntity.ok(metadataService.getClusterApplications(id));
     }
 }

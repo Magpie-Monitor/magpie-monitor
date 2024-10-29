@@ -105,7 +105,7 @@ func (m *MetadataService) InsertApplicationMetadata(metadata repositories.Cluste
 	}
 
 	for _, app := range applicationSet {
-		ok := slices.Contains(latestState.Metadata, repositories.ApplicationMetadata{Name: app.Name, Kind: app.Kind, Running: true})
+		ok := slices.Contains(latestState.Metadata, repositories.ApplicationMetadata{Name: app.Name, Kind: app.Kind})
 		if !ok {
 			return m.updateApplicationMetadataState(metadata.ClusterId, applicationSet)
 		}
@@ -121,7 +121,7 @@ func (m *MetadataService) updateApplicationMetadataState(clusterId string, appli
 	newState.CollectedAtMs = time.Now().UnixMilli()
 
 	for _, app := range applicationSet {
-		newState.Metadata = append(newState.Metadata, repositories.ApplicationMetadata{Name: app.Name, Kind: app.Kind, Running: true})
+		newState.Metadata = append(newState.Metadata, repositories.ApplicationMetadata{Name: app.Name, Kind: app.Kind})
 	}
 
 	_, err := m.applicationAggregatedRepo.InsertDocument(newState)
@@ -204,7 +204,7 @@ func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles
 
 	nodes := make([]repositories.NodeMetadata, 0)
 	for _, n := range nodeSet {
-		nodes = append(nodes, repositories.NodeMetadata{Name: n.(string), Files: fileset, Running: true})
+		nodes = append(nodes, repositories.NodeMetadata{Name: n.(string), Files: fileset})
 	}
 
 	aggregate := repositories.AggregatedNodeMetadata{ClusterId: clusterId, CollectedAtMs: time.Now().UnixMilli(), Metadata: nodes}
@@ -330,7 +330,7 @@ func (m *MetadataService) getUniqueClusterIdsForPeriod(periodMillis int64) (map[
 func (m *MetadataService) createAggregatedClusterState(clusterSet map[string]struct{}) (repositories.AggregatedClusterState, error) {
 	state := make([]repositories.ClusterMetadata, 0, len(clusterSet))
 	for cluster, _ := range clusterSet {
-		state = append(state, repositories.ClusterMetadata{ClusterId: cluster, Running: true})
+		state = append(state, repositories.ClusterMetadata{ClusterId: cluster})
 	}
 
 	metadata := repositories.AggregatedClusterState{CollectedAtMs: time.Now().UnixMilli(), Metadata: state}
