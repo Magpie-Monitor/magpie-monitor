@@ -3,33 +3,28 @@ import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
 import './Home.scss';
 import LastReportTitle from './components/LastReportTitle/LestReportTitle';
 import ScanStats from './components/ScanStats/ScanStats';
+import PageTemplate from 'components/PageTemplate/PageTemplate';
+import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/HeaderWithIcon';
 
 const Home = () => {
   return (
-    <div className="home">
-      <div className="home__content">
+    <PageTemplate header={<HeaderWithIcon title={'Dashboard'} />}>
+      <SectionComponent
+        icon={'chart-icon'}
+        title={
+          <LastReportTitle
+            source="production-services"
+            startTime="19.04.2023"
+            endTime="25.04.2023"
+          />
+        }
+      >
         <div>
-          <p className="home__content__heading">Dashboard</p>
-          <div>
-            <SectionComponent
-              icon={'chart-icon'}
-              title={
-                <LastReportTitle
-                  source="production-services"
-                  startTime="19.04.2023"
-                  endTime="25.04.2023"
-                />
-              }
-            >
-              <div>
-                <ScanStats />
-                <ImportantFindings />
-              </div>
-            </SectionComponent>
-          </div>
+          <ScanStats />
+          <ImportantFindings />
         </div>
-      </div>
-    </div>
+      </SectionComponent>
+    </PageTemplate>
   );
 };
 
