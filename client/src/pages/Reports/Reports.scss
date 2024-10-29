@@ -1,52 +1,18 @@
 @import '@/variables';
 
 .reports {
-  display: flex;
-  height: 100vh;
-  width: 100%;
-  overflow-y: scroll;
-  max-height: 100vh;
+  &__no-data {
+    width: 100%;
+    text-align: center;
+  }
 
-  &__content {
-    flex-grow: 1;
-    padding: 20px;
-    max-width: 100vw;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  &__link {
+    color: $green;
+    cursor: pointer;
+    text-decoration: underline;
 
-    &__link {
-      color: $green;
-      text-decoration: underline;
-    }
-
-    &__heading {
-      display: flex;
-      align-items: center;
-      padding-left: 20px;
-
-      &__paragraph {
-        font-size: 32px;
-        margin: 0 0 0 7px;
-      }
-
-      .svg-icon {
-        background-color: $green;
-      }
-    }
-
-    &__dashboard {
-      &__content{
-        min-width: 900px;
-
-        @media (max-width: $md) {
-          width: 300px;
-        }
-        &__paragraph {
-          text-align: center;
-        }
-      }
+    &:hover {
+      filter: brightness(1.1);
     }
   }
 }
-
