@@ -53,7 +53,7 @@ public class SlackService {
 
     private SlackReceiver getSlackReceiver(Long receiverWebhookId) {
         return slackRepository.findById(receiverWebhookId)
-                .orElseThrow(() -> new IllegalArgumentException("Webhook with given id not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Webhook with given clusterId not found"));
     }
 
     private void checkIfWebhookExists(String webhookUrl) {

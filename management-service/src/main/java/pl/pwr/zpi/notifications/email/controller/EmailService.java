@@ -49,7 +49,7 @@ public class EmailService {
 
     private EmailReceiver getEmailReceiver(Long receiverEmailId) {
         return emailRepository.findById(receiverEmailId)
-                .orElseThrow(() -> new IllegalArgumentException("Email with given id not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Email with given clusterId not found"));
     }
 
     private void checkIfEmailExists(EmailReceiverDTO emailReceiver) {

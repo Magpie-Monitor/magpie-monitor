@@ -6,7 +6,7 @@ import pl.pwr.zpi.metadata.dto.cluster.AggregatedClusterMetadata;
 import java.util.Optional;
 
 public interface AggregatedClusterMetadataRepository extends MongoRepository<AggregatedClusterMetadata, String> {
-    Optional<AggregatedClusterMetadata> findFirstByMetadataName(String clusterId);
+    Optional<AggregatedClusterMetadata> findFirstByMetadataClusterId(String clusterId);
 
     Optional<AggregatedClusterMetadata> findFirstByOrderByCollectedAtMsDesc();
 }

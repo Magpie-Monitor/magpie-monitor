@@ -1,4 +1,4 @@
-package pl.pwr.zpi.metadata;
+package pl.pwr.zpi.metadata.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,21 +24,21 @@ public class MetadataHistoryService {
     }
 
     public Set<Node> getNodeHistory(String clusterId) {
-        ClusterHistory history = clusterHistoryRepository.findById(clusterId).orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
+        ClusterHistory history = clusterHistoryRepository.findById(clusterId)
+                .orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
         return history.nodes();
     }
 
     public Set<ApplicationMetadata> getApplicationHistory(String clusterId) {
-        ClusterHistory history = clusterHistoryRepository.findById(clusterId).orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
+        ClusterHistory history = clusterHistoryRepository.findById(clusterId)
+                .orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
         return history.applications();
     }
 
     public void updateClustersHistory(List<ClusterMetadata> metadata) {
-        for (ClusterMetadata m : metadata) {
-            if (!clusterHistoryRepository.existsById(m.name())) {
-                clusterHistoryRepository.save(new ClusterHistory(m.name(), new HashSet<>(), new HashSet<>()));
-            }
-        }
+        metadata.stream()
+                .filter(clusterMetadata -> !clusterHistoryRepository.existsById(clusterMetadata.clusterId()))
+                .forEach(clusterMetadata -> clusterHistoryRepository.save(ClusterHistory.of(clusterMetadata)));
     }
 
     public void updateNodeHistory(String clusterId, List<NodeMetadata> metadata) {
