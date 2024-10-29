@@ -26,26 +26,22 @@ func NewClusterAggregatedStateCollection(log *zap.Logger, client *mongo.Client) 
 	return &repositories.MongoDbCollection[AggregatedClusterState]{Log: log, Db: "METADATA", Col: "AGGREGATED_CLUSTER_STATE", Client: client}
 }
 
-func NewNodeAggregatedStateCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[AggregatedClusterNodesState] {
-	return &repositories.MongoDbCollection[AggregatedClusterNodesState]{Log: log, Db: "METADATA", Col: "AGGREGATED_NODE_STATE", Client: client}
-}
-
 type AggregatedApplicationMetadata struct {
 	CollectedAtMs int64                 `json:"collectedAtMs" bson:"collectedAtMs"`
 	ClusterId     string                `json:"clusterId" bson:"clusterId"`
 	Metadata      []ApplicationMetadata `json:"metadata" bson:"metadata"`
 }
 
-type AggregatedNodeMetadata struct {
-	CollectedAtMs int64          `json:"collectedAtMs" bson:"collectedAtMs"`
-	ClusterId     string         `json:"clusterId" bson:"clusterId"`
-	Metadata      []NodeMetadata `json:"metadata" bson:"metadata"`
-}
-
 type ApplicationMetadata struct {
 	Name    string `json:"name" bson:"name"`
 	Kind    string `json:"kind" bson:"kind"`
 	Running bool   `json:"running" bson:"running"`
+}
+
+type AggregatedNodeMetadata struct {
+	CollectedAtMs int64          `json:"collectedAtMs" bson:"collectedAtMs"`
+	ClusterId     string         `json:"clusterId" bson:"clusterId"`
+	Metadata      []NodeMetadata `json:"metadata" bson:"metadata"`
 }
 
 type NodeMetadata struct {
@@ -59,20 +55,9 @@ type AggregatedClusterState struct {
 	Metadata      []ClusterMetadata `json:"metadata" bson:"metadata"`
 }
 
-type AggregatedClusterNodesState struct {
-	CollectedAtMs int64
-	ClusterId     string                `json:"clusterId"`
-	Metadata      []GenericNodeMetadata `json:"metadata"`
-}
-
 type ClusterMetadata struct {
-	Name    string `json:"name"`
-	Running bool   `json:"running"`
-}
-
-type GenericNodeMetadata struct {
-	Name    string `json:"name"`
-	Running bool   `json:"running"`
+	ClusterId string `json:"clusterId"`
+	Running   bool   `json:"running"`
 }
 
 type ClusterState struct {

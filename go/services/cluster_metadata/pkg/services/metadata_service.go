@@ -1,7 +1,7 @@
 package services
 
 import (
-	"fmt"
+	"context"
 	"os"
 	"slices"
 	"strconv"
@@ -10,10 +10,13 @@ import (
 	sharedrepo "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
-func NewMetadataService(log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ClusterState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState],
+const clusterAggregatedStateUpdateSleepSeconds = 5
+
+func NewMetadataService(lc fx.Lifecycle, log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ClusterState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState],
 	applicationAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata], nodeAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata],
 	clusterAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedClusterState], eventEmitter *EventEmitter) *MetadataService {
 	clusterActivityWindowMillis, present := os.LookupEnv("CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS")
@@ -26,7 +29,7 @@ func NewMetadataService(log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollecti
 		panic("invalid value for env variable CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS, please make sure it's numeric")
 	}
 
-	return &MetadataService{
+	metadataService := MetadataService{
 		log:                         log,
 		clusterRepo:                 clusterRepo,
 		nodeRepo:                    nodeRepo,
@@ -36,10 +39,20 @@ func NewMetadataService(log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollecti
 		eventEmitter:                eventEmitter,
 		clusterActivityWindowMillis: window,
 	}
+
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			go metadataService.scheduleClusterStateUpdate()
+			return nil
+		},
+	})
+
+	return &metadataService
 }
 
 type MetadataService struct {
 	log                         *zap.Logger
+	Lc                          fx.Lifecycle
 	clusterRepo                 *sharedrepo.MongoDbCollection[repositories.ClusterState]
 	nodeRepo                    *sharedrepo.MongoDbCollection[repositories.NodeState]
 	applicationAggregatedRepo   *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
@@ -49,16 +62,10 @@ type MetadataService struct {
 	clusterActivityWindowMillis int64
 }
 
-func (m *MetadataService) InsertClusterMetadata(metadata repositories.ClusterState) error {
+func (m *MetadataService) InsertApplicationMetadata(metadata repositories.ClusterState) error {
 	_, err := m.clusterRepo.InsertDocuments([]interface{}{metadata})
 	if err != nil {
 		m.log.Error("Failed to insert cluster metadata", zap.Error(err))
-		return err
-	}
-
-	err = m.updateClusterAggregatedState()
-	if err != nil {
-		m.log.Info(err.Error())
 		return err
 	}
 
@@ -139,13 +146,6 @@ func (m *MetadataService) InsertNodeMetadata(metadata repositories.NodeState) er
 		return err
 	}
 
-	fmt.Println("updating cluster aggregated state!")
-	err = m.updateClusterAggregatedState()
-	if err != nil {
-		m.log.Info(err.Error())
-		return err
-	}
-
 	count, err := m.nodeAggregatedRepo.Count(bson.D{{Key: "clusterId", Value: metadata.ClusterId}})
 	m.log.Info("Aggregated application state count:", zap.Int64("count", count))
 	if err != nil {
@@ -223,6 +223,19 @@ func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles
 	return nil
 }
 
+func (m *MetadataService) scheduleClusterStateUpdate() {
+	for {
+		m.log.Info("Updating cluster aggregated state")
+
+		err := m.updateClusterAggregatedState()
+		if err != nil {
+			m.log.Error("Error updating cluster aggregated state", zap.Error(err))
+		}
+
+		time.Sleep(clusterAggregatedStateUpdateSleepSeconds * time.Second)
+	}
+}
+
 // Fetches clusters that reported state in last clusterActivityWindowMillis
 // If fetched state differs from the latest recorded state, a state update event is emitted
 func (m *MetadataService) updateClusterAggregatedState() error {
@@ -266,7 +279,7 @@ func (m *MetadataService) updateClusterAggregatedState() error {
 
 	latestClusterSet := make(map[string]struct{}, len(latestState.Metadata))
 	for _, metadata := range latestState.Metadata {
-		latestClusterSet[metadata.Name] = struct{}{}
+		latestClusterSet[metadata.ClusterId] = struct{}{}
 	}
 
 	for cluster, _ := range clusterSet {
@@ -317,7 +330,7 @@ func (m *MetadataService) getUniqueClusterIdsForPeriod(periodMillis int64) (map[
 func (m *MetadataService) createAggregatedClusterState(clusterSet map[string]struct{}) (repositories.AggregatedClusterState, error) {
 	state := make([]repositories.ClusterMetadata, 0, len(clusterSet))
 	for cluster, _ := range clusterSet {
-		state = append(state, repositories.ClusterMetadata{Name: cluster, Running: true})
+		state = append(state, repositories.ClusterMetadata{ClusterId: cluster, Running: true})
 	}
 
 	metadata := repositories.AggregatedClusterState{CollectedAtMs: time.Now().UnixMilli(), Metadata: state}
