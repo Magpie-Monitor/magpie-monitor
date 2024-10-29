@@ -1,0 +1,9 @@
+.notification-channels-column {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  flex-direction: row;
+  column-gap: 0.5rem;
+  row-gap: 0.5rem;
+  min-width: 200px;
+}

@@ -4,6 +4,8 @@
   display: grid;
   grid-template-columns: repeat(100);
   background-color: transparent;
+  width: 100%;
+  overflow-x: scroll;
 
   &__headers {
     display: grid;
