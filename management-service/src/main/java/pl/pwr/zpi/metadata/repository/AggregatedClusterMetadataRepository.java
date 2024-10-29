@@ -9,4 +9,6 @@ public interface AggregatedClusterMetadataRepository extends MongoRepository<Agg
     Optional<AggregatedClusterMetadata> findFirstByMetadataClusterId(String clusterId);
 
     Optional<AggregatedClusterMetadata> findFirstByOrderByCollectedAtMsDesc();
+
+    boolean existsByMetadataClusterId(String clusterId);
 }
