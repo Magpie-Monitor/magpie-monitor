@@ -47,17 +47,17 @@ func NewClusterMetadataStreamWriter(credentials *sharedkafka.KafkaCredentials) *
 }
 
 type ApplicationMetadataUpdated struct {
-	CorrelationId string                                     `json:"requestId"`
+	CorrelationId string                                     `json:"correlationId"`
 	Metadata      repositories.AggregatedApplicationMetadata `json:"metadata"`
 }
 
 type NodeMetadataUpdated struct {
-	CorrelationId string                              `json:"requestId"`
+	CorrelationId string                              `json:"correlationId"`
 	Metadata      repositories.AggregatedNodeMetadata `json:"metadata"`
 }
 
 type ClusterMetadataUpdated struct {
-	CorrelationId string                              `json:"requestId"`
+	CorrelationId string                              `json:"correlationId"`
 	Metadata      repositories.AggregatedClusterState `json:"metadata"`
 }
 
