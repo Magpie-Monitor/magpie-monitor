@@ -420,6 +420,68 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "clusters",
+			"item": [
+				{
+					"name": "/api/v1/clusters",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/clusters/{id}",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/clusters/w1",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clusters",
+								"w1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/clusters/{id}/nodes",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/clusters/{id}/applications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/clusters/w1/applications",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clusters",
+								"w1",
+								"applications"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
@@ -442,13 +504,6 @@
 					""
 				]
 			}
-		}
-	],
-	"variable": [
-		{
-			"key": "base-url",
-			"value": "",
-			"type": "string"
 		}
 	]
 }
