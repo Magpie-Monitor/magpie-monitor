@@ -74,7 +74,7 @@ public class MetadataService {
     }
 
     private List<Node> getActiveNodesForClusterId(String clusterId) {
-        return nodeMetadataRepository.findFirstByClusterIdOrderByCollectedAtMs(clusterId)
+        return nodeMetadataRepository.findFirstByClusterIdOrderByCollectedAtMsDesc(clusterId)
                 .map(aggregatedNodeMetadata -> aggregatedNodeMetadata.metadata().stream()
                         .map(nodeMetadata -> new Node(nodeMetadata.name(), true))
                         .collect(Collectors.toCollection(ArrayList::new))
@@ -100,7 +100,7 @@ public class MetadataService {
     }
 
     private List<Application> getActiveApplicationsForClusterId(String clusterId) {
-        return applicationMetadataRepository.findFirstByClusterIdOrderByCollectedAtMs(clusterId)
+        return applicationMetadataRepository.findFirstByClusterIdOrderByCollectedAtMsDesc(clusterId)
                 .map(metadata -> metadata.metadata().stream()
                         .map(application -> new Application(application.name(), application.kind(), true))
                         .collect(Collectors.toCollection(ArrayList::new))

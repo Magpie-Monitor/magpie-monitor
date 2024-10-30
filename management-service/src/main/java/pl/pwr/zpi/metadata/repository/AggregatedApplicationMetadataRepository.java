@@ -6,5 +6,5 @@ import pl.pwr.zpi.metadata.event.dto.application.AggregatedApplicationMetadata;
 import java.util.Optional;
 
 public interface AggregatedApplicationMetadataRepository extends MongoRepository<AggregatedApplicationMetadata, String> {
-    Optional<AggregatedApplicationMetadata> findFirstByClusterIdOrderByCollectedAtMs(String clusterId);
+    Optional<AggregatedApplicationMetadata> findFirstByClusterIdOrderByCollectedAtMsDesc(String clusterId);
 }
