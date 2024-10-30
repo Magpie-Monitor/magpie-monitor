@@ -1,0 +1,16 @@
+@import '@/variables';
+
+.notification-section {
+  &__content {
+    padding: 15px;
+    border-radius: 8px;
+    color: $font-color;
+    width: 100%;
+
+    p {
+      color: $font-color;
+      font-size: 16px;
+      margin: 0;
+    }
+  }
+}

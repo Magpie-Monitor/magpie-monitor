@@ -19,6 +19,26 @@ export interface ReportSummary {
   [key: string]: string | number;
 }
 
+export interface NotificationChannel {
+  id: string;
+  name: string;
+  service: string;
+  details: string;
+  added: string;
+  [key: string]: string;
+}
+
+export interface ApplicationEntry {
+  id: string;
+  name: string;
+  entries: string;
+  precision: string;
+  customPrompt: string;
+  updated: string;
+  added: string;
+  [key: string]: string;
+}
+
 const MANAGMENT_SERVICE_URL = import.meta.env.VITE_BACKEND_URL;
 const VALID_URGENCY_VALUES: ReportSummary['urgency'][] = [
   'HIGH',

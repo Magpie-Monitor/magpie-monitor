@@ -1,0 +1,31 @@
+@import '@/variables';
+
+.application-section {
+  &__table {
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+  }
+
+  &__link {
+    color: $green;
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__dropdown, &__input {
+    background-color: #282c34;
+    color: #c9d1d9;
+    border: 1px solid $component-border-color;
+    border-radius: 4px;
+    padding: 5px 10px;
+  }
+
+  &__input {
+    width: 100%;
+    max-width: 150px;
+  }
+
+}

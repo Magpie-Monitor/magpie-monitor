@@ -104,3 +104,27 @@
     height: 25px;
   }
 }
+
+.application-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/application-icon.svg') no-repeat center;
+  .svg-icon {
+    background-color: $green;
+  }
+}
+
+.date-range-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/date-range-icon.svg') no-repeat center;
+  .svg-icon {
+    background-color: $green;
+  }
+}
+
+.precision-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/precision-icon.svg') no-repeat center;
+  .svg-icon {
+    background-color: $green;
+  }
+}
