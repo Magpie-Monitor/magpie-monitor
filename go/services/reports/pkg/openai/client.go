@@ -42,10 +42,10 @@ type Client struct {
 }
 
 type CompletionRequest struct {
-	Model          string     `json:"model"`
-	Messages       []*Message `json:"messages"`
-	Temperature    float32    `json:"temperature"`
-	ResponseFormat any        `json:"response_format"`
+	Model          string     `json:"model" bson:"model"`
+	Messages       []*Message `json:"messages" bson:"messages"`
+	Temperature    float32    `json:"temperature" bson:"temperature"`
+	ResponseFormat any        `json:"response_format" bson:"response_format"`
 }
 
 type CompletionResponse struct {
@@ -78,15 +78,15 @@ type Choice struct {
 }
 
 type Message struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
+	Role    string `json:"role" bson:"role"`
+	Content string `json:"content" bson:"content"`
 }
 
 type BatchFileCompletionRequestEntry struct {
-	CustomId string             `json:"custom_id"`
-	Method   string             `json:"method"`
-	Url      string             `json:"url"`
-	Body     *CompletionRequest `json:"body"`
+	CustomId string             `json:"custom_id" bson:"custom_id"`
+	Method   string             `json:"method" bson:"method"`
+	Url      string             `json:"url" bson:"url"`
+	Body     *CompletionRequest `json:"body" bson:"body"`
 }
 
 type BatchFileCompletionResponseEntry struct {
@@ -382,7 +382,7 @@ func (c *Client) createBatch(batchParams CreateBatchRequest) (*Batch, error) {
 func (c *Client) UploadAndCreateBatches(completionRequests []*CompletionRequest) ([]*Batch, error) {
 
 	// Split requests to batches of size not greater than OpenAi's maximum batch size (~100MB)
-	requestsByBatch, err := c.splitCompletionReqestsByBatchSize(completionRequests)
+	requestsByBatch, err := c.SplitCompletionReqestsByBatchSize(completionRequests)
 	if err != nil {
 		c.logger.Error("Failed to split completion requests by batch", zap.Error(err))
 		return nil, err
@@ -408,7 +408,7 @@ func (c *Client) UploadAndCreateBatches(completionRequests []*CompletionRequest)
 	return batches, nil
 }
 
-func (c *Client) splitCompletionReqestsByBatchSize(completionRequests []*CompletionRequest) ([][]*CompletionRequest, error) {
+func (c *Client) SplitCompletionReqestsByBatchSize(completionRequests []*CompletionRequest) ([][]*CompletionRequest, error) {
 
 	var requestPackets [][]*CompletionRequest
 	var lastPacket []*CompletionRequest

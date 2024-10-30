@@ -236,7 +236,7 @@ func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
 func (g *OpenAiInsightsGenerator) AwaitScheduledApplicationInsights(
 	sheduledInsights *ScheduledApplicationInsights,
 ) ([]ApplicationInsightsWithMetadata, error) {
-	batches, failedBatches, err := g.batchPoller.AwaitPendingBatches(sheduledInsights.ScheduledJobIds)
+	jobs, failedBatches, err := g.batchPoller.AwaitPendingJobs(sheduledInsights.ScheduledJobIds)
 
 	if err != nil {
 		g.logger.Error("Failed to wait for pending application batches", zap.Error(err))
@@ -246,6 +246,12 @@ func (g *OpenAiInsightsGenerator) AwaitScheduledApplicationInsights(
 	// Ignoring failed batches
 	if len(failedBatches) > 0 {
 		g.logger.Error("Some of the application batches have failed", zap.Any("failedBatches", failedBatches))
+	}
+
+	batches, err := g.batchPoller.BatchesFromJobs(jobs)
+	if err != nil {
+		g.logger.Error("Failed to fetch node batches from scheduled jobs", zap.Error(err))
+		return nil, err
 	}
 
 	completionResponses, err := g.client.CompletionResponseEntriesFromBatches(batches)
@@ -348,23 +354,22 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 		}
 	}
 
-	batches, err := g.client.UploadAndCreateBatches(completionRequests)
+	completionRequestsPerJob, err := g.client.SplitCompletionReqestsByBatchSize(completionRequests)
 	if err != nil {
-		g.logger.Error("Failed to create a batch", zap.Error(err))
+		g.logger.Error("Failed to split application insights completion requests", zap.Error(err))
 		return nil, err
 	}
 
-	batchIds := array.Map(func(batch *openai.Batch) string {
-		return batch.Id
-	})(batches)
+	scheduledJobs := array.Map(openai.NewOpenAiJob)(completionRequestsPerJob)
 
-	if err = g.batchPoller.InsertPendingBatches(batches); err != nil {
-		g.logger.Error("Failed to add pending application batches to poller", zap.Error(err), zap.Any("batches", batches))
+	ids, repositoryErr := g.scheduledJobsRepository.InsertScheduledJobs(context.Background(), scheduledJobs)
+	if repositoryErr != nil {
+		g.logger.Error("Failed to split application insights completion requests", zap.Error(err))
 		return nil, err
 	}
 
 	return &ScheduledApplicationInsights{
-		ScheduledJobIds:          batchIds,
+		ScheduledJobIds:          ids,
 		ClusterId:                clusterId,
 		SinceMs:                  sinceMs,
 		ToMs:                     toMs,

@@ -3,12 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"math"
-	"os"
-	"slices"
-	"strconv"
-	"time"
-
 	"github.com/IBM/fp-go/array"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
@@ -16,6 +10,11 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"math"
+	"os"
+	"slices"
+	"strconv"
+	"time"
 )
 
 const (

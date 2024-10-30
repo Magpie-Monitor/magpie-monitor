@@ -6,22 +6,22 @@ import (
 )
 
 type ResponseFormat struct {
-	Type       string     `json:"type"`
-	JsonSchema JsonSchema `json:"json_schema"`
+	Type       string     `json:"type" bson:"type"`
+	JsonSchema JsonSchema `json:"json_schema" bson:"json_schema"`
 }
 
 type JsonSchema struct {
-	Name   string `json:"name"`
-	Schema Schema `json:"schema"`
-	Strict bool   `json:"strict"`
+	Name   string `json:"name" bson:"name"`
+	Schema Schema `json:"schema" bson:"schema"`
+	Strict bool   `json:"strict" bson:"strict"`
 }
 
 type Schema struct {
-	Type                 string             `json:"type"`
-	Items                *Schema            `json:"items,omitempty"`      // Use omitempty
-	Properties           map[string]*Schema `json:"properties,omitempty"` // Use omitempty
-	Required             []string           `json:"required,omitempty"`   // Use omitempty
-	AdditionalProperties bool               `json:"additionalProperties"`
+	Type                 string             `json:"type" bson:"type"`
+	Items                *Schema            `json:"items,omitempty" bson:"items,omitempty"`           // Use omitempty
+	Properties           map[string]*Schema `json:"properties,omitempty" bson:"properties,omitempty"` // Use omitempty
+	Required             []string           `json:"required,omitempty" bson:"required,omitempty"`     // Use omitempty
+	AdditionalProperties bool               `json:"additionalProperties" bson:"additionalProperties"`
 }
 
 func getSchemaFromStruct(obj interface{}) *Schema {
