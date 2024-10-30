@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 
 	sharedkafka "github.com/Magpie-Monitor/magpie-monitor/pkg/kafka"
@@ -48,18 +47,18 @@ func NewClusterMetadataStreamWriter(credentials *sharedkafka.KafkaCredentials) *
 }
 
 type ApplicationMetadataUpdated struct {
-	RequestId string                                     `json:"requestId"`
-	Metadata  repositories.AggregatedApplicationMetadata `json:"metadata"`
+	CorrelationId string                                     `json:"requestId"`
+	Metadata      repositories.AggregatedApplicationMetadata `json:"metadata"`
 }
 
 type NodeMetadataUpdated struct {
-	RequestId string                              `json:"requestId"`
-	Metadata  repositories.AggregatedNodeMetadata `json:"metadata"`
+	CorrelationId string                              `json:"requestId"`
+	Metadata      repositories.AggregatedNodeMetadata `json:"metadata"`
 }
 
 type ClusterMetadataUpdated struct {
-	RequestId string                              `json:"requestId"`
-	Metadata  repositories.AggregatedClusterState `json:"metadata"`
+	CorrelationId string                              `json:"requestId"`
+	Metadata      repositories.AggregatedClusterState `json:"metadata"`
 }
 
 type EventEmitter struct {
@@ -70,17 +69,17 @@ type EventEmitter struct {
 }
 
 func (e *EventEmitter) EmitApplicationMetadataUpdatedEvent(metadata repositories.AggregatedApplicationMetadata) error {
-	event := ApplicationMetadataUpdated{RequestId: uuid.New().String(), Metadata: metadata}
+	event := ApplicationMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
 	return e.emitEvent(event, e.applicationMetadataWriter)
 }
 
 func (e *EventEmitter) EmitNodeMetadataUpdatedEvent(metadata repositories.AggregatedNodeMetadata) error {
-	event := NodeMetadataUpdated{RequestId: uuid.New().String(), Metadata: metadata}
+	event := NodeMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
 	return e.emitEvent(event, e.nodeMetadataWriter)
 }
 
 func (e *EventEmitter) EmitClusterMetadataUpdatedEvent(metadata repositories.AggregatedClusterState) error {
-	event := ClusterMetadataUpdated{RequestId: uuid.New().String(), Metadata: metadata}
+	event := ClusterMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
 	return e.emitEvent(event, e.clusterMetadataWriter)
 }
 
@@ -90,8 +89,6 @@ func (e *EventEmitter) emitEvent(event interface{}, writer *sharedkafka.StreamWr
 		e.log.Error("Error converting metadata event to JSON", zap.Error(err))
 		return err
 	}
-
-	fmt.Println("jsonEvent:", string(jsonEvent))
 
 	writer.Write(string(jsonEvent))
 	return nil

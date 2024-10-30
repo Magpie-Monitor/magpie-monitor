@@ -2,9 +2,7 @@ package services
 
 import (
 	"context"
-	"os"
 	"slices"
-	"strconv"
 	"time"
 
 	sharedrepo "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
@@ -14,30 +12,24 @@ import (
 	"go.uber.org/zap"
 )
 
-const clusterAggregatedStateUpdateSleepSeconds = 5
+const (
+	clusterAggregatedStateUpdateSleepSeconds = 5
+	nodeActivityWindowMillis                 = 3_000_000
+	clusterActivityWindowMillis              = 3_000_000
+)
 
 func NewMetadataService(lc fx.Lifecycle, log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ClusterState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState],
 	applicationAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata], nodeAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata],
 	clusterAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedClusterState], eventEmitter *EventEmitter) *MetadataService {
-	clusterActivityWindowMillis, present := os.LookupEnv("CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS")
-	if !present {
-		panic("env variable CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS not set")
-	}
-
-	window, err := strconv.ParseInt(clusterActivityWindowMillis, 10, 64)
-	if err != nil {
-		panic("invalid value for env variable CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS, please make sure it's numeric")
-	}
 
 	metadataService := MetadataService{
-		log:                         log,
-		clusterRepo:                 clusterRepo,
-		nodeRepo:                    nodeRepo,
-		applicationAggregatedRepo:   applicationAggregatedRepo,
-		nodeAggregatedRepo:          nodeAggregatedRepo,
-		clusterStateAggregatedRepo:  clusterAggregatedRepo,
-		eventEmitter:                eventEmitter,
-		clusterActivityWindowMillis: window,
+		log:                        log,
+		clusterRepo:                clusterRepo,
+		nodeRepo:                   nodeRepo,
+		applicationAggregatedRepo:  applicationAggregatedRepo,
+		nodeAggregatedRepo:         nodeAggregatedRepo,
+		clusterStateAggregatedRepo: clusterAggregatedRepo,
+		eventEmitter:               eventEmitter,
 	}
 
 	lc.Append(fx.Hook{
@@ -51,15 +43,14 @@ func NewMetadataService(lc fx.Lifecycle, log *zap.Logger, clusterRepo *sharedrep
 }
 
 type MetadataService struct {
-	log                         *zap.Logger
-	Lc                          fx.Lifecycle
-	clusterRepo                 *sharedrepo.MongoDbCollection[repositories.ClusterState]
-	nodeRepo                    *sharedrepo.MongoDbCollection[repositories.NodeState]
-	applicationAggregatedRepo   *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
-	nodeAggregatedRepo          *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
-	clusterStateAggregatedRepo  *sharedrepo.MongoDbCollection[repositories.AggregatedClusterState]
-	eventEmitter                *EventEmitter
-	clusterActivityWindowMillis int64
+	log                        *zap.Logger
+	Lc                         fx.Lifecycle
+	clusterRepo                *sharedrepo.MongoDbCollection[repositories.ClusterState]
+	nodeRepo                   *sharedrepo.MongoDbCollection[repositories.NodeState]
+	applicationAggregatedRepo  *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
+	nodeAggregatedRepo         *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
+	clusterStateAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedClusterState]
+	eventEmitter               *EventEmitter
 }
 
 func (m *MetadataService) InsertApplicationMetadata(metadata repositories.ClusterState) error {
@@ -75,7 +66,6 @@ func (m *MetadataService) InsertApplicationMetadata(metadata repositories.Cluste
 	}
 
 	count, err := m.applicationAggregatedRepo.Count(bson.D{{Key: "clusterId", Value: metadata.ClusterId}})
-	m.log.Info("Aggregated application state count:", zap.Int64("count", count))
 	if err != nil {
 		m.log.Error("Error fetching document count for application aggregated collection", zap.Error(err))
 		return err
@@ -90,8 +80,6 @@ func (m *MetadataService) InsertApplicationMetadata(metadata repositories.Cluste
 		m.log.Error("Error fetching aggregated application metadata", zap.Error(err))
 		return err
 	}
-
-	m.log.Info("Latest aggregated application state: ", zap.Any("state", latestState))
 
 	if len(applicationSet) != len(latestState.Metadata) {
 		return m.updateApplicationMetadataState(metadata.ClusterId, applicationSet)
@@ -182,10 +170,11 @@ func (m *MetadataService) InsertNodeMetadata(metadata repositories.NodeState) er
 	return nil
 }
 
+// Node is considered as running if it reported state in the nodeActivityWindowMillis period
 func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles []string) error {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
-			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: time.Now().UnixMilli() - 300_000}}}},
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: time.Now().UnixMilli() - nodeActivityWindowMillis}}}},
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: time.Now().UnixMilli()}}}},
 			bson.D{{Key: "clusterId", Value: bson.D{{Key: "$eq", Value: clusterId}}}},
 		}},
@@ -239,7 +228,7 @@ func (m *MetadataService) scheduleClusterStateUpdate() {
 // Fetches clusters that reported state in last clusterActivityWindowMillis
 // If fetched state differs from the latest recorded state, a state update event is emitted
 func (m *MetadataService) updateClusterAggregatedState() error {
-	clusterSet, err := m.getUniqueClusterIdsForPeriod(m.clusterActivityWindowMillis)
+	clusterSet, err := m.getUniqueClusterIdsForPeriod(clusterActivityWindowMillis)
 	if err != nil {
 		m.log.Error("Error fetching unique cluster ID's", zap.Error(err))
 		return nil

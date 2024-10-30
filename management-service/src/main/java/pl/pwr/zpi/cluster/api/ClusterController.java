@@ -1,5 +1,4 @@
-package pl.pwr.zpi.metadata;
-
+package pl.pwr.zpi.cluster.api;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -10,14 +9,14 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.pwr.zpi.metadata.dto.application.Application;
 import pl.pwr.zpi.metadata.dto.cluster.Cluster;
 import pl.pwr.zpi.metadata.dto.node.Node;
-import pl.pwr.zpi.metadata.service.MetadataService;
+import pl.pwr.zpi.metadata.MetadataService;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/clusters")
-public class MetadataController {
+public class ClusterController {
 
     private final MetadataService metadataService;
 

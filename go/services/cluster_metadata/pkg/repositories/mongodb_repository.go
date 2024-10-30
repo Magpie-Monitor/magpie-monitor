@@ -7,11 +7,11 @@ import (
 )
 
 func NewClusterMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[ClusterState] {
-	return &repositories.MongoDbCollection[ClusterState]{Log: log, Db: "METADATA", Col: "CLUSTER_STATE", Client: client}
+	return &repositories.MongoDbCollection[ClusterState]{Log: log, Db: "METADATA", Col: "APPLICATION_METADATA", Client: client}
 }
 
 func NewNodeMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[NodeState] {
-	return &repositories.MongoDbCollection[NodeState]{Log: log, Db: "METADATA", Col: "NODE_STATE", Client: client}
+	return &repositories.MongoDbCollection[NodeState]{Log: log, Db: "METADATA", Col: "NODE_METADATA", Client: client}
 }
 
 func NewApplicationAggregatedMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[AggregatedApplicationMetadata] {
