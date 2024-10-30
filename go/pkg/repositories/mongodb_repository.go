@@ -19,7 +19,11 @@ type MongoDbCollection[T any] struct {
 func (m *MongoDbCollection[T]) GetDocuments(filter primitive.D, sort primitive.D) ([]T, error) {
 	opts := options.Find().SetSort(sort)
 
-	col := m.Client.Database(m.Db).Collection(m.Col)
+	col := m.Client.Database(m.Db).Collection(m.Col, &options.CollectionOptions{
+		BSONOptions: &options.BSONOptions{
+			DefaultDocumentM: true,
+		},
+	})
 
 	cursor, err := col.Find(context.TODO(), filter, opts)
 	if err != nil {
