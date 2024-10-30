@@ -11,6 +11,7 @@ import {
   ClusterSummary,
   ManagmentServiceApiInstance,
 } from 'api/managment-service';
+import SVGIcon from 'components/SVGIcon/SVGIcon';
 
 interface ClusterDataRow {
   name: string;
@@ -123,7 +124,7 @@ const Clusters = () => {
 
   return (
     <PageTemplate header={header}>
-      <SectionComponent title={'Clusters'} icon={'clusters-icon'}>
+      <SectionComponent title={'Clusters'} icon={<SVGIcon iconName='clusters-icon'/>}>
         {isLoading && <div>Loading...</div>}
         {!isLoading && clusters.length > 0 && (
           <Table columns={columns} rows={clusters} />

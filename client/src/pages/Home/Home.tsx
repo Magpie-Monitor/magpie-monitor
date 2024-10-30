@@ -5,12 +5,13 @@ import LastReportTitle from './components/LastReportTitle/LestReportTitle';
 import ScanStats from './components/ScanStats/ScanStats';
 import PageTemplate from 'components/PageTemplate/PageTemplate';
 import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/HeaderWithIcon';
+import SVGIcon from 'components/SVGIcon/SVGIcon';
 
 const Home = () => {
   return (
     <PageTemplate header={<HeaderWithIcon title={'Dashboard'} />}>
       <SectionComponent
-        icon={'chart-icon'}
+        icon={<SVGIcon iconName="chart-icon" />}
         title={
           <LastReportTitle
             source="production-services"

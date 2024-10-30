@@ -3,7 +3,7 @@ import './SectionComponent.scss';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 
 interface SectionComponentProps {
-    icon: string;
+    icon: React.ReactNode;
     title: React.ReactNode;
     children: React.ReactNode;
     callback?: () => void;
@@ -14,7 +14,7 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ icon, title, childr
         <div className="section">
             <div className="section__header">
                 <div className="section__icon">
-                    <SVGIcon iconName={icon} />
+                    {icon}
                 </div>
                 <div className="section__title">{title}</div>
                 {callback && (
