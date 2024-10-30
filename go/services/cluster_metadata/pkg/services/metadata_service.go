@@ -18,7 +18,7 @@ const (
 	clusterActivityWindowMillis              = 3_000_000
 )
 
-func NewMetadataService(lc fx.Lifecycle, log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ClusterState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState],
+func NewMetadataService(lc fx.Lifecycle, log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ApplicationState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState],
 	applicationAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata], nodeAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata],
 	clusterAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedClusterState], eventEmitter *EventEmitter) *MetadataService {
 
@@ -45,7 +45,7 @@ func NewMetadataService(lc fx.Lifecycle, log *zap.Logger, clusterRepo *sharedrep
 type MetadataService struct {
 	log                        *zap.Logger
 	Lc                         fx.Lifecycle
-	clusterRepo                *sharedrepo.MongoDbCollection[repositories.ClusterState]
+	clusterRepo                *sharedrepo.MongoDbCollection[repositories.ApplicationState]
 	nodeRepo                   *sharedrepo.MongoDbCollection[repositories.NodeState]
 	applicationAggregatedRepo  *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
 	nodeAggregatedRepo         *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
@@ -53,7 +53,7 @@ type MetadataService struct {
 	eventEmitter               *EventEmitter
 }
 
-func (m *MetadataService) InsertApplicationMetadata(metadata repositories.ClusterState) error {
+func (m *MetadataService) InsertApplicationMetadata(metadata repositories.ApplicationState) error {
 	_, err := m.clusterRepo.InsertDocuments([]interface{}{metadata})
 	if err != nil {
 		m.log.Error("Failed to insert cluster metadata", zap.Error(err))

@@ -70,7 +70,7 @@ func (h *MetadataHandler) InsertApplicationMetadata(w http.ResponseWriter, r *ht
 
 	defer r.Body.Close()
 
-	var metadata repositories.ClusterState
+	var metadata repositories.ApplicationState
 
 	err := json.NewDecoder(r.Body).Decode(&metadata)
 	if err != nil {
