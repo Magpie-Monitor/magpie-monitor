@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
+	"net/http"
+	"os"
+
 	elasticsearch "github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
@@ -18,9 +22,6 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
-	"net"
-	"net/http"
-	"os"
 )
 
 type ServerParams struct {
@@ -91,6 +92,12 @@ func main() {
 				repositories.NewMongoDbNodeIncidentRepository,
 			),
 
+			openai.NewOpenAiJobsCollection,
+
+			openai.ProvideAsOpenAiJobRepository(
+				openai.NewMongoDbOpenAiJobRepository,
+			),
+
 			brokers.ProvideAsReportGeneratedBroker(
 				brokers.NewReportGeneratedBroker,
 			),
@@ -104,6 +111,7 @@ func main() {
 			),
 
 			repositories.NewApplicationIncidentsCollection,
+
 			repositories.ProvideAsApplicationIncidentRepository(
 				repositories.NewMongoDbApplicationIncidentRepository,
 			),

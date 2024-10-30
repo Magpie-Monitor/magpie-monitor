@@ -1,8 +1,12 @@
 package openai
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
+	scheduledjobs "github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/scheduled_jobs"
 	"go.uber.org/zap"
 	"os"
 	"strconv"
@@ -20,6 +24,12 @@ const (
 	OpenAiBatchStatus__Cancelling = "cancelling"
 	OpenAiBatchStatus__Cancelled  = "cancelled"
 )
+const (
+	CHARS_PER_OPENAI_TOKEN              = 5
+	MAX_OPENAI_OUTPUT_COMPLETION_TOKENS = 4096
+	// MAX_IN_PROGRESS_TOKENS              = 2000000
+	MAX_IN_PROGRESS_TOKENS = 20000
+)
 
 const (
 	BATCH_AWAITING_INTERVAL_SECONDS_KEY = "REPORTS_BATCH_AWAITING_INTERVAL_SECONDS"
@@ -28,12 +38,12 @@ const (
 type BatchPoller struct {
 	batches                      chan *Batch
 	client                       *Client
-	pendingBatchRepository       PendingBatchRepository
+	scheduledJobsRepository      scheduledjobs.ScheduledJobRepository[*OpenAiJob]
 	pollingIntervalSeconds       int
 	batchAwaitingIntervalSeconds int
 }
 
-func NewBatchPoller(client *Client, pendingBatchRepository PendingBatchRepository) *BatchPoller {
+func NewBatchPoller(client *Client, scheduledJobsRepository scheduledjobs.ScheduledJobRepository[*OpenAiJob]) *BatchPoller {
 
 	envs.ValidateEnvs("Missing envs for openai batch poller",
 		[]string{POLLING_INTERVAL_SECONDS_KEY,
@@ -54,24 +64,117 @@ func NewBatchPoller(client *Client, pendingBatchRepository PendingBatchRepositor
 	return &BatchPoller{
 		batches:                      make(chan *Batch),
 		client:                       client,
-		pendingBatchRepository:       pendingBatchRepository,
+		scheduledJobsRepository:      scheduledJobsRepository,
 		pollingIntervalSeconds:       pollingIntervalSecondsInt,
 		batchAwaitingIntervalSeconds: batchAwaitingIntervalSecondsInt,
 	}
 }
 
+func (p *BatchPoller) tokensFromJobs(jobs []*OpenAiJob) (int64, error) {
+
+	completionTokens := 0
+
+	for _, job := range jobs {
+		jobsCompletionTokens, err := p.tokensFromJob(job)
+		if err != nil {
+			return 0, err
+		}
+
+		completionTokens += int(jobsCompletionTokens)
+	}
+
+	return int64(completionTokens), nil
+}
+
+func (p *BatchPoller) tokensFromJob(job *OpenAiJob) (int64, error) {
+
+	completionTokens := MAX_OPENAI_OUTPUT_COMPLETION_TOKENS * len(job.CompletionRequests)
+
+	batchFile := bytes.NewBufferString("")
+	err := jsonl.NewJsonLinesEncoder(batchFile).Encode(job.CompletionRequests)
+	if err != nil {
+		p.client.logger.Error("Failed to encode scheduled job", zap.Error(err), zap.Any("job", job.Id))
+		return 0, err
+	}
+
+	completionTokens += batchFile.Len() / CHARS_PER_OPENAI_TOKEN
+
+	p.client.logger.Info("TOKENS FROM BATCH", zap.Any("tokens", completionTokens))
+
+	return int64(completionTokens), nil
+}
+
+func (p *BatchPoller) dequeScheduledJob(enqueuedJobs []*OpenAiJob, pendingJobs []*OpenAiJob) error {
+	if len(enqueuedJobs) == 0 {
+		return nil
+	}
+
+	inProgressTokens, err := p.tokensFromJobs(pendingJobs)
+	if err != nil {
+		p.client.logger.Error("Failed to calculate tokens from pending jobs", zap.Error(err), zap.Any("pendingJobs", pendingJobs))
+		return err
+	}
+
+	lastEnqueuedJobTokens, err := p.tokensFromJob(enqueuedJobs[0])
+	if err != nil {
+		p.client.logger.Error("Failed to calculate tokens from enqueued job", zap.Error(err), zap.Any("enqueuedJob", enqueuedJobs[0]))
+		return err
+	}
+
+	if lastEnqueuedJobTokens+inProgressTokens >= MAX_IN_PROGRESS_TOKENS {
+		p.client.logger.Info("Waiting for jobs to complete before enqueuing next one", zap.Any("newJob", enqueuedJobs[0]))
+		return nil
+	}
+
+	batch, err := p.client.UploadAndCreateBatch(enqueuedJobs[0].CompletionRequests)
+	if err != nil {
+		p.client.logger.Error("Failed to upload enqueued job as a batch", zap.Error(err), zap.Any("enqueuedJob", enqueuedJobs[0]))
+		return err
+	}
+
+	enqueuedJobs[0].Status = OpenAiJobStatus__InProgress
+	enqueuedJobs[0].BatchId = &batch.Id
+
+	updateErr := p.scheduledJobsRepository.UpdateScheduledJob(context.Background(), enqueuedJobs[0])
+	if updateErr != nil {
+		p.client.logger.Error("Failed to update enqueued job", zap.Error(err), zap.Any("job", enqueuedJobs[0]))
+		return err
+	}
+
+	return nil
+}
+func (p *BatchPoller) CompleteScheduledJob(scheduledJob *OpenAiJob) error {
+	scheduledJob.Status = OpenAiJobStatus__Completed
+	return p.scheduledJobsRepository.UpdateScheduledJob(context.Background(), scheduledJob)
+}
+
+func (p *BatchPoller) FailScheduledJob(scheduledJob *OpenAiJob) error {
+	scheduledJob.Status = OpenAiJobStatus__Failed
+	return p.scheduledJobsRepository.UpdateScheduledJob(context.Background(), scheduledJob)
+}
+
 func (p *BatchPoller) Start() {
+
 	for {
-		batchIds, err := p.pendingBatchRepository.GetAllPending()
-		p.client.logger.Debug("Got batchIds from repository", zap.Any("ids", batchIds))
+		enqueuedJobs, err := p.scheduledJobsRepository.GetScheduledJobsByStatus(context.Background(), OpenAiJobStatus__Enqueued)
+		pendingJobs, err := p.scheduledJobsRepository.GetScheduledJobsByStatus(context.Background(), OpenAiJobStatus__InProgress)
+
+		p.client.logger.Debug("Enqueued jobs", zap.Any("jobs", len(enqueuedJobs)))
+		p.client.logger.Debug("Pending jobs", zap.Any("jobs", len(pendingJobs)))
+
+		scheduleErr := p.dequeScheduledJob(enqueuedJobs, pendingJobs)
+		if scheduleErr != nil {
+			p.client.logger.Error("Failed to dequeue scheduled job", zap.Error(err))
+			continue
+		}
 
 		if err != nil {
 			p.client.logger.Error("Failed to get pending batches", zap.Error(err))
 			continue
 		}
 
-		for _, batchId := range batchIds {
-			batch, err := p.client.Batch(batchId)
+		for _, pendingJob := range pendingJobs {
+			batch, err := p.client.Batch(*pendingJob.BatchId)
 
 			if err != nil {
 				p.client.logger.Error("Failed to getch batch from OpenAI", zap.Error(err), zap.Any("batch", batch))
@@ -80,104 +183,118 @@ func (p *BatchPoller) Start() {
 
 			if batch.isCompleted() {
 				p.client.logger.Debug("Batch has been completed", zap.Any("batch", batch))
-				p.pendingBatchRepository.CompleteBatch(batchId)
+				p.CompleteScheduledJob(pendingJob)
 			}
 
 			if batch.isFailed() {
 				p.client.logger.Error("Batch has been failed", zap.Any("batch", batch))
-				p.pendingBatchRepository.FailBatch(batchId)
+				p.FailScheduledJob(pendingJob)
 			}
 
 			if batch.isExpired() {
 				p.client.logger.Error("Batch has expired", zap.Any("batch", batch))
-				p.pendingBatchRepository.FailBatch(batchId)
+				p.FailScheduledJob(pendingJob)
 			}
+
+			p.client.logger.Info("Currenly pending batch", zap.Any("batch", pendingJob.BatchId))
 		}
 
-		p.client.logger.Info("Currenly pending batches", zap.Any("batchIds", batchIds))
 		time.Sleep(time.Second * time.Duration(p.pollingIntervalSeconds))
 	}
 }
 
-func (p *BatchPoller) Batch(batchId string) (*Batch, error) {
+// func (p *BatchPoller) scheduledJob(jobId string) (*OpenAiJob, error) {
+//
+// 	job, err := p.scheduledJobsRepository.GetScheduledJob(context.Background(), jobId)
+//
+// 	// if (*job).IsEqueued() {
+// 	// 	return job
+// 	// }
+//
+// 	// batchId := (**job).BatchId
+// 	if err != nil {
+// 		// p.client.logger.Error("Failed to check if batch is pending", zap.String("batchId", *batchId), zap.Error(err))
+// 		p.client.logger.Error("Failed to get scheduled job by id", )
+// 		return nil, err
+// 	}
+// 	//
+// 	// batch, clientErr := p.client.Batch(*batchId)
+// 	//
+// 	// if clientErr != nil {
+// 	// 	p.client.logger.Error("Failed to fetch completed batch", zap.Error(err), zap.Any("batch", batchId))
+// 	// 	return nil, err
+// 	// }
+//
+// 	return *job, nil
+// }
 
-	batch, err := p.pendingBatchRepository.GetPendingBatch(batchId)
-	if err != nil {
-		p.client.logger.Error("Failed to check if batch is pending", zap.String("batchId", batchId), zap.Error(err))
-		return nil, err
-	}
+// func (p *BatchPoller) ManyBatches(batchIds []string) (map[string]*Batch, error) {
+//
+// 	batches := make(map[string]*Batch, 0)
+//
+// 	for _, batchId := range batchIds {
+// 		batch, err := p.batch(batchId)
+// 		if err != nil {
+// 			p.client.logger.Error("Failed to get batch from poller", zap.Error(err), zap.Any("batch", batchId))
+// 			return nil, err
+// 		}
+// 		batches[batchId] = batch
+// 	}
+//
+// 	return batches, nil
+//
+// }
 
-	// If the batch is not in the repository then a nil will be returned
-	if batch != nil {
-		return batch, nil
-	}
+func (p *BatchPoller) BatchesFromJobs(jobs []*OpenAiJob) ([]*Batch, error) {
 
-	// If the batch is not pending, then fetch it from OpenAi
-	batch, err = p.client.Batch(batchId)
+	batches := make([]*Batch, 0, len(jobs))
 
-	if err != nil {
-		p.client.logger.Error("Failed to fetch completed batch", zap.Error(err), zap.Any("batch", batchId))
-		return nil, err
-	}
-
-	return batch, nil
-}
-
-func (p *BatchPoller) ManyBatches(batchIds []string) (map[string]*Batch, error) {
-
-	batches := make(map[string]*Batch, 0)
-
-	for _, batchId := range batchIds {
-		batch, err := p.Batch(batchId)
+	for _, job := range jobs {
+		batch, err := p.client.Batch(*job.BatchId)
 		if err != nil {
-			p.client.logger.Error("Failed to get batch from poller", zap.Error(err), zap.Any("batch", batchId))
+			p.client.logger.Error("Failed to get batch from poller", zap.Error(err), zap.Any("job", job))
 			return nil, err
 		}
-		batches[batchId] = batch
+		batches = append(batches, batch)
 	}
 
 	return batches, nil
-
 }
 
 // Returns (completed, failed, errors)
-func (p *BatchPoller) AwaitPendingBatches(batchIds []string) ([]*Batch, []*Batch, error) {
-	completedBatchesChannel := make(chan *Batch, len(batchIds))
-	failedBatchesChannel := make(chan *Batch, len(batchIds))
-	errorsChannel := make(chan error, len(batchIds))
-	completedBatches := make([]*Batch, 0, len(batchIds))
-	failedBatches := make([]*Batch, 0, len(batchIds))
+func (p *BatchPoller) AwaitPendingJobs(jobIds []string) ([]*OpenAiJob, []*OpenAiJob, error) {
+	completedJobsChannel := make(chan *OpenAiJob, len(jobIds))
+	failedJobsChannel := make(chan *OpenAiJob, len(jobIds))
+	errorsChannel := make(chan error, len(jobIds))
+	completedJobs := make([]*OpenAiJob, 0, len(jobIds))
+	failedJobs := make([]*OpenAiJob, 0, len(jobIds))
 
 	var wg sync.WaitGroup
 
-	for _, batchId := range batchIds {
+	for _, jobId := range jobIds {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			for {
-				batch, err := p.Batch(batchId)
-				p.client.logger.Info("Waiting for batch", zap.Any("batch", batch))
+				job, err := p.scheduledJobsRepository.GetScheduledJob(context.Background(), jobId)
+
+				p.client.logger.Info("Waiting for job", zap.Any("job", (*job).Id))
+
 				if err != nil {
-					p.client.logger.Error("Failed to await an openAi batch", zap.Error(err), zap.Any("batchId", batchId))
+					p.client.logger.Error("Failed to await an openAi batch", zap.Error(err), zap.Any("jobId", (*job).Id))
 					errorsChannel <- err
 					return
 				}
 
-				if batch.isCompleted() {
-					p.client.logger.Info("Batch was finished", zap.Any("batch", batch))
-					completedBatchesChannel <- batch
+				if (*job).IsCompleted() {
+					p.client.logger.Info("Job was finished", zap.Any("job", (*job).Id))
+					completedJobsChannel <- (*job)
 					return
 				}
 
-				if batch.isFailed() {
-					p.client.logger.Error("Batch was failed", zap.Any("batch", batch))
-					failedBatchesChannel <- batch
-					return
-				}
-
-				if batch.isExpired() {
-					p.client.logger.Error("Batch was expired", zap.Any("batch", batch))
-					failedBatchesChannel <- batch
+				if (*job).IsFailed() {
+					p.client.logger.Error("Batch was failed", zap.Any("job", (*job).Id))
+					failedJobsChannel <- (*job)
 					return
 				}
 
@@ -188,39 +305,39 @@ func (p *BatchPoller) AwaitPendingBatches(batchIds []string) ([]*Batch, []*Batch
 
 	wg.Wait()
 
-	close(completedBatchesChannel)
-	close(failedBatchesChannel)
+	close(completedJobsChannel)
+	close(failedJobsChannel)
 	close(errorsChannel)
 
 	for err := range errorsChannel {
 		return nil, nil, err
 	}
 
-	for batch := range completedBatchesChannel {
-		completedBatches = append(completedBatches, batch)
+	for job := range completedJobsChannel {
+		completedJobs = append(completedJobs, job)
 	}
 
-	for batch := range failedBatchesChannel {
-		failedBatches = append(failedBatches, batch)
+	for batch := range failedJobsChannel {
+		failedJobs = append(failedJobs, batch)
 	}
 
-	return completedBatches, failedBatches, nil
+	return completedJobs, failedJobs, nil
 
 }
 
-func (p *BatchPoller) InsertPendingBatch(batch *Batch) error {
-	if err := p.pendingBatchRepository.AddPendingBatch(batch); err != nil {
-		p.client.logger.Error("Failed to set pending batch", zap.Error(err), zap.Any("batch", batch))
-		return err
-	}
-	return nil
-}
-
-func (p *BatchPoller) InsertPendingBatches(batches []*Batch) error {
-	p.client.logger.Info("Batches", zap.Any("batches", batches))
-	if err := p.pendingBatchRepository.AddPendingBatches(batches); err != nil {
-		p.client.logger.Error("Failed to set pending batch", zap.Error(err), zap.Any("batches", batches))
-		return err
-	}
-	return nil
-}
+// func (p *BatchPoller) InsertPendingBatch(batch *Batch) error {
+// 	if err := p.pendingBatchRepository.AddPendingBatch(batch); err != nil {
+// 		p.client.logger.Error("Failed to set pending batch", zap.Error(err), zap.Any("batch", batch))
+// 		return err
+// 	}
+// 	return nil
+// }
+//
+// func (p *BatchPoller) InsertPendingBatches(batches []*Batch) error {
+// 	p.client.logger.Info("Batches", zap.Any("batches", batches))
+// 	if err := p.pendingBatchRepository.AddPendingBatches(batches); err != nil {
+// 		p.client.logger.Error("Failed to set pending batch", zap.Error(err), zap.Any("batches", batches))
+// 		return err
+// 	}
+// 	return nil
+// }
