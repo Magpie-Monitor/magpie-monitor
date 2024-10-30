@@ -7,6 +7,9 @@ import SVGIcon from 'components/SVGIcon/SVGIcon';
 import {
   NotificationContext,
 } from 'pages/Notification/NotificationContext';
+import slackIcon from 'assets/slack-icon.png';
+import discordIcon from 'assets/discord-icon.png';
+import emailIcon from 'assets/mail-icon.png';
 
 const slackNotificationTableRow: WebhookTableRowProps[] = [
   {
@@ -62,19 +65,19 @@ const Notification = () => {
           <div className="notification__body">
             <NotificationTable
               data={slackNotificationTableRow}
-              imageName="slack-icon.png"
+              image={slackIcon}
               header="Slack"
               channel={'SLACK'}
             />
             <NotificationTable
               data={slackNotificationTableRow}
-              imageName="discord-icon.png"
+              image={discordIcon}
               header="Discord"
               channel={'DISCORD'}
             />
             <NotificationTable
               data={mailNotificationTableRow}
-              imageName="mail-icon.png"
+              image={emailIcon}
               header="Email"
               channel={'EMAIL'}
             />

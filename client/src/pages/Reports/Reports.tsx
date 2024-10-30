@@ -77,7 +77,7 @@ const Reports = () => {
       }
     >
       <SectionComponent
-        icon={'chart-icon'}
+        icon={<SVGIcon iconName='chart-icon'/>}
         title={'Weekly reports'}
         callback={handleAddNewReport}
       >

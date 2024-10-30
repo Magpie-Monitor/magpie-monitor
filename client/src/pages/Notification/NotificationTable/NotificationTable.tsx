@@ -40,7 +40,7 @@ const isEmailTableRowProps = (
 
 interface NotificationTableProps {
   data: NotificationTableRowProps[];
-  imageName: string;
+  image: string;
   header: string;
   channel: NotificationsChannel;
 }
@@ -159,18 +159,15 @@ const getTableColumns = (
 
 const NotificationTable = ({
   data,
-  imageName,
+  image,
   header,
   channel,
 }: NotificationTableProps) => {
-  const convertImageNameToSourcePath = (image: string) =>
-    `/src/assets/${image}`;
-
   return (
     <div className="notification-table">
       <div className="notification-table__heading">
         <div className="notification-table__heading">
-          <img src={convertImageNameToSourcePath(imageName)} />
+          <img src={image} />
           <p className="notification-table__heading__text">{header}</p>
         </div>
         <button className="notification-table__heading__button">
