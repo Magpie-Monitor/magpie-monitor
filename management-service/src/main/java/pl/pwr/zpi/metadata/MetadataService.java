@@ -1,4 +1,4 @@
-package pl.pwr.zpi.metadata.service;
+package pl.pwr.zpi.metadata;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +12,7 @@ import pl.pwr.zpi.metadata.event.dto.node.AggregatedNodeMetadata;
 import pl.pwr.zpi.metadata.repository.AggregatedApplicationMetadataRepository;
 import pl.pwr.zpi.metadata.repository.AggregatedClusterMetadataRepository;
 import pl.pwr.zpi.metadata.repository.AggregatedNodeMetadataRepository;
+import pl.pwr.zpi.metadata.service.MetadataHistoryService;
 
 import java.util.ArrayList;
 import java.util.List;

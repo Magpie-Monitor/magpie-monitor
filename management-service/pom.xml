@@ -76,19 +76,6 @@
             <version>${spring.boot.version}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <version>5.2.0</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-client -->
         <dependency>
             <groupId>org.springframework.security</groupId>

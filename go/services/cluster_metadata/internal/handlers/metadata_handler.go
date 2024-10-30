@@ -14,7 +14,7 @@ import (
 
 func NewMetadataRouter(metadataHandler *MetadataHandler, rootRouter *mux.Router) *MetadataRouter {
 	router := rootRouter.PathPrefix("/metadata").Subrouter()
-	router.Methods(http.MethodPost).Path("/clusters").HandlerFunc(metadataHandler.InsertClusterMetadata)
+	router.Methods(http.MethodPost).Path("/clusters").HandlerFunc(metadataHandler.InsertApplicationMetadata)
 	router.Methods(http.MethodPost).Path("/nodes").HandlerFunc(metadataHandler.InsertNodeMetadata)
 	router.Methods(http.MethodGet).Path("/healthz").HandlerFunc(metadataHandler.Healthz)
 
@@ -60,7 +60,7 @@ func (h *MetadataHandler) writeError(w *http.ResponseWriter, msg string, status 
 	})
 }
 
-func (h *MetadataHandler) InsertClusterMetadata(w http.ResponseWriter, r *http.Request) {
+func (h *MetadataHandler) InsertApplicationMetadata(w http.ResponseWriter, r *http.Request) {
 	m2m := r.Header.Get("X-Client-Secret")
 	if m2m != h.clientSecret {
 		h.log.Error("Invalid client secret")

@@ -3,7 +3,7 @@ package pl.pwr.zpi.metadata.event.dto.application;
 import java.util.List;
 
 public record ApplicationMetadataUpdated(
-        String requestId,
+        String correlationId,
         AggregatedApplicationMetadata metadata) {
 
     public String clusterId() {
