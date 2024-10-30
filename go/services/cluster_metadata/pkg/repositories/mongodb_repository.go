@@ -6,8 +6,8 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewClusterMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[ClusterState] {
-	return &repositories.MongoDbCollection[ClusterState]{Log: log, Db: "METADATA", Col: "APPLICATION_METADATA", Client: client}
+func NewClusterMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[ApplicationState] {
+	return &repositories.MongoDbCollection[ApplicationState]{Log: log, Db: "METADATA", Col: "APPLICATION_METADATA", Client: client}
 }
 
 func NewNodeMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[NodeState] {
@@ -57,7 +57,7 @@ type ClusterMetadata struct {
 	ClusterId string `json:"clusterId"`
 }
 
-type ClusterState struct {
+type ApplicationState struct {
 	CollectedAtMs int64         `json:"collectedAtMs" bson:"collectedAtMs"`
 	ClusterId     string        `json:"clusterId" bson:"clusterId"`
 	Applications  []Application `json:"applications" bson:"applications"`
