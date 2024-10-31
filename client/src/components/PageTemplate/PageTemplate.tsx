@@ -1,4 +1,5 @@
 import './PageTemplate.scss';
+import React from 'react';
 
 interface PageTemplateProps {
   header: React.ReactNode;

@@ -9,7 +9,7 @@ import {
 } from 'pages/Notification/NotificationContext';
 import slackIcon from 'assets/slack-icon.png';
 import discordIcon from 'assets/discord-icon.png';
-import emailIcon from 'assets/mail-icon.png';
+import emailIcon from 'assets/mail-icon.svg';
 
 const slackNotificationTableRow: WebhookTableRowProps[] = [
   {

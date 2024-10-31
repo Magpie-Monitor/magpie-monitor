@@ -3,7 +3,7 @@ import './NotificationChannelsColumns.scss';
 import NotificationChannelTag from 'components/NotificationChannelTag/NotificationChannelTag';
 import slackLogo from 'assets/slack-icon.png';
 import discordLogo from 'assets/discord-icon.png';
-import mailLogo from 'assets/mail-icon.png';
+import mailLogo from 'assets/mail-icon.svg';
 
 const NotificationChannelTagFactory = ({
   channel,

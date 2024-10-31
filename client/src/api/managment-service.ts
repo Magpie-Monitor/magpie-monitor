@@ -41,6 +41,36 @@ export interface ClusterSummary {
   }[];
 }
 
+export interface NotificationChannel {
+  id: string;
+  name: string;
+  service: string;
+  details: string;
+  updated: string;
+  added: string;
+  [key: string]: string;
+}
+
+export interface ApplicationEntry {
+  id: string;
+  name: string;
+  precision: string;
+  customPrompt: string;
+  updated: string;
+  added: string;
+  [key: string]: string;
+}
+
+export interface NodeEntry {
+  id: string;
+  name: string;
+  precision: string;
+  customPrompt: string;
+  updated: string;
+  added: string;
+  [key: string]: string;
+}
+
 const MANAGMENT_SERVICE_URL = import.meta.env.VITE_BACKEND_URL;
 const VALID_URGENCY_VALUES: ReportSummary['urgency'][] = [
   'HIGH',

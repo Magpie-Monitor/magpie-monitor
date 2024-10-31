@@ -5,6 +5,7 @@ import Table, { TableColumn } from 'components/Table/Table';
 import './Clusters.scss';
 import Channels from './components/NotificationChannelsColumn/NotificationChannelsColumn';
 import UrgencyBadge from 'components/UrgencyBadge/UrgencyBadge';
+import StateBadge from 'components/StateBadge/StateBadge';
 import ClusterLink from './components/ClusterLink/ClusterLink';
 import { useEffect, useState } from 'react';
 import {
@@ -15,7 +16,7 @@ import SVGIcon from 'components/SVGIcon/SVGIcon';
 
 interface ClusterDataRow {
   name: string;
-  state: 'Online' | 'Offline';
+  state: 'ONLINE' | 'OFFLINE';
   precision: 'HIGH' | 'MEDIUM' | 'LOW';
   notificationChannels: NotificationChannelColumn[];
   updatedAt: string;
@@ -38,6 +39,7 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
   {
     header: 'State',
     columnKey: 'state',
+    customComponent: ({ state }) => <StateBadge label={state} />
   },
   {
     header: 'Precision',
@@ -83,7 +85,7 @@ const tranformNotificationChannelsToColumns = (
 const transformIsRunningLabel = (
   cluster: ClusterSummary,
 ): ClusterDataRow['state'] => {
-  return cluster.isRunning ? 'Online' : 'Offline';
+  return cluster.isRunning ? 'ONLINE' : 'OFFLINE';
 };
 
 const transformUpdatedAtDate = (cluster: ClusterSummary) => {

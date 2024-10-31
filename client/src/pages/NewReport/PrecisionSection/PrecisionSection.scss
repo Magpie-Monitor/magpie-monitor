@@ -1,0 +1,20 @@
+@import '@/variables';
+
+.precision-section__input-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.precision-section__dropdown {
+  padding: 8px 12px;
+  border: 1px solid $component-border-color;
+  border-radius: 4px;
+  background-color: $component-secondary-background;
+  color: $font-color;
+  width: 100%;
+  max-width: 150px;
+  &:focus {
+    outline: none;
+    border-color: $primary;
+  }
+}
