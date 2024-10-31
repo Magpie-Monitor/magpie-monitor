@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	clusterAggregatedStateUpdateSleepSeconds = 5
-	nodeActivityWindowMillis                 = 3_000_000
-	clusterActivityWindowMillis              = 3_000_000
+	clusterAggregatedStateUpdateSleepSeconds = 30        // how often cluster state is refreshed
+	nodeActivityWindowMillis                 = 3_600_000 // cluster node is considered as running if it has reported in this period
+	clusterActivityWindowMillis              = 3_600_000 // cluster is considered as running if it has reported in this period
 )
 
 func NewMetadataService(lc fx.Lifecycle, log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ApplicationState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState],
@@ -170,7 +170,7 @@ func (m *MetadataService) InsertNodeMetadata(metadata repositories.NodeState) er
 	return nil
 }
 
-// Node is considered as running if it reported state in the nodeActivityWindowMillis period
+// Node is considered as running if it has reported state in the nodeActivityWindowMillis period
 func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles []string) error {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
