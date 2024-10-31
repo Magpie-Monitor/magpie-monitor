@@ -1,49 +1,50 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 
-	sharedkafka "github.com/Magpie-Monitor/magpie-monitor/pkg/kafka"
+	messagebroker "github.com/Magpie-Monitor/magpie-monitor/pkg/message-broker"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
-func NewEventEmitter(log *zap.Logger, credentials *sharedkafka.KafkaCredentials) *EventEmitter {
+func NewEventEmitter(log *zap.Logger, credentials *messagebroker.KafkaCredentials) *EventEmitter {
 	return &EventEmitter{
 		log:                       log,
-		applicationMetadataWriter: NewApplicationMetadataStreamWriter(credentials),
-		nodeMetadataWriter:        NewNodeMetadataStreamWriter(credentials),
-		clusterMetadataWriter:     NewClusterMetadataStreamWriter(credentials),
+		applicationMetadataWriter: NewApplicationMetadataStreamWriter(log, credentials),
+		nodeMetadataWriter:        NewNodeMetadataStreamWriter(log, credentials),
+		clusterMetadataWriter:     NewClusterMetadataStreamWriter(log, credentials),
 	}
 }
 
-func NewApplicationMetadataStreamWriter(credentials *sharedkafka.KafkaCredentials) *sharedkafka.StreamWriter {
+func NewApplicationMetadataStreamWriter(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ApplicationMetadataUpdated] {
 	appTopic, ok := os.LookupEnv("CLUSTER_METADATA_APPLICATION_TOPIC")
 	if !ok {
 		panic("CLUSTER_METADATA_APPLICATION_TOPIC env variable not provided")
 	}
 
-	return sharedkafka.NewStreamWriter(credentials, appTopic, 0)
+	return messagebroker.NewKafkaJsonMessageBroker[ApplicationMetadataUpdated](logger, credentials.Address, appTopic, credentials.Username, credentials.Password)
 }
 
-func NewNodeMetadataStreamWriter(credentials *sharedkafka.KafkaCredentials) *sharedkafka.StreamWriter {
+func NewNodeMetadataStreamWriter(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[NodeMetadataUpdated] {
 	nodeTopic, ok := os.LookupEnv("CLUSTER_METADATA_NODE_TOPIC")
 	if !ok {
 		panic("CLUSTER_METADATA_NODE_TOPIC env variable not provided")
 	}
 
-	return sharedkafka.NewStreamWriter(credentials, nodeTopic, 0)
+	return messagebroker.NewKafkaJsonMessageBroker[NodeMetadataUpdated](logger, credentials.Address, nodeTopic, credentials.Username, credentials.Password)
 }
 
-func NewClusterMetadataStreamWriter(credentials *sharedkafka.KafkaCredentials) *sharedkafka.StreamWriter {
+func NewClusterMetadataStreamWriter(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ClusterMetadataUpdated] {
 	clusterTopic, ok := os.LookupEnv("CLUSTER_METADATA_CLUSTER_TOPIC")
 	if !ok {
 		panic("CLUSTER_METADATA_NODE_TOPIC env variable not provided")
 	}
 
-	return sharedkafka.NewStreamWriter(credentials, clusterTopic, 0)
+	return messagebroker.NewKafkaJsonMessageBroker[ClusterMetadataUpdated](logger, credentials.Address, clusterTopic, credentials.Username, credentials.Password)
 }
 
 type ApplicationMetadataUpdated struct {
@@ -63,33 +64,34 @@ type ClusterMetadataUpdated struct {
 
 type EventEmitter struct {
 	log                       *zap.Logger
-	applicationMetadataWriter *sharedkafka.StreamWriter
-	nodeMetadataWriter        *sharedkafka.StreamWriter
-	clusterMetadataWriter     *sharedkafka.StreamWriter
+	applicationMetadataWriter *messagebroker.KafkaJsonMessageBroker[ApplicationMetadataUpdated]
+	nodeMetadataWriter        *messagebroker.KafkaJsonMessageBroker[NodeMetadataUpdated]
+	clusterMetadataWriter     *messagebroker.KafkaJsonMessageBroker[ClusterMetadataUpdated]
 }
 
 func (e *EventEmitter) EmitApplicationMetadataUpdatedEvent(metadata repositories.AggregatedApplicationMetadata) error {
 	event := ApplicationMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
-	return e.emitEvent(event, e.applicationMetadataWriter)
+	return e.applicationMetadataWriter.Publish(event.CorrelationId, event)
 }
 
 func (e *EventEmitter) EmitNodeMetadataUpdatedEvent(metadata repositories.AggregatedNodeMetadata) error {
 	event := NodeMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
-	return e.emitEvent(event, e.nodeMetadataWriter)
+	return e.nodeMetadataWriter.Publish(event.CorrelationId, event)
 }
 
 func (e *EventEmitter) EmitClusterMetadataUpdatedEvent(metadata repositories.AggregatedClusterState) error {
 	event := ClusterMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
-	return e.emitEvent(event, e.clusterMetadataWriter)
+	return e.clusterMetadataWriter.Publish(event.CorrelationId, event)
 }
 
-func (e *EventEmitter) emitEvent(event interface{}, writer *sharedkafka.StreamWriter) error {
+func (e *EventEmitter) emitEvent(event interface{}, correlationId string, writer *messagebroker.KafkaMessageBroker) error {
 	jsonEvent, err := json.Marshal(&event)
 	if err != nil {
 		e.log.Error("Error converting metadata event to JSON", zap.Error(err))
 		return err
 	}
 
-	writer.Write(string(jsonEvent))
+	writer.Publish(context.Background(), []byte(correlationId), []byte(jsonEvent))
+
 	return nil
 }
