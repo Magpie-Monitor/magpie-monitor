@@ -53,7 +53,7 @@ public class DiscordService {
 
     private DiscordReceiver getDiscordReceiver(Long receiverWebhookId) {
         return discordRepository.findById(receiverWebhookId)
-                .orElseThrow(() -> new IllegalArgumentException("Webhook with given clusterId not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Webhook with given Id not found"));
     }
 
     private void checkIfWebhookExists(String webhookUrl) {
