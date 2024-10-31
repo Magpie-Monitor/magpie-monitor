@@ -1,8 +1,6 @@
 package services
 
 import (
-	"context"
-	"encoding/json"
 	"os"
 
 	messagebroker "github.com/Magpie-Monitor/magpie-monitor/pkg/message-broker"
@@ -82,16 +80,4 @@ func (e *EventEmitter) EmitNodeMetadataUpdatedEvent(metadata repositories.Aggreg
 func (e *EventEmitter) EmitClusterMetadataUpdatedEvent(metadata repositories.AggregatedClusterState) error {
 	event := ClusterMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
 	return e.clusterMetadataWriter.Publish(event.CorrelationId, event)
-}
-
-func (e *EventEmitter) emitEvent(event interface{}, correlationId string, writer *messagebroker.KafkaMessageBroker) error {
-	jsonEvent, err := json.Marshal(&event)
-	if err != nil {
-		e.log.Error("Error converting metadata event to JSON", zap.Error(err))
-		return err
-	}
-
-	writer.Publish(context.Background(), []byte(correlationId), []byte(jsonEvent))
-
-	return nil
 }
