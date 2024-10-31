@@ -20,7 +20,7 @@ const (
 
 func NewMetadataService(lc fx.Lifecycle, log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ApplicationState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState],
 	applicationAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata], nodeAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata],
-	clusterAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedClusterState], eventEmitter *EventEmitter) *MetadataService {
+	clusterAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata], eventEmitter *EventEmitter) *MetadataService {
 
 	metadataService := MetadataService{
 		log:                        log,
@@ -49,7 +49,7 @@ type MetadataService struct {
 	nodeRepo                   *sharedrepo.MongoDbCollection[repositories.NodeState]
 	applicationAggregatedRepo  *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
 	nodeAggregatedRepo         *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
-	clusterStateAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedClusterState]
+	clusterStateAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
 	eventEmitter               *EventEmitter
 }
 
@@ -316,24 +316,24 @@ func (m *MetadataService) getUniqueClusterIdsForPeriod(periodMillis int64) (map[
 	return clusterSet, nil
 }
 
-func (m *MetadataService) createAggregatedClusterState(clusterSet map[string]struct{}) (repositories.AggregatedClusterState, error) {
+func (m *MetadataService) createAggregatedClusterState(clusterSet map[string]struct{}) (repositories.AggregatedClusterMetadata, error) {
 	state := make([]repositories.ClusterMetadata, 0, len(clusterSet))
 	for cluster, _ := range clusterSet {
 		state = append(state, repositories.ClusterMetadata{ClusterId: cluster})
 	}
 
-	metadata := repositories.AggregatedClusterState{CollectedAtMs: time.Now().UnixMilli(), Metadata: state}
+	metadata := repositories.AggregatedClusterMetadata{CollectedAtMs: time.Now().UnixMilli(), Metadata: state}
 
 	_, err := m.clusterStateAggregatedRepo.InsertDocument(metadata)
 	if err != nil {
 		m.log.Error("Error inserting cluster aggregated state", zap.Error(err))
-		return repositories.AggregatedClusterState{}, err
+		return repositories.AggregatedClusterMetadata{}, err
 	}
 
 	err = m.eventEmitter.EmitClusterMetadataUpdatedEvent(metadata)
 	if err != nil {
 		m.log.Error("Error emitting cluster metadata updated event", zap.Error(err))
-		return repositories.AggregatedClusterState{}, err
+		return repositories.AggregatedClusterMetadata{}, err
 	}
 
 	return metadata, nil

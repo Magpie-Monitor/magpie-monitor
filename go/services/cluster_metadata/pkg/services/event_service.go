@@ -12,13 +12,13 @@ import (
 func NewEventEmitter(log *zap.Logger, credentials *messagebroker.KafkaCredentials) *EventEmitter {
 	return &EventEmitter{
 		log:                       log,
-		applicationMetadataWriter: NewApplicationMetadataStreamWriter(log, credentials),
-		nodeMetadataWriter:        NewNodeMetadataStreamWriter(log, credentials),
-		clusterMetadataWriter:     NewClusterMetadataStreamWriter(log, credentials),
+		applicationMetadataWriter: NewApplicationMetadataBroker(log, credentials),
+		nodeMetadataWriter:        NewNodeMetadataBroker(log, credentials),
+		clusterMetadataWriter:     NewClusterMetadataBroker(log, credentials),
 	}
 }
 
-func NewApplicationMetadataStreamWriter(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ApplicationMetadataUpdated] {
+func NewApplicationMetadataBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ApplicationMetadataUpdated] {
 	appTopic, ok := os.LookupEnv("CLUSTER_METADATA_APPLICATION_TOPIC")
 	if !ok {
 		panic("CLUSTER_METADATA_APPLICATION_TOPIC env variable not provided")
@@ -27,7 +27,7 @@ func NewApplicationMetadataStreamWriter(logger *zap.Logger, credentials *message
 	return messagebroker.NewKafkaJsonMessageBroker[ApplicationMetadataUpdated](logger, credentials.Address, appTopic, credentials.Username, credentials.Password)
 }
 
-func NewNodeMetadataStreamWriter(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[NodeMetadataUpdated] {
+func NewNodeMetadataBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[NodeMetadataUpdated] {
 	nodeTopic, ok := os.LookupEnv("CLUSTER_METADATA_NODE_TOPIC")
 	if !ok {
 		panic("CLUSTER_METADATA_NODE_TOPIC env variable not provided")
@@ -36,7 +36,7 @@ func NewNodeMetadataStreamWriter(logger *zap.Logger, credentials *messagebroker.
 	return messagebroker.NewKafkaJsonMessageBroker[NodeMetadataUpdated](logger, credentials.Address, nodeTopic, credentials.Username, credentials.Password)
 }
 
-func NewClusterMetadataStreamWriter(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ClusterMetadataUpdated] {
+func NewClusterMetadataBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ClusterMetadataUpdated] {
 	clusterTopic, ok := os.LookupEnv("CLUSTER_METADATA_CLUSTER_TOPIC")
 	if !ok {
 		panic("CLUSTER_METADATA_NODE_TOPIC env variable not provided")
@@ -56,8 +56,8 @@ type NodeMetadataUpdated struct {
 }
 
 type ClusterMetadataUpdated struct {
-	CorrelationId string                              `json:"correlationId"`
-	Metadata      repositories.AggregatedClusterState `json:"metadata"`
+	CorrelationId string                                 `json:"correlationId"`
+	Metadata      repositories.AggregatedClusterMetadata `json:"metadata"`
 }
 
 type EventEmitter struct {
@@ -77,7 +77,7 @@ func (e *EventEmitter) EmitNodeMetadataUpdatedEvent(metadata repositories.Aggreg
 	return e.nodeMetadataWriter.Publish(event.CorrelationId, event)
 }
 
-func (e *EventEmitter) EmitClusterMetadataUpdatedEvent(metadata repositories.AggregatedClusterState) error {
+func (e *EventEmitter) EmitClusterMetadataUpdatedEvent(metadata repositories.AggregatedClusterMetadata) error {
 	event := ClusterMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
 	return e.clusterMetadataWriter.Publish(event.CorrelationId, event)
 }
