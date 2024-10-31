@@ -3,6 +3,8 @@ package messagebroker
 import (
 	"context"
 	"os"
+
+	"os"
 	"strconv"
 	"time"
 
@@ -12,6 +14,31 @@ import (
 	"github.com/segmentio/kafka-go/sasl/scram"
 	"go.uber.org/zap"
 )
+
+type KafkaCredentials struct {
+	Address  string
+	Username string
+	Password string
+}
+
+func NewKafkaCredentials() *KafkaCredentials {
+	kafkaAddress, ok := os.LookupEnv("KAFKA_BROKER_URL")
+	if !ok {
+		panic("KAFKA_ADDRESS env variable not provided")
+	}
+
+	kafkaUsername, ok := os.LookupEnv("KAFKA_CLIENT_USERNAME")
+	if !ok {
+		panic("KAFKA_USERNAME env variable not provided")
+	}
+
+	kafkaPassword, ok := os.LookupEnv("KAFKA_CLIENT_PASSWORD")
+	if !ok {
+		panic("KAFKA_PASSWORD env variable not provided")
+	}
+
+	return &KafkaCredentials{Address: kafkaAddress, Username: kafkaUsername, Password: kafkaPassword}
+}
 
 const (
 	KAFKA_MAX_MESSAGE_BYTES_KEY = "KAFKA_MAX_MESSAGE_SIZE_BYTES"

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	kafka "github.com/Magpie-Monitor/magpie-monitor/pkg/kafka"
+	messagebroker "github.com/Magpie-Monitor/magpie-monitor/pkg/message-broker"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/mongodb"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/swagger"
@@ -71,7 +71,7 @@ func main() {
 
 			mongodb.NewMongoDbClient,
 			database.NewMongoDbConnectionDetails,
-			kafka.NewKafkaCredentials,
+			messagebroker.NewKafkaCredentials,
 
 			services.NewMetadataService,
 			services.NewEventEmitter,
