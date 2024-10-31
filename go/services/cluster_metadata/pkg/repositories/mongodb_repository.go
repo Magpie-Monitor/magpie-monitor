@@ -6,24 +6,12 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewClusterMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[ApplicationState] {
-	return &repositories.MongoDbCollection[ApplicationState]{Log: log, Db: "METADATA", Col: "APPLICATION_METADATA", Client: client}
-}
-
-func NewNodeMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[NodeState] {
-	return &repositories.MongoDbCollection[NodeState]{Log: log, Db: "METADATA", Col: "NODE_METADATA", Client: client}
-}
+const (
+	DATABASE = "METADATA"
+)
 
 func NewApplicationAggregatedMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[AggregatedApplicationMetadata] {
-	return &repositories.MongoDbCollection[AggregatedApplicationMetadata]{Log: log, Db: "METADATA", Col: "AGGREGATED_APPLICATION_METADATA", Client: client}
-}
-
-func NewNodeAggregatedMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[AggregatedNodeMetadata] {
-	return &repositories.MongoDbCollection[AggregatedNodeMetadata]{Log: log, Db: "METADATA", Col: "AGGREGATED_NODE_METADATA", Client: client}
-}
-
-func NewClusterAggregatedStateCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[AggregatedClusterState] {
-	return &repositories.MongoDbCollection[AggregatedClusterState]{Log: log, Db: "METADATA", Col: "AGGREGATED_CLUSTER_STATE", Client: client}
+	return &repositories.MongoDbCollection[AggregatedApplicationMetadata]{Log: log, Db: DATABASE, Col: "AGGREGATED_APPLICATION_METADATA", Client: client}
 }
 
 type AggregatedApplicationMetadata struct {
@@ -37,6 +25,10 @@ type ApplicationMetadata struct {
 	Kind string `json:"kind" bson:"kind"`
 }
 
+func NewNodeAggregatedMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[AggregatedNodeMetadata] {
+	return &repositories.MongoDbCollection[AggregatedNodeMetadata]{Log: log, Db: DATABASE, Col: "AGGREGATED_NODE_METADATA", Client: client}
+}
+
 type AggregatedNodeMetadata struct {
 	CollectedAtMs int64          `json:"collectedAtMs" bson:"collectedAtMs"`
 	ClusterId     string         `json:"clusterId" bson:"clusterId"`
@@ -44,17 +36,25 @@ type AggregatedNodeMetadata struct {
 }
 
 type NodeMetadata struct {
-	Name  string        `json:"name"`
-	Files []interface{} `json:"files"`
+	Name  string        `json:"name" bson:"name"`
+	Files []interface{} `json:"files" bson:"files"`
 }
 
-type AggregatedClusterState struct {
+func NewClusterAggregatedStateCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[AggregatedClusterMetadata] {
+	return &repositories.MongoDbCollection[AggregatedClusterMetadata]{Log: log, Db: DATABASE, Col: "AGGREGATED_CLUSTER_STATE", Client: client}
+}
+
+type AggregatedClusterMetadata struct {
 	CollectedAtMs int64             `json:"collectedAtMs" bson:"collectedAtMs"`
 	Metadata      []ClusterMetadata `json:"metadata" bson:"metadata"`
 }
 
 type ClusterMetadata struct {
-	ClusterId string `json:"clusterId"`
+	ClusterId string `json:"clusterId" bson:"clusterId"`
+}
+
+func NewApplicationMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[ApplicationState] {
+	return &repositories.MongoDbCollection[ApplicationState]{Log: log, Db: DATABASE, Col: "APPLICATION_METADATA", Client: client}
 }
 
 type ApplicationState struct {
@@ -66,6 +66,10 @@ type ApplicationState struct {
 type Application struct {
 	Kind string `json:"kind" bson:"kind"`
 	Name string `json:"name" bson:"name"`
+}
+
+func NewNodeMetadataCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[NodeState] {
+	return &repositories.MongoDbCollection[NodeState]{Log: log, Db: DATABASE, Col: "NODE_METADATA", Client: client}
 }
 
 type NodeState struct {
