@@ -5,7 +5,8 @@ import { useState } from 'react';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import { ApplicationEntry } from 'api/managment-service';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
-import ActionButton, {ActionButtonColor} from "components/ActionButton/ActionButton.tsx";
+import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
+import OverlayComponent from "components/OverlayComponent/OverlayComponent.tsx";
 
 const MOCK_APPLICATIONS: ApplicationEntry[] = [
     {
@@ -28,6 +29,7 @@ const MOCK_APPLICATIONS: ApplicationEntry[] = [
 
 const ApplicationSection = () => {
     const [rows, setRows] = useState<ApplicationEntry[]>(MOCK_APPLICATIONS);
+    const [showModal, setShowModal] = useState(false);
     const columns: Array<TableColumn<ApplicationEntry>> = [
         {
             header: 'Name',
@@ -94,8 +96,20 @@ const ApplicationSection = () => {
         );
     };
 
+    const handleAddClick = () => {
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
+
     return (
-        <SectionComponent icon={<SVGIcon iconName='application-icon' />} title={'Applications'}>
+        <SectionComponent
+            icon={<SVGIcon iconName='application-icon' />}
+            title={'Applications'}
+            callback={handleAddClick}>
+            {showModal && <OverlayComponent onClose={handleCloseModal} />}
             <div className="application-section__table">
                 <Table columns={columns} rows={rows} />
             </div>

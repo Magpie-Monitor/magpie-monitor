@@ -1,8 +1,10 @@
+// NotificationSection.tsx
 import './NotificationSection.scss';
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import { useState, useEffect } from 'react';
 import NotificationChannelTable from './NotificationChannelTable';
+import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import { NotificationChannel } from 'api/managment-service';
 
 const MOCK_CHANNELS: NotificationChannel[] = [
@@ -14,6 +16,7 @@ const MOCK_CHANNELS: NotificationChannel[] = [
 const NotificationSection = () => {
     const [rows, setRows] = useState<NotificationChannel[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         setLoading(true);
@@ -23,8 +26,21 @@ const NotificationSection = () => {
         }, 2000);
     }, []);
 
+    const handleAddClick = () => {
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
+
     return (
-        <SectionComponent icon={<SVGIcon iconName="notification-icon" />} title="Notification Channels">
+        <SectionComponent
+            icon={<SVGIcon iconName="notification-icon" />}
+            title="Notification Channels"
+            callback={handleAddClick}
+        >
+            {showModal && <OverlayComponent onClose={handleCloseModal} />}
             <div className="notification-section__content">
                 {loading ? (
                     <p>Loading...</p>
