@@ -10,9 +10,10 @@ import {
 
 interface NotificationChannelTableProps {
     rows: NotificationChannel[];
+    onDelete: (id: string) => void;
 }
 
-const NotificationChannelTable: React.FC<NotificationChannelTableProps> = ({ rows }) => {
+const NotificationChannelTable: React.FC<NotificationChannelTableProps> = ({ rows, onDelete }) => {
     const columns: Array<TableColumn<NotificationChannel>> = [
         { header: 'Name', columnKey: 'name' },
         {
@@ -34,9 +35,9 @@ const NotificationChannelTable: React.FC<NotificationChannelTableProps> = ({ row
         {
             header: 'Actions',
             columnKey: 'actions',
-            customComponent: (row) => (
+            customComponent: (row: NotificationChannel) => (
                 <ActionButton
-                    onClick={() => console.log('Row:', row)}
+                    onClick={() => onDelete(row.id)}
                     description="Delete"
                     color={ActionButtonColor.RED}
                 />

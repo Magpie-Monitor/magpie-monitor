@@ -1,11 +1,11 @@
 import './NodesSection.scss';
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
-import Table, {TableColumn} from 'components/Table/Table.tsx';
-import {useState} from 'react';
+import Table, { TableColumn } from 'components/Table/Table.tsx';
+import { useState } from 'react';
 import TagButton from 'components/TagButton/TagButton.tsx';
-import {NodeEntry} from 'api/managment-service';
+import { NodeEntry } from 'api/managment-service';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
-import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
+import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionButton.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 
 const MOCK_APPLICATIONS: NodeEntry[] = [
@@ -30,6 +30,7 @@ const MOCK_APPLICATIONS: NodeEntry[] = [
 const NodesSection = () => {
     const [rows, setRows] = useState<NodeEntry[]>(MOCK_APPLICATIONS);
     const [showModal, setShowModal] = useState(false);
+
     const columns: Array<TableColumn<NodeEntry>> = [
         {
             header: 'Name',
@@ -63,16 +64,14 @@ const NodesSection = () => {
                 />
             ),
         },
-        {header: 'Updated', columnKey: 'updated'},
-        {header: 'Added', columnKey: 'added'},
+        { header: 'Updated', columnKey: 'updated' },
+        { header: 'Added', columnKey: 'added' },
         {
             header: 'Actions',
             columnKey: 'actions',
-            customComponent: (row) => (
+            customComponent: (row: NodeEntry) => (
                 <ActionButton
-                    onClick={() => {
-                        console.log('Row:', row);
-                    }}
+                    onClick={() => handleDelete(row.id)}
                     description="Delete"
                     color={ActionButtonColor.RED}
                 />
@@ -91,7 +90,7 @@ const NodesSection = () => {
     const handlePrecisionChange = (id: string, precision: string) => {
         setRows((prevRows) =>
             prevRows.map((row) =>
-                row.id === id ? {...row, precision} : row
+                row.id === id ? { ...row, precision } : row
             )
         );
     };
@@ -99,21 +98,30 @@ const NodesSection = () => {
     const handleCustomPromptChange = (id: string, customPrompt: string) => {
         setRows((prevRows) =>
             prevRows.map((row) =>
-                row.id === id ? {...row, customPrompt} : row
+                row.id === id ? { ...row, customPrompt } : row
             )
         );
     };
 
+    const handleDelete = (id: string) => {
+        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+    };
+
     return (
         <SectionComponent
-            icon={<SVGIcon iconName='application-icon'/>}
+            icon={<SVGIcon iconName='application-icon' />}
             title={'Nodes'}
             callback={handleAddClick}>
             {showModal && <OverlayComponent onClose={handleCloseModal} />}
             <div className="nodes-section__table">
-                <Table columns={columns} rows={rows}/>
+                {rows.length === 0 ? (
+                    <p>No Nodes selected, please add new</p>
+                ) : (
+                    <Table columns={columns} rows={rows} />
+                )}
             </div>
         </SectionComponent>
     );
 };
+
 export default NodesSection;

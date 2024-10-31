@@ -5,7 +5,7 @@ import { useState } from 'react';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import { ApplicationEntry } from 'api/managment-service';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
-import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
+import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionButton.tsx';
 import OverlayComponent from "components/OverlayComponent/OverlayComponent.tsx";
 
 const MOCK_APPLICATIONS: ApplicationEntry[] = [
@@ -30,6 +30,7 @@ const MOCK_APPLICATIONS: ApplicationEntry[] = [
 const ApplicationSection = () => {
     const [rows, setRows] = useState<ApplicationEntry[]>(MOCK_APPLICATIONS);
     const [showModal, setShowModal] = useState(false);
+
     const columns: Array<TableColumn<ApplicationEntry>> = [
         {
             header: 'Name',
@@ -68,11 +69,9 @@ const ApplicationSection = () => {
         {
             header: 'Actions',
             columnKey: 'actions',
-            customComponent: (row) => (
+            customComponent: (row: ApplicationEntry) => (
                 <ActionButton
-                    onClick={() => {
-                        console.log('Row:', row);
-                    }}
+                    onClick={() => handleDelete(row.id)}
                     description="Delete"
                     color={ActionButtonColor.RED}
                 />
@@ -96,6 +95,10 @@ const ApplicationSection = () => {
         );
     };
 
+    const handleDelete = (id: string) => {
+        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+    };
+
     const handleAddClick = () => {
         setShowModal(true);
     };
@@ -111,9 +114,14 @@ const ApplicationSection = () => {
             callback={handleAddClick}>
             {showModal && <OverlayComponent onClose={handleCloseModal} />}
             <div className="application-section__table">
-                <Table columns={columns} rows={rows} />
+                {rows.length === 0 ? (
+                    <p>No Applications selected, please add new</p>
+                ) : (
+                    <Table columns={columns} rows={rows} />
+                )}
             </div>
         </SectionComponent>
     );
 };
+
 export default ApplicationSection;

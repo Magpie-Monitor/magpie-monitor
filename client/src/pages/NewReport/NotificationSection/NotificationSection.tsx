@@ -1,4 +1,3 @@
-// NotificationSection.tsx
 import './NotificationSection.scss';
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
@@ -34,6 +33,10 @@ const NotificationSection = () => {
         setShowModal(false);
     };
 
+    const handleDelete = (id: string) => {
+        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+    };
+
     return (
         <SectionComponent
             icon={<SVGIcon iconName="notification-icon" />}
@@ -45,9 +48,9 @@ const NotificationSection = () => {
                 {loading ? (
                     <p>Loading...</p>
                 ) : rows.length === 0 ? (
-                    <p>No notification channels available.</p>
+                    <p>No notification channels selected, pls add new</p>
                 ) : (
-                    <NotificationChannelTable rows={rows} />
+                    <NotificationChannelTable rows={rows} onDelete={handleDelete} />
                 )}
             </div>
         </SectionComponent>

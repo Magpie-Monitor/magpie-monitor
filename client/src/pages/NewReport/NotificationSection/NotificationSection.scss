@@ -5,6 +5,9 @@
     border-radius: 8px;
     color: $font-color;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     p {
       color: $font-color;
       font-size: 16px;
