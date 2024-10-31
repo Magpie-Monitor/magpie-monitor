@@ -110,7 +110,7 @@ const NodesSection = () => {
             title={'Nodes'}
             callback={handleAddClick}>
             {showModal && <OverlayComponent onClose={handleCloseModal} />}
-            <div className="application-section__table">
+            <div className="nodes-section__table">
                 <Table columns={columns} rows={rows}/>
             </div>
         </SectionComponent>
