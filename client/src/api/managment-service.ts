@@ -9,11 +9,13 @@ interface TokenInfo {
   expTime: number;
 }
 
+export type AccuracyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
+
 export interface ReportSummary {
   id: string;
   clusterId: string;
   title: string;
-  urgency: 'HIGH' | 'MEDIUM' | 'LOW';
+  urgency: AccuracyLevel;
   sinceMs: number;
   toMs: number;
   [key: string]: string | number;
@@ -22,7 +24,7 @@ export interface ReportSummary {
 export interface ClusterSummary {
   id: string;
   isRunning: boolean;
-  accuracy: 'HIGH' | 'MEDIUM' | 'LOW';
+  accuracy: AccuracyLevel;
   updatedAt: number;
   slackChannels: {
     name: string;
@@ -51,18 +53,16 @@ export interface NotificationChannel {
 }
 
 export interface Application {
-  id: string;
   name: string;
-  accuracy: 'HIGH' | 'MEDIUM' | 'LOW';
+  accuracy: AccuracyLevel;
   customPrompt: string;
   updated: string;
   added: string;
 } //Create second type for api + property enabled
 
 export interface Node {
-  id: string;
   name: string;
-  accuracy: 'HIGH' | 'MEDIUM' | 'LOW';
+  accuracy: AccuracyLevel;
   customPrompt: string;
   updated: string;
   added: string;
@@ -257,7 +257,6 @@ class ManagmentServiceApi {
   public async getApplications(): Promise<Application[]> {
     const mockApplications: Array<Application> = [
       {
-        id: '1',
         name: 'alerts-api-database',
         accuracy: 'HIGH',
         customPrompt: 'ignore s3 logs...',
@@ -265,7 +264,6 @@ class ManagmentServiceApi {
         added: '07.03.2024 15:32',
       },
       {
-        id: '2',
         name: 'alerts-api-backend',
         accuracy: 'LOW',
         customPrompt: '',
@@ -273,7 +271,6 @@ class ManagmentServiceApi {
         added: '07.03.2024 15:32',
       },
       {
-        id: '3',
         name: 'is-jsos-down',
         accuracy: 'MEDIUM',
         customPrompt: 'dont ignore s3 logs...',
@@ -287,7 +284,6 @@ class ManagmentServiceApi {
   public async getNodes(): Promise<Node[]> {
     const mockNodes: Array<Node> = [
       {
-        id: '1',
         name: 'node 1',
         accuracy: 'HIGH',
         customPrompt: 'ignore s3 logs...',
@@ -295,7 +291,6 @@ class ManagmentServiceApi {
         added: '07.03.2024 15:32',
       },
       {
-        id: '2',
         name: 'node 2',
         accuracy: 'LOW',
         customPrompt: 'ignore s3 logs...',
@@ -303,7 +298,6 @@ class ManagmentServiceApi {
         added: '07.03.2024 15:32',
       },
       {
-        id: '3',
         name: 'node 3',
         accuracy: 'MEDIUM',
         customPrompt: '',

@@ -10,14 +10,15 @@ import { useEffect, useState } from 'react';
 import {
   ClusterSummary,
   ManagmentServiceApiInstance,
+  AccuracyLevel
 } from 'api/managment-service';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
-import LinkComponent from "components/LinkComponent/LinkComponent.tsx";
+import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 
 interface ClusterDataRow {
   name: string;
   state: 'ONLINE' | 'OFFLINE';
-  accuracy: 'HIGH' | 'MEDIUM' | 'LOW';
+  accuracy: AccuracyLevel;
   notificationChannels: NotificationChannelColumn[];
   updatedAt: string;
   [key: string]: string | NotificationChannelColumn[];

@@ -1,8 +1,9 @@
 import React from 'react';
 import './UrgencyBadge.scss';
+import { AccuracyLevel } from 'api/managment-service.ts';
 
 interface UrgencyBadgeProps {
-    label: 'HIGH' | 'MEDIUM' | 'LOW';
+    label: AccuracyLevel;
 }
 
 const UrgencyBadge: React.FC<UrgencyBadgeProps> = ({ label }) => {

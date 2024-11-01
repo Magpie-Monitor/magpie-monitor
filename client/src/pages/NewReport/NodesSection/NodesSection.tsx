@@ -7,12 +7,11 @@ import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionB
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
-import { ManagmentServiceApiInstance } from 'api/managment-service';
+import { ManagmentServiceApiInstance, AccuracyLevel} from 'api/managment-service';
 
 export interface NodeEntry {
-    id: string;
     name: string;
-    accuracy: 'HIGH' | 'MEDIUM' | 'LOW';
+    accuracy: AccuracyLevel;
     customPrompt: string;
     updated: string;
     added: string;
@@ -30,7 +29,6 @@ const NodesSection = () => {
             const nodesData = await ManagmentServiceApiInstance.getNodes();
 
             const nodeRows = nodesData.map((node): NodeEntry => ({
-                id: node.id,
                 name: node.name,
                 accuracy: node.accuracy,
                 customPrompt: node.customPrompt,
@@ -58,24 +56,24 @@ const NodesSection = () => {
         setShowModal(false);
     };
 
-    const handleAccuracyChange = (id: string, accuracy: 'HIGH' | 'MEDIUM' | 'LOW') => {
+    const handleAccuracyChange = (name: string, accuracy: AccuracyLevel) => {
         setRows((prevRows) =>
             prevRows.map((row) =>
-                row.id === id ? { ...row, accuracy } : row
+                row.name === name ? { ...row, accuracy } : row
             )
         );
     };
 
-    const handleCustomPromptChange = (id: string, customPrompt: string) => {
+    const handleCustomPromptChange = (name: string, customPrompt: string) => {
         setRows((prevRows) =>
             prevRows.map((row) =>
-                row.id === id ? { ...row, customPrompt } : row
+                row.name === name ? { ...row, customPrompt } : row
             )
         );
     };
 
-    const handleDelete = (id: string) => {
-        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+    const handleDelete = (name: string) => {
+        setRows((prevRows) => prevRows.filter((row) => row.name !== name));
     };
 
     const columns: Array<TableColumn<NodeEntry>> = [
@@ -95,7 +93,7 @@ const NodesSection = () => {
                 <TagButton
                     listItems={['HIGH', 'MEDIUM', 'LOW']}
                     chosenItem={row.accuracy}
-                    onSelect={(item) => handleAccuracyChange(row.id, item as 'HIGH' | 'MEDIUM' | 'LOW')}
+                    onSelect={(item) => handleAccuracyChange(row.name, item as AccuracyLevel)}
                 />
             ),
         },
@@ -105,7 +103,7 @@ const NodesSection = () => {
             customComponent: (row: NodeEntry) => (
                 <CustomPrompt
                     value={row.customPrompt}
-                    onChange={(value) => handleCustomPromptChange(row.id, value)}
+                    onChange={(value) => handleCustomPromptChange(row.name, value)}
                     className="node-section__input"
                 />
             ),
@@ -117,7 +115,7 @@ const NodesSection = () => {
             columnKey: 'actions',
             customComponent: (row: NodeEntry) => (
                 <ActionButton
-                    onClick={() => handleDelete(row.id)}
+                    onClick={() => handleDelete(row.name)}
                     description="Delete"
                     color={ActionButtonColor.RED}
                 />

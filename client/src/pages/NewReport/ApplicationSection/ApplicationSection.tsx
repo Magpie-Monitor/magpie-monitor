@@ -7,12 +7,11 @@ import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionB
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
-import { ManagmentServiceApiInstance } from 'api/managment-service';
+import { ManagmentServiceApiInstance, AccuracyLevel } from 'api/managment-service';
 
 interface ApplicationDataRow {
-    id: string;
     name: string;
-    accuracy: 'HIGH' | 'MEDIUM' | 'LOW';
+    accuracy: AccuracyLevel;
     customPrompt: string;
     updated: string;
     added: string;
@@ -31,7 +30,6 @@ const ApplicationSection = () => {
 
             const applicationsRows = applicationsData.map(
                 (application): ApplicationDataRow => ({
-                    id: application.id,
                     name: application.name,
                     accuracy: application.accuracy,
                     customPrompt: application.customPrompt,
@@ -52,24 +50,24 @@ const ApplicationSection = () => {
         fetchApplications();
     }, []);
 
-    const handleAccuracyChange = (id: string, accuracy: 'HIGH' | 'MEDIUM' | 'LOW') => {
+    const handleAccuracyChange = (name: string, accuracy: AccuracyLevel) => {
         setRows((prevRows) =>
             prevRows.map((row) =>
-                row.id === id ? { ...row, accuracy } : row
+                row.name === name ? { ...row, accuracy } : row
             )
         );
     };
 
-    const handleCustomPromptChange = (id: string, customPrompt: string) => {
+    const handleCustomPromptChange = (name: string, customPrompt: string) => {
         setRows((prevRows) =>
             prevRows.map((row) =>
-                row.id === id ? { ...row, customPrompt } : row
+                row.name === name ? { ...row, customPrompt } : row
             )
         );
     };
 
-    const handleDelete = (id: string) => {
-        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+    const handleDelete = (name: string) => {
+        setRows((prevRows) => prevRows.filter((row) => row.name !== name));
     };
 
     const handleAddClick = () => {
@@ -85,7 +83,7 @@ const ApplicationSection = () => {
             header: 'Name',
             columnKey: 'name',
             customComponent: (row: ApplicationDataRow) => (
-                <LinkComponent href="#" className="application-section__link">
+                <LinkComponent href="#">
                     {row.name}
                 </LinkComponent>
             ),
@@ -97,7 +95,7 @@ const ApplicationSection = () => {
                 <TagButton
                     listItems={['HIGH', 'MEDIUM', 'LOW']}
                     chosenItem={row.accuracy}
-                    onSelect={(item) => handleAccuracyChange(row.id, item as 'HIGH' | 'MEDIUM' | 'LOW')}
+                    onSelect={(item) => handleAccuracyChange(row.name, item as AccuracyLevel)}
                 />
             ),
         },
@@ -107,7 +105,7 @@ const ApplicationSection = () => {
             customComponent: (row: ApplicationDataRow) => (
                 <CustomPrompt
                     value={row.customPrompt}
-                    onChange={(value) => handleCustomPromptChange(row.id, value)}
+                    onChange={(value) => handleCustomPromptChange(row.name, value)}
                     className="application-section__input"
                 />
             ),
@@ -119,7 +117,7 @@ const ApplicationSection = () => {
             columnKey: 'actions',
             customComponent: (row: ApplicationDataRow) => (
                 <ActionButton
-                    onClick={() => handleDelete(row.id)}
+                    onClick={() => handleDelete(row.name)}
                     description="Delete"
                     color={ActionButtonColor.RED}
                 />
