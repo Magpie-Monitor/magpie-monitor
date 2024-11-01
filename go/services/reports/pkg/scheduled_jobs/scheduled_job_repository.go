@@ -19,9 +19,9 @@ type ScheduledJob interface {
 }
 
 const (
-	ScheduledJobNotFound      ScheduledJobRepositoryErrorKind = "SCHEDULED_JOB_NOT_FOUND"
-	InvalidScheduledJobId     ScheduledJobRepositoryErrorKind = "INVALID_SCHEDULED_JOB_ID"
-	ScheduledJobInternalError ScheduledJobRepositoryErrorKind = "INTERNAL_ERROR"
+	ScheduledJob__NotFound      ScheduledJobRepositoryErrorKind = "SCHEDULED_JOB_NOT_FOUND"
+	ScheduledJob__InvalidId     ScheduledJobRepositoryErrorKind = "INVALID_SCHEDULED_JOB_ID"
+	ScheduledJob__InternalError ScheduledJobRepositoryErrorKind = "INTERNAL_ERROR"
 )
 
 type ScheduledJobRepositoryError struct {
@@ -40,21 +40,21 @@ func (e *ScheduledJobRepositoryError) Kind() ScheduledJobRepositoryErrorKind {
 func NewScheduledJobNotFoundError(err error) *ScheduledJobRepositoryError {
 	return &ScheduledJobRepositoryError{
 		msg:  fmt.Sprintf(" incident does not exists: %s", err),
-		kind: ScheduledJobNotFound,
+		kind: ScheduledJob__NotFound,
 	}
 }
 
 func NewInvalidScheduledJobIdError(err error) *ScheduledJobRepositoryError {
 	return &ScheduledJobRepositoryError{
 		msg:  fmt.Sprintf("Invalid application incident id: %s", err),
-		kind: InvalidScheduledJobId,
+		kind: ScheduledJob__InvalidId,
 	}
 }
 
 func NewScheduledJobInternalError(err error) *ScheduledJobRepositoryError {
 	return &ScheduledJobRepositoryError{
 		msg:  err.Error(),
-		kind: ScheduledJobInternalError,
+		kind: ScheduledJob__InternalError,
 	}
 }
 
@@ -173,5 +173,3 @@ func (r *MongoDbScheduledJobRepository[T]) UpdateScheduledJob(ctx context.Contex
 
 	return nil
 }
-
-// var _ ScheduledJobRepository[any] = MongoDbScheduledJobRepository[O]{}

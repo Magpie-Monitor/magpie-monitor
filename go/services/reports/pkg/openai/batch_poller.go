@@ -25,14 +25,13 @@ const (
 	OpenAiBatchStatus__Cancelled  = "cancelled"
 )
 const (
-	CHARS_PER_OPENAI_TOKEN              = 5
-	MAX_OPENAI_OUTPUT_COMPLETION_TOKENS = 4096
-	// MAX_IN_PROGRESS_TOKENS              = 2000000
-	MAX_IN_PROGRESS_TOKENS = 20000
+	CHARS_PER_OPENAI_TOKEN = 5
 )
 
 const (
-	BATCH_AWAITING_INTERVAL_SECONDS_KEY = "REPORTS_BATCH_AWAITING_INTERVAL_SECONDS"
+	BATCH_AWAITING_INTERVAL_SECONDS_KEY     = "REPORTS_BATCH_AWAITING_INTERVAL_SECONDS"
+	REPORTS_MAX_IN_PRORESS_TOKENS_KEY       = "REPORTS_MAX_IN_PRORESS_TOKENS"
+	MAX_OPENAI_OUTPUT_COMPLETION_TOKENS_KEY = "REPORTS_MAX_OPENAI_OUTPUT_COMPLETION_TOKENS"
 )
 
 type BatchPoller struct {
@@ -41,13 +40,18 @@ type BatchPoller struct {
 	scheduledJobsRepository      scheduledjobs.ScheduledJobRepository[*OpenAiJob]
 	pollingIntervalSeconds       int
 	batchAwaitingIntervalSeconds int
+	maxInProgressTokens          int
+	maxCompletionOutputTokens    int
 }
 
 func NewBatchPoller(client *Client, scheduledJobsRepository scheduledjobs.ScheduledJobRepository[*OpenAiJob]) *BatchPoller {
 
 	envs.ValidateEnvs("Missing envs for openai batch poller",
 		[]string{POLLING_INTERVAL_SECONDS_KEY,
-			BATCH_AWAITING_INTERVAL_SECONDS_KEY})
+			BATCH_AWAITING_INTERVAL_SECONDS_KEY,
+			REPORTS_MAX_IN_PRORESS_TOKENS_KEY,
+			MAX_OPENAI_OUTPUT_COMPLETION_TOKENS_KEY,
+		})
 
 	pollingIntervalSeconds := os.Getenv(POLLING_INTERVAL_SECONDS_KEY)
 	pollingIntervalSecondsInt, err := strconv.Atoi(pollingIntervalSeconds)
@@ -61,12 +65,27 @@ func NewBatchPoller(client *Client, scheduledJobsRepository scheduledjobs.Schedu
 		panic(fmt.Sprintf("%s is not a number", BATCH_AWAITING_INTERVAL_SECONDS_KEY))
 	}
 
+	maxOutputTokens := os.Getenv(MAX_OPENAI_OUTPUT_COMPLETION_TOKENS_KEY)
+	maxOutputTokensInt, err := strconv.Atoi(maxOutputTokens)
+	if err != nil {
+		panic(fmt.Sprintf("%s is not a number", MAX_OPENAI_OUTPUT_COMPLETION_TOKENS_KEY))
+	}
+
+	maxInProgressTokens := os.Getenv(REPORTS_MAX_IN_PRORESS_TOKENS_KEY)
+	maxInProgressTokensInt, err := strconv.Atoi(maxInProgressTokens)
+
+	if err != nil {
+		panic(fmt.Sprintf("%s is not a number", MAX_OPENAI_OUTPUT_COMPLETION_TOKENS_KEY))
+	}
+
 	return &BatchPoller{
 		batches:                      make(chan *Batch),
 		client:                       client,
 		scheduledJobsRepository:      scheduledJobsRepository,
 		pollingIntervalSeconds:       pollingIntervalSecondsInt,
 		batchAwaitingIntervalSeconds: batchAwaitingIntervalSecondsInt,
+		maxCompletionOutputTokens:    maxOutputTokensInt,
+		maxInProgressTokens:          maxInProgressTokensInt,
 	}
 }
 
@@ -86,9 +105,11 @@ func (p *BatchPoller) tokensFromJobs(jobs []*OpenAiJob) (int64, error) {
 	return int64(completionTokens), nil
 }
 
+// Aproximate the tokens for a job based on an average of chars per token and maximum tokens
+// that a model might output for each request
 func (p *BatchPoller) tokensFromJob(job *OpenAiJob) (int64, error) {
 
-	completionTokens := MAX_OPENAI_OUTPUT_COMPLETION_TOKENS * len(job.CompletionRequests)
+	completionTokens := p.maxCompletionOutputTokens * len(job.CompletionRequests)
 
 	batchFile := bytes.NewBufferString("")
 	err := jsonl.NewJsonLinesEncoder(batchFile).Encode(job.CompletionRequests)
@@ -98,8 +119,6 @@ func (p *BatchPoller) tokensFromJob(job *OpenAiJob) (int64, error) {
 	}
 
 	completionTokens += batchFile.Len() / CHARS_PER_OPENAI_TOKEN
-
-	p.client.logger.Info("TOKENS FROM BATCH", zap.Any("tokens", completionTokens))
 
 	return int64(completionTokens), nil
 }
@@ -121,7 +140,7 @@ func (p *BatchPoller) dequeScheduledJob(enqueuedJobs []*OpenAiJob, pendingJobs [
 		return err
 	}
 
-	if lastEnqueuedJobTokens+inProgressTokens >= MAX_IN_PROGRESS_TOKENS {
+	if lastEnqueuedJobTokens+inProgressTokens >= int64(p.maxInProgressTokens) {
 		p.client.logger.Info("Waiting for jobs to complete before enqueuing next one", zap.Any("newJob", enqueuedJobs[0]))
 		return nil
 	}
