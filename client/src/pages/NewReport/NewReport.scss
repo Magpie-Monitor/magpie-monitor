@@ -1,17 +1,21 @@
-@import '@/variables';
-
 .new-report {
   &__section {
     display: flex;
     flex-direction: column;
     gap: 15px;
   }
+
   &__row {
     display: flex;
     gap: 15px;
-    align-items: flex-start;
+    align-items: stretch;
     max-width: 1900px;
+
+    & > div {
+      flex: 1 1 50%;
+    }
   }
+
   &__actions {
     display: flex;
     justify-content: flex-end;
