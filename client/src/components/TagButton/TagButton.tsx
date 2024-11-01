@@ -69,7 +69,7 @@ const TagButton = ({ listItems, chosenItem = listItems[0] }: TagButtonProps) => 
             aria-expanded={isOpen}
         >
         <span className="tag-button__toggle__description">
-          {selectedOption || '^'}
+          {selectedOption}
         </span>
           <SVGIcon iconName={isOpen ? 'reverse-drop-down-icon' : 'drop-down-icon'} />
         </button>

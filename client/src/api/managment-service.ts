@@ -22,7 +22,7 @@ export interface ReportSummary {
 export interface ClusterSummary {
   id: string;
   isRunning: boolean;
-  precision: 'HIGH' | 'MEDIUM' | 'LOW';
+  accuracy: 'HIGH' | 'MEDIUM' | 'LOW';
   updatedAt: number;
   slackChannels: {
     name: string;
@@ -48,27 +48,24 @@ export interface NotificationChannel {
   details: string;
   updated: string;
   added: string;
-  [key: string]: string;
 }
 
-export interface ApplicationEntry {
+export interface Application {
   id: string;
   name: string;
-  precision: string;
+  accuracy: 'HIGH' | 'MEDIUM' | 'LOW';
   customPrompt: string;
   updated: string;
   added: string;
-  [key: string]: string;
-}
+} //Create second type for api + property enabled
 
-export interface NodeEntry {
+export interface Node {
   id: string;
   name: string;
-  precision: string;
+  accuracy: 'HIGH' | 'MEDIUM' | 'LOW';
   customPrompt: string;
   updated: string;
   added: string;
-  [key: string]: string;
 }
 
 const MANAGMENT_SERVICE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -166,7 +163,7 @@ class ManagmentServiceApi {
       {
         id: 'cluster-1-abcd',
         isRunning: true,
-        precision: 'HIGH',
+        accuracy: 'HIGH',
         updatedAt: 1730233614763,
         slackChannels: [
           {
@@ -193,7 +190,7 @@ class ManagmentServiceApi {
       {
         id: 'cluster-2-abcd',
         isRunning: false,
-        precision: 'HIGH',
+        accuracy: 'HIGH',
         updatedAt: 1730233614763,
         slackChannels: [
           {
@@ -225,6 +222,96 @@ class ManagmentServiceApi {
       },
     ];
     return mockClusters;
+  }
+
+  public async getNotificationChannels(): Promise<NotificationChannel[]> {
+    const mockNotificatoinChannels: Array<NotificationChannel> = [
+      {
+        id: '1',
+        name: 'Infra team slack',
+        service: 'SLACK',
+        details: 'wms_dev/#infra-alerts',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32'
+      },
+      {
+        id: '2',
+        name: 'Infra team discord',
+        service: 'DISCORD',
+        details: 'wms_dev/#dev-infra-alerts',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32'
+      },
+      {
+        id: '3',
+        name: 'Kontakt wms',
+        service: 'EMAIL',
+        details: 'kontakt@wmsdev.pl',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 21:37'
+      },
+    ];
+    return mockNotificatoinChannels;
+  }
+
+  public async getApplications(): Promise<Application[]> {
+    const mockApplications: Array<Application> = [
+      {
+        id: '1',
+        name: 'alerts-api-database',
+        accuracy: 'HIGH',
+        customPrompt: 'ignore s3 logs...',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32',
+      },
+      {
+        id: '2',
+        name: 'alerts-api-backend',
+        accuracy: 'LOW',
+        customPrompt: '',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32',
+      },
+      {
+        id: '3',
+        name: 'is-jsos-down',
+        accuracy: 'MEDIUM',
+        customPrompt: 'dont ignore s3 logs...',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32',
+      },
+    ];
+    return mockApplications;
+  }
+
+  public async getNodes(): Promise<Node[]> {
+    const mockNodes: Array<Node> = [
+      {
+        id: '1',
+        name: 'node 1',
+        accuracy: 'HIGH',
+        customPrompt: 'ignore s3 logs...',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32',
+      },
+      {
+        id: '2',
+        name: 'node 2',
+        accuracy: 'LOW',
+        customPrompt: 'ignore s3 logs...',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32',
+      },
+      {
+        id: '3',
+        name: 'node 3',
+        accuracy: 'MEDIUM',
+        customPrompt: '',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32',
+      },
+    ];
+    return mockNodes;
   }
 }
 

@@ -1,28 +1,49 @@
-import './NotificationSection.scss';
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import { useState, useEffect } from 'react';
 import NotificationChannelTable from './NotificationChannelTable';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
-import { NotificationChannel } from 'api/managment-service';
+import { ManagmentServiceApiInstance } from 'api/managment-service';
 
-const MOCK_CHANNELS: NotificationChannel[] = [
-    { id: '1', name: 'Infra team slack', service: 'SLACK', details: 'wms_dev/#infra-alerts', updated: '07.03.2024 15:32', added: '07.03.2024 15:32' },
-    { id: '2', name: 'Infra team discord', service: 'DISCORD', details: 'wms_dev/#dev-infra-alerts', updated: '07.03.2024 15:32', added: '07.03.2024 15:32' },
-    { id: '3', name: 'Kontakt wms', service: 'EMAIL', details: 'kontakt@wmsdev.pl', updated: '07.03.2024 15:32', added: '07.03.2024 21:37' },
-];
+export interface NotificationChannel {
+    id: string;
+    name: string;
+    service: string;
+    details: string;
+    updated: string;
+    added: string;
+    [key: string]: string;
+}
 
 const NotificationSection = () => {
     const [rows, setRows] = useState<NotificationChannel[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
 
-    useEffect(() => {
-        setLoading(true);
-        setTimeout(() => {
-            setRows(MOCK_CHANNELS);
+    const fetchNotificationChannels = async () => {
+        try {
+            setLoading(true);
+            const channelsData = await ManagmentServiceApiInstance.getNotificationChannels();  // Assuming getNotificationChannels() fetches notification channels
+
+            const channelRows = channelsData.map((channel): NotificationChannel => ({
+                id: channel.id,
+                name: channel.name,
+                service: channel.service,
+                details: channel.details,
+                updated: channel.updated,
+                added: channel.added,
+            }));
+
+            setRows(channelRows);
+        } catch (e: unknown) {
+            console.error('Failed to fetch notification channels', e);
+        } finally {
             setLoading(false);
-        }, 2000);
+        }
+    };
+
+    useEffect(() => {
+        fetchNotificationChannels();
     }, []);
 
     const handleAddClick = () => {
@@ -40,19 +61,21 @@ const NotificationSection = () => {
     return (
         <SectionComponent
             icon={<SVGIcon iconName="notification-icon" />}
-            title="Notification Channels"
+            title="Notification channels"
             callback={handleAddClick}
         >
-            {showModal && <OverlayComponent onClose={handleCloseModal} />}
-            <div className="notification-section__content">
-                {loading ? (
-                    <p>Loading...</p>
-                ) : rows.length === 0 ? (
-                    <p>No notification channels selected, pls add new</p>
-                ) : (
-                    <NotificationChannelTable rows={rows} onDelete={handleDelete} />
-                )}
-            </div>
+            {showModal && (
+                <OverlayComponent isDisplayed={showModal} onClose={handleCloseModal}>
+                    <p>No notification channels here (probably Wojciech dropped all of them)</p>
+                </OverlayComponent>
+            )}
+            {loading ? (
+                <p>Loading...</p>
+            ) : rows.length === 0 ? (
+                <p>No notification channels selected, please add new.</p>
+            ) : (
+                <NotificationChannelTable rows={rows} onDelete={handleDelete} />
+            )}
         </SectionComponent>
     );
 };

@@ -17,7 +17,7 @@ import SVGIcon from 'components/SVGIcon/SVGIcon';
 interface ClusterDataRow {
   name: string;
   state: 'ONLINE' | 'OFFLINE';
-  precision: 'HIGH' | 'MEDIUM' | 'LOW';
+  accuracy: 'HIGH' | 'MEDIUM' | 'LOW';
   notificationChannels: NotificationChannelColumn[];
   updatedAt: string;
   [key: string]: string | NotificationChannelColumn[];
@@ -42,9 +42,9 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
     customComponent: ({ state }) => <StateBadge label={state} />
   },
   {
-    header: 'Precision',
-    columnKey: 'precision',
-    customComponent: ({ precision }) => <UrgencyBadge label={precision} />,
+    header: 'Accuracy',
+    columnKey: 'accuracy',
+    customComponent: ({ accuracy }) => <UrgencyBadge label={accuracy} />,
   },
   {
     header: 'Notification',
@@ -59,7 +59,7 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
   },
 ];
 
-const tranformNotificationChannelsToColumns = (
+const transformNotificationChannelsToColumns = (
   cluster: ClusterSummary,
 ): NotificationChannelColumn[] => {
   return cluster.slackChannels
@@ -104,9 +104,9 @@ const Clusters = () => {
       const clusterRows = clustersData.map(
         (cluster): ClusterDataRow => ({
           name: cluster.id,
-          precision: cluster.precision,
+          accuracy: cluster.accuracy,
           state: transformIsRunningLabel(cluster),
-          notificationChannels: tranformNotificationChannelsToColumns(cluster),
+          notificationChannels: transformNotificationChannelsToColumns(cluster),
           updatedAt: transformUpdatedAtDate(cluster),
         }),
       );

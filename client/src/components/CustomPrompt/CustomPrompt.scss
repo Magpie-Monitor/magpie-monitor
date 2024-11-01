@@ -1,0 +1,11 @@
+@import '@/variables';
+
+.custom-prompt {
+  background-color: #282c34;
+  color: #c9d1d9;
+  border: 1px solid $component-border-color;
+  border-radius: 4px;
+  padding: 5px 10px;
+  width: 100%;
+  max-width: 150px;
+}
