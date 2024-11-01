@@ -2,11 +2,17 @@ package messagebroker
 
 import (
 	"context"
+	"os"
+	"strconv"
+
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl/plain"
 	"github.com/segmentio/kafka-go/sasl/scram"
 	"go.uber.org/zap"
 )
+
+const KAFKA_MAX_MESSAGE_BYTES_KEY = "KAFKA_MAX_MESSAGE_SIZE_BYTES"
 
 type KafkaMessageBroker struct {
 	logger *zap.Logger
@@ -16,11 +22,21 @@ type KafkaMessageBroker struct {
 
 func NewKafkaMessageBroker(addr string, topic string, username string, password string, logger *zap.Logger) *KafkaMessageBroker {
 
+	envs.ValidateEnvs("No max message size set for kafka broker", []string{KAFKA_MAX_MESSAGE_BYTES_KEY})
+
+	kafkaMaxMessageBytes := os.Getenv(KAFKA_MAX_MESSAGE_BYTES_KEY)
+	kafkaMaxMessageBytesInt, err := strconv.Atoi(kafkaMaxMessageBytes)
+
+	if err != nil {
+		panic("Kafka max message size is not a number")
+	}
+
 	writer := &kafka.Writer{
 		Addr:                   kafka.TCP(addr),
 		Topic:                  topic,
 		AllowAutoTopicCreation: true,
 		Transport:              &kafka.Transport{SASL: plain.Mechanism{Username: username, Password: password}},
+		BatchBytes:             int64(kafkaMaxMessageBytesInt),
 	}
 
 	mechanism, err := scram.Mechanism(scram.SHA512, username, password)
@@ -58,7 +74,7 @@ func (b *KafkaMessageBroker) Publish(ctx context.Context, key []byte, value []by
 	if err != nil {
 		b.logger.Error("Failed to publish a message", zap.Error(err),
 			zap.String("key", string(key)),
-			zap.String("value", string(value)))
+		)
 		return err
 	}
 
