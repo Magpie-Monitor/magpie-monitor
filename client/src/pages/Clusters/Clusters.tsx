@@ -6,13 +6,13 @@ import './Clusters.scss';
 import Channels from './components/NotificationChannelsColumn/NotificationChannelsColumn';
 import UrgencyBadge from 'components/UrgencyBadge/UrgencyBadge';
 import StateBadge from 'components/StateBadge/StateBadge';
-import ClusterLink from './components/ClusterLink/ClusterLink';
 import { useEffect, useState } from 'react';
 import {
   ClusterSummary,
   ManagmentServiceApiInstance,
 } from 'api/managment-service';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
+import LinkComponent from "components/LinkComponent/LinkComponent.tsx";
 
 interface ClusterDataRow {
   name: string;
@@ -34,7 +34,11 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
   {
     header: 'Name',
     columnKey: 'name',
-    customComponent: ({ name }) => <ClusterLink name={name} />,
+    customComponent: (row: ClusterDataRow) => (
+        <LinkComponent href="#">
+          {row.name}
+        </LinkComponent>
+    ),
   },
   {
     header: 'State',

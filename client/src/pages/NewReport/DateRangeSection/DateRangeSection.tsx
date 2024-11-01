@@ -1,4 +1,3 @@
-import './DateRangeSection.scss';
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 
