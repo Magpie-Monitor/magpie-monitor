@@ -1,0 +1,22 @@
+.incident {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+  column-gap: 1rem;
+
+  &__row--two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex-direction: row;
+    row-gap: 1rem;
+    column-gap: 1rem;
+  }
+
+  &__row--single-column {
+    display: grid;
+    grid-template-columns: 1fr;
+    flex-direction: row;
+    row-gap: 1rem;
+    column-gap: 1rem;
+  }
+}
