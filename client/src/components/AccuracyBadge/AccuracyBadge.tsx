@@ -8,7 +8,7 @@ interface AccuracyBadgeProps {
 
 const AccuracyBadge: React.FC<AccuracyBadgeProps> = ({ label }) => {
     return (
-        <span className={`urgency-badge urgency-badge--${label.toLowerCase()}`}>
+        <span className={`accuracy-badge accuracy-badge--${label.toLowerCase()}`}>
             {label}
         </span>
     );
