@@ -5,18 +5,20 @@ import Table, { TableColumn } from 'components/Table/Table';
 import './Clusters.scss';
 import Channels from './components/NotificationChannelsColumn/NotificationChannelsColumn';
 import UrgencyBadge from 'components/UrgencyBadge/UrgencyBadge';
-import ClusterLink from './components/ClusterLink/ClusterLink';
+import StateBadge from 'components/StateBadge/StateBadge';
 import { useEffect, useState } from 'react';
 import {
   ClusterSummary,
   ManagmentServiceApiInstance,
+  AccuracyLevel
 } from 'api/managment-service';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
+import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 
 interface ClusterDataRow {
   name: string;
-  state: 'Online' | 'Offline';
-  precision: 'HIGH' | 'MEDIUM' | 'LOW';
+  state: 'ONLINE' | 'OFFLINE';
+  accuracy: AccuracyLevel;
   notificationChannels: NotificationChannelColumn[];
   updatedAt: string;
   [key: string]: string | NotificationChannelColumn[];
@@ -33,16 +35,21 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
   {
     header: 'Name',
     columnKey: 'name',
-    customComponent: ({ name }) => <ClusterLink name={name} />,
+    customComponent: (row: ClusterDataRow) => (
+        <LinkComponent href="#">
+          {row.name}
+        </LinkComponent>
+    ),
   },
   {
     header: 'State',
     columnKey: 'state',
+    customComponent: ({ state }) => <StateBadge label={state} />
   },
   {
-    header: 'Precision',
-    columnKey: 'precision',
-    customComponent: ({ precision }) => <UrgencyBadge label={precision} />,
+    header: 'Accuracy',
+    columnKey: 'accuracy',
+    customComponent: ({ accuracy }) => <UrgencyBadge label={accuracy} />,
   },
   {
     header: 'Notification',
@@ -57,7 +64,7 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
   },
 ];
 
-const tranformNotificationChannelsToColumns = (
+const transformNotificationChannelsToColumns = (
   cluster: ClusterSummary,
 ): NotificationChannelColumn[] => {
   return cluster.slackChannels
@@ -83,7 +90,7 @@ const tranformNotificationChannelsToColumns = (
 const transformIsRunningLabel = (
   cluster: ClusterSummary,
 ): ClusterDataRow['state'] => {
-  return cluster.isRunning ? 'Online' : 'Offline';
+  return cluster.isRunning ? 'ONLINE' : 'OFFLINE';
 };
 
 const transformUpdatedAtDate = (cluster: ClusterSummary) => {
@@ -102,9 +109,9 @@ const Clusters = () => {
       const clusterRows = clustersData.map(
         (cluster): ClusterDataRow => ({
           name: cluster.id,
-          precision: cluster.precision,
+          accuracy: cluster.accuracy,
           state: transformIsRunningLabel(cluster),
-          notificationChannels: tranformNotificationChannelsToColumns(cluster),
+          notificationChannels: transformNotificationChannelsToColumns(cluster),
           updatedAt: transformUpdatedAtDate(cluster),
         }),
       );

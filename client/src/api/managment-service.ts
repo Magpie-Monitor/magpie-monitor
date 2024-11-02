@@ -9,11 +9,14 @@ interface TokenInfo {
   expTime: number;
 }
 
+export type AccuracyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
+export type UrgencyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
+
 export interface ReportSummary {
   id: string;
   clusterId: string;
   title: string;
-  urgency: 'HIGH' | 'MEDIUM' | 'LOW';
+  urgency: UrgencyLevel;
   sinceMs: number;
   toMs: number;
   [key: string]: string | number;
@@ -22,7 +25,7 @@ export interface ReportSummary {
 export interface ClusterSummary {
   id: string;
   isRunning: boolean;
-  precision: 'HIGH' | 'MEDIUM' | 'LOW';
+  accuracy: AccuracyLevel;
   updatedAt: number;
   slackChannels: {
     name: string;
@@ -39,6 +42,31 @@ export interface ClusterSummary {
     email: string;
     updatedAt: number;
   }[];
+}
+
+export interface NotificationChannel {
+  id: string;
+  name: string;
+  service: string;
+  details: string;
+  updated: string;
+  added: string;
+}
+
+export interface Application {
+  name: string;
+  accuracy: AccuracyLevel;
+  customPrompt: string;
+  updated: string;
+  added: string;
+} //Create second type for api + property enabled
+
+export interface Node {
+  name: string;
+  accuracy: AccuracyLevel;
+  customPrompt: string;
+  updated: string;
+  added: string;
 }
 
 const MANAGMENT_SERVICE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -136,7 +164,7 @@ class ManagmentServiceApi {
       {
         id: 'cluster-1-abcd',
         isRunning: true,
-        precision: 'HIGH',
+        accuracy: 'HIGH',
         updatedAt: 1730233614763,
         slackChannels: [
           {
@@ -163,7 +191,7 @@ class ManagmentServiceApi {
       {
         id: 'cluster-2-abcd',
         isRunning: false,
-        precision: 'HIGH',
+        accuracy: 'HIGH',
         updatedAt: 1730233614763,
         slackChannels: [
           {
@@ -195,6 +223,90 @@ class ManagmentServiceApi {
       },
     ];
     return mockClusters;
+  }
+
+  public async getNotificationChannels(): Promise<NotificationChannel[]> {
+    const mockNotificatoinChannels: Array<NotificationChannel> = [
+      {
+        id: '1',
+        name: 'Infra team slack',
+        service: 'SLACK',
+        details: 'wms_dev/#infra-alerts',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32'
+      },
+      {
+        id: '2',
+        name: 'Infra team discord',
+        service: 'DISCORD',
+        details: 'wms_dev/#dev-infra-alerts',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32'
+      },
+      {
+        id: '3',
+        name: 'Kontakt wms',
+        service: 'EMAIL',
+        details: 'kontakt@wmsdev.pl',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 21:37'
+      },
+    ];
+    return mockNotificatoinChannels;
+  }
+
+  public async getApplications(): Promise<Application[]> {
+    const mockApplications: Array<Application> = [
+      {
+        name: 'alerts-api-database',
+        accuracy: 'HIGH',
+        customPrompt: 'ignore s3 logs...',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32',
+      },
+      {
+        name: 'alerts-api-backend',
+        accuracy: 'LOW',
+        customPrompt: '',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32',
+      },
+      {
+        name: 'is-jsos-down',
+        accuracy: 'MEDIUM',
+        customPrompt: 'dont ignore s3 logs...',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32',
+      },
+    ];
+    return mockApplications;
+  }
+
+  public async getNodes(): Promise<Node[]> {
+    const mockNodes: Array<Node> = [
+      {
+        name: 'node 1',
+        accuracy: 'HIGH',
+        customPrompt: 'ignore s3 logs...',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32',
+      },
+      {
+        name: 'node 2',
+        accuracy: 'LOW',
+        customPrompt: 'ignore s3 logs...',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32',
+      },
+      {
+        name: 'node 3',
+        accuracy: 'MEDIUM',
+        customPrompt: '',
+        updated: '07.03.2024 15:32',
+        added: '07.03.2024 15:32',
+      },
+    ];
+    return mockNodes;
   }
 }
 

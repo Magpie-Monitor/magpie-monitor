@@ -1,4 +1,3 @@
-import './Reports.scss';
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
 import Table, { TableColumn } from 'components/Table/Table.tsx';
 import { useEffect, useState } from 'react';
@@ -11,6 +10,7 @@ import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import UrgencyBadge from 'components/UrgencyBadge/UrgencyBadge.tsx';
 import PageTemplate from 'components/PageTemplate/PageTemplate';
 import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/HeaderWithIcon';
+import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 
 const Reports = () => {
   const [rows, setRows] = useState<ReportSummary[]>([]);
@@ -30,9 +30,9 @@ const Reports = () => {
       header: 'Cluster',
       columnKey: 'clusterId',
       customComponent: (row: ReportSummary) => (
-        <div className="reports__link" onClick={() => handleRowClick(row.id)}>
-          {row.clusterId}
-        </div>
+          <LinkComponent href="#" onClick={() => handleRowClick(row.id)}>
+            {row.clusterId}
+          </LinkComponent>
       ),
     },
     { header: 'Title', columnKey: 'title' },
@@ -84,9 +84,7 @@ const Reports = () => {
         {loading ? (
           <div className="reports__no-data">Loading...</div>
         ) : rows.length === 0 ? (
-          <div className="reports__no-data">
-            No reports. Generate new report (TBA: link)
-          </div>
+            <p>No reports. Generate new report (TBA: link)</p>
         ) : (
           <Table columns={columns} rows={rows} />
         )}
