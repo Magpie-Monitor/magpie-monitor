@@ -1,6 +1,8 @@
 package pl.pwr.zpi.reports.dto.report;
 
-public record ReportSummary(
+import pl.pwr.zpi.reports.enums.Urgency;
+
+public record ReportSummaryDTO(
         String id,
         String clusterId,
         String title,

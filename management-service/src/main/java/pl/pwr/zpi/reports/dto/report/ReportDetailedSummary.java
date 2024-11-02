@@ -1,6 +1,6 @@
-package pl.pwr.zpi.reports;
+package pl.pwr.zpi.reports.dto.report;
 
-import pl.pwr.zpi.reports.dto.report.Urgency;
+import pl.pwr.zpi.reports.enums.Urgency;
 
 public record ReportDetailedSummary(
         String id,

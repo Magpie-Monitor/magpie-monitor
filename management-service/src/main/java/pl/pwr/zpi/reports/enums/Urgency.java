@@ -1,4 +1,4 @@
-package pl.pwr.zpi.reports.dto.report;
+package pl.pwr.zpi.reports.enums;
 
 public enum Urgency {
     LOW,

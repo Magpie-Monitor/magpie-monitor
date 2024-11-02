@@ -10,7 +10,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.stereotype.Component;
-import pl.pwr.zpi.reports.dto.report.Report;
 
 import java.io.IOException;
 import java.util.List;
