@@ -1,16 +1,20 @@
 .page-template {
-  width: 100%;
   padding: 1rem;
-
-  @media (min-width: 1921px) {
-    display: flex;
-    flex-direction: column;
-    width: 1200px;
-    margin: 0 auto;
-  }
+  overflow-y: scroll;
+  height: 95vh;
+  width: 100%;
 
   &__content {
     width: 100%;
+    max-width: 1900px;
+    flex-grow: 1;
+
+    @media (min-width: 1400px) {
+      display: flex;
+      flex-direction: column;
+      width: 1400px;
+      margin: 0 auto;
+    }
   }
 
   &__header {
