@@ -538,7 +538,7 @@ func (s *ReportsService) GetApplicationReportsFromInsights(
 
 		config, ok := configByApp[applicationName]
 		if ok {
-			report.Precision = config.Precision
+			report.Accuracy = config.Accuracy
 			report.CustomPrompt = config.CustomPrompt
 		}
 
@@ -569,7 +569,7 @@ func (s *ReportsService) GetNodeReportsFromInsights(
 
 		config, ok := configByNode[nodeName]
 		if ok {
-			report.Precision = config.Precision
+			report.Accuracy = config.Accuracy
 			report.CustomPrompt = config.CustomPrompt
 		}
 
@@ -614,6 +614,7 @@ func (s *ReportsService) GetApplicationLogsByParams(
 		clusterId,
 		sinceDate,
 		toDate)
+
 	if err != nil {
 		s.logger.Error("Failed to get application logs", zap.Error(err))
 		return nil, err
