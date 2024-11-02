@@ -4,7 +4,6 @@ import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/He
 import Table, { TableColumn } from 'components/Table/Table';
 import './Clusters.scss';
 import Channels from './components/NotificationChannelsColumn/NotificationChannelsColumn';
-import UrgencyBadge from 'components/UrgencyBadge/UrgencyBadge';
 import { useEffect, useState } from 'react';
 import {
   ClusterSummary,
@@ -15,6 +14,7 @@ import SVGIcon from 'components/SVGIcon/SVGIcon';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import Spinner from 'components/Spinner/Spinner.tsx';
 import ReportActionsCell from './ReportActionsCell';
+import AccuracyBadge from 'components/AccuracyBadge/AccuracyBadge.tsx';
 
 interface ClusterDataRow {
   name: string;
@@ -79,7 +79,7 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
     {
         header: 'Accuracy',
         columnKey: 'accuracy',
-        customComponent: ({ accuracy }) => <UrgencyBadge label={accuracy} />,
+        customComponent: ({ accuracy }) => <AccuracyBadge label={accuracy} />,
     },
     {
         header: 'Notification',

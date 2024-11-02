@@ -1,6 +1,6 @@
 @import '@/variables';
 
-.urgency-badge {
+.accuracy-badge {
   padding: 0 20px;
   border-radius: 5px;
   font-weight: 500;
@@ -10,7 +10,7 @@
   font-size: 14px;
   width: 50px;
 
-  &--high {
+  &--low {
     background-color: $red;
   }
 
@@ -18,7 +18,7 @@
     background-color: $medium-urgency-background;
   }
 
-  &--low {
+  &--high {
     background-color: $low-urgency-background;
   }
 }
