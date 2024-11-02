@@ -2,7 +2,7 @@ import React from 'react';
 import Table, { TableColumn } from 'components/Table/Table';
 import Channels from './NotificationChannelsColumn/NotificationChannelColumn';
 import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionButton';
-import NotificationChannel from '/NotificationSection.tsx';
+import { NotificationChannel } from './NotificationSection.tsx';
 import {
     transformNotificationChannelToServiceColumn,
     transformNotificationChannelToDetailsColumn
