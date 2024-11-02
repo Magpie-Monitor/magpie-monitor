@@ -11,6 +11,7 @@ import UrgencyBadge from 'components/UrgencyBadge/UrgencyBadge.tsx';
 import PageTemplate from 'components/PageTemplate/PageTemplate';
 import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/HeaderWithIcon';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
+import Spinner from 'components/Spinner/Spinner.tsx';
 
 const Reports = () => {
   const [rows, setRows] = useState<ReportSummary[]>([]);
@@ -19,10 +20,6 @@ const Reports = () => {
 
   const handleRowClick = (id: string) => {
     navigate(`/reports/${id}`);
-  };
-
-  const handleAddNewReport = () => {
-    navigate('/reports/new');
   };
 
   const columns: Array<TableColumn<ReportSummary>> = [
@@ -79,10 +76,9 @@ const Reports = () => {
       <SectionComponent
         icon={<SVGIcon iconName='chart-icon'/>}
         title={'Weekly reports'}
-        callback={handleAddNewReport}
       >
         {loading ? (
-          <div className="reports__no-data">Loading...</div>
+            <Spinner />
         ) : rows.length === 0 ? (
             <p>No reports. Generate new report (TBA: link)</p>
         ) : (
@@ -91,6 +87,7 @@ const Reports = () => {
       </SectionComponent>
     </PageTemplate>
   );
+
 };
 
 export default Reports;

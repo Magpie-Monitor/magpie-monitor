@@ -7,48 +7,57 @@ import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionB
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
-import { ManagmentServiceApiInstance, AccuracyLevel } from 'api/managment-service';
+import { ManagmentServiceApiInstance, AccuracyLevel} from 'api/managment-service';
+import Spinner from 'components/Spinner/Spinner.tsx';
 
-interface ApplicationDataRow {
+export interface NodeEntry {
     name: string;
+    running: boolean;
     accuracy: AccuracyLevel;
     customPrompt: string;
     updated: string;
     added: string;
-    [key: string]: string | AccuracyLevel;
+    [key: string]: string | boolean | AccuracyLevel;
 }
 
-const ApplicationSection = () => {
-    const [rows, setRows] = useState<ApplicationDataRow[]>([]);
-    const [loading, setLoading] = useState(true);
+const NodesSection = () => {
+    const [rows, setRows] = useState<NodeEntry[]>([]);
     const [showModal, setShowModal] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-    const fetchApplications = async () => {
-        setLoading(true);
+    const fetchNodes = async () => {
         try {
-            const applicationsData = await ManagmentServiceApiInstance.getApplications();
+            setLoading(true);
+            const nodesData = await ManagmentServiceApiInstance.getNodes();
 
-            const applicationsRows = applicationsData.map(
-                (application): ApplicationDataRow => ({
-                    name: application.name,
-                    accuracy: application.accuracy,
-                    customPrompt: application.customPrompt,
-                    updated: application.updated,
-                    added: application.added,
-                }),
-            );
+            const nodeRows = nodesData.map((node): NodeEntry => ({
+                name: node.name,
+                running: node.running,
+                accuracy: node.accuracy,
+                customPrompt: node.customPrompt,
+                updated: node.updated,
+                added: node.added,
+            }));
 
-            setRows(applicationsRows);
+            setRows(nodeRows);
         } catch (e: unknown) {
-            console.error('Failed to fetch applications', e);
+            console.error('Failed to fetch nodes', e);
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchApplications();
+        fetchNodes();
     }, []);
+
+    const handleAddClick = () => {
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
 
     const handleAccuracyChange = (name: string, accuracy: AccuracyLevel) => {
         setRows((prevRows) =>
@@ -70,20 +79,12 @@ const ApplicationSection = () => {
         setRows((prevRows) => prevRows.filter((row) => row.name !== name));
     };
 
-    const handleAddClick = () => {
-        setShowModal(true);
-    };
-
-    const handleCloseModal = () => {
-        setShowModal(false);
-    };
-
-    const columns: Array<TableColumn<ApplicationDataRow>> = [
+    const columns: Array<TableColumn<NodeEntry>> = [
         {
             header: 'Name',
             columnKey: 'name',
-            customComponent: (row: ApplicationDataRow) => (
-                <LinkComponent href="#">
+            customComponent: (row: NodeEntry) => (
+                <LinkComponent href="#" isRunning={row.running}>
                     {row.name}
                 </LinkComponent>
             ),
@@ -91,7 +92,7 @@ const ApplicationSection = () => {
         {
             header: 'Accuracy',
             columnKey: 'accuracy',
-            customComponent: (row: ApplicationDataRow) => (
+            customComponent: (row: NodeEntry) => (
                 <TagButton
                     listItems={['HIGH', 'MEDIUM', 'LOW']}
                     chosenItem={row.accuracy}
@@ -102,11 +103,11 @@ const ApplicationSection = () => {
         {
             header: 'Custom prompt',
             columnKey: 'customPrompt',
-            customComponent: (row: ApplicationDataRow) => (
+            customComponent: (row: NodeEntry) => (
                 <CustomPrompt
                     value={row.customPrompt}
                     onChange={(value) => handleCustomPromptChange(row.name, value)}
-                    className="application-section__input"
+                    className="node-section__input"
                 />
             ),
         },
@@ -115,7 +116,7 @@ const ApplicationSection = () => {
         {
             header: 'Actions',
             columnKey: 'actions',
-            customComponent: (row: ApplicationDataRow) => (
+            customComponent: (row: NodeEntry) => (
                 <ActionButton
                     onClick={() => handleDelete(row.name)}
                     description="Delete"
@@ -127,18 +128,18 @@ const ApplicationSection = () => {
 
     return (
         <SectionComponent
-            icon={<SVGIcon iconName='application-icon' />}
-            title={'Applications'}
+            icon={<SVGIcon iconName="application-icon" />}
+            title={'Nodes'}
             callback={handleAddClick}>
             {showModal && (
                 <OverlayComponent isDisplayed={showModal} onClose={handleCloseModal}>
-                    <p>No applications here (probably Wojciech dropped all of them)</p>
+                    <p>No nodes here (probably Wojciech dropped all of them)</p>
                 </OverlayComponent>
             )}
             {loading ? (
-                <p>Loading...</p>
+                <Spinner />
             ) : rows.length === 0 ? (
-                <p>No Applications selected, please add new</p>
+                <p>No Nodes selected, please add new</p>
             ) : (
                 <Table columns={columns} rows={rows} />
             )}
@@ -146,4 +147,4 @@ const ApplicationSection = () => {
     );
 };
 
-export default ApplicationSection;
+export default NodesSection;

@@ -5,7 +5,6 @@ import Table, { TableColumn } from 'components/Table/Table';
 import './Clusters.scss';
 import Channels from './components/NotificationChannelsColumn/NotificationChannelsColumn';
 import UrgencyBadge from 'components/UrgencyBadge/UrgencyBadge';
-import StateBadge from 'components/StateBadge/StateBadge';
 import { useEffect, useState } from 'react';
 import {
   ClusterSummary,
@@ -14,6 +13,8 @@ import {
 } from 'api/managment-service';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
+import Spinner from 'components/Spinner/Spinner.tsx';
+import ReportActionsCell from './ReportActionsCell';
 
 interface ClusterDataRow {
   name: string;
@@ -30,39 +31,6 @@ export interface NotificationChannelColumn {
   kind: NotificationChannelKind;
   name: string;
 }
-
-const columns: Array<TableColumn<ClusterDataRow>> = [
-  {
-    header: 'Name',
-    columnKey: 'name',
-    customComponent: (row: ClusterDataRow) => (
-        <LinkComponent href="#">
-          {row.name}
-        </LinkComponent>
-    ),
-  },
-  {
-    header: 'State',
-    columnKey: 'state',
-    customComponent: ({ state }) => <StateBadge label={state} />
-  },
-  {
-    header: 'Accuracy',
-    columnKey: 'accuracy',
-    customComponent: ({ accuracy }) => <UrgencyBadge label={accuracy} />,
-  },
-  {
-    header: 'Notification',
-    columnKey: 'notificationChannels',
-    customComponent: ({ notificationChannels }) => (
-      <Channels channels={notificationChannels} />
-    ),
-  },
-  {
-    header: 'Updated at',
-    columnKey: 'updatedAt',
-  },
-];
 
 const transformNotificationChannelsToColumns = (
   cluster: ClusterSummary,
@@ -98,50 +66,86 @@ const transformUpdatedAtDate = (cluster: ClusterSummary) => {
   return date.toLocaleString();
 };
 
+const columns: Array<TableColumn<ClusterDataRow>> = [
+    {
+        header: 'Name',
+        columnKey: 'name',
+        customComponent: (row: ClusterDataRow) => (
+            <LinkComponent href="#" isRunning={row.state === 'ONLINE'}>
+                {row.name}
+            </LinkComponent>
+        ),
+    },
+    {
+        header: 'Accuracy',
+        columnKey: 'accuracy',
+        customComponent: ({ accuracy }) => <UrgencyBadge label={accuracy} />,
+    },
+    {
+        header: 'Notification',
+        columnKey: 'notificationChannels',
+        customComponent: ({ notificationChannels }) => (
+            <Channels channels={notificationChannels} />
+        ),
+    },
+    {
+        header: 'Updated at',
+        columnKey: 'updatedAt',
+    },
+    {
+        header: 'Reports',
+        columnKey: 'actions',
+        customComponent: (row: ClusterDataRow) => (
+            <ReportActionsCell clusterId={row.name} />
+        ),
+    },
+];
+
 const Clusters = () => {
-  const [clusters, setClusters] = useState<ClusterDataRow[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+    const [clusters, setClusters] = useState<ClusterDataRow[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-  const fetchClusters = async () => {
-    try {
-      const clustersData = await ManagmentServiceApiInstance.getClusters();
+    const fetchClusters = async () => {
+        try {
+            const clustersData = await ManagmentServiceApiInstance.getClusters();
 
-      const clusterRows = clustersData.map(
-        (cluster): ClusterDataRow => ({
-          name: cluster.id,
-          accuracy: cluster.accuracy,
-          state: transformIsRunningLabel(cluster),
-          notificationChannels: transformNotificationChannelsToColumns(cluster),
-          updatedAt: transformUpdatedAtDate(cluster),
-        }),
-      );
+            const clusterRows = clustersData.map(
+                (cluster): ClusterDataRow => ({
+                    name: cluster.id,
+                    accuracy: cluster.accuracy,
+                    state: transformIsRunningLabel(cluster),
+                    notificationChannels: transformNotificationChannelsToColumns(cluster),
+                    updatedAt: transformUpdatedAtDate(cluster),
+                }),
+            );
 
-      setClusters(clusterRows);
-      setIsLoading(false);
-    } catch (e: unknown) {
-      console.error('Failed to fetch clusters', e);
-    }
-  };
+            setClusters(clusterRows);
+            setIsLoading(false);
+        } catch (e: unknown) {
+            console.error('Failed to fetch clusters', e);
+        }
+    };
 
-  useEffect(() => {
-    fetchClusters();
-  }, []);
+    useEffect(() => {
+        fetchClusters();
+    }, []);
 
-  const header = <HeaderWithIcon title={'Clusters'} />;
+    const header = <HeaderWithIcon title={'Clusters'} />;
 
-  return (
-    <PageTemplate header={header}>
-      <SectionComponent title={'Clusters'} icon={<SVGIcon iconName='clusters-icon'/>}>
-        {isLoading && <div>Loading...</div>}
-        {!isLoading && clusters.length > 0 && (
-          <Table columns={columns} rows={clusters} />
-        )}
-        {!isLoading && clusters.length == 0 && (
-          <div>No registered clusters yet</div>
-        )}
-      </SectionComponent>
-    </PageTemplate>
-  );
+    return (
+        <PageTemplate header={header}>
+            <SectionComponent title={'Clusters'} icon={<SVGIcon iconName='clusters-icon'/>}>
+                {isLoading && <Spinner />}
+                {!isLoading && clusters.length > 0 && (
+                    <Table columns={columns} rows={clusters} />
+                )}
+                {!isLoading && clusters.length === 0 && (
+                    <div>No registered clusters yet</div>
+                )}
+            </SectionComponent>
+        </PageTemplate>
+    );
 };
 
 export default Clusters;
+

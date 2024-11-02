@@ -2,7 +2,7 @@ import React from 'react';
 import './StateBadge.scss';
 
 interface StateBadgeProps {
-    label: 'ONLINE' | 'OFFLINE';
+    label: 'UP' | 'DOWN';
 }
 
 const StateBadge: React.FC<StateBadgeProps> = ({ label }) => {

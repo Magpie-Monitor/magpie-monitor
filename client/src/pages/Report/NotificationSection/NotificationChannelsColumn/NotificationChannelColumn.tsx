@@ -1,5 +1,5 @@
 import './NotificationChannelColumn.scss';
-import { NotificationChannelColumn } from 'pages/NewReport/NotificationSection/NotificationUtils.tsx';
+import { NotificationChannelColumn } from '@pages/Report/NotificationSection/NotificationUtils.tsx';
 import NotificationChannelTag from 'components/NotificationChannelTag/NotificationChannelTag';
 import slackLogo from 'assets/slack-icon.png';
 import discordLogo from 'assets/discord-icon.png';

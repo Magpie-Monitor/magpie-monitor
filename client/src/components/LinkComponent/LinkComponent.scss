@@ -1,6 +1,15 @@
 @import '@/variables';
 
+.link-container {
+  display: flex;
+  align-items: center;
+}
+
 .link-component {
   color: $green;
-  text-decoration: underline;
+  cursor: default;
+
+  &__down {
+    color: $application-down-color;
+  }
 }

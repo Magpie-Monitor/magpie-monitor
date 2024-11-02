@@ -1,4 +1,4 @@
-.new-report {
+.on-demand-report {
   &__section {
     display: flex;
     flex-direction: column;
@@ -9,11 +9,6 @@
     display: flex;
     gap: 15px;
     align-items: stretch;
-    max-width: 1900px;
-
-    & > div {
-      flex: 1 1 50%;
-    }
   }
 
   &__actions {
