@@ -25,7 +25,7 @@ type NodeLogsInsight struct {
 
 type NodeInsightConfiguration struct {
 	NodeName     string `json:"nodeName"`
-	Precision    string `json:"precision"`
+	Accuracy     string `json:"accuracy"`
 	CustomPrompt string `json:"customPrompt"`
 }
 
@@ -84,6 +84,23 @@ func MapNodeNameToConfiguration(configurations []*NodeInsightConfiguration) map[
 	}
 
 	return groupedConfigurations
+}
+
+func FilterByNodesAccuracy(logsByNode map[string][]*repositories.NodeLogsDocument, configurationByNode map[string]*NodeInsightConfiguration) {
+	for application, logs := range logsByNode {
+		// Check if application configuration is in params
+		config, ok := configurationByNode[application]
+		var accuracy Accuracy
+		if !ok {
+			// By default the app has low accuracy
+			accuracy = Accuracy__Low
+		} else {
+			accuracy = config.Accuracy
+		}
+
+		filter := NewAccuracyFilter[*repositories.NodeLogsDocument](accuracy)
+		logsByNode[application] = filter.Filter(logs)
+	}
 }
 
 func (g *OpenAiInsightsGenerator) getNodeLogById(logId string, logs []*repositories.NodeLogsDocument) (*repositories.NodeLogsDocument, error) {
@@ -188,8 +205,11 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 ) (*ScheduledNodeInsights, error) {
 
 	groupedLogs := GroupNodeLogsByName(logs)
-	configurationsByApplication := MapNodeNameToConfiguration(configuration)
+	configurationsByNode := MapNodeNameToConfiguration(configuration)
 	completionRequests := make([]*openai.CompletionRequest, 0, len(groupedLogs))
+
+	// In place filter based on node configuration
+	FilterByNodesAccuracy(groupedLogs, configurationsByNode)
 
 	// Generate insights for each application separately.
 	for nodeName, logs := range groupedLogs {
@@ -200,7 +220,7 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 		for _, logPacket := range logPackets {
 			messages, err := g.createMessagesFromNodeLogs(
 				logPacket,
-				configurationsByApplication[nodeName],
+				configurationsByNode[nodeName],
 			)
 			if err != nil {
 				g.logger.Error("Failed to messages from logs", zap.Error(err), zap.String("node", nodeName))

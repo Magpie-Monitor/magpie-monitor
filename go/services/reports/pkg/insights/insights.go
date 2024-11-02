@@ -46,3 +46,13 @@ func NewOpenAiInsightsGenerator(params OpenAiInsightsGeneratorParams) *OpenAiIns
 		scheduledJobsRepository:   params.ScheduledJobsRepository,
 	}
 }
+
+type Accuracy = string
+
+const (
+	Accuracy__High   Accuracy = "HIGH"
+	Accuracy__Medium Accuracy = "MEDIUM"
+	Accuracy__Low    Accuracy = "LOW"
+)
+
+// func  /
