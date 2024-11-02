@@ -15,9 +15,9 @@ import (
 )
 
 type ApplicationInsightConfiguration struct {
-	ApplicationName string `json:"applicationName"`
-	Precision       string `json:"precision"`
-	CustomPrompt    string `json:"customPrompt"`
+	ApplicationName string   `json:"applicationName"`
+	Accuracy        Accuracy `json:"accuracy"`
+	CustomPrompt    string   `json:"customPrompt"`
 }
 
 type ScheduledApplicationInsights struct {
@@ -90,6 +90,23 @@ func GroupInsightsByApplication(applicationInsights []ApplicationInsightsWithMet
 	return insightsByApplication
 }
 
+func FilterByApplicationsAccuracy(logsByApplication map[string][]*repositories.ApplicationLogsDocument, configurationByApplication map[string]*ApplicationInsightConfiguration) {
+	for application, logs := range logsByApplication {
+		// Check if application configuration is in params
+		config, ok := configurationByApplication[application]
+		var accuracy Accuracy
+		if !ok {
+			// By default the app has low accuracy
+			accuracy = Accuracy__Low
+		} else {
+			accuracy = config.Accuracy
+		}
+
+		filter := NewAccuracyFilter[*repositories.ApplicationLogsDocument](accuracy)
+		logsByApplication[application] = filter.Filter(logs)
+	}
+}
+
 func (g *OpenAiInsightsGenerator) getApplicationLogById(logId string, logs []*repositories.ApplicationLogsDocument) (*repositories.ApplicationLogsDocument, error) {
 	if len(logs) == 0 {
 		return nil, errors.New("Failed to find application log by id in an empty logs array")
@@ -154,7 +171,7 @@ func (g *OpenAiInsightsGenerator) OnDemandApplicationInsights(
 	configurations []*ApplicationInsightConfiguration) ([]ApplicationInsightsWithMetadata, error) {
 	groupedLogs := GroupApplicationLogsByName(logs)
 
-	// Map report configuration for an app (precision/customPrompt) to a app name.
+	// Map report configuration for an app (accuracy/customPrompt) to a app name.
 	configurationsByApplication := MapApplicationNameToConfiguration(configurations)
 
 	insightsChannel := make(chan []ApplicationInsightsWithMetadata, len(groupedLogs))
@@ -315,6 +332,9 @@ func (g *OpenAiInsightsGenerator) getApplicationInsightsFromBatchEntries(
 	return res, nil
 }
 
+// func (g *OpenAiInsightsGenerator)
+// func FilterByApplication()
+
 func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 	logs []*repositories.ApplicationLogsDocument,
 	configuration []*ApplicationInsightConfiguration,
@@ -328,10 +348,14 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 	configurationsByApplication := MapApplicationNameToConfiguration(configuration)
 	completionRequests := make([]*openai.CompletionRequest, 0, len(groupedLogs))
 
+	// In place filtering based on configured accuracy
+	FilterByApplicationsAccuracy(groupedLogs, configurationsByApplication)
+
 	// Generate insights for each application separately.
 	for applicationName, logs := range groupedLogs {
 
 		logPackets := repositories.SplitLogsIntoPackets(logs, g.client.ContextSizeBytes)
+		// logPackets
 
 		for _, logPacket := range logPackets {
 			messages, err := g.createMessagesFromApplicationLogs(
