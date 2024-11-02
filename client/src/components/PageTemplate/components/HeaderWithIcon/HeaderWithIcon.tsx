@@ -2,7 +2,7 @@ import './HeaderWithIcon.scss';
 
 interface HeaderWithIconProps {
   icon?: React.ReactNode;
-  title: string;
+  title: React.ReactNode;
 }
 
 const HeaderWithIcon = ({ icon, title }: HeaderWithIconProps) => {
