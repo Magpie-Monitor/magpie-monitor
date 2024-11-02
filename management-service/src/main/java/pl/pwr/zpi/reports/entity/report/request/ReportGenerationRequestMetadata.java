@@ -25,14 +25,6 @@ public class ReportGenerationRequestMetadata {
                 .build();
     }
 
-    public void markAsFailed() {
-        this.status = ReportGenerationStatus.ERROR;
-    }
-
-    public void markAsGenerated() {
-        this.status = ReportGenerationStatus.GENERATED;
-    }
-
     public List<Long> getSlackReceiverIds() {
         return createReportRequest.slackReceiverIds();
     }
