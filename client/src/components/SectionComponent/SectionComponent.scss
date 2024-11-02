@@ -30,6 +30,11 @@
     font-size: 22px;
     font-weight: 400;
     flex-grow: 1;
+    color: $navbar-text-color;
+
+    @media (max-width: $sm) {
+      font-size: 15px;
+    }
   }
 
   &__button {

@@ -59,6 +59,15 @@
   }
 }
 
+.node-incident-metadata-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/node-incident-metadata-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $green;
+  }
+}
+
 .incident-source-icon {
   @extend .svg-icon;
   mask: url('/src/assets/incident-source-icon.svg') no-repeat center;

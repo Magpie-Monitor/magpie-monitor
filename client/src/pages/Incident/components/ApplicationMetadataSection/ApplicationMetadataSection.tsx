@@ -2,6 +2,7 @@ import LabelField from 'components/LabelField/LabelField';
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import './ApplicationMetadataSection.scss';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
+import { dateFromTimestampMs } from 'lib/date';
 
 interface ApplicationMetadataSectionParams {
   clusterId: string;
@@ -30,11 +31,11 @@ const ApplicationMetadataSection = ({
         <div className="application-incident-metadata__column">
           <LabelField
             label={'Start Date'}
-            field={new Date(startDateMs).toLocaleString()}
+            field={dateFromTimestampMs(startDateMs)}
           />
           <LabelField
             label={'End Date'}
-            field={new Date(endDateMs).toLocaleString()}
+            field={dateFromTimestampMs(endDateMs)}
           />
         </div>
       </div>
