@@ -13,9 +13,8 @@ import {
 } from 'api/managment-service';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
-import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
-import { useNavigate } from 'react-router-dom';
 import Spinner from 'components/Spinner/Spinner.tsx';
+import ReportActionsCell from './ReportActionsCell';
 
 interface ClusterDataRow {
   name: string;
@@ -67,65 +66,44 @@ const transformUpdatedAtDate = (cluster: ClusterSummary) => {
   return date.toLocaleString();
 };
 
+const columns: Array<TableColumn<ClusterDataRow>> = [
+    {
+        header: 'Name',
+        columnKey: 'name',
+        customComponent: (row: ClusterDataRow) => (
+            <LinkComponent href="#" isRunning={row.state === 'ONLINE'}>
+                {row.name}
+            </LinkComponent>
+        ),
+    },
+    {
+        header: 'Accuracy',
+        columnKey: 'accuracy',
+        customComponent: ({ accuracy }) => <UrgencyBadge label={accuracy} />,
+    },
+    {
+        header: 'Notification',
+        columnKey: 'notificationChannels',
+        customComponent: ({ notificationChannels }) => (
+            <Channels channels={notificationChannels} />
+        ),
+    },
+    {
+        header: 'Updated at',
+        columnKey: 'updatedAt',
+    },
+    {
+        header: 'Reports',
+        columnKey: 'actions',
+        customComponent: (row: ClusterDataRow) => (
+            <ReportActionsCell clusterId={row.name} />
+        ),
+    },
+];
+
 const Clusters = () => {
     const [clusters, setClusters] = useState<ClusterDataRow[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const navigate = useNavigate();
-
-    const handleNewReportOnDemand = (id: string) => {
-        navigate(`/reports/${id}/on-demand`);
-    };
-
-    const handleScheduledReport = (id: string) => {
-        navigate(`/reports/${id}/scheduled`);
-    };
-
-    const columns: Array<TableColumn<ClusterDataRow>> = [
-        {
-            header: 'Name',
-            columnKey: 'name',
-            customComponent: (row: ClusterDataRow) => (
-                <LinkComponent href="#" isRunning={row.state === 'ONLINE'}>
-                    {row.name}
-                </LinkComponent>
-            ),
-        },
-        {
-            header: 'Accuracy',
-            columnKey: 'accuracy',
-            customComponent: ({ accuracy }) => <UrgencyBadge label={accuracy} />,
-        },
-        {
-            header: 'Notification',
-            columnKey: 'notificationChannels',
-            customComponent: ({ notificationChannels }) => (
-                <Channels channels={notificationChannels} />
-            ),
-        },
-        {
-            header: 'Updated at',
-            columnKey: 'updatedAt',
-        },
-        {
-            header: 'Reports',
-            columnKey: 'actions',
-            customComponent: (row: ClusterDataRow) => (
-                <div className='clusters--button'>
-                    <ActionButton
-                        onClick={() => handleScheduledReport(row.name)}
-                        description="scheduled"
-                        color={ActionButtonColor.GREEN}
-                    />
-                    <ActionButton
-                        onClick={() => handleNewReportOnDemand(row.name)}
-                        description="on demand"
-                        color={ActionButtonColor.GREEN}
-                    />
-                </div>
-            ),
-        },
-    ];
-
 
     const fetchClusters = async () => {
         try {

@@ -9,11 +9,7 @@
   color: $green;
   cursor: default;
 
-  &.down {
+  &__down {
     color: $application-down-color;
   }
-}
-
-.link-container .link-component + .state-badge {
-  margin-left: 7px;
 }
