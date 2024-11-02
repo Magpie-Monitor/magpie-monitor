@@ -6,19 +6,19 @@ import {
   ApplicationIncident,
   ManagmentServiceApiInstance,
 } from 'api/managment-service';
-
 // eslint-disable-next-line
 import ApplicationMetadataSection from './components/ApplicationMetadataSection/ApplicationMetadataSection';
 import SummarySection from './components/SummarySection/SummarySection';
 import RecommendationSection from './components/RecommendationSection/RecommendationSection';
-
 // eslint-disable-next-line
 import ApplicationSourceSection from './components/ApplicationSourceSection/ApplicationSourceSection';
 import IncidentHeader from './components/IncidentHeader/IncidentHeader';
 import { getFirstAndLastDateFromTimestamps } from 'lib/date';
+import Spinner from 'components/Spinner/Spinner';
 
 const ApplicationIncidentPage = () => {
   const [incident, setIncident] = useState<ApplicationIncident>();
+  const [isLoading, setIsLoading] = useState(true);
 
   const { id } = useParams();
 
@@ -27,6 +27,7 @@ const ApplicationIncidentPage = () => {
       try {
         const fetchedIncident =
           await ManagmentServiceApiInstance.getApplicationIncident(id!);
+        setIsLoading(false);
         setIncident(fetchedIncident);
       } catch (err: unknown) {
         // eslint-disable-next-line
@@ -35,8 +36,9 @@ const ApplicationIncidentPage = () => {
     };
     fetchApplicationIncident();
   }, [id]);
-  if (!incident) {
-    return <div></div>;
+
+  if (isLoading || !incident) {
+    return <Spinner />;
   }
 
   const [startDate, endDate] = getFirstAndLastDateFromTimestamps(
@@ -49,7 +51,7 @@ const ApplicationIncidentPage = () => {
         <IncidentHeader
           id={id!}
           name={incident.applicationName}
-          timestamp={incident.sources[0].timestamp}
+          timestamp={startDate}
         />
       }
     >
