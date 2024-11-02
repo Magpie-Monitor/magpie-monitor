@@ -11,11 +11,12 @@ import { ManagmentServiceApiInstance, AccuracyLevel } from 'api/managment-servic
 
 interface ApplicationDataRow {
     name: string;
+    running: boolean;
     accuracy: AccuracyLevel;
     customPrompt: string;
     updated: string;
     added: string;
-    [key: string]: string | AccuracyLevel;
+    [key: string]: string | boolean | AccuracyLevel;
 }
 
 const ApplicationSection = () => {
@@ -31,6 +32,7 @@ const ApplicationSection = () => {
             const applicationsRows = applicationsData.map(
                 (application): ApplicationDataRow => ({
                     name: application.name,
+                    running: application.running,
                     accuracy: application.accuracy,
                     customPrompt: application.customPrompt,
                     updated: application.updated,
@@ -83,7 +85,7 @@ const ApplicationSection = () => {
             header: 'Name',
             columnKey: 'name',
             customComponent: (row: ApplicationDataRow) => (
-                <LinkComponent href="#">
+                <LinkComponent href="#" isRunning={row.running}>
                     {row.name}
                 </LinkComponent>
             ),

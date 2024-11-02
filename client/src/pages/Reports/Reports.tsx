@@ -21,10 +21,6 @@ const Reports = () => {
     navigate(`/reports/${id}`);
   };
 
-  const handleAddNewReport = () => {
-    navigate('/reports/new');
-  };
-
   const columns: Array<TableColumn<ReportSummary>> = [
     {
       header: 'Cluster',
@@ -79,7 +75,6 @@ const Reports = () => {
       <SectionComponent
         icon={<SVGIcon iconName='chart-icon'/>}
         title={'Weekly reports'}
-        callback={handleAddNewReport}
       >
         {loading ? (
           <div className="reports__no-data">Loading...</div>

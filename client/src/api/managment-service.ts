@@ -55,14 +55,16 @@ export interface NotificationChannel {
 
 export interface Application {
   name: string;
+  running: boolean;
   accuracy: AccuracyLevel;
   customPrompt: string;
   updated: string;
   added: string;
-} //Create second type for api + property enabled
+}
 
 export interface Node {
   name: string;
+  running: boolean;
   accuracy: AccuracyLevel;
   customPrompt: string;
   updated: string;
@@ -164,7 +166,7 @@ class ManagmentServiceApi {
       {
         id: 'cluster-1-abcd',
         isRunning: true,
-        accuracy: 'HIGH',
+        accuracy: 'LOW',
         updatedAt: 1730233614763,
         slackChannels: [
           {
@@ -259,6 +261,7 @@ class ManagmentServiceApi {
     const mockApplications: Array<Application> = [
       {
         name: 'alerts-api-database',
+        running: true,
         accuracy: 'HIGH',
         customPrompt: 'ignore s3 logs...',
         updated: '07.03.2024 15:32',
@@ -266,6 +269,7 @@ class ManagmentServiceApi {
       },
       {
         name: 'alerts-api-backend',
+        running: false,
         accuracy: 'LOW',
         customPrompt: '',
         updated: '07.03.2024 15:32',
@@ -273,6 +277,7 @@ class ManagmentServiceApi {
       },
       {
         name: 'is-jsos-down',
+        running: true,
         accuracy: 'MEDIUM',
         customPrompt: 'dont ignore s3 logs...',
         updated: '07.03.2024 15:32',
@@ -286,6 +291,7 @@ class ManagmentServiceApi {
     const mockNodes: Array<Node> = [
       {
         name: 'node 1',
+        running: true,
         accuracy: 'HIGH',
         customPrompt: 'ignore s3 logs...',
         updated: '07.03.2024 15:32',
@@ -293,6 +299,7 @@ class ManagmentServiceApi {
       },
       {
         name: 'node 2',
+        running: true,
         accuracy: 'LOW',
         customPrompt: 'ignore s3 logs...',
         updated: '07.03.2024 15:32',
@@ -300,6 +307,7 @@ class ManagmentServiceApi {
       },
       {
         name: 'node 3',
+        running: false,
         accuracy: 'MEDIUM',
         customPrompt: '',
         updated: '07.03.2024 15:32',

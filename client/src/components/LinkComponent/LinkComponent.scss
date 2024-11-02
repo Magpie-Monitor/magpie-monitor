@@ -1,6 +1,19 @@
 @import '@/variables';
 
+.link-container {
+  display: flex;
+  align-items: center;
+}
+
 .link-component {
   color: $green;
-  text-decoration: underline;
+  cursor: default;
+
+  &.down {
+    color: $application-down-color;
+  }
+}
+
+.link-container .link-component + .state-badge {
+  margin-left: 7px;
 }

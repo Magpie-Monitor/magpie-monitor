@@ -11,11 +11,12 @@ import { ManagmentServiceApiInstance, AccuracyLevel} from 'api/managment-service
 
 export interface NodeEntry {
     name: string;
+    running: boolean;
     accuracy: AccuracyLevel;
     customPrompt: string;
     updated: string;
     added: string;
-    [key: string]: string | AccuracyLevel;
+    [key: string]: string | boolean | AccuracyLevel;
 }
 
 const NodesSection = () => {
@@ -30,6 +31,7 @@ const NodesSection = () => {
 
             const nodeRows = nodesData.map((node): NodeEntry => ({
                 name: node.name,
+                running: node.running,
                 accuracy: node.accuracy,
                 customPrompt: node.customPrompt,
                 updated: node.updated,
@@ -81,7 +83,7 @@ const NodesSection = () => {
             header: 'Name',
             columnKey: 'name',
             customComponent: (row: NodeEntry) => (
-                <LinkComponent href="#" className="node-section__link">
+                <LinkComponent href="#" isRunning={row.running}>
                     {row.name}
                 </LinkComponent>
             ),

@@ -5,7 +5,6 @@ import Table, { TableColumn } from 'components/Table/Table';
 import './Clusters.scss';
 import Channels from './components/NotificationChannelsColumn/NotificationChannelsColumn';
 import UrgencyBadge from 'components/UrgencyBadge/UrgencyBadge';
-import StateBadge from 'components/StateBadge/StateBadge';
 import { useEffect, useState } from 'react';
 import {
   ClusterSummary,
@@ -14,6 +13,8 @@ import {
 } from 'api/managment-service';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
+import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
+import { useNavigate } from 'react-router-dom';
 
 interface ClusterDataRow {
   name: string;
@@ -30,39 +31,6 @@ export interface NotificationChannelColumn {
   kind: NotificationChannelKind;
   name: string;
 }
-
-const columns: Array<TableColumn<ClusterDataRow>> = [
-  {
-    header: 'Name',
-    columnKey: 'name',
-    customComponent: (row: ClusterDataRow) => (
-        <LinkComponent href="#">
-          {row.name}
-        </LinkComponent>
-    ),
-  },
-  {
-    header: 'State',
-    columnKey: 'state',
-    customComponent: ({ state }) => <StateBadge label={state} />
-  },
-  {
-    header: 'Accuracy',
-    columnKey: 'accuracy',
-    customComponent: ({ accuracy }) => <UrgencyBadge label={accuracy} />,
-  },
-  {
-    header: 'Notification',
-    columnKey: 'notificationChannels',
-    customComponent: ({ notificationChannels }) => (
-      <Channels channels={notificationChannels} />
-    ),
-  },
-  {
-    header: 'Updated at',
-    columnKey: 'updatedAt',
-  },
-];
 
 const transformNotificationChannelsToColumns = (
   cluster: ClusterSummary,
@@ -99,49 +67,106 @@ const transformUpdatedAtDate = (cluster: ClusterSummary) => {
 };
 
 const Clusters = () => {
-  const [clusters, setClusters] = useState<ClusterDataRow[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+    const [clusters, setClusters] = useState<ClusterDataRow[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
 
-  const fetchClusters = async () => {
-    try {
-      const clustersData = await ManagmentServiceApiInstance.getClusters();
+    const handleNewReportOnDemand = (id: string) => {
+        navigate(`/reports/${id}/on-demand`);
+    };
 
-      const clusterRows = clustersData.map(
-        (cluster): ClusterDataRow => ({
-          name: cluster.id,
-          accuracy: cluster.accuracy,
-          state: transformIsRunningLabel(cluster),
-          notificationChannels: transformNotificationChannelsToColumns(cluster),
-          updatedAt: transformUpdatedAtDate(cluster),
-        }),
-      );
+    const handleScheduledReport = (id: string) => {
+        navigate(`/reports/${id}/scheduled`);
+    };
 
-      setClusters(clusterRows);
-      setIsLoading(false);
-    } catch (e: unknown) {
-      console.error('Failed to fetch clusters', e);
-    }
-  };
+    const columns: Array<TableColumn<ClusterDataRow>> = [
+        {
+            header: 'Name',
+            columnKey: 'name',
+            customComponent: (row: ClusterDataRow) => (
+                <LinkComponent href="#" isRunning={row.state === 'ONLINE'}>
+                    {row.name}
+                </LinkComponent>
+            ),
+        },
+        {
+            header: 'Accuracy',
+            columnKey: 'accuracy',
+            customComponent: ({ accuracy }) => <UrgencyBadge label={accuracy} />,
+        },
+        {
+            header: 'Notification',
+            columnKey: 'notificationChannels',
+            customComponent: ({ notificationChannels }) => (
+                <Channels channels={notificationChannels} />
+            ),
+        },
+        {
+            header: 'Updated at',
+            columnKey: 'updatedAt',
+        },
+        {
+            header: 'Reports',
+            columnKey: 'actions',
+            customComponent: (row: ClusterDataRow) => (
+                <div className='clusters--button'>
+                    <ActionButton
+                        onClick={() => handleScheduledReport(row.name)}
+                        description="scheduled"
+                        color={ActionButtonColor.GREEN}
+                    />
+                    <ActionButton
+                        onClick={() => handleNewReportOnDemand(row.name)}
+                        description="on demand"
+                        color={ActionButtonColor.GREEN}
+                    />
+                </div>
+            ),
+        },
+    ];
 
-  useEffect(() => {
-    fetchClusters();
-  }, []);
 
-  const header = <HeaderWithIcon title={'Clusters'} />;
+    const fetchClusters = async () => {
+        try {
+            const clustersData = await ManagmentServiceApiInstance.getClusters();
 
-  return (
-    <PageTemplate header={header}>
-      <SectionComponent title={'Clusters'} icon={<SVGIcon iconName='clusters-icon'/>}>
-        {isLoading && <div>Loading...</div>}
-        {!isLoading && clusters.length > 0 && (
-          <Table columns={columns} rows={clusters} />
-        )}
-        {!isLoading && clusters.length == 0 && (
-          <div>No registered clusters yet</div>
-        )}
-      </SectionComponent>
-    </PageTemplate>
-  );
+            const clusterRows = clustersData.map(
+                (cluster): ClusterDataRow => ({
+                    name: cluster.id,
+                    accuracy: cluster.accuracy,
+                    state: transformIsRunningLabel(cluster),
+                    notificationChannels: transformNotificationChannelsToColumns(cluster),
+                    updatedAt: transformUpdatedAtDate(cluster),
+                }),
+            );
+
+            setClusters(clusterRows);
+            setIsLoading(false);
+        } catch (e: unknown) {
+            console.error('Failed to fetch clusters', e);
+        }
+    };
+
+    useEffect(() => {
+        fetchClusters();
+    }, []);
+
+    const header = <HeaderWithIcon title={'Clusters'} />;
+
+    return (
+        <PageTemplate header={header}>
+            <SectionComponent title={'Clusters'} icon={<SVGIcon iconName='clusters-icon'/>}>
+                {isLoading && <div>Loading...</div>}
+                {!isLoading && clusters.length > 0 && (
+                    <Table columns={columns} rows={clusters} />
+                )}
+                {!isLoading && clusters.length === 0 && (
+                    <div>No registered clusters yet</div>
+                )}
+            </SectionComponent>
+        </PageTemplate>
+    );
 };
 
 export default Clusters;
+

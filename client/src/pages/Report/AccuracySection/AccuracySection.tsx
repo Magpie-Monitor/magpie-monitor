@@ -7,7 +7,7 @@ import { AccuracyLevel } from 'api/managment-service';
 const AccuracySection = () => {
     const [accuracy, setAccuracy] = useState<AccuracyLevel>('HIGH');
     return (
-        <SectionComponent icon={<SVGIcon iconName='precision-icon' />} title={'Accuracy'}>
+        <SectionComponent icon={<SVGIcon iconName='precision-icon' />} title={'Default accuracy'}>
             <div className="precision-section__input-group">
                 <TagButton
                     listItems={['HIGH', 'MEDIUM', 'LOW']}
