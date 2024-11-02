@@ -2,11 +2,11 @@ package pl.pwr.zpi.reports.dto.report.node;
 
 import java.util.List;
 
-public record ScheduledNodeInsights(
+public record ScheduledNodeInsightsDTO(
         List<String> scheduledJobIds,
         Long sinceMs,
         Long toMs,
         String clusterId,
-        List<ScheduledNodeInsightConfiguration> nodeConfiguration
+        List<ScheduledNodeInsightConfigurationDTO> nodeConfiguration
 ) {
 }

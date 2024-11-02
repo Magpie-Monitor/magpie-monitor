@@ -2,9 +2,9 @@ package pl.pwr.zpi.reports.dto.report.node;
 
 import java.util.List;
 
-public record NodeReport(
+public record NodeReportDTO(
         String node,
         String precision,
         String customPrompt,
-        List<NodeIncident> nodeIncidents
+        List<NodeIncidentDTO> nodeIncidents
 ) {}

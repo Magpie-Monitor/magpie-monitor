@@ -1,21 +1,17 @@
 package pl.pwr.zpi.reports.dto.report.node;
 
-import pl.pwr.zpi.reports.dto.report.Accuracy;
-import pl.pwr.zpi.reports.dto.report.Urgency;
+import pl.pwr.zpi.reports.enums.Urgency;
 
 import java.util.List;
 
-public record NodeIncident(
+public record NodeIncidentDTO(
         String id,
-        String title,
-        Accuracy accuracy,
-        String customPrompt,
         String category,
         String clusterId,
         String nodeName,
         String summary,
         String recommendation,
         Urgency urgency,
-        List<NodeIncidentSource> sources
+        List<NodeIncidentSourceDTO> sources
 ) {
 }
