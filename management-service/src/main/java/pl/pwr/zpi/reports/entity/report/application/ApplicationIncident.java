@@ -1,11 +1,13 @@
 package pl.pwr.zpi.reports.entity.report.application;
 
+import lombok.Builder;
 import lombok.Data;
 import pl.pwr.zpi.reports.enums.Urgency;
 
 import java.util.List;
 
 @Data
+@Builder
 public class ApplicationIncident {
     private String id;
     private String clusterId;
