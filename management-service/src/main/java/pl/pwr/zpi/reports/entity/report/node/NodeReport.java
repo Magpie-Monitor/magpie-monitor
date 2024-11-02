@@ -2,7 +2,6 @@ package pl.pwr.zpi.reports.entity.report.node;
 
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.domain.PageRequest;
 import pl.pwr.zpi.reports.enums.Precision;
 
 import java.util.List;
@@ -13,5 +12,5 @@ public class NodeReport {
     private String node;
     private Precision precision;
     private String customPrompt;
-    private List<NodeIncident> nodeIncidents;
+    private List<NodeIncident> incidents;
 }

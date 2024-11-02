@@ -36,7 +36,7 @@ public class Report {
 
     public List<NodeIncident> getNodeIncidents() {
         return nodeReports.stream()
-                .map(NodeReport::getNodeIncidents)
+                .map(NodeReport::getIncidents)
                 .flatMap(List::stream)
                 .toList();
     }

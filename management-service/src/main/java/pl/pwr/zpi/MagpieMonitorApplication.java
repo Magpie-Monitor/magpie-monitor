@@ -10,12 +10,12 @@ import pl.pwr.zpi.reports.entity.report.application.ApplicationIncident;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationReport;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
 import pl.pwr.zpi.reports.entity.report.node.NodeReport;
-import pl.pwr.zpi.reports.entity.report.node.scheduled.ScheduledNodeInsight;
 import pl.pwr.zpi.reports.enums.Precision;
 import pl.pwr.zpi.reports.enums.Urgency;
 import pl.pwr.zpi.reports.repository.ReportRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 @SpringBootApplication
 public class MagpieMonitorApplication {
@@ -24,7 +24,7 @@ public class MagpieMonitorApplication {
     public ReportRepository reportRepository;
 
     @EventListener(ApplicationReadyEvent.class)
-    public void doSomethingAfterStartup() {
+    public void init() {
         List<ApplicationReport> appReports = List.of(
                 ApplicationReport.builder()
                         .applicationName("test")
@@ -32,7 +32,7 @@ public class MagpieMonitorApplication {
                         .customPrompt("none")
                         .incidents(List.of(
                                 ApplicationIncident.builder()
-                                        .id("test")
+                                        .id(UUID.randomUUID().toString())
                                         .clusterId("test2")
                                         .applicationName("test")
                                         .category("test")
@@ -48,9 +48,9 @@ public class MagpieMonitorApplication {
                     .node("test")
                     .precision(Precision.LOW)
                     .customPrompt("none")
-                    .nodeIncidents(List.of(
+                    .incidents(List.of(
                             NodeIncident.builder()
-                                    .id("test2")
+                                    .id(UUID.randomUUID().toString())
                                     .clusterId("test2")
                                     .nodeName("test")
                                     .summary("test")
@@ -61,6 +61,7 @@ public class MagpieMonitorApplication {
 
         System.out.println("hello world, I have just started up");
         Report r = Report.builder()
+                .id(UUID.randomUUID().toString())
                 .clusterId("test")
                 .sinceMs(3000L)
                 .toMs(5000L)
