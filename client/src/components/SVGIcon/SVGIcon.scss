@@ -50,6 +50,51 @@
   }
 }
 
+.application-incident-metadata-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/application-incident-metadata-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $green;
+  }
+}
+
+.incident-source-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/incident-source-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $green;
+  }
+}
+
+.incident-summary-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/incident-summary-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $green;
+  }
+}
+
+.incident-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/incident-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $green;
+  }
+}
+
+.incident-recommendation-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/incident-recommendation-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $green;
+  }
+}
+
 .setting-icon {
   @extend .svg-icon;
   mask: url('/src/assets/settings-icon.svg') no-repeat center;
@@ -135,6 +180,7 @@
 .application-icon {
   @extend .svg-icon;
   mask: url('/src/assets/application-icon.svg') no-repeat center;
+
   .svg-icon {
     background-color: $green;
   }
@@ -143,6 +189,7 @@
 .date-range-icon {
   @extend .svg-icon;
   mask: url('/src/assets/date-range-icon.svg') no-repeat center;
+
   .svg-icon {
     background-color: $green;
   }
@@ -151,6 +198,7 @@
 .precision-icon {
   @extend .svg-icon;
   mask: url('/src/assets/precision-icon.svg') no-repeat center;
+
   .svg-icon {
     background-color: $green;
   }
