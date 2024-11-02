@@ -21,11 +21,11 @@ type ApplicationInsightConfiguration struct {
 }
 
 type ScheduledApplicationInsights struct {
-	ScheduledJobIds          []string                           `json:"scheduledJobIds"`
+	ScheduledJobIds          []string                           `bson:"scheduledJobIds" json:"scheduledJobIds"`
 	SinceMs                  int64                              `bson:"sinceMs" json:"sinceMs"`
 	ToMs                     int64                              `bson:"toMs" json:"toMs"`
 	ClusterId                string                             `bson:"clusterId" json:"clusterId"`
-	ApplicationConfiguration []*ApplicationInsightConfiguration `json:"applicationConfiguration"`
+	ApplicationConfiguration []*ApplicationInsightConfiguration `bson:"applicationConfiguration" json:"applicationConfiguration"`
 }
 
 type ApplicationLogsInsight struct {
@@ -96,14 +96,14 @@ func FilterByApplicationsAccuracy(logsByApplication map[string][]*repositories.A
 		config, ok := configurationByApplication[application]
 		var accuracy Accuracy
 		if !ok {
-			// By default the app has low accuracy
-			accuracy = Accuracy__Low
+			// By default the app is not included
+			delete(logsByApplication, application)
 		} else {
 			accuracy = config.Accuracy
+			filter := NewAccuracyFilter[*repositories.ApplicationLogsDocument](accuracy)
+			logsByApplication[application] = filter.Filter(logs)
 		}
 
-		filter := NewAccuracyFilter[*repositories.ApplicationLogsDocument](accuracy)
-		logsByApplication[application] = filter.Filter(logs)
 	}
 }
 
@@ -332,9 +332,6 @@ func (g *OpenAiInsightsGenerator) getApplicationInsightsFromBatchEntries(
 	return res, nil
 }
 
-// func (g *OpenAiInsightsGenerator)
-// func FilterByApplication()
-
 func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 	logs []*repositories.ApplicationLogsDocument,
 	configuration []*ApplicationInsightConfiguration,
@@ -355,7 +352,6 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 	for applicationName, logs := range groupedLogs {
 
 		logPackets := repositories.SplitLogsIntoPackets(logs, g.client.ContextSizeBytes)
-		// logPackets
 
 		for _, logPacket := range logPackets {
 			messages, err := g.createMessagesFromApplicationLogs(

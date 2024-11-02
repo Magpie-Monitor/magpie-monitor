@@ -10,7 +10,6 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"math"
 	"os"
 	"slices"
 	"strconv"
@@ -287,7 +286,6 @@ func (s *ReportsService) RetrieveScheduledReport(scheduledReportId string) (*rep
 		s.logger.Error("Failed to fetch scheduled report", zap.Error(repoErr))
 		return nil, repoErr
 	}
-
 	scheduledApplicationInsights := scheduledReport.ScheduledApplicationInsights
 	insights, err := s.applicationInsightsGenerator.
 		GetScheduledApplicationInsights(scheduledApplicationInsights)
@@ -620,9 +618,9 @@ func (s *ReportsService) GetApplicationLogsByParams(
 		return nil, err
 	}
 
-	filteredApplicationLogs := applicationLogs[0:int(math.Min(float64(maxLength), float64(len(applicationLogs))))]
+	// filteredApplicationLogs := applicationLogs[0:int(math.Min(float64(maxLength), float64(len(applicationLogs))))]
 
-	return filteredApplicationLogs, nil
+	return applicationLogs, nil
 
 }
 
@@ -664,8 +662,8 @@ func (s *ReportsService) GetNodeLogsByParams(
 		return nil, err
 	}
 
-	filteredNodeLogs := nodeLogs[0:int(math.Min(float64(maxLength), float64(len(nodeLogs))))]
-	return filteredNodeLogs, nil
+	// filteredNodeLogs := nodeLogs[0:int(math.Min(float64(maxLength), float64(len(nodeLogs))))]
+	return nodeLogs, nil
 }
 
 func (s *ReportsService) GenerateNodeReports(

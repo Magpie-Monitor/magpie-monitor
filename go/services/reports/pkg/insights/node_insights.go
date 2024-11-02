@@ -30,11 +30,11 @@ type NodeInsightConfiguration struct {
 }
 
 type ScheduledNodeInsights struct {
-	ScheduledJobIds   []string                    `json:"scheduledJobIds"`
+	ScheduledJobIds   []string                    `bson:"scheduledJobIds" json:"scheduledJobIds"`
 	SinceMs           int64                       `bson:"sinceMs" json:"sinceMs"`
 	ToMs              int64                       `bson:"toMs" json:"toMs"`
 	ClusterId         string                      `bson:"clusterId" json:"clusterId"`
-	NodeConfiguration []*NodeInsightConfiguration `json:"nodeConfiguration"`
+	NodeConfiguration []*NodeInsightConfiguration `bson:"nodeConfiguration" json:"nodeConfiguration"`
 }
 
 type NodeInsightMetadata struct {

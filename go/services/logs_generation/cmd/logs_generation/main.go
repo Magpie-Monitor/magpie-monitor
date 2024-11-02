@@ -65,7 +65,7 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 		}
 
 		applicationLogs := repositories.ApplicationLogs{
-			ClusterId:     "testcluster-2",
+			ClusterId:     "testcluster-1",
 			Kind:          "application",
 			CollectedAtMs: 1729172447902,
 			Name:          apps[rand.Intn(len(apps))],
@@ -76,7 +76,7 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 						{
 							Name:    "container-x",
 							Image:   "container-x-image",
-							Content: "Failed to connect the psql database",
+							Content: "Security Breach to connect the psql database",
 						},
 						{
 							Name:    "container-2",
@@ -93,7 +93,7 @@ func (g *LogsGenerator) WriteApplicationLogs(ctx context.Context) {
 
 		g.handleApplicationLogs(ctx, string(jsonApplicationLogs))
 		g.handleNodeLogs(ctx, string(jsonNodeLogs))
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Second * 100)
 
 	}
 
