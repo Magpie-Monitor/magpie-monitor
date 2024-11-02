@@ -8,6 +8,7 @@ import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
 import { ManagmentServiceApiInstance, AccuracyLevel} from 'api/managment-service';
+import Spinner from 'components/Spinner/Spinner.tsx';
 
 export interface NodeEntry {
     name: string;
@@ -136,7 +137,7 @@ const NodesSection = () => {
                 </OverlayComponent>
             )}
             {loading ? (
-                <p>Loading...</p>
+                <Spinner />
             ) : rows.length === 0 ? (
                 <p>No Nodes selected, please add new</p>
             ) : (

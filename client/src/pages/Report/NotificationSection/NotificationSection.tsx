@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import NotificationChannelTable from './NotificationChannelTable';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import { ManagmentServiceApiInstance } from 'api/managment-service';
+import Spinner from 'components/Spinner/Spinner.tsx';
 
 export interface NotificationChannel {
     id: string;
@@ -70,7 +71,7 @@ const NotificationSection = () => {
                 </OverlayComponent>
             )}
             {loading ? (
-                <p>Loading...</p>
+                <Spinner />
             ) : rows.length === 0 ? (
                 <p>No notification channels selected, please add new.</p>
             ) : (

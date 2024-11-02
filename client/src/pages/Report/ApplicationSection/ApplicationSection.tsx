@@ -8,6 +8,7 @@ import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
 import { ManagmentServiceApiInstance, AccuracyLevel } from 'api/managment-service';
+import Spinner from 'components/Spinner/Spinner.tsx';
 
 interface ApplicationDataRow {
     name: string;
@@ -138,7 +139,7 @@ const ApplicationSection = () => {
                 </OverlayComponent>
             )}
             {loading ? (
-                <p>Loading...</p>
+                <Spinner />
             ) : rows.length === 0 ? (
                 <p>No Applications selected, please add new</p>
             ) : (

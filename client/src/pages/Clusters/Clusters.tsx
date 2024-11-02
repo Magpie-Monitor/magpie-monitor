@@ -15,6 +15,7 @@ import SVGIcon from 'components/SVGIcon/SVGIcon';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
 import { useNavigate } from 'react-router-dom';
+import Spinner from 'components/Spinner/Spinner.tsx';
 
 interface ClusterDataRow {
   name: string;
@@ -156,7 +157,7 @@ const Clusters = () => {
     return (
         <PageTemplate header={header}>
             <SectionComponent title={'Clusters'} icon={<SVGIcon iconName='clusters-icon'/>}>
-                {isLoading && <div>Loading...</div>}
+                {isLoading && <Spinner />}
                 {!isLoading && clusters.length > 0 && (
                     <Table columns={columns} rows={clusters} />
                 )}
