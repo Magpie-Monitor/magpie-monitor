@@ -1,6 +1,7 @@
 package brokers
 
 import (
+	"context"
 	"os"
 	"time"
 
@@ -29,7 +30,7 @@ func NewReportGenerated(report *repositories.Report) ReportGenerated {
 
 }
 
-func NewReportGeneratedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessageBroker[ReportGenerated] {
+func NewReportGeneratedBroker(lc fx.Lifecycle, logger *zap.Logger) *messagebroker.KafkaJsonMessageBroker[ReportGenerated] {
 
 	envs.ValidateEnvs(
 		"address/username/password/topic for ReportGeneratedBroker is not set",
@@ -46,13 +47,29 @@ func NewReportGeneratedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessag
 	address := os.Getenv(MESSAGE_BROKER_ADDRESS_KEY)
 	topic := os.Getenv(REPORT_GENERATED_TOPIC_KEY)
 
-	return messagebroker.NewKafkaJsonMessageBroker[ReportGenerated](
+	broker := messagebroker.NewKafkaJsonMessageBroker[ReportGenerated](
 		logger,
 		address,
 		topic,
 		username,
 		password,
 	)
+
+	lc.Append(
+		fx.Hook{
+			OnStop: func(ctx context.Context) error {
+				logger.Info("Closing connection to ReportGenerated broker")
+				err := broker.CloseReader()
+				if err != nil {
+					logger.Error("Error while disconnecting from ReportGenerated broker", zap.Error(err))
+
+				}
+				return err
+			},
+		},
+	)
+
+	return broker
 }
 
 func ProvideAsReportGeneratedBroker(f any) any {

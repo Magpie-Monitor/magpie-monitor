@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	"github.com/segmentio/kafka-go"
@@ -12,7 +13,10 @@ import (
 	"go.uber.org/zap"
 )
 
-const KAFKA_MAX_MESSAGE_BYTES_KEY = "KAFKA_MAX_MESSAGE_SIZE_BYTES"
+const (
+	KAFKA_MAX_MESSAGE_BYTES_KEY = "KAFKA_MAX_MESSAGE_SIZE_BYTES"
+	KAFKA_BROKER_GROUP_ID_KEY   = "KAFKA_BROKER_GROUP_ID"
+)
 
 type KafkaMessageBroker struct {
 	logger *zap.Logger
@@ -23,9 +27,12 @@ type KafkaMessageBroker struct {
 func NewKafkaMessageBroker(addr string, topic string, username string, password string, logger *zap.Logger) *KafkaMessageBroker {
 
 	envs.ValidateEnvs("No max message size set for kafka broker", []string{KAFKA_MAX_MESSAGE_BYTES_KEY})
+	envs.ValidateEnvs("No consumer group id set for kafka broker", []string{KAFKA_BROKER_GROUP_ID_KEY})
 
 	kafkaMaxMessageBytes := os.Getenv(KAFKA_MAX_MESSAGE_BYTES_KEY)
 	kafkaMaxMessageBytesInt, err := strconv.Atoi(kafkaMaxMessageBytes)
+
+	kafkaBrokerGroupId := os.Getenv(KAFKA_BROKER_GROUP_ID_KEY)
 
 	if err != nil {
 		panic("Kafka max message size is not a number")
@@ -50,11 +57,12 @@ func NewKafkaMessageBroker(addr string, topic string, username string, password 
 
 	reader := kafka.NewReader(
 		kafka.ReaderConfig{
-			Brokers:   []string{addr},
-			Topic:     topic,
-			Partition: 0,
-			MaxBytes:  10e8,
-			Dialer:    dialer,
+			Brokers:        []string{addr},
+			Topic:          topic,
+			MaxBytes:       10e8,
+			GroupID:        kafkaBrokerGroupId,
+			Dialer:         dialer,
+			CommitInterval: time.Second,
 		},
 	)
 
@@ -88,10 +96,16 @@ func (b *KafkaMessageBroker) Subscribe(ctx context.Context, messages chan<- []by
 		if err != nil {
 			b.logger.Error("Failed to read message", zap.Error(err))
 			errors <- err
+			continue
 		}
+
+		// b.reader./* Co */mmitMessages(ctx, msg)
 
 		messages <- msg.Value
 	}
+}
+func (b *KafkaMessageBroker) CloseReader() error {
+	return b.reader.Close()
 }
 
 var _ MessageBroker[any] = &KafkaJsonMessageBroker[any]{}

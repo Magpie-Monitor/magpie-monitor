@@ -47,7 +47,12 @@ func (b *KafkaJsonMessageBroker[T]) Subscribe(messages chan<- T, errors chan<- e
 		}
 
 		messages <- decodedMessage
+
 	}
+
+}
+func (b *KafkaJsonMessageBroker[T]) CloseReader() error {
+	return b.broker.CloseReader()
 
 }
 
