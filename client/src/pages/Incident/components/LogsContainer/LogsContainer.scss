@@ -1,0 +1,16 @@
+@import '@/variables';
+
+.logs-box {
+  text-align: left;
+  background-color: $background;
+  padding: 0.5rem;
+  font-family: monospace;
+  border-radius: 10px;
+  border-style: solid;
+  border-color: $component-border-color;
+  border-width: 0.5px;
+  max-height: 150px;
+  overflow-y: scroll;
+  word-break: break-all;
+  color: $navbar-text-color;
+}

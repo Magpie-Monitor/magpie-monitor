@@ -16,6 +16,7 @@ import NewScheduledReport from './Report/ScheduledReport.tsx';
 import NewDemandReport from './Report/OnDemandReport.tsx';
 import Notification from './Notification/Notification.tsx';
 import Clusters from './Clusters/Clusters.tsx';
+import Incident from './Incident/ApplicationIncident.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,6 +34,7 @@ const router = createBrowserRouter(
         <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Home />} />
         <Route path="/clusters" element={<Clusters />} />
+        <Route path="/incidents/:id" element={<Incident />} />
         <Route path="/reports">
           <Route path="" element={<Reports />} />
           <Route path=":id" element={<ReportDetails />} />

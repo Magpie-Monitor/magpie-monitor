@@ -1,0 +1,26 @@
+@import '@/variables';
+
+.incident-header {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  align-items: center;
+  column-gap: 1rem;
+  margin-left: 0.5rem;
+
+  &__name {
+    color: $green;
+    text-decoration: underline;
+    font-size: 2rem;
+  }
+
+  &__timestamp {
+    font-size: 1rem;
+    color: $font-color;
+    height: 100%;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+  }
+}

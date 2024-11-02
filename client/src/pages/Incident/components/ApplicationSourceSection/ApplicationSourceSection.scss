@@ -1,0 +1,12 @@
+.application-incident-source {
+  width: 100%;
+  display: flex;
+  row-gap: 1rem;
+  flex-direction: column;
+
+  &__metadata {
+    display: flex;
+    flex-direction: row;
+    column-gap: 1rem;
+  }
+}
