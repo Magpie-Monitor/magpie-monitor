@@ -1,6 +1,7 @@
 package brokers
 
 import (
+	"context"
 	"os"
 	"time"
 
@@ -52,7 +53,7 @@ func NewReportRequestFailedInternalError(correlationId string, msg string) *Repo
 	)
 }
 
-func NewReportRequestFailedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessageBroker[ReportRequestFailed] {
+func NewReportRequestFailedBroker(lc fx.Lifecycle, logger *zap.Logger) *messagebroker.KafkaJsonMessageBroker[ReportRequestFailed] {
 
 	envs.ValidateEnvs(
 		"address/username/password/topic for ReportRequestFailedBroker is not set",
@@ -69,13 +70,29 @@ func NewReportRequestFailedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMe
 	address := os.Getenv(MESSAGE_BROKER_ADDRESS_KEY)
 	topic := os.Getenv(REPORT_REQUEST_FAILED_TOPIC_KEY)
 
-	return messagebroker.NewKafkaJsonMessageBroker[ReportRequestFailed](
+	broker := messagebroker.NewKafkaJsonMessageBroker[ReportRequestFailed](
 		logger,
 		address,
 		topic,
 		username,
 		password,
 	)
+
+	lc.Append(
+		fx.Hook{
+			OnStop: func(ctx context.Context) error {
+				logger.Info("Closing connection to ReportRequestFailed broker")
+				err := broker.CloseReader()
+				if err != nil {
+					logger.Error("Error while disconnecting from ReportRequestFailed broker", zap.Error(err))
+				}
+				return err
+			},
+		},
+	)
+
+	return broker
+
 }
 
 func ProvideAsReportRequestFailedBroker(f any) any {

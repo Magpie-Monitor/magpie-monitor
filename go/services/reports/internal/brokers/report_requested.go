@@ -1,6 +1,7 @@
 package brokers
 
 import (
+	"context"
 	"os"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
@@ -26,7 +27,7 @@ type ReportRequested struct {
 	ReportRequest ReportRequest `json:"reportRequest"`
 }
 
-func NewReportRequestedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessageBroker[ReportRequested] {
+func NewReportRequestedBroker(lc fx.Lifecycle, logger *zap.Logger) *messagebroker.KafkaJsonMessageBroker[ReportRequested] {
 
 	envs.ValidateEnvs(
 		"address/username/password/topic for ReportRequestedBroker is not set",
@@ -43,13 +44,28 @@ func NewReportRequestedBroker(logger *zap.Logger) *messagebroker.KafkaJsonMessag
 	address := os.Getenv(MESSAGE_BROKER_ADDRESS_KEY)
 	topic := os.Getenv(REPORT_REQUESTED_TOPIC_KEY)
 
-	return messagebroker.NewKafkaJsonMessageBroker[ReportRequested](
+	broker := messagebroker.NewKafkaJsonMessageBroker[ReportRequested](
 		logger,
 		address,
 		topic,
 		username,
 		password,
 	)
+
+	lc.Append(
+		fx.Hook{
+			OnStop: func(ctx context.Context) error {
+				logger.Info("Closing connection to ReportRequested broker")
+				err := broker.CloseReader()
+				if err != nil {
+					logger.Error("Error while disconnecting from ReportRequested broker", zap.Error(err))
+				}
+				return err
+			},
+		},
+	)
+
+	return broker
 }
 
 func ProvideAsReportRequestedBroker(f any) any {
