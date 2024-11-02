@@ -15,7 +15,7 @@ export interface NodeEntry {
     customPrompt: string;
     updated: string;
     added: string;
-    [key: string]: string;
+    [key: string]: string | AccuracyLevel;
 }
 
 const NodesSection = () => {

@@ -15,7 +15,7 @@ interface ApplicationDataRow {
     customPrompt: string;
     updated: string;
     added: string;
-    [key: string]: string;
+    [key: string]: string | AccuracyLevel;
 }
 
 const ApplicationSection = () => {
