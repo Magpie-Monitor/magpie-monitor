@@ -10,12 +10,13 @@ interface TokenInfo {
 }
 
 export type AccuracyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
+export type UrgencyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 
 export interface ReportSummary {
   id: string;
   clusterId: string;
   title: string;
-  urgency: AccuracyLevel;
+  urgency: UrgencyLevel;
   sinceMs: number;
   toMs: number;
   [key: string]: string | number;

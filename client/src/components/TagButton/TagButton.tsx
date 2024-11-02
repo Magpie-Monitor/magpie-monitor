@@ -1,37 +1,38 @@
-import { useReducer, useEffect, useRef } from 'react';
 import './TagButton.scss';
-import SVGIcon from 'components/SVGIcon/SVGIcon';
+import React, { useEffect, useRef, useReducer } from 'react';
+import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 
-interface TagButtonProps {
-  listItems: string[];
-  chosenItem: string;
-  onSelect: (item: string) => void;
+interface TagButtonProps<T> {
+  listItems: T[];
+  chosenItem: T;
+  onSelect: (item: T) => void;
 }
 
-interface State {
-  isOpen: boolean;
-  selectedOption: string;
-}
-
-type Action =
+type Action<T> =
     | { type: 'TOGGLE' }
-    | { type: 'SELECT_OPTION'; payload: string }
-    | { type: 'CLOSE' };
+    | { type: 'CLOSE' }
+    | { type: 'SELECT_OPTION'; payload: T };
 
-const reducer = (state: State, action: Action): State => {
+interface State<T> {
+  isOpen: boolean;
+  selectedOption: T;
+}
+
+function reducer<T>(state: State<T>, action: Action<T>): State<T> {
   switch (action.type) {
     case 'TOGGLE':
       return { ...state, isOpen: !state.isOpen };
-    case 'SELECT_OPTION':
-      return { isOpen: false, selectedOption: action.payload };
     case 'CLOSE':
       return { ...state, isOpen: false };
+    case 'SELECT_OPTION':
+      return { isOpen: false, selectedOption: action.payload };
     default:
       return state;
   }
-};
+}
 
-const TagButton = ({ listItems, chosenItem = listItems[0] }: TagButtonProps) => {
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const TagButton = <T,>({ listItems, chosenItem, onSelect }: TagButtonProps<T>) => {
   const [{ isOpen, selectedOption }, dispatch] = useReducer(reducer, {
     isOpen: false,
     selectedOption: chosenItem,
@@ -59,6 +60,11 @@ const TagButton = ({ listItems, chosenItem = listItems[0] }: TagButtonProps) => 
     }
   };
 
+  const handleSelect = (item: T) => {
+    dispatch({ type: 'SELECT_OPTION', payload: item });
+    onSelect(item);
+  };
+
   return (
       <div className="tag-button">
         <button
@@ -69,7 +75,7 @@ const TagButton = ({ listItems, chosenItem = listItems[0] }: TagButtonProps) => 
             aria-expanded={isOpen}
         >
         <span className="tag-button__toggle__description">
-          {selectedOption}
+          {selectedOption as string}
         </span>
           <SVGIcon iconName={isOpen ? 'reverse-drop-down-icon' : 'drop-down-icon'} />
         </button>
@@ -79,12 +85,12 @@ const TagButton = ({ listItems, chosenItem = listItems[0] }: TagButtonProps) => 
                   <li
                       key={index}
                       className="tag-button__menu__element"
-                      onClick={() => dispatch({ type: 'SELECT_OPTION', payload: item })}
+                      onClick={() => handleSelect(item)}
                       role="menuitem"
                       tabIndex={0}
-                      onKeyDown={(e) => e.key === 'Enter' && dispatch({ type: 'SELECT_OPTION', payload: item })}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSelect(item)}
                   >
-                    {item}
+                    {item as string}
                   </li>
               ))}
             </ul>
