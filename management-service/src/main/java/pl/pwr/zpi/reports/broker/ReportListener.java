@@ -6,6 +6,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import pl.pwr.zpi.reports.dto.event.ReportGenerated;
 import pl.pwr.zpi.reports.dto.event.ReportRequestFailed;
+import pl.pwr.zpi.reports.service.ReportGenerationService;
 import pl.pwr.zpi.reports.service.ReportsService;
 import pl.pwr.zpi.utils.mapper.JsonMapper;
 
@@ -15,19 +16,19 @@ import pl.pwr.zpi.utils.mapper.JsonMapper;
 public class ReportListener {
 
     private final JsonMapper mapper;
-    private final ReportsService reportsService;
+    private final ReportGenerationService reportGenerationService;
 
     @KafkaListener(topics = "${kafka.report.generated.topic}")
     public void listenForReportGeneratedEvent(String message) {
         ReportGenerated report = mapper.fromJson(message, ReportGenerated.class);
         log.info("Received report created event: {}", report);
-        reportsService.handleReportGenerated(report);
+        reportGenerationService.handleReportGenerated(report);
     }
 
     @KafkaListener(topics = "${kafka.report.request.failed.topic}")
     public void listenForReportRequestFailedEvent(String message) {
         ReportRequestFailed request = mapper.fromJson(message, ReportRequestFailed.class);
         log.info("Received report request failed: {}", request);
-        reportsService.handleReportGenerationError(request);
+        reportGenerationService.handleReportGenerationError(request);
     }
 }

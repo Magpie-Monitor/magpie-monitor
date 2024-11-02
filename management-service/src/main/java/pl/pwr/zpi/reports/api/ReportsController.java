@@ -9,6 +9,7 @@ import pl.pwr.zpi.reports.dto.report.ReportSummaryDTO;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncident;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
+import pl.pwr.zpi.reports.service.ReportGenerationService;
 import pl.pwr.zpi.reports.service.ReportsService;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
 public class ReportsController {
 
     private final ReportsService reportsService;
+    private final ReportGenerationService reportGenerationService;
 
 //    @GetMapping
 //    public ResponseEntity<List<ReportSummary>> getReports() {
@@ -47,7 +49,7 @@ public class ReportsController {
 
     @PostMapping
     public ResponseEntity<Void> createReport(@RequestBody CreateReportRequest reportRequest) {
-        reportsService.createReport(reportRequest);
+        reportGenerationService.createReport(reportRequest);
         return ResponseEntity.ok().build();
     }
 
