@@ -28,6 +28,17 @@ func GetQueryByTimestamps(fromDate time.Time, toDate time.Time) *types.Query {
 	}
 }
 
+func GetQueryByTerms(terms map[string]types.TermsQueryField) *types.Query {
+
+	var boost float32 = 1
+	return &types.Query{
+		Terms: &types.TermsQuery{
+			Boost:      &boost,
+			TermsQuery: terms,
+		},
+	}
+}
+
 func SearchIndices(ctx context.Context, esClient *elasticsearch.TypedClient, indices []string, query *types.Query) (*search.Response, error) {
 	size := 1000
 	return esClient.Search().

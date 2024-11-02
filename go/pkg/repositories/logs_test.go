@@ -9,14 +9,14 @@ type TestLog struct {
 	Content string
 }
 
-func (l *TestLog) GetContent() string {
-	return l.Content
+func (l *TestLog) GetContent() *string {
+	return &l.Content
 }
 
 func TestDecode(t *testing.T) {
 	testsCases := []struct {
 		description string
-		rawString   string
+		rawString   *string
 		allLogs     []*TestLog
 		expect      [][]*TestLog
 	}{

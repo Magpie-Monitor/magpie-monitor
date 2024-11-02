@@ -34,8 +34,8 @@ type ContainerLogs struct {
 	Content string `json:"content"`
 }
 
-func (l *ApplicationLogsDocument) GetContent() string {
-	return l.Content
+func (l *ApplicationLogsDocument) GetContent() *string {
+	return &l.Content
 }
 
 type ApplicationLogsDocument struct {
