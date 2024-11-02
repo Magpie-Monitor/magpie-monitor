@@ -27,7 +27,6 @@ type ReportGenerationFilters struct {
 	ToMs                     int64                                       `json:"toMs"`
 	ApplicationConfiguration []*insights.ApplicationInsightConfiguration `json:"applicationConfiguration"`
 	NodeConfiguration        []*insights.NodeInsightConfiguration        `json:"nodeConfiguration"`
-	MaxLength                int                                         `json:"maxLength"`
 }
 
 type ReportsService struct {
@@ -86,7 +85,6 @@ func (s *ReportsService) ScheduleReport(
 		params.ClusterId,
 		sinceDate,
 		toDate,
-		params.MaxLength,
 	)
 	if err != nil {
 		s.logger.Error("Failed to fetch application logs", zap.Error(err))
@@ -97,9 +95,7 @@ func (s *ReportsService) ScheduleReport(
 		ctx,
 		params.ClusterId,
 		sinceDate,
-		toDate,
-		params.MaxLength,
-	)
+		toDate)
 	if err != nil {
 		s.logger.Error("Failed to fetch application logs", zap.Error(err))
 		return nil, err
@@ -357,9 +353,7 @@ func (s *ReportsService) GenerateReport(
 		ctx,
 		params.ClusterId,
 		sinceDate,
-		toDate,
-		params.MaxLength,
-	)
+		toDate)
 	if err != nil {
 		s.logger.Error("Failed to get application logs", zap.Error(err))
 		return nil, err
@@ -379,8 +373,7 @@ func (s *ReportsService) GenerateReport(
 		ctx,
 		params.ClusterId,
 		sinceDate,
-		toDate,
-		params.MaxLength)
+		toDate)
 	if err != nil {
 		s.logger.Error("Failed to generate node report", zap.Error(err))
 		return nil, err
@@ -583,7 +576,6 @@ func (s *ReportsService) GenerateAndSaveReport(ctx context.Context, params Repor
 			ClusterId:                params.ClusterId,
 			SinceMs:                  params.SinceMs,
 			ToMs:                     params.ToMs,
-			MaxLength:                params.MaxLength,
 			ApplicationConfiguration: params.ApplicationConfiguration,
 			NodeConfiguration:        params.NodeConfiguration,
 		})
@@ -606,7 +598,6 @@ func (s *ReportsService) GetApplicationLogsByParams(
 	clusterId string,
 	sinceDate time.Time,
 	toDate time.Time,
-	maxLength int,
 ) ([]*sharedrepositories.ApplicationLogsDocument, error) {
 	applicationLogs, err := s.applicationLogsRepository.GetLogs(ctx,
 		clusterId,
@@ -617,8 +608,6 @@ func (s *ReportsService) GetApplicationLogsByParams(
 		s.logger.Error("Failed to get application logs", zap.Error(err))
 		return nil, err
 	}
-
-	// filteredApplicationLogs := applicationLogs[0:int(math.Min(float64(maxLength), float64(len(applicationLogs))))]
 
 	return applicationLogs, nil
 
@@ -650,7 +639,6 @@ func (s *ReportsService) GetNodeLogsByParams(
 	clusterId string,
 	fromDate time.Time,
 	toDate time.Time,
-	maxLength int,
 ) ([]*sharedrepositories.NodeLogsDocument, error) {
 
 	nodeLogs, err := s.nodeLogsRepository.GetLogs(ctx,
@@ -662,7 +650,6 @@ func (s *ReportsService) GetNodeLogsByParams(
 		return nil, err
 	}
 
-	// filteredNodeLogs := nodeLogs[0:int(math.Min(float64(maxLength), float64(len(nodeLogs))))]
 	return nodeLogs, nil
 }
 

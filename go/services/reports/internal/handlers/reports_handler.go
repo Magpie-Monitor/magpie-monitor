@@ -72,7 +72,6 @@ type reportsPostParams struct {
 	ToMs                     *int64                                      `json:"toMs"`
 	ApplicationConfiguration []*insights.ApplicationInsightConfiguration `json:"applicationConfiguration"`
 	NodeConfiguration        []*insights.NodeInsightConfiguration        `json:"nodeConfiguration"`
-	MaxLength                *int                                        `json:"maxLength"`
 }
 
 func (h *ReportsHandler) handleResponseHeaderFromRepositoryError(w http.ResponseWriter, err repositories.ReportRepositoryError) {
@@ -223,19 +222,12 @@ func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if params.MaxLength == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		routing.WriteHttpError(w, "Missing maxLength parameter")
-		return
-	}
-
 	report, err := h.reportsService.GenerateAndSaveReport(ctx,
 		services.ReportGenerationFilters{
 			ClusterId:                *params.ClusterId,
 			CorrelationId:            *params.CorrelationId,
 			SinceMs:                  *params.SinceMs,
 			ToMs:                     *params.ToMs,
-			MaxLength:                *params.MaxLength,
 			ApplicationConfiguration: params.ApplicationConfiguration,
 			NodeConfiguration:        params.NodeConfiguration,
 		})
@@ -291,19 +283,12 @@ func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if params.MaxLength == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		routing.WriteHttpError(w, "Missing maxLength parameter")
-		return
-	}
-
 	resp, err := h.reportsService.ScheduleReport(ctx,
 		services.ReportGenerationFilters{
 			ClusterId:                *params.ClusterId,
 			CorrelationId:            *params.CorrelationId,
 			SinceMs:                  *params.SinceMs,
 			ToMs:                     *params.ToMs,
-			MaxLength:                *params.MaxLength,
 			ApplicationConfiguration: params.ApplicationConfiguration,
 			NodeConfiguration:        params.NodeConfiguration,
 		},
@@ -390,7 +375,6 @@ func (h *ReportsHandler) ScheduleReport(ctx context.Context, correlationId strin
 			CorrelationId:            correlationId,
 			SinceMs:                  *reportRequest.SinceMs,
 			ToMs:                     *reportRequest.ToMs,
-			MaxLength:                *reportRequest.MaxLength,
 			ApplicationConfiguration: reportRequest.ApplicationConfiguration,
 			NodeConfiguration:        reportRequest.NodeConfiguration,
 		},
