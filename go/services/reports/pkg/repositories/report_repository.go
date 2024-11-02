@@ -3,7 +3,6 @@ package repositories
 import (
 	"context"
 	"fmt"
-
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"go.mongodb.org/mongo-driver/bson"
@@ -18,15 +17,15 @@ func NewReportCollection(log *zap.Logger, client *mongo.Client) *repositories.Mo
 }
 
 type NodeReport struct {
-	Node         string          `bson:"node" json:"node"`
-	Precision    string          `bson:"precision" json:"precision"`
-	CustomPrompt string          `bson:"customPrompt" json:"customPrompt"`
-	Incidents    []*NodeIncident `bson:"incidents" json:"incidents"`
+	Node         string            `bson:"node" json:"node"`
+	Accuracy     insights.Accuracy `bson:"accuracy" json:"accuracy"`
+	CustomPrompt string            `bson:"customPrompt" json:"customPrompt"`
+	Incidents    []*NodeIncident   `bson:"incidents" json:"incidents"`
 }
 
 type ApplicationReport struct {
 	ApplicationName string                 `bson:"name" json:"applicationName"`
-	Precision       string                 `bson:"precision" json:"precision"`
+	Accuracy        insights.Accuracy      `bson:"accuracy" json:"accuracy"`
 	CustomPrompt    string                 `bson:"customPrompt" json:"customPrompt"`
 	Incidents       []*ApplicationIncident `bson:"incidents" json:"incidents"`
 }
