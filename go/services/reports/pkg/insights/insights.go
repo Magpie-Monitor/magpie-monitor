@@ -54,5 +54,3 @@ const (
 	Accuracy__Medium Accuracy = "MEDIUM"
 	Accuracy__Low    Accuracy = "LOW"
 )
-
-// func  /

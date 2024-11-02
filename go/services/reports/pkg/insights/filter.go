@@ -30,7 +30,7 @@ var AccuracyKeywords = map[Accuracy][]string{
 
 var LowAccuracyKeywords = []string{
 	"Error", "Exception", "Critical",
-	"Warning",
+	"Warning", "Failed",
 	"Authentication", "Authorization",
 	"Timeout", "Performance",
 	"Security Breach", "Alert", "Audit", "Null",

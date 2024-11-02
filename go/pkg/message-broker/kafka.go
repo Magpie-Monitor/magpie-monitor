@@ -99,8 +99,6 @@ func (b *KafkaMessageBroker) Subscribe(ctx context.Context, messages chan<- []by
 			continue
 		}
 
-		// b.reader./* Co */mmitMessages(ctx, msg)
-
 		messages <- msg.Value
 	}
 }
