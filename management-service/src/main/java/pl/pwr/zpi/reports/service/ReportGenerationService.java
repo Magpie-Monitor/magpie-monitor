@@ -31,10 +31,16 @@ public class ReportGenerationService {
 
     private final ReportGenerationRequestMetadataRepository reportGenerationRequestMetadataRepository;
 
+    public void retryFailedReportGenerationRequest(String correlationId) {
+        reportGenerationRequestMetadataRepository.findByCorrelationId(correlationId).ifPresent(metadata -> {
+            createReport(metadata.getCreateReportRequest());
+        });
+    }
+    
     public void createReport(CreateReportRequest reportRequest) {
         ReportRequested reportRequested = ReportRequested.of(reportRequest);
-        reportPublisher.publishReportRequestedEvent(reportRequested);
         persistReportGenerationRequestMetadata(reportRequested.correlationId(), reportRequest);
+        reportPublisher.publishReportRequestedEvent(reportRequested, this::handleReportGenerationError);
     }
 
     public void persistReportGenerationRequestMetadata(String correlationId, CreateReportRequest reportRequest) {
@@ -44,6 +50,7 @@ public class ReportGenerationService {
     }
 
     public void handleReportGenerationError(ReportRequestFailed requestFailed) {
+        log.error("Report generation request failed: {}", requestFailed);
         reportGenerationRequestMetadataRepository.findByCorrelationId(requestFailed.correlationId())
                 .ifPresent(this::failReportGenerationRequest);
     }
@@ -63,8 +70,8 @@ public class ReportGenerationService {
     }
 
     private void saveGeneratedReport(ReportGenerationRequestMetadata requestMetadata, ReportGenerated reportGenerated) {
-        updateReportGenerationRequestMetadataStatus(requestMetadata, ReportGenerationStatus.GENERATED);
         persistReport(reportGenerated.report());
+        updateReportGenerationRequestMetadataStatus(requestMetadata, ReportGenerationStatus.GENERATED);
         notifyReportGenerated(requestMetadata);
     }
 

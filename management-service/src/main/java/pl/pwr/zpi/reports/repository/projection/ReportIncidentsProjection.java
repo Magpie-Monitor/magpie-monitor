@@ -18,18 +18,4 @@ public interface ReportIncidentsProjection {
     List<ApplicationReportProjection> getApplicationReports();
 
     List<NodeReportProjection> getNodeReports();
-
-    default List<ApplicationIncident> getApplicationIncidents() {
-        return getApplicationReports().stream()
-                .map(ApplicationReportProjection::getIncidents)
-                .flatMap(List::stream)
-                .toList();
-    }
-
-    default List<NodeIncident> getNodeIncidents() {
-        return getNodeReports().stream()
-                .map(NodeReportProjection::getIncidents)
-                .flatMap(List::stream)
-                .toList();
-    }
 }
