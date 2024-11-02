@@ -38,11 +38,6 @@ const Navbar = () => {
             destination={'/clusters'}
             iconName={'clusters-icon--white'}
           />
-          <NavbarTab
-            label={'Incidents'}
-            destination={'/incidents/123'}
-            iconName={'clusters-icon--white'}
-          />
         </div>
       </div>
       <div className="navbar__sign-out ">

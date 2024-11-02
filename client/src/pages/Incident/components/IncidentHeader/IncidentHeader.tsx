@@ -1,6 +1,7 @@
 import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/HeaderWithIcon';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import './IncidentHeader.scss';
+import { dateFromTimestampMs } from 'lib/date';
 
 interface IncidentHeaderProps {
   id: string;
@@ -13,7 +14,7 @@ const IncidentHeader = ({ name, timestamp }: IncidentHeaderProps) => {
     <div className="incident-header">
       <div className="incident-header__name">{name}</div>
       <div className="incident-header__timestamp">
-        {new Date(timestamp).toLocaleString()}
+        {dateFromTimestampMs(timestamp)}
       </div>
     </div>
   );

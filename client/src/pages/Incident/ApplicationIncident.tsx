@@ -15,8 +15,9 @@ import RecommendationSection from './components/RecommendationSection/Recommenda
 // eslint-disable-next-line
 import ApplicationSourceSection from './components/ApplicationSourceSection/ApplicationSourceSection';
 import IncidentHeader from './components/IncidentHeader/IncidentHeader';
+import { getFirstAndLastDateFromTimestamps } from 'lib/date';
 
-const Incident = () => {
+const ApplicationIncidentPage = () => {
   const [incident, setIncident] = useState<ApplicationIncident>();
 
   const { id } = useParams();
@@ -38,6 +39,10 @@ const Incident = () => {
     return <div></div>;
   }
 
+  const [startDate, endDate] = getFirstAndLastDateFromTimestamps(
+    incident.sources.map(({ timestamp }) => timestamp),
+  );
+
   return (
     <PageTemplate
       header={
@@ -53,8 +58,8 @@ const Incident = () => {
           <ApplicationMetadataSection
             clusterId={incident.clusterId}
             applicationName={incident.applicationName}
-            startDateMs={1000000}
-            endDateMs={1000000}
+            startDateMs={startDate}
+            endDateMs={endDate}
           />
 
           <SummarySection summary={incident.summary} />
@@ -64,8 +69,8 @@ const Incident = () => {
         </div>
         {incident.sources.map((source, index) => (
           <ApplicationSourceSection
-            key={index}
             content={source.content}
+            key={index}
             container={source.container}
             pod={source.pod}
             image={source.image}
@@ -77,4 +82,4 @@ const Incident = () => {
   );
 };
 
-export default Incident;
+export default ApplicationIncidentPage;

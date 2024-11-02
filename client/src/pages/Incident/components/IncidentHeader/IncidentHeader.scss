@@ -3,7 +3,6 @@
 .incident-header {
   display: flex;
   flex-direction: row;
-  height: 100%;
   align-items: center;
   column-gap: 1rem;
   margin-left: 0.5rem;
@@ -12,6 +11,10 @@
     color: $green;
     text-decoration: underline;
     font-size: 2rem;
+
+    @media (max-width: $sm) {
+      font-size: 18px;
+    }
   }
 
   &__timestamp {

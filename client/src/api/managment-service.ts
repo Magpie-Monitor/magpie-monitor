@@ -94,6 +94,20 @@ export interface ApplicationIncidentSource {
   timestamp: number;
 }
 
+export interface NodeIncident {
+  clusterId: string;
+  nodeName: string;
+  summary: string;
+  recommendation: string;
+  sources: NodeIncidentSource[];
+}
+
+export interface NodeIncidentSource {
+  nodeName: string;
+  content: string;
+  timestamp: number;
+}
+
 class ManagmentServiceApi {
   private axiosInstance: AxiosInstance;
 
@@ -252,6 +266,22 @@ class ManagmentServiceApi {
           LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
             LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
              LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS',
+        },
+      ],
+    };
+  }
+
+  public async getNodeIncident(_id: string): Promise<NodeIncident> {
+    return {
+      clusterId: 'cluster-1',
+      nodeName: 'lke-123213213',
+      summary: 'Node incident summary',
+      recommendation: 'Node incident recommendation',
+      sources: [
+        {
+          timestamp: 123123123,
+          nodeName: 'lke-1231231',
+          content: 'LOGSGLOGSLGOS',
         },
       ],
     };
