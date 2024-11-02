@@ -30,10 +30,10 @@ var AccuracyKeywords = map[Accuracy][]string{
 
 var LowAccuracyKeywords = []string{
 	"Error", "Exception", "Critical",
-	"Warning", "Failed",
+	"Warning",
 	"Authentication", "Authorization",
 	"Timeout", "Performance",
-	"Security Breach", "Alert", "Audit",
+	"Security Breach", "Alert", "Audit", "Null",
 }
 
 var MediumAccuracyKeywords = append(LowAccuracyKeywords, []string{
@@ -74,7 +74,8 @@ var HighAccuracyKeywords = append(MediumAccuracyKeywords, []string{
 func (f *AccuracyFilter[A]) containsKeyword(log *string) bool {
 
 	for _, keyword := range f.accuracyKeywords {
-		contains := strings.Contains(*log, keyword)
+		contains := strings.
+			Contains(strings.ToLower(*log), strings.ToLower(keyword))
 		if contains == true {
 			return true
 		}
