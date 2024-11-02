@@ -2,108 +2,128 @@ package pl.pwr.zpi.reports.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.pwr.zpi.notifications.NotificationService;
 import pl.pwr.zpi.reports.broker.ReportPublisher;
 import pl.pwr.zpi.reports.dto.event.ReportGenerated;
 import pl.pwr.zpi.reports.dto.event.ReportRequestFailed;
 import pl.pwr.zpi.reports.dto.event.ReportRequested;
+import pl.pwr.zpi.reports.dto.report.ReportDetailedSummaryDTO;
+import pl.pwr.zpi.reports.dto.report.ReportIncidentsDTO;
+import pl.pwr.zpi.reports.dto.report.ReportSummaryDTO;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
 import pl.pwr.zpi.reports.entity.report.Report;
+import pl.pwr.zpi.reports.entity.report.application.ApplicationIncident;
+import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
+import pl.pwr.zpi.reports.entity.report.request.ReportGenerationRequestMetadata;
+import pl.pwr.zpi.reports.repository.ApplicationIncidentRepository;
+import pl.pwr.zpi.reports.repository.NodeIncidentRepository;
+import pl.pwr.zpi.reports.repository.ReportGenerationRequestMetadataRepository;
 import pl.pwr.zpi.reports.repository.ReportRepository;
+import pl.pwr.zpi.reports.repository.projection.ReportIncidentsProjection;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ReportsService {
 
-    private final ReportRepository reportRepository;
     private final ReportPublisher reportPublisher;
+    private final NotificationService notificationService;
+
+    private final ReportRepository reportRepository;
+    private final ReportGenerationRequestMetadataRepository reportGenerationRequestMetadataRepository;
+    private final NodeIncidentRepository nodeIncidentRepository;
+    private final ApplicationIncidentRepository applicationIncidentRepository;
 
     public void createReport(CreateReportRequest reportRequest) {
         ReportRequested reportRequested = ReportRequested.of(reportRequest);
         reportPublisher.publishReportRequestedEvent(reportRequested);
-
-        Report report = Report.generatingReport(reportRequested.correlationId());
-        persistReport(report);
+        persistReportGenerationRequestMetadata(reportRequested.correlationId(), reportRequest);
     }
 
-    public void handleGenerationError(ReportRequestFailed requestFailed) {
-        Optional<Report> report = reportRepository.findByCorrelationId(requestFailed.correlationId());
-        report.ifPresent(r -> {
-            r.markAsGenerated();
-            persistReport(r);
-        });
+    public void persistReportGenerationRequestMetadata(String correlationId, CreateReportRequest reportRequest) {
+        reportGenerationRequestMetadataRepository.save(
+                ReportGenerationRequestMetadata.fromCreateReportRequest(correlationId, reportRequest)
+        );
+    }
+
+    public void handleReportGenerationError(ReportRequestFailed requestFailed) {
+        reportGenerationRequestMetadataRepository.findByCorrelationId(requestFailed.correlationId())
+                .ifPresent(requestMetadata -> {
+                    requestMetadata.markAsFailed();
+                    reportGenerationRequestMetadataRepository.save(requestMetadata);
+                    notifyReportGenerationFailed(requestMetadata);
+                });
     }
 
     public void handleReportGenerated(ReportGenerated reportGenerated) {
-        Report report = Report.generatedReport(reportGenerated.correlationId(), reportGenerated.report());
-        persistReport(report);
+        reportGenerationRequestMetadataRepository.findByCorrelationId(reportGenerated.correlationId())
+                .ifPresent(requestMetadata -> {
+                    requestMetadata.markAsGenerated();
+                    Report report = reportGenerated.report();
+                    persistReport(report);
+                    persistReportIncidents(report);
+                    notifyReportGenerated(requestMetadata);
+                });
+    }
+
+    private void persistReport(Report report) {
+        reportRepository.save(report);
+    }
+
+    private void persistReportIncidents(Report report) {
+        nodeIncidentRepository.saveAll(report.getNodeIncidents());
+        applicationIncidentRepository.saveAll(report.getApplicationIncidents());
+    }
+
+    // TODO - stub implementation
+    public void notifyReportGenerated(ReportGenerationRequestMetadata requestMetadata) {
+        notificationService.notifySlack(requestMetadata.getSlackReceiverIds());
+        notificationService.notifyDiscord(requestMetadata.getDiscordReceiverIds());
+        notificationService.notifyEmail(requestMetadata.getMailReceiverIds());
+    }
+
+    // TODO - stub implementation
+    public void notifyReportGenerationFailed(ReportGenerationRequestMetadata requestMetadata) {
+        notificationService.notifySlack(requestMetadata.getSlackReceiverIds());
+        notificationService.notifyDiscord(requestMetadata.getDiscordReceiverIds());
+        notificationService.notifyEmail(requestMetadata.getMailReceiverIds());
+    }
+
+    public List<ReportSummaryDTO> getReportSummaries() {
+        return reportRepository.findAllProjectedBy().stream()
+                .map(ReportSummaryDTO::ofReportSummaryProjection)
+                .toList();
+    }
+
+    public Optional<ReportDetailedSummaryDTO> getReportDetailedSummaryById(String reportId) {
+        return reportRepository.findProjectedBy(reportId)
+                .map(ReportDetailedSummaryDTO::fromReportDetailedSummaryProjection);
+    }
+
+    public Optional<ReportIncidentsDTO> getReportIncidents(String reportId) {
+        return reportRepository.findProjectedById(reportId).map(incidents -> {
+            List<ApplicationIncident> applicationIncidents = incidents.getApplicationReports().stream()
+                    .map(ReportIncidentsProjection.ApplicationReportProjection::getIncidents)
+                    .flatMap(List::stream)
+                    .toList();
+
+            List<NodeIncident> nodeIncidents = incidents.getNodeReports().stream()
+                    .map(ReportIncidentsProjection.NodeReportProjection::getIncidents)
+                    .flatMap(List::stream)
+                    .toList();
+
+            return new ReportIncidentsDTO(applicationIncidents, nodeIncidents);
+        });
+    }
+
+    public Optional<NodeIncident> getNodeIncidentById(String incidentId) {
+        return nodeIncidentRepository.findById(incidentId);
     }
 
 
-    private Report persistReport(Report report) {
-        return reportRepository.save(report);
+    public Optional<ApplicationIncident> getApplicationIncidentById(String incidentId) {
+        return applicationIncidentRepository.findById(incidentId);
     }
-
-//    private final HttpClient httpClient;
-
-//    public <T> T getReportRepresentationById(String reportId, Class<T> clazz) {
-//        String url = String.format("%s/v1/reports/%s", REPORT_SERVICE_BASE_URL, reportId);
-//        return httpClient.get(
-//                url,
-//                Collections.emptyMap(),
-//                clazz
-//        );
-//    }
-//
-//    public <T> List<T> getReportListRepresentation(TypeReference<List<T>> typeReference) {
-//        String url = String.format("%s/v1/reports", REPORT_SERVICE_BASE_URL);
-//        return httpClient.getList(
-//                url,
-//                Collections.emptyMap(),
-//                typeReference
-//        );
-//    }
-//
-//    public List<ReportSummary> getReportSummaries() {
-//        return getReportListRepresentation(new TypeReference<>() {
-//        });
-//    }
-//
-//    public ReportDetailedSummary getReportDetailedSummaryById(String reportId) {
-//        return getReportRepresentationById(reportId, ReportDetailedSummary.class);
-//    }
-//
-//    public List<ApplicationIncident> getApplicationIncidentById(String incidentId) {
-//        String url = String.format("%s/v1/application-incidents/%s", REPORT_SERVICE_BASE_URL, incidentId);
-//        return httpClient.getList(
-//                url,
-//                Collections.emptyMap(),
-//                new TypeReference<>() {
-//                }
-//        );
-//    }
-//
-//    public List<NodeIncident> getNodeIncidentById(String incidentId) {
-//        String url = String.format("%s/v1/node-incidents/%s", REPORT_SERVICE_BASE_URL, incidentId);
-//        return httpClient.getList(
-//                url,
-//                Collections.emptyMap(),
-//                new TypeReference<>() {
-//                }
-//        );
-//    }
-//
-//    public ReportIncidents getReportIncidents(String id) {
-//        Report report = getReportRepresentationById(id, Report.class);
-//        return new ReportIncidents(
-//                report.applicationReports().stream().
-//                        flatMap(applicationReport -> applicationReport.incidents().stream())
-//                        .toList(),
-//                report.nodeReports().stream()
-//                        .flatMap(nodeReport -> nodeReport.nodeIncidents().stream())
-//                        .toList()
-//        );
-//    }
-
 }

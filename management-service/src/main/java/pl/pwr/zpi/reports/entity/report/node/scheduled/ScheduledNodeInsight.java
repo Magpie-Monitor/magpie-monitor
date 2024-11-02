@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ScheduledNodeInsights {
+public class ScheduledNodeInsight {
     private List<String> scheduledJobIds;
     private Long sinceMs;
     private Long toMs;

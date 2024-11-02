@@ -1,10 +1,10 @@
 package pl.pwr.zpi.reports.dto.event;
 
-import pl.pwr.zpi.reports.dto.report.ReportDTO;
+import pl.pwr.zpi.reports.entity.report.Report;
 
 public record ReportGenerated(
         String correlationId,
-        ReportDTO report,
+        Report report,
         Long timestampMs
 ) {
 }

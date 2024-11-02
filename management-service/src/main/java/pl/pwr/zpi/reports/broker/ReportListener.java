@@ -28,6 +28,6 @@ public class ReportListener {
     public void listenForReportRequestFailedEvent(String message) {
         ReportRequestFailed request = mapper.fromJson(message, ReportRequestFailed.class);
         log.info("Received report request failed: {}", request);
-        reportsService.handleGenerationError(request);
+        reportsService.handleReportGenerationError(request);
     }
 }
