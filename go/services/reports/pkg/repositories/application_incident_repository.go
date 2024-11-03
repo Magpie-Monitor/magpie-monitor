@@ -18,6 +18,7 @@ type ApplicationIncidentSource struct {
 
 type ApplicationIncident struct {
 	Id              string                      `bson:"_id,omitempty" json:"id"`
+	Title           string                      `bson:"title" json:"title"`
 	ApplicationName string                      `bson:"applicationName" json:"applicationName"`
 	ClusterId       string                      `bson:"clusterId" json:"clusterId"`
 	Category        string                      `bson:"category" json:"category"`

@@ -16,6 +16,7 @@ type NodeIncidentSource struct {
 
 type NodeIncident struct {
 	Id             string               `bson:"_id,omitempty" json:"id"`
+	Title          string               `bson:"title" json:"title"`
 	ClusterId      string               `bson:"clusterId" json:"clusterId"`
 	NodeName       string               `bson:"nodeName" json:"nodeName"`
 	Category       string               `bson:"category" json:"category"`
