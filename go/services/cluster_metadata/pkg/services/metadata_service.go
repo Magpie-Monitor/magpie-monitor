@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
@@ -100,37 +101,58 @@ func (m *MetadataService) InsertApplicationMetadata(metadata repositories.Applic
 
 func (m *MetadataService) pollForNodeStateChange() {
 	for {
+		time.Sleep(time.Duration(m.nodeAggregatedStateChangePollIntervalSeconds) * time.Second)
+
+		var wg sync.WaitGroup
+
 		clusterIds, _ := m.nodeRepo.GetDistinctDocumentFieldValues("clusterId", bson.D{})
 		for _, id := range clusterIds {
-			m.log.Info("Updating node metadata", zap.Any("clusterId", id))
-			m.updateNodeMetadataStateForCluster(id.(string))
+			wg.Add(1)
+
+			go func(clusterId string) {
+				defer wg.Done()
+
+				m.log.Info("Updating node metadata", zap.Any("clusterId", clusterId))
+				m.updateNodeMetadataStateForCluster(clusterId)
+			}(id.(string))
 		}
-		time.Sleep(time.Duration(m.nodeAggregatedStateChangePollIntervalSeconds) * time.Second)
+
+		wg.Wait()
 	}
 }
 
 func (m *MetadataService) pollForApplicationStateChange() {
-
 	for {
+		time.Sleep(time.Duration(m.applicationnodetedStateChangePollIntervalSeconds) * time.Second)
+
+		var wg sync.WaitGroup
+
 		clusterIds, _ := m.clusterRepo.GetDistinctDocumentFieldValues("clusterId", bson.D{})
 		for _, id := range clusterIds {
-			m.log.Info("Updating application metadata", zap.Any("clusterId", id))
-			m.updateApplicationMetadataStateForCluster(id.(string))
+			wg.Add(1)
+
+			go func(clusterId string) {
+				defer wg.Done()
+
+				m.log.Info("Updating application metadata", zap.Any("clusterId", clusterId))
+				m.updateApplicationMetadataStateForCluster(clusterId)
+			}(id.(string))
 		}
-		time.Sleep(time.Duration(m.applicationnodetedStateChangePollIntervalSeconds) * time.Second)
+
+		wg.Wait()
 	}
 }
 
 func (m *MetadataService) pollForClusterStateChange() {
 	for {
+		time.Sleep(time.Duration(m.clusterAggregatedStateChangePollIntervalSeconds) * time.Second)
+
 		m.log.Info("Updating cluster aggregated state")
 
 		err := m.updateClusterAggregatedState()
 		if err != nil {
 			m.log.Error("Error updating cluster aggregated state", zap.Error(err))
 		}
-
-		time.Sleep(time.Duration(m.clusterAggregatedStateChangePollIntervalSeconds) * time.Second)
 	}
 }
 
