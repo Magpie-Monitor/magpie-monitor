@@ -165,8 +165,8 @@ components:
       properties:
         node:
           type: string
-        precision:
-          type: string
+        accuracy:
+          $ref: "#/components/schemas/Accuracy"
         customPrompt:
           type: string
         incidents:
@@ -179,8 +179,8 @@ components:
       properties:
         applicationName:
           type: string
-        precision:
-          type: string
+        accuracy:
+          $ref: "#/components/schemas/Accuracy"
         customPrompt:
           type: string
         incidents:
@@ -192,6 +192,8 @@ components:
       type: object
       properties:
         id:
+          type: string
+        title:
           type: string
         category:
           type: string
@@ -214,6 +216,8 @@ components:
       type: object
       properties:
         id:
+          type: string
+        title:
           type: string
         clusterId:
           type: string
@@ -303,7 +307,8 @@ components:
       properties:
         applicationName:
           type: string
-        precision:
+        accuracy:
+          $ref: "#/components/schemas/Accuracy"
           type: string
         customPrompt:
           type: string
@@ -313,8 +318,8 @@ components:
       properties:
         nodeName:
           type: string
-        precision:
-          type: string
+        accuracy:
+          $ref: "#/components/schemas/Accuracy"
         customPrompt:
           type: string
     reportsPostParams:
@@ -345,6 +350,10 @@ components:
       type: integer
       enum: [1, 2, 3]
       description: 1 = Low, 2 = Medium, 3 = High
+
+    Accuracy:
+      type: string
+      enum: [HIGH, MEDIUM, LOW]
 
     ReportState:
       type: string

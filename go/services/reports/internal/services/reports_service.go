@@ -448,6 +448,7 @@ func (s *ReportsService) getApplicationIncidentFromInsight(insight insights.Appl
 
 		ApplicationName: insight.Metadata[0].ApplicationName,
 		ClusterId:       insight.Metadata[0].ClusterId,
+		Title:           insight.Insight.Title,
 		Category:        insight.Insight.Category,
 		Summary:         insight.Insight.Summary,
 		Recommendation:  insight.Insight.Recommendation,
@@ -499,6 +500,7 @@ func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsight
 	return &repositories.NodeIncident{
 		ClusterId:      insight.Metadata[0].ClusterId,
 		NodeName:       insight.Metadata[0].NodeName,
+		Title:          insight.Insight.Title,
 		Category:       insight.Insight.Category,
 		Summary:        insight.Insight.Summary,
 		Recommendation: insight.Insight.Recommendation,

@@ -30,7 +30,7 @@ type ScheduledApplicationInsights struct {
 
 type ApplicationLogsInsight struct {
 	ApplicationName string   `json:"applicationName"`
-	IncidentName    string   `json:"name"`
+	Title           string   `json:"title"`
 	Category        string   `json:"category"`
 	Summary         string   `json:"summary"`
 	Recommendation  string   `json:"recommendation"`
@@ -420,7 +420,8 @@ func (g *OpenAiInsightsGenerator) createMessagesFromApplicationLogs(
 			find logs which might suggest any kind of errors or issues. Try to give a possible reason, 
 			category of an issue, urgency and possible resolution.   
 			Source is an fragment of a the provided log that you are referencing in summary and recommendation. 
-			Always declare a unmodified sources with every insight you give.  
+			Always declare a unmodified sources with every insight you give. Title is a max few word summary of the insight.
+			Summary itself might be longer (max 50 words).
 			Always give a recommendation on how to resolve the issue. Always give a source. Never repeat insights, ie. 
 			if you once use the source do not create an insight for it again. One insight per source. If you recognize the 
 			same events on different containers/pods. For each incident assign urgency as an integer number between 0 and 2.

@@ -15,7 +15,8 @@ import (
 )
 
 type NodeLogsInsight struct {
-	Name           string   `json:"name"`
+	NodeName       string   `json:"nodeName"`
+	Title          string   `json:"title"`
 	Category       string   `json:"category"`
 	Summary        string   `json:"summary"`
 	Recommendation string   `json:"recommendation"`
@@ -87,19 +88,17 @@ func MapNodeNameToConfiguration(configurations []*NodeInsightConfiguration) map[
 }
 
 func FilterByNodesAccuracy(logsByNode map[string][]*repositories.NodeLogsDocument, configurationByNode map[string]*NodeInsightConfiguration) {
-	for application, logs := range logsByNode {
-		// Check if application configuration is in params
-		config, ok := configurationByNode[application]
+	for node, logs := range logsByNode {
+		config, ok := configurationByNode[node]
 		var accuracy Accuracy
 		if !ok {
-			// By default the app has low accuracy
-			accuracy = Accuracy__Low
+			// By default the node is not included
+			delete(logsByNode, node)
 		} else {
 			accuracy = config.Accuracy
+			filter := NewAccuracyFilter[*repositories.NodeLogsDocument](accuracy)
+			logsByNode[node] = filter.Filter(logs)
 		}
-
-		filter := NewAccuracyFilter[*repositories.NodeLogsDocument](accuracy)
-		logsByNode[application] = filter.Filter(logs)
 	}
 }
 
@@ -284,7 +283,8 @@ func (g *OpenAiInsightsGenerator) createMessagesFromNodeLogs(
 			find logs which might suggest any kind of errors or issues. Try to give a possible reason, 
 			category of an issue, urgency and possible resolution.   
 			Source is an fragment of a the provided log that you are referencing in summary and recommendation. 
-			Always declare a unmodified source log with every insight you give.  
+			Always declare a unmodified source log with every insight you give.  Title is a few word summary of the insight.
+			Summary itself might be longer (max 50 words).
 			Always give a recommendation on how to resolve the issue. Always give a source. Never repeat insights, ie. 
 			if you once use the source do not create an insight for it again. One insight per source. Do not duplicate insights, 
 			only mention the same issue once. For each incident assign urgency as an integer number between 0 and 2. 
