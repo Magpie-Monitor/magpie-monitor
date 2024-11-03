@@ -10,7 +10,7 @@ import pl.pwr.zpi.reports.entity.report.application.ApplicationIncident;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationReport;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
 import pl.pwr.zpi.reports.entity.report.node.NodeReport;
-import pl.pwr.zpi.reports.enums.Precision;
+import pl.pwr.zpi.reports.enums.Accuracy;
 import pl.pwr.zpi.reports.enums.Urgency;
 import pl.pwr.zpi.reports.repository.ReportRepository;
 
@@ -28,7 +28,7 @@ public class MagpieMonitorApplication {
         List<ApplicationReport> appReports = List.of(
                 ApplicationReport.builder()
                         .applicationName("test")
-                        .precision(Precision.LOW)
+                        .accuracy(Accuracy.LOW)
                         .customPrompt("none")
                         .incidents(List.of(
                                 ApplicationIncident.builder()
@@ -46,7 +46,7 @@ public class MagpieMonitorApplication {
         List<NodeReport> nodeReports = List.of(
             NodeReport.builder()
                     .node("test")
-                    .precision(Precision.LOW)
+                    .accuracy(Accuracy.LOW)
                     .customPrompt("none")
                     .incidents(List.of(
                             NodeIncident.builder()
@@ -72,8 +72,8 @@ public class MagpieMonitorApplication {
                 .totalApplicationEntries(100)
                 .totalNodeEntries(100)
                 .urgency(Urgency.MEDIUM)
-                .scheduledApplicationInsights(List.of())
-                .scheduledNodeInsights(List.of())
+                .scheduledApplicationInsights(null)
+                .scheduledNodeInsights(null)
                 .build();
 
         reportRepository.save(r);

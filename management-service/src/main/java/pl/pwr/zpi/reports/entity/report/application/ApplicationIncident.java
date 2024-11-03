@@ -2,6 +2,7 @@ package pl.pwr.zpi.reports.entity.report.application;
 
 import lombok.Builder;
 import lombok.Data;
+import pl.pwr.zpi.reports.enums.Accuracy;
 import pl.pwr.zpi.reports.enums.Urgency;
 
 import java.util.List;
@@ -10,6 +11,9 @@ import java.util.List;
 @Builder
 public class ApplicationIncident {
     private String id;
+    private String title;
+    private Accuracy accuracy;
+    private String customPrompt;
     private String clusterId;
     private String applicationName;
     private String category;

@@ -2,7 +2,7 @@ package pl.pwr.zpi.reports.dto.event;
 
 import lombok.Builder;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
-import pl.pwr.zpi.reports.enums.Precision;
+import pl.pwr.zpi.reports.enums.Accuracy;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,14 +26,14 @@ public record ReportRequested(
 
     record ApplicationConfiguration(
             String applicationName,
-            Precision precision,
+            Accuracy accuracy,
             String customPrompt
     ) {
     }
 
     record NodeConfiguration(
             String nodeName,
-            Precision precision,
+            Accuracy accuracy,
             String customPrompt
     ) {
     }
@@ -50,7 +50,7 @@ public record ReportRequested(
                                         reportRequest.applicationConfigurations().stream()
                                                 .map(configuration -> new ApplicationConfiguration(
                                                         configuration.applicationName(),
-                                                        configuration.precision(),
+                                                        configuration.accuracy(),
                                                         configuration.customPrompt()
                                                 ))
                                                 .toList()
@@ -59,7 +59,7 @@ public record ReportRequested(
                                         reportRequest.nodeConfigurations().stream()
                                                 .map(configuration -> new NodeConfiguration(
                                                         configuration.nodeName(),
-                                                        configuration.precision(),
+                                                        configuration.accuracy(),
                                                         configuration.customPrompt()
                                                 ))
                                                 .toList()

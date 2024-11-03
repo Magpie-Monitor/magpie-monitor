@@ -29,10 +29,12 @@ public class Report {
     private List<ApplicationReport> applicationReports;
     private Integer totalApplicationEntries;
     private Integer totalNodeEntries;
+    private Integer analyzedApplications;
+    private Integer analyzedNodes;
     private Urgency urgency;
 
-    private List<ScheduledApplicationInsight> scheduledApplicationInsights;
-    private List<ScheduledNodeInsight> scheduledNodeInsights;
+    private ScheduledApplicationInsight scheduledApplicationInsights;
+    private ScheduledNodeInsight scheduledNodeInsights;
 
     public List<NodeIncident> getNodeIncidents() {
         return nodeReports.stream()
