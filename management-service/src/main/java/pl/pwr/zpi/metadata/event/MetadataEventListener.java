@@ -20,7 +20,7 @@ public class MetadataEventListener {
     private final MetadataHistoryService metadataHistoryService;
     private final JsonMapper mapper;
 
-    @KafkaListener(topics = "ApplicationMetadataUpdated")
+    @KafkaListener(topics = "${kafka.cluster.metadata.application.topic}")
     public void listenForApplicationMetadataStateUpdate(String message) {
         ApplicationMetadataUpdated metadata = mapper.fromJson(message, ApplicationMetadataUpdated.class);
         log.info("Application metadata updated: {}", metadata);
@@ -28,7 +28,7 @@ public class MetadataEventListener {
         metadataHistoryService.updateApplicationHistory(metadata.clusterId(), metadata.applicationMetadata());
     }
 
-    @KafkaListener(topics = "NodeMetadataUpdated")
+    @KafkaListener(topics = "${kafka.cluster.metadata.node.topic}")
     public void listenForNodeMetadataStateUpdate(String message) {
         NodeMetadataUpdated metadata = mapper.fromJson(message, NodeMetadataUpdated.class);
         log.info("Node metadata updated {}", metadata);
@@ -36,7 +36,7 @@ public class MetadataEventListener {
         metadataHistoryService.updateNodeHistory(metadata.clusterId(), metadata.nodeMetadata());
     }
 
-    @KafkaListener(topics = "ClusterMetadataUpdated")
+    @KafkaListener(topics = "${kafka.cluster.metadata.cluster.topic}")
     public void listenForClusterMetadataStateUpdate(String message) {
         ClusterMetadataUpdated metadata = mapper.fromJson(message, ClusterMetadataUpdated.class);
         log.info("Cluster metadata updated: {}", metadata);
