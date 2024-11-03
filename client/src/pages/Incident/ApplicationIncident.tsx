@@ -15,6 +15,7 @@ import ApplicationSourceSection from './components/ApplicationSourceSection/Appl
 import IncidentHeader from './components/IncidentHeader/IncidentHeader';
 import { getFirstAndLastDateFromTimestamps } from 'lib/date';
 import Spinner from 'components/Spinner/Spinner';
+import ConfigurationSection from './components/ConfigurationSection/ConfigurationSection';
 
 const ApplicationIncidentPage = () => {
   const [incident, setIncident] = useState<ApplicationIncident>();
@@ -48,11 +49,7 @@ const ApplicationIncidentPage = () => {
   return (
     <PageTemplate
       header={
-        <IncidentHeader
-          id={id!}
-          name={incident.applicationName}
-          timestamp={startDate}
-        />
+        <IncidentHeader id={id!} name={incident.title} timestamp={startDate} />
       }
     >
       <div className="incident">
@@ -66,8 +63,12 @@ const ApplicationIncidentPage = () => {
 
           <SummarySection summary={incident.summary} />
         </div>
-        <div className="incident__row--single-column">
+        <div className="incident__row--two-columns">
           <RecommendationSection recommendation={incident.recommendation} />
+          <ConfigurationSection
+            accuracy={incident.accuracy}
+            customPrompt={incident.customPrompt}
+          />
         </div>
         {incident.sources.map((source, index) => (
           <ApplicationSourceSection

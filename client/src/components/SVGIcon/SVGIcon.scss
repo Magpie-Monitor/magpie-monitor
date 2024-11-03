@@ -77,6 +77,15 @@
   }
 }
 
+.incident-configuration-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/incident-configuration-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $green;
+  }
+}
+
 .incident-summary-icon {
   @extend .svg-icon;
   mask: url('/src/assets/incident-summary-icon.svg') no-repeat center;

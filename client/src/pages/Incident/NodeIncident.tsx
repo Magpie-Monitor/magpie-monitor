@@ -13,6 +13,7 @@ import NodeMetadataSection from './components/NodeMetadataSection/NodeMetadataSe
 import NodeSourceSection from './components/NodeSourceSection/NodeSourceSection';
 import { getFirstAndLastDateFromTimestamps } from 'lib/date';
 import Spinner from 'components/Spinner/Spinner';
+import ConfigurationSection from './components/ConfigurationSection/ConfigurationSection';
 
 const NodeIncidentPage = () => {
   const [incident, setIncident] = useState<NodeIncident>();
@@ -47,11 +48,7 @@ const NodeIncidentPage = () => {
   return (
     <PageTemplate
       header={
-        <IncidentHeader
-          id={id!}
-          name={incident.nodeName}
-          timestamp={startDate}
-        />
+        <IncidentHeader id={id!} name={incident.title} timestamp={startDate} />
       }
     >
       <div className="incident">
@@ -64,8 +61,12 @@ const NodeIncidentPage = () => {
 
           <SummarySection summary={incident.summary} />
         </div>
-        <div className="incident__row--single-column">
+        <div className="incident__row--two-columns">
           <RecommendationSection recommendation={incident.recommendation} />
+          <ConfigurationSection
+            accuracy={incident.accuracy}
+            customPrompt={incident.customPrompt}
+          />
         </div>
         {incident.sources.map((source, index) => (
           <NodeSourceSection
@@ -73,6 +74,7 @@ const NodeIncidentPage = () => {
             key={index}
             nodeName={source.nodeName}
             timestamp={source.timestamp}
+            filename={source.filename}
           />
         ))}
       </div>
