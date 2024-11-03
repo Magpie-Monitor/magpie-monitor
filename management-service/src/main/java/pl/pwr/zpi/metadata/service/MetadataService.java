@@ -1,4 +1,4 @@
-package pl.pwr.zpi.metadata;
+package pl.pwr.zpi.metadata.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,13 +6,12 @@ import org.springframework.stereotype.Service;
 import pl.pwr.zpi.metadata.dto.application.Application;
 import pl.pwr.zpi.metadata.dto.cluster.Cluster;
 import pl.pwr.zpi.metadata.dto.node.Node;
-import pl.pwr.zpi.metadata.event.dto.application.AggregatedApplicationMetadata;
-import pl.pwr.zpi.metadata.event.dto.cluster.AggregatedClusterMetadata;
-import pl.pwr.zpi.metadata.event.dto.node.AggregatedNodeMetadata;
+import pl.pwr.zpi.metadata.broker.dto.application.AggregatedApplicationMetadata;
+import pl.pwr.zpi.metadata.broker.dto.cluster.AggregatedClusterMetadata;
+import pl.pwr.zpi.metadata.broker.dto.node.AggregatedNodeMetadata;
 import pl.pwr.zpi.metadata.repository.AggregatedApplicationMetadataRepository;
 import pl.pwr.zpi.metadata.repository.AggregatedClusterMetadataRepository;
 import pl.pwr.zpi.metadata.repository.AggregatedNodeMetadataRepository;
-import pl.pwr.zpi.metadata.service.MetadataHistoryService;
 
 import java.util.ArrayList;
 import java.util.List;

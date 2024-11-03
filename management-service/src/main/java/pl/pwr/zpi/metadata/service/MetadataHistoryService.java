@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import pl.pwr.zpi.metadata.dto.application.Application;
 import pl.pwr.zpi.metadata.dto.node.Node;
 import pl.pwr.zpi.metadata.entity.ClusterHistory;
-import pl.pwr.zpi.metadata.event.dto.application.ApplicationMetadata;
-import pl.pwr.zpi.metadata.event.dto.cluster.ClusterMetadata;
-import pl.pwr.zpi.metadata.event.dto.node.NodeMetadata;
+import pl.pwr.zpi.metadata.broker.dto.application.ApplicationMetadata;
+import pl.pwr.zpi.metadata.broker.dto.cluster.ClusterMetadata;
+import pl.pwr.zpi.metadata.broker.dto.node.NodeMetadata;
 import pl.pwr.zpi.metadata.repository.ClusterHistoryRepository;
 
 import java.util.HashSet;

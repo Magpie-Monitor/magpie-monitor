@@ -2,7 +2,7 @@ package services
 
 import (
 	"context"
-	"slices"
+	"fmt"
 	"time"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
@@ -42,6 +42,8 @@ func NewMetadataService(params MetadataServiceParams) *MetadataService {
 	params.Lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			go metadataService.scheduleClusterStateUpdate()
+			go metadataService.scheduleApplicationMetadataStateUpdate()
+			go metadataService.scheduleNodeMetadataStateChange()
 			return nil
 		},
 	})
@@ -63,56 +65,141 @@ type MetadataService struct {
 	clusterActivityWindowMillis              int64 // cluster is considered as running if it has reported in this period
 }
 
+func (m *MetadataService) InsertNodeMetadata(metadata repositories.NodeState) error {
+	_, err := m.nodeRepo.InsertDocuments([]interface{}{metadata})
+	if err != nil {
+		m.log.Error("Failed to insert node metadata", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
 func (m *MetadataService) InsertApplicationMetadata(metadata repositories.ApplicationState) error {
 	_, err := m.clusterRepo.InsertDocuments([]interface{}{metadata})
 	if err != nil {
 		m.log.Error("Failed to insert cluster metadata", zap.Error(err))
 		return err
 	}
+	return nil
+}
 
-	applicationSet := make(map[string]repositories.Application, 0)
-	for _, app := range metadata.Applications {
-		applicationSet[app.Name] = app
+func (m *MetadataService) scheduleNodeMetadataStateChange() {
+	for {
+		clusterIds, _ := m.nodeRepo.GetDistinctDocumentFieldValues("clusterId", bson.D{})
+		for _, id := range clusterIds {
+			m.log.Info("Updating node metadata", zap.Any("clusterId", id))
+			m.updateNodeMetadataStateForCluster(id.(string))
+		}
+		time.Sleep(5 * time.Second)
+	}
+}
+
+func (m *MetadataService) scheduleApplicationMetadataStateUpdate() {
+
+	for {
+		clusterIds, _ := m.clusterRepo.GetDistinctDocumentFieldValues("clusterId", bson.D{})
+		for _, id := range clusterIds {
+			m.log.Info("Updating application metadata", zap.Any("clusterId", id))
+			m.updateApplicationMetadataStateForCluster(id.(string))
+		}
+		time.Sleep(5 * time.Second)
+	}
+}
+
+func (m *MetadataService) scheduleClusterStateUpdate() {
+	for {
+		m.log.Info("Updating cluster aggregated state")
+
+		err := m.updateClusterAggregatedState()
+		if err != nil {
+			m.log.Error("Error updating cluster aggregated state", zap.Error(err))
+		}
+
+		time.Sleep(time.Duration(m.clusterAggregatedStateUpdateSleepSeconds) * time.Second)
+	}
+}
+
+// 1. fetch application metadata for last period
+// 2. check if app names differ
+// 3. build new state
+func (m *MetadataService) updateApplicationMetadataStateForCluster(clusterId string) error {
+	m.log.Info("Updating application metadata state", zap.String("clusterId", clusterId))
+
+	filter := bson.D{
+		{Key: "$and", Value: bson.A{
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: time.Now().UnixMilli() - m.nodeActivityWindowMillis}}}},
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: time.Now().UnixMilli()}}}},
+			bson.D{{Key: "clusterId", Value: bson.D{{Key: "$eq", Value: clusterId}}}},
+		}},
 	}
 
-	count, err := m.applicationAggregatedRepo.Count(bson.D{{Key: "clusterId", Value: metadata.ClusterId}})
+	applicationMetadata, err := m.clusterRepo.GetDocuments(filter, bson.D{})
+	if err != nil {
+		return err
+	}
+	applicationSet := m.getMetadataApplicationSet(applicationMetadata)
+
+	count, err := m.applicationAggregatedRepo.Count(bson.D{{Key: "clusterId", Value: clusterId}})
 	if err != nil {
 		m.log.Error("Error fetching document count for application aggregated collection", zap.Error(err))
 		return err
 	}
 
 	if count == 0 {
-		return m.updateApplicationMetadataState(metadata.ClusterId, applicationSet)
+		return m.generateAggregatedApplicationStateForCluster(clusterId, applicationSet)
 	}
 
-	latestState, err := m.applicationAggregatedRepo.GetDocument(bson.D{{Key: "clusterId", Value: metadata.ClusterId}}, bson.D{{Key: "collectedAtMs", Value: -1}})
+	latestMetadata, err := m.applicationAggregatedRepo.GetDocument(bson.D{{Key: "clusterId", Value: clusterId}}, bson.D{{Key: "collectedAtMs", Value: -1}})
 	if err != nil {
-		m.log.Error("Error fetching aggregated application metadata", zap.Error(err))
 		return err
 	}
 
-	if len(applicationSet) != len(latestState.Metadata) {
-		return m.updateApplicationMetadataState(metadata.ClusterId, applicationSet)
-	}
+	aggregatedApplicationSet := m.getAggregatedMetadataApplicationSet(latestMetadata.Metadata)
 
-	for _, app := range latestState.Metadata {
-		_, ok := applicationSet[app.Name]
-		if !ok {
-			return m.updateApplicationMetadataState(metadata.ClusterId, applicationSet)
-		}
-	}
-
-	for _, app := range applicationSet {
-		ok := slices.Contains(latestState.Metadata, repositories.ApplicationMetadata{Name: app.Name, Kind: app.Kind})
-		if !ok {
-			return m.updateApplicationMetadataState(metadata.ClusterId, applicationSet)
-		}
+	if m.applicationStateHasChanged(applicationSet, aggregatedApplicationSet) {
+		return m.generateAggregatedApplicationStateForCluster(clusterId, applicationSet)
 	}
 
 	return nil
 }
 
-func (m *MetadataService) updateApplicationMetadataState(clusterId string, applicationSet map[string]repositories.Application) error {
+func (m *MetadataService) getMetadataApplicationSet(appMetadata []repositories.ApplicationState) map[string]repositories.ApplicationMetadata {
+	applicationSet := make(map[string]repositories.ApplicationMetadata, 0)
+	for _, metadata := range appMetadata {
+		for _, app := range metadata.Applications {
+			key := fmt.Sprintf("%s-%s", app.Name, app.Kind)
+			applicationSet[key] = repositories.ApplicationMetadata{Name: app.Name, Kind: app.Kind}
+		}
+	}
+
+	return applicationSet
+}
+
+func (m *MetadataService) getAggregatedMetadataApplicationSet(appMetadata []repositories.ApplicationMetadata) map[string]repositories.ApplicationMetadata {
+	aggregatedApplicationSet := make(map[string]repositories.ApplicationMetadata, 0)
+	for _, app := range appMetadata {
+		key := fmt.Sprintf("%s-%s", app.Name, app.Kind)
+		aggregatedApplicationSet[key] = repositories.ApplicationMetadata{Name: app.Name, Kind: app.Kind}
+	}
+	return aggregatedApplicationSet
+}
+
+func (m *MetadataService) applicationStateHasChanged(applicationSet map[string]repositories.ApplicationMetadata, aggregatedApplicationSet map[string]repositories.ApplicationMetadata) bool {
+	if len(applicationSet) != len(aggregatedApplicationSet) {
+		return true
+	}
+
+	for app, _ := range applicationSet {
+		_, exists := aggregatedApplicationSet[app]
+		if !exists {
+			return false
+		}
+	}
+
+	return false
+}
+
+func (m *MetadataService) generateAggregatedApplicationStateForCluster(clusterId string, applicationSet map[string]repositories.ApplicationMetadata) error {
 	m.log.Info("Application metadata aggregated state has changed, performing an update")
 
 	newState := repositories.AggregatedApplicationMetadata{ClusterId: clusterId}
@@ -139,51 +226,9 @@ func (m *MetadataService) updateApplicationMetadataState(clusterId string, appli
 	return nil
 }
 
-func (m *MetadataService) InsertNodeMetadata(metadata repositories.NodeState) error {
-	_, err := m.nodeRepo.InsertDocuments([]interface{}{metadata})
-	if err != nil {
-		m.log.Error("Failed to insert node metadata", zap.Error(err))
-		return err
-	}
+func (m *MetadataService) updateNodeMetadataStateForCluster(clusterId string) error {
+	m.log.Info("Updating metadata state", zap.String("clusterId", clusterId))
 
-	count, err := m.nodeAggregatedRepo.Count(bson.D{{Key: "clusterId", Value: metadata.ClusterId}})
-	m.log.Info("Aggregated application state count:", zap.Int64("count", count))
-	if err != nil {
-		m.log.Error("Error fetching document count for node aggregated collection", zap.Error(err))
-		return err
-	}
-
-	if count == 0 {
-		return m.updateNodeMetadataState(metadata.ClusterId, metadata.WatchedFiles)
-	}
-
-	latestState, err := m.nodeAggregatedRepo.GetDocument(bson.D{{Key: "clusterId", Value: metadata.ClusterId}}, bson.D{{Key: "collectedAtMs", Value: -1}})
-	if err != nil {
-		m.log.Error("Error fetching aggregated node metadata", zap.Error(err))
-		return err
-	}
-
-	nodeSet := make(map[string]repositories.NodeMetadata, 0)
-	for _, node := range latestState.Metadata {
-		nodeSet[node.Name] = node
-	}
-
-	node, exists := nodeSet[metadata.NodeName]
-	if !exists || len(node.Files) != len(metadata.WatchedFiles) {
-		return m.updateNodeMetadataState(metadata.ClusterId, metadata.WatchedFiles)
-	}
-
-	for _, file := range node.Files {
-		if !slices.Contains(metadata.WatchedFiles, file.(string)) {
-			return m.updateNodeMetadataState(metadata.ClusterId, metadata.WatchedFiles)
-		}
-	}
-
-	return nil
-}
-
-// Node is considered as running if it has reported state in the nodeActivityWindowMillis period
-func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles []string) error {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: time.Now().UnixMilli() - m.nodeActivityWindowMillis}}}},
@@ -192,23 +237,119 @@ func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles
 		}},
 	}
 
-	fileset := []interface{}{}
-	for _, file := range watchedFiles {
-		fileset = append(fileset, file)
-	}
-
-	nodeSet, err := m.nodeRepo.GetDistinctDocumentFieldValues("nodeName", filter)
+	nodes, err := m.nodeRepo.GetDocuments(filter, bson.D{})
 	if err != nil {
-		m.log.Error("Error fetching node metadata:", zap.Error(err))
+		m.log.Info("Error fetching nodes", zap.Error(err))
 		return err
 	}
 
-	nodes := make([]repositories.NodeMetadata, 0, len(nodeSet))
-	for _, n := range nodeSet {
-		nodes = append(nodes, repositories.NodeMetadata{Name: n.(string), Files: fileset})
+	aggregatedStateCount, err := m.nodeAggregatedRepo.Count(bson.D{{Key: "clusterId", Value: clusterId}})
+	if err != nil {
+		m.log.Info("Error fetching node aggregated state count", zap.Error(err))
+		return err
 	}
 
-	aggregate := repositories.AggregatedNodeMetadata{ClusterId: clusterId, CollectedAtMs: time.Now().UnixMilli(), Metadata: nodes}
+	if aggregatedStateCount == 0 {
+		m.log.Info("There's no aggregated node state saved, generating the first one")
+		return m.generateAggregatedNodeStateForCluster(clusterId)
+	}
+
+	latestAggregatedState, err := m.nodeAggregatedRepo.GetDocument(bson.D{{Key: "clusterId", Value: clusterId}}, bson.D{{Key: "collectedAtMs", Value: -1}})
+	if err != nil {
+		return err
+	}
+
+	if m.nodeNamesChanged(nodes, latestAggregatedState) {
+		return m.generateAggregatedNodeStateForCluster(clusterId)
+	}
+
+	if m.watchedFilesChanged(nodes, latestAggregatedState) {
+		return m.generateAggregatedNodeStateForCluster(clusterId)
+	}
+
+	return nil
+}
+
+func (m *MetadataService) nodeNamesChanged(nodes []repositories.NodeState, nodesAggregated repositories.AggregatedNodeMetadata) bool {
+	nodeNames := make(map[string]bool, 0)
+	for _, node := range nodes {
+		nodeNames[node.NodeName] = true
+	}
+
+	aggregatedNodeNames := make(map[string]bool, 0)
+	for _, metadata := range nodesAggregated.Metadata {
+		aggregatedNodeNames[metadata.Name] = true
+	}
+
+	if len(nodeNames) != len(aggregatedNodeNames) {
+		return true
+	}
+
+	for name, _ := range nodeNames {
+		exists := aggregatedNodeNames[name]
+		if !exists {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (m *MetadataService) watchedFilesChanged(nodes []repositories.NodeState, nodesAggregated repositories.AggregatedNodeMetadata) bool {
+	nodeFiles := make(map[string]bool, 0)
+	for _, node := range nodes {
+		nodeFiles[node.NodeName] = true
+	}
+
+	aggregatedFiles := make(map[string]bool, 0)
+	for _, node := range nodesAggregated.Metadata {
+		aggregatedFiles[node.Name] = true
+	}
+
+	if len(nodeFiles) != len(aggregatedFiles) {
+		return true
+	}
+
+	for file, _ := range nodeFiles {
+		exists := aggregatedFiles[file]
+		if !exists {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Node is considered as running if it has reported state in the nodeActivityWindowMillis period
+func (m *MetadataService) generateAggregatedNodeStateForCluster(clusterId string) error {
+	m.log.Info("Node metadata state change detected")
+
+	filter := bson.D{
+		{Key: "$and", Value: bson.A{
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: time.Now().UnixMilli() - m.nodeActivityWindowMillis}}}},
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: time.Now().UnixMilli()}}}},
+			bson.D{{Key: "clusterId", Value: bson.D{{Key: "$eq", Value: clusterId}}}},
+		}},
+	}
+
+	nodes, err := m.nodeRepo.GetDocuments(filter, bson.D{})
+	if err != nil {
+		return err
+	}
+
+	fileList := m.getDistinctWatchedFilesForNodes(nodes)
+
+	nodeNames, err := m.nodeRepo.GetDistinctDocumentFieldValues("nodeName", filter)
+	if err != nil {
+		m.log.Error("Error fetching distinct nodeNames", zap.Error(err))
+	}
+
+	nodesMetadata := make([]repositories.NodeMetadata, 0, len(nodes))
+	for _, name := range nodeNames {
+		nodesMetadata = append(nodesMetadata, repositories.NodeMetadata{Name: name.(string), Files: fileList})
+	}
+
+	aggregate := repositories.AggregatedNodeMetadata{ClusterId: clusterId, CollectedAtMs: time.Now().UnixMilli(), Metadata: nodesMetadata}
 	_, err = m.nodeAggregatedRepo.InsertDocument(aggregate)
 	if err != nil {
 		m.log.Error("Error inserting updated application metadata", zap.Error(err))
@@ -224,17 +365,20 @@ func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles
 	return nil
 }
 
-func (m *MetadataService) scheduleClusterStateUpdate() {
-	for {
-		m.log.Info("Updating cluster aggregated state")
-
-		err := m.updateClusterAggregatedState()
-		if err != nil {
-			m.log.Error("Error updating cluster aggregated state", zap.Error(err))
+func (m *MetadataService) getDistinctWatchedFilesForNodes(nodes []repositories.NodeState) []interface{} {
+	fileSet := make(map[string]struct{}, 0)
+	for _, node := range nodes {
+		for _, file := range node.WatchedFiles {
+			fileSet[file] = struct{}{}
 		}
-
-		time.Sleep(time.Duration(m.clusterAggregatedStateUpdateSleepSeconds) * time.Second)
 	}
+
+	fileList := make([]interface{}, 0, len(fileSet))
+	for file, _ := range fileSet {
+		fileList = append(fileList, file)
+	}
+
+	return fileList
 }
 
 // Fetches clusters that reported state in last clusterActivityWindowMillis
