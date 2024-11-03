@@ -1,0 +1,57 @@
+@import '@/variables';
+
+.incident-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1fr;
+  overflow-x: scroll;
+
+  &__headers {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: span 5;
+    border-radius: 8px;
+    color: $font-color;
+    font-weight: bold;
+    font-size: 15px;
+    padding-left: 15px;
+    margin-bottom: 7px;
+  }
+
+  &__cell {}
+
+  &__header {}
+
+  &__entry {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: span 5;
+    background-color: $component-secondary-background;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    color: $font-color;
+    border: 1px solid $component-border-color;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      filter: brightness(1.1);
+    }
+
+    &__source,
+    &__category,
+    &__summary,
+    &__date {
+      padding: 5px;
+      min-width: 150px;
+      grid-template-columns: subgrid;
+    }
+
+    &__category {
+      color: $red;
+      display: flex;
+      align-items: center;
+      grid-template-columns: subgrid;
+    }
+  }
+}
