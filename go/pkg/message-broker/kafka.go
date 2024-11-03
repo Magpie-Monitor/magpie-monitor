@@ -3,8 +3,6 @@ package messagebroker
 import (
 	"context"
 	"os"
-
-	"os"
 	"strconv"
 	"time"
 
@@ -15,6 +13,14 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	KAFKA_BROKER_URL_ENV_NAME      = "KAFKA_BROKER_URL"
+	KAFKA_CLIENT_USERNAME_ENV_NAME = "KAFKA_CLIENT_USERNAME"
+	KAFKA_CLIENT_PASSWORD_ENV_NAME = "KAFKA_CLIENT_PASSWORD"
+	KAFKA_MAX_MESSAGE_BYTES_KEY    = "KAFKA_MAX_MESSAGE_SIZE_BYTES"
+	KAFKA_BROKER_GROUP_ID_KEY      = "KAFKA_BROKER_GROUP_ID"
+)
+
 type KafkaCredentials struct {
 	Address  string
 	Username string
@@ -22,28 +28,18 @@ type KafkaCredentials struct {
 }
 
 func NewKafkaCredentials() *KafkaCredentials {
-	kafkaAddress, ok := os.LookupEnv("KAFKA_BROKER_URL")
-	if !ok {
-		panic("KAFKA_ADDRESS env variable not provided")
-	}
+	envs.ValidateEnvs("%s not set", []string{
+		KAFKA_BROKER_URL_ENV_NAME,
+		KAFKA_CLIENT_USERNAME_ENV_NAME,
+		KAFKA_CLIENT_PASSWORD_ENV_NAME,
+	})
 
-	kafkaUsername, ok := os.LookupEnv("KAFKA_CLIENT_USERNAME")
-	if !ok {
-		panic("KAFKA_USERNAME env variable not provided")
+	return &KafkaCredentials{
+		Address:  os.Getenv(KAFKA_BROKER_URL_ENV_NAME),
+		Username: os.Getenv(KAFKA_CLIENT_USERNAME_ENV_NAME),
+		Password: os.Getenv(KAFKA_CLIENT_PASSWORD_ENV_NAME),
 	}
-
-	kafkaPassword, ok := os.LookupEnv("KAFKA_CLIENT_PASSWORD")
-	if !ok {
-		panic("KAFKA_PASSWORD env variable not provided")
-	}
-
-	return &KafkaCredentials{Address: kafkaAddress, Username: kafkaUsername, Password: kafkaPassword}
 }
-
-const (
-	KAFKA_MAX_MESSAGE_BYTES_KEY = "KAFKA_MAX_MESSAGE_SIZE_BYTES"
-	KAFKA_BROKER_GROUP_ID_KEY   = "KAFKA_BROKER_GROUP_ID"
-)
 
 type KafkaMessageBroker struct {
 	logger *zap.Logger
