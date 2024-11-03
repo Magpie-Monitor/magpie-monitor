@@ -254,6 +254,8 @@ func (s *ReportsService) CompletePendingReport(reportId string, applicationInsig
 	scheduledReport.NodeReports = nodeReports
 	scheduledReport.Status = repositories.ReportState_Generated
 	scheduledReport.Urgency = s.getReportUrgencyFromApplicationAndNodeReports(applicationReports, nodeReports)
+	scheduledReport.AnalyzedNodes = len(scheduledReport.ScheduledNodeInsights.NodeConfiguration)
+	scheduledReport.AnalyzedApplications = len(scheduledReport.ScheduledApplicationInsights.ApplicationConfiguration)
 
 	repoErr = s.reportRepository.UpdateReport(context.TODO(), scheduledReport)
 	if repoErr != nil {
@@ -326,8 +328,11 @@ func (s *ReportsService) RetrieveScheduledReport(scheduledReportId string) (*rep
 	scheduledReport.NodeReports = nodeReports
 	scheduledReport.Status = repositories.ReportState_Generated
 	scheduledReport.Urgency = s.getReportUrgencyFromApplicationAndNodeReports(applicationReports, nodeReports)
+	scheduledReport.AnalyzedNodes = len(scheduledReport.ScheduledNodeInsights.NodeConfiguration)
+	scheduledReport.AnalyzedApplications = len(scheduledReport.ScheduledApplicationInsights.ApplicationConfiguration)
 
 	repoErr = s.reportRepository.UpdateReport(context.TODO(), scheduledReport)
+
 	if repoErr != nil {
 		s.logger.Error("Failed to update a scheduled report", zap.Error(repoErr))
 		return nil, repoErr

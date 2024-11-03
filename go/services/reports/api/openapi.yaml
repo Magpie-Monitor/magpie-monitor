@@ -153,6 +153,10 @@ components:
           type: integer
         totalNodeEntries:
           type: integer
+        analyzedApplications:
+          type: integer
+        analyzedNodes:
+          type: integer
         urgency:
           $ref: "#/components/schemas/Urgency"
         scheduledApplicationInsights:
