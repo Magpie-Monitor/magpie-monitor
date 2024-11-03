@@ -57,6 +57,8 @@ type Report struct {
 	// Filled only when report is scheduled
 	ScheduledApplicationInsights *insights.ScheduledApplicationInsights `bson:"scheduledApplicationInsights" json:"scheduledApplicationInsights"`
 	ScheduledNodeInsights        *insights.ScheduledNodeInsights        `bson:"scheduledNodeInsights" json:"scheduledNodeInsights"`
+	AnalyzedApplications         int                                    `bson:"analyzedApplications" json:"analyzedApplications"`
+	AnalyzedNodes                int                                    `bson:"analyzedNodes" json:"analyzedNodes"`
 }
 
 type ReportRepositoryErrorKind string
