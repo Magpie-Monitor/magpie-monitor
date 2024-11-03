@@ -23,7 +23,7 @@ public record Report(
         Integer analyzedApplications,
         Integer analyzedNodes,
         Urgency urgency,
-        List<ScheduledApplicationInsight> scheduledApplicationInsights,
-        List<ScheduledNodeInsights> scheduledNodeInsights
+        ScheduledApplicationInsight scheduledApplicationInsights,
+        ScheduledNodeInsights scheduledNodeInsights
 ) {
 }
