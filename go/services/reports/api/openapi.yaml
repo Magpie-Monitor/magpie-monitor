@@ -197,6 +197,10 @@ components:
           type: string
         category:
           type: string
+        customPrompt:
+          type: customPrompt
+        accuracy:
+          $ref: "#/components/schemas/Accuracy"
         clusterId:
           type: string
         nodeName:
@@ -219,6 +223,10 @@ components:
           type: string
         title:
           type: string
+        customPrompt:
+          type: customPrompt
+        accuracy:
+          $ref: "#/components/schemas/Accuracy"
         clusterId:
           type: string
         applicationName:
