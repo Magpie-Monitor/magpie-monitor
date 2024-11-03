@@ -80,8 +80,11 @@ const VALID_URGENCY_VALUES: ReportSummary['urgency'][] = [
 
 export interface ApplicationIncident {
   clusterId: string;
+  title: string;
   applicationName: string;
   summary: string;
+  customPrompt: string;
+  accuracy: AccuracyLevel;
   recommendation: string;
   sources: ApplicationIncidentSource[];
 }
@@ -96,7 +99,10 @@ export interface ApplicationIncidentSource {
 
 export interface NodeIncident {
   clusterId: string;
+  title: string;
   nodeName: string;
+  customPrompt: string;
+  accuracy: AccuracyLevel;
   summary: string;
   recommendation: string;
   sources: NodeIncidentSource[];
@@ -104,6 +110,7 @@ export interface NodeIncident {
 
 export interface NodeIncidentSource {
   nodeName: string;
+  filename: string;
   content: string;
   timestamp: number;
 }
@@ -196,6 +203,9 @@ class ManagmentServiceApi {
   ): Promise<ApplicationIncident> {
     return {
       clusterId: 'Cluster 1',
+      title: 'Something wrong with app-1',
+      customPrompt: 'Custom prompt',
+      accuracy: 'HIGH',
       applicationName: 'application-1',
       summary: 'This is an summar of the incident',
       recommendation: 'This is an recommendation of the incident',
@@ -227,9 +237,12 @@ class ManagmentServiceApi {
   }
 
   public async getNodeIncident(_id: string): Promise<NodeIncident> {
-    const nodeIncident = {
+    const nodeIncident: NodeIncident = {
       clusterId: 'cluster-1',
+      title: 'Something wrong with lke-123',
       nodeName: 'lke-123213213',
+      accuracy: 'HIGH',
+      customPrompt: 'Custom prompt',
       summary: 'Node incident summary',
       recommendation: 'Node incident recommendation',
       sources: [
@@ -237,6 +250,7 @@ class ManagmentServiceApi {
           timestamp: 123123123,
           nodeName: 'lke-1231231',
           content: 'LOGSGLOGSLGOS',
+          filename: 'file1/tmp/file2',
         },
       ],
     };
