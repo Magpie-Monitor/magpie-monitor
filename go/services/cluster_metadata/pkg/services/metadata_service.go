@@ -156,9 +156,6 @@ func (m *MetadataService) pollForClusterStateChange() {
 	}
 }
 
-// 1. fetch application metadata for last period
-// 2. check if app names differ
-// 3. build new state
 func (m *MetadataService) updateApplicationMetadataStateForCluster(clusterId string) error {
 	m.log.Info("Updating application metadata state", zap.String("clusterId", clusterId))
 
