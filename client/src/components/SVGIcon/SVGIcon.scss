@@ -3,6 +3,7 @@
 .svg-icon {
   width: 35px;
   height: 35px;
+  background-color: $green;
 }
 
 .dashboard-icon {
@@ -35,10 +36,6 @@
 .clusters-icon {
   @extend .svg-icon;
   mask: url('/src/assets/clusters-icon.svg') no-repeat center;
-
-  .svg-icon {
-    background-color: $green;
-  }
 }
 
 .clusters-icon--white {
@@ -53,64 +50,36 @@
 .application-incident-metadata-icon {
   @extend .svg-icon;
   mask: url('/src/assets/application-incident-metadata-icon.svg') no-repeat center;
-
-  .svg-icon {
-    background-color: $green;
-  }
 }
 
 .node-incident-metadata-icon {
   @extend .svg-icon;
   mask: url('/src/assets/node-incident-metadata-icon.svg') no-repeat center;
-
-  .svg-icon {
-    background-color: $green;
-  }
 }
 
 .incident-source-icon {
   @extend .svg-icon;
   mask: url('/src/assets/incident-source-icon.svg') no-repeat center;
-
-  .svg-icon {
-    background-color: $green;
-  }
 }
 
 .incident-configuration-icon {
   @extend .svg-icon;
   mask: url('/src/assets/incident-configuration-icon.svg') no-repeat center;
-
-  .svg-icon {
-    background-color: $green;
-  }
 }
 
 .incident-summary-icon {
   @extend .svg-icon;
   mask: url('/src/assets/incident-summary-icon.svg') no-repeat center;
-
-  .svg-icon {
-    background-color: $green;
-  }
 }
 
 .incident-icon {
   @extend .svg-icon;
   mask: url('/src/assets/incident-icon.svg') no-repeat center;
-
-  .svg-icon {
-    background-color: $green;
-  }
 }
 
 .incident-recommendation-icon {
   @extend .svg-icon;
   mask: url('/src/assets/incident-recommendation-icon.svg') no-repeat center;
-
-  .svg-icon {
-    background-color: $green;
-  }
 }
 
 .setting-icon {
@@ -125,10 +94,6 @@
 .chart-icon {
   @extend .svg-icon;
   mask: url('/src/assets/chart-icon.svg') no-repeat center;
-
-  .svg-icon {
-    background-color: $green;
-  }
 }
 
 .drop-down-icon {
@@ -145,10 +110,6 @@
 .reports-list-icon {
   @extend .svg-icon;
   mask: url('/src/assets/reports_list_icon.svg') no-repeat center;
-
-  .svg-icon {
-    background-color: $green;
-  }
 }
 
 .plus-icon {
@@ -198,26 +159,14 @@
 .application-icon {
   @extend .svg-icon;
   mask: url('/src/assets/application-icon.svg') no-repeat center;
-
-  .svg-icon {
-    background-color: $green;
-  }
 }
 
 .date-range-icon {
   @extend .svg-icon;
   mask: url('/src/assets/date-range-icon.svg') no-repeat center;
-
-  .svg-icon {
-    background-color: $green;
-  }
 }
 
 .precision-icon {
   @extend .svg-icon;
   mask: url('/src/assets/precision-icon.svg') no-repeat center;
-
-  .svg-icon {
-    background-color: $green;
-  }
 }
