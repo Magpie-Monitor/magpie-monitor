@@ -13,6 +13,15 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	CLUSTER_AGGREGATED_STATE_POLL_INTERVAL_ENV_NAME     = "CLUSTER_AGGREGATED_STATE_CHANGE_POLL_INTERVAL_SECONDS"
+	NODE_AGGREGATED_STATE_POLL_INTERVAL_ENV_NAME        = "NODE_AGGREGATED_STATE_CHANGE_POLL_INTERVAL_SECONDS"
+	APPLICATION_AGGREGATED_STATE_POLL_INTERVAL_ENV_NAME = "APPLICATION_AGGREGATED_STATE_CHANGE_POLL_INTERVAL_SECONDS"
+	NODE_ACTIVITY_WINDOW_MILLIS_ENV_NAME                = "NODE_ACTIVITY_WINDOW_MILLIS"
+	APPLICATION_ACTIVITY_WINDOW_MILLIS_ENV_NAME         = "APPLICATION_ACTIVITY_WINDOW_MILLIS"
+	CLUSTER_ACTIVITY_WINDOW_MILLIS_ENV_NAME             = "CLUSTER_ACTIVITY_WINDOW_MILLIS"
+)
+
 type MetadataServiceParams struct {
 	fx.In
 	Lc                        fx.Lifecycle
@@ -27,23 +36,26 @@ type MetadataServiceParams struct {
 
 func NewMetadataService(params MetadataServiceParams) *MetadataService {
 	metadataService := MetadataService{
-		log:                                      params.Logger,
-		clusterRepo:                              params.ClusterRepo,
-		nodeRepo:                                 params.NodeRepo,
-		applicationAggregatedRepo:                params.ApplicationAggregatedRepo,
-		nodeAggregatedRepo:                       params.NodeAggregatedRepo,
-		clusterStateAggregatedRepo:               params.ClusterAggregatedRepo,
-		eventEmitter:                             params.EventEmitter,
-		clusterAggregatedStateUpdateSleepSeconds: envs.ConvertToInt("CLUSTER_AGGREGATED_STATE_UPDATE_SLEEP_SECONDS"),
-		nodeActivityWindowMillis:                 envs.ConvertToInt64("NODE_ACTIVITY_WINDOW_MILLIS"),
-		clusterActivityWindowMillis:              envs.ConvertToInt64("CLUSTER_ACTIVITY_WINDOW_MILLIS"),
+		log:                        params.Logger,
+		clusterRepo:                params.ClusterRepo,
+		nodeRepo:                   params.NodeRepo,
+		applicationAggregatedRepo:  params.ApplicationAggregatedRepo,
+		nodeAggregatedRepo:         params.NodeAggregatedRepo,
+		clusterStateAggregatedRepo: params.ClusterAggregatedRepo,
+		eventEmitter:               params.EventEmitter,
+		clusterAggregatedStateChangePollIntervalSeconds:  envs.ConvertToInt(CLUSTER_AGGREGATED_STATE_POLL_INTERVAL_ENV_NAME),
+		nodeAggregatedStateChangePollIntervalSeconds:     envs.ConvertToInt(NODE_AGGREGATED_STATE_POLL_INTERVAL_ENV_NAME),
+		applicationnodetedStateChangePollIntervalSeconds: envs.ConvertToInt(APPLICATION_AGGREGATED_STATE_POLL_INTERVAL_ENV_NAME),
+		nodeActivityWindowMillis:                         envs.ConvertToInt64(NODE_ACTIVITY_WINDOW_MILLIS_ENV_NAME),
+		applicationActivityWindowMillis:                  envs.ConvertToInt64(APPLICATION_ACTIVITY_WINDOW_MILLIS_ENV_NAME),
+		clusterActivityWindowMillis:                      envs.ConvertToInt64(CLUSTER_ACTIVITY_WINDOW_MILLIS_ENV_NAME),
 	}
 
 	params.Lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			go metadataService.scheduleClusterStateUpdate()
-			go metadataService.scheduleApplicationMetadataStateUpdate()
-			go metadataService.scheduleNodeMetadataStateChange()
+			go metadataService.pollForClusterStateChange()
+			go metadataService.pollForApplicationStateChange()
+			go metadataService.pollForNodeStateChange()
 			return nil
 		},
 	})
@@ -52,17 +64,20 @@ func NewMetadataService(params MetadataServiceParams) *MetadataService {
 }
 
 type MetadataService struct {
-	Lc                                       fx.Lifecycle
-	log                                      *zap.Logger
-	clusterRepo                              *sharedrepo.MongoDbCollection[repositories.ApplicationState]
-	nodeRepo                                 *sharedrepo.MongoDbCollection[repositories.NodeState]
-	applicationAggregatedRepo                *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
-	nodeAggregatedRepo                       *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
-	clusterStateAggregatedRepo               *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
-	eventEmitter                             *MetadataEventPublisher
-	clusterAggregatedStateUpdateSleepSeconds int   // how often cluster state is refreshed
-	nodeActivityWindowMillis                 int64 // cluster node is considered as running if it has reported in this period
-	clusterActivityWindowMillis              int64 // cluster is considered as running if it has reported in this period
+	Lc                                               fx.Lifecycle
+	log                                              *zap.Logger
+	clusterRepo                                      *sharedrepo.MongoDbCollection[repositories.ApplicationState]
+	nodeRepo                                         *sharedrepo.MongoDbCollection[repositories.NodeState]
+	applicationAggregatedRepo                        *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
+	nodeAggregatedRepo                               *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
+	clusterStateAggregatedRepo                       *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
+	eventEmitter                                     *MetadataEventPublisher
+	applicationActivityWindowMillis                  int64 // application is considered as running if it has reported in this period
+	nodeActivityWindowMillis                         int64 // cluster node is considered as running if it has reported in this period
+	clusterActivityWindowMillis                      int64 // cluster is considered as running if it has reported in this period
+	clusterAggregatedStateChangePollIntervalSeconds  int
+	nodeAggregatedStateChangePollIntervalSeconds     int
+	applicationnodetedStateChangePollIntervalSeconds int
 }
 
 func (m *MetadataService) InsertNodeMetadata(metadata repositories.NodeState) error {
@@ -83,18 +98,18 @@ func (m *MetadataService) InsertApplicationMetadata(metadata repositories.Applic
 	return nil
 }
 
-func (m *MetadataService) scheduleNodeMetadataStateChange() {
+func (m *MetadataService) pollForNodeStateChange() {
 	for {
 		clusterIds, _ := m.nodeRepo.GetDistinctDocumentFieldValues("clusterId", bson.D{})
 		for _, id := range clusterIds {
 			m.log.Info("Updating node metadata", zap.Any("clusterId", id))
 			m.updateNodeMetadataStateForCluster(id.(string))
 		}
-		time.Sleep(5 * time.Second)
+		time.Sleep(time.Duration(m.nodeAggregatedStateChangePollIntervalSeconds) * time.Second)
 	}
 }
 
-func (m *MetadataService) scheduleApplicationMetadataStateUpdate() {
+func (m *MetadataService) pollForApplicationStateChange() {
 
 	for {
 		clusterIds, _ := m.clusterRepo.GetDistinctDocumentFieldValues("clusterId", bson.D{})
@@ -102,11 +117,11 @@ func (m *MetadataService) scheduleApplicationMetadataStateUpdate() {
 			m.log.Info("Updating application metadata", zap.Any("clusterId", id))
 			m.updateApplicationMetadataStateForCluster(id.(string))
 		}
-		time.Sleep(5 * time.Second)
+		time.Sleep(time.Duration(m.applicationnodetedStateChangePollIntervalSeconds) * time.Second)
 	}
 }
 
-func (m *MetadataService) scheduleClusterStateUpdate() {
+func (m *MetadataService) pollForClusterStateChange() {
 	for {
 		m.log.Info("Updating cluster aggregated state")
 
@@ -115,7 +130,7 @@ func (m *MetadataService) scheduleClusterStateUpdate() {
 			m.log.Error("Error updating cluster aggregated state", zap.Error(err))
 		}
 
-		time.Sleep(time.Duration(m.clusterAggregatedStateUpdateSleepSeconds) * time.Second)
+		time.Sleep(time.Duration(m.clusterAggregatedStateChangePollIntervalSeconds) * time.Second)
 	}
 }
 
@@ -127,7 +142,7 @@ func (m *MetadataService) updateApplicationMetadataStateForCluster(clusterId str
 
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
-			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: time.Now().UnixMilli() - m.nodeActivityWindowMillis}}}},
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: time.Now().UnixMilli() - m.applicationActivityWindowMillis}}}},
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: time.Now().UnixMilli()}}}},
 			bson.D{{Key: "clusterId", Value: bson.D{{Key: "$eq", Value: clusterId}}}},
 		}},
@@ -384,7 +399,7 @@ func (m *MetadataService) getDistinctWatchedFilesForNodes(nodes []repositories.N
 // Fetches clusters that reported state in last clusterActivityWindowMillis
 // If fetched state differs from the latest recorded state, a state update event is emitted
 func (m *MetadataService) updateClusterAggregatedState() error {
-	clusterSet, err := m.getUniqueClusterIdsForPeriod(m.clusterActivityWindowMillis)
+	currentClusterSet, err := m.getUniqueClusterIdsForPeriod(m.clusterActivityWindowMillis)
 	if err != nil {
 		m.log.Error("Error fetching unique cluster ID's", zap.Error(err))
 		return nil
@@ -397,7 +412,7 @@ func (m *MetadataService) updateClusterAggregatedState() error {
 	}
 
 	if count == 0 {
-		_, err := m.createAggregatedClusterState(clusterSet)
+		err := m.generateClusterAggregatedState(currentClusterSet)
 		if err != nil {
 			m.log.Info("Error creating cluster aggregated state for count=0", zap.Error(err))
 			return err
@@ -412,35 +427,35 @@ func (m *MetadataService) updateClusterAggregatedState() error {
 		return err
 	}
 
-	if len(clusterSet) != len(latestState.Metadata) {
-		_, err := m.createAggregatedClusterState(clusterSet)
+	latestClusterSet := make(map[string]struct{}, len(latestState.Metadata))
+	for _, cluster := range latestState.Metadata {
+		latestClusterSet[cluster.ClusterId] = struct{}{}
+	}
+
+	if m.clusterStateHasChanged(currentClusterSet, latestClusterSet) {
+		err := m.generateClusterAggregatedState(currentClusterSet)
 		if err != nil {
 			m.log.Info("Error creating cluster aggregated state", zap.Error(err))
 			return err
 		}
-
-		return nil
-	}
-
-	latestClusterSet := make(map[string]struct{}, len(latestState.Metadata))
-	for _, metadata := range latestState.Metadata {
-		latestClusterSet[metadata.ClusterId] = struct{}{}
-	}
-
-	for cluster, _ := range clusterSet {
-		_, ok := clusterSet[cluster]
-		if !ok {
-			_, err := m.createAggregatedClusterState(clusterSet)
-			if err != nil {
-				m.log.Info("Error creating cluster aggregated state", zap.Error(err))
-				return err
-			}
-
-			return nil
-		}
 	}
 
 	return nil
+}
+
+func (m *MetadataService) clusterStateHasChanged(currentClusterSet map[string]struct{}, latestClusterSet map[string]struct{}) bool {
+	if len(currentClusterSet) != len(latestClusterSet) {
+		return true
+	}
+
+	for cluster, _ := range currentClusterSet {
+		_, exists := latestClusterSet[cluster]
+		if !exists {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (m *MetadataService) getUniqueClusterIdsForPeriod(periodMillis int64) (map[string]struct{}, error) {
@@ -472,7 +487,7 @@ func (m *MetadataService) getUniqueClusterIdsForPeriod(periodMillis int64) (map[
 	return clusterSet, nil
 }
 
-func (m *MetadataService) createAggregatedClusterState(clusterSet map[string]struct{}) (repositories.AggregatedClusterMetadata, error) {
+func (m *MetadataService) generateClusterAggregatedState(clusterSet map[string]struct{}) error {
 	state := make([]repositories.ClusterMetadata, 0, len(clusterSet))
 	for cluster, _ := range clusterSet {
 		state = append(state, repositories.ClusterMetadata{ClusterId: cluster})
@@ -483,14 +498,14 @@ func (m *MetadataService) createAggregatedClusterState(clusterSet map[string]str
 	_, err := m.clusterStateAggregatedRepo.InsertDocument(metadata)
 	if err != nil {
 		m.log.Error("Error inserting cluster aggregated state", zap.Error(err))
-		return repositories.AggregatedClusterMetadata{}, err
+		return err
 	}
 
 	err = m.eventEmitter.PublishClusterMetadataUpdatedEvent(metadata)
 	if err != nil {
 		m.log.Error("Error emitting cluster metadata updated event", zap.Error(err))
-		return repositories.AggregatedClusterMetadata{}, err
+		return err
 	}
 
-	return metadata, nil
+	return nil
 }
