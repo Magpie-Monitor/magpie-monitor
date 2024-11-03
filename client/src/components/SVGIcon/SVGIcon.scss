@@ -176,11 +176,19 @@
 .eye-icon {
   @extend .svg-icon;
   mask: url('/src/assets/eye-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $white;
+  }
 }
 
 .closed-eye-icon {
   @extend .svg-icon;
   mask: url('/src/assets/closed-eye-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $white;
+  }
 }
 
 .fire-icon {

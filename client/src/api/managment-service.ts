@@ -168,15 +168,15 @@ export interface ReportPost {
   discordReceiverIds: number[];
   emailReceiverIds: number[];
   applicationConfigurations: {
-      applicationName: string;
-      customPrompt: string;
-      accuracy: AccuracyLevel;
-    }[];
+    applicationName: string;
+    customPrompt: string;
+    accuracy: AccuracyLevel;
+  }[];
   nodeConfigurations: {
-      nodeName: string;
-      customPrompt: string;
-      accuracy: AccuracyLevel;
-    }[];
+    nodeName: string;
+    customPrompt: string;
+    accuracy: AccuracyLevel;
+  }[];
 }
 
 export interface ClusterUpdateData {
@@ -603,13 +603,48 @@ class ManagmentServiceApi {
     await this.axiosInstance.put('/api/v1/clusters', clusterData);
   }
 
-  public async scheduleReport(clusterId: string, periodMs: number): Promise<void> {
+  public async scheduleReport(
+    clusterId: string,
+    periodMs: number,
+  ): Promise<void> {
     await this.refreshTokenIfExpired();
     const requestPayload = {
       clusterId,
       periodMs,
     };
     await this.axiosInstance.post('/api/v1/reports/schedule', requestPayload);
+  }
+
+  public async getSlackChannels(): Promise<SlackTableRowProps[]> {
+    await this.refreshTokenIfExpired();
+    const slackChannels = await this.axiosInstance.get(
+      '/api/v1/notification-channels/slack',
+    );
+    return slackChannels.data;
+  }
+
+  public async getDiscordChannels(): Promise<DiscordTableRowProps[]> {
+    await this.refreshTokenIfExpired();
+    const discordChannels = await this.axiosInstance.get(
+      '/api/v1/notification-channels/discord',
+    );
+    return discordChannels.data;
+  }
+
+  public async getEmailChannels(): Promise<EmailTableRowProps[]> {
+    await this.refreshTokenIfExpired();
+    const emailChannels = await this.axiosInstance.get(
+      '/api/v1/notification-channels/mails',
+    );
+    return emailChannels.data;
+  }
+
+  public async postSlackChannel(slackChannel: SlackChannel): Promise<void> {
+    await this.refreshTokenIfExpired();
+    await this.axiosInstance.post(
+      '/api/v1/notification-channels/slack',
+      slackChannel,
+    );
   }
 }
 
