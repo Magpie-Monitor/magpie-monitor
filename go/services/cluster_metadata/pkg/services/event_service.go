@@ -3,10 +3,17 @@ package services
 import (
 	"os"
 
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	messagebroker "github.com/Magpie-Monitor/magpie-monitor/pkg/message-broker"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+)
+
+const (
+	CLUSTER_METADATA_APPLICATION_TOPIC_ENV_NAME = "CLUSTER_METADATA_APPLICATION_TOPIC"
+	CLUSTER_METADATA_NODE_TOPIC_ENV_NAME        = "CLUSTER_METADATA_NODE_TOPIC"
+	CLUSTER_METADATA_CLUSTER_TOPIC_ENV_NAME     = "CLUSTER_METADATA_CLUSTER_TOPIC"
 )
 
 func NewMetadataEventPublisher(log *zap.Logger, credentials *messagebroker.KafkaCredentials) *MetadataEventPublisher {
@@ -19,30 +26,41 @@ func NewMetadataEventPublisher(log *zap.Logger, credentials *messagebroker.Kafka
 }
 
 func NewApplicationMetadataBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ApplicationMetadataUpdated] {
-	appTopic, ok := os.LookupEnv("CLUSTER_METADATA_APPLICATION_TOPIC")
-	if !ok {
-		panic("CLUSTER_METADATA_APPLICATION_TOPIC env variable not provided")
-	}
-
-	return messagebroker.NewKafkaJsonMessageBroker[ApplicationMetadataUpdated](logger, credentials.Address, appTopic, credentials.Username, credentials.Password)
+	envs.ValidateEnvs("%s env variable not set", []string{
+		CLUSTER_METADATA_APPLICATION_TOPIC_ENV_NAME,
+	})
+	return messagebroker.NewKafkaJsonMessageBroker[ApplicationMetadataUpdated](
+		logger,
+		credentials.Address, os.Getenv(CLUSTER_METADATA_APPLICATION_TOPIC_ENV_NAME),
+		credentials.Username,
+		credentials.Password,
+	)
 }
 
 func NewNodeMetadataBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[NodeMetadataUpdated] {
-	nodeTopic, ok := os.LookupEnv("CLUSTER_METADATA_NODE_TOPIC")
-	if !ok {
-		panic("CLUSTER_METADATA_NODE_TOPIC env variable not provided")
-	}
-
-	return messagebroker.NewKafkaJsonMessageBroker[NodeMetadataUpdated](logger, credentials.Address, nodeTopic, credentials.Username, credentials.Password)
+	envs.ValidateEnvs("%s env variable not set", []string{
+		CLUSTER_METADATA_NODE_TOPIC_ENV_NAME,
+	})
+	return messagebroker.NewKafkaJsonMessageBroker[NodeMetadataUpdated](
+		logger,
+		credentials.Address,
+		os.Getenv(CLUSTER_METADATA_NODE_TOPIC_ENV_NAME),
+		credentials.Username,
+		credentials.Password,
+	)
 }
 
 func NewClusterMetadataBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ClusterMetadataUpdated] {
-	clusterTopic, ok := os.LookupEnv("CLUSTER_METADATA_CLUSTER_TOPIC")
-	if !ok {
-		panic("CLUSTER_METADATA_NODE_TOPIC env variable not provided")
-	}
-
-	return messagebroker.NewKafkaJsonMessageBroker[ClusterMetadataUpdated](logger, credentials.Address, clusterTopic, credentials.Username, credentials.Password)
+	envs.ValidateEnvs("%s env variable not set", []string{
+		CLUSTER_METADATA_CLUSTER_TOPIC_ENV_NAME,
+	})
+	return messagebroker.NewKafkaJsonMessageBroker[ClusterMetadataUpdated](
+		logger,
+		credentials.Address,
+		os.Getenv(CLUSTER_METADATA_CLUSTER_TOPIC_ENV_NAME),
+		credentials.Username,
+		credentials.Password,
+	)
 }
 
 type ApplicationMetadataUpdated struct {
@@ -68,16 +86,19 @@ type MetadataEventPublisher struct {
 }
 
 func (e *MetadataEventPublisher) PublishApplicationMetadataUpdatedEvent(metadata repositories.AggregatedApplicationMetadata) error {
+	e.log.Info("Publishing application metadata updated event", zap.Any("event", metadata))
 	event := ApplicationMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
 	return e.applicationMetadataBroker.Publish(event.CorrelationId, event)
 }
 
 func (e *MetadataEventPublisher) PublishNodeMetadataUpdatedEvent(metadata repositories.AggregatedNodeMetadata) error {
+	e.log.Info("Publishing node metadata updated event", zap.Any("event", metadata))
 	event := NodeMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
 	return e.nodeMetadataBroker.Publish(event.CorrelationId, event)
 }
 
 func (e *MetadataEventPublisher) PublishClusterMetadataUpdatedEvent(metadata repositories.AggregatedClusterMetadata) error {
+	e.log.Info("Publishing cluster metadata updated event", zap.Any("event", metadata))
 	event := ClusterMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
 	return e.clusterMetadataBroker.Publish(event.CorrelationId, event)
 }

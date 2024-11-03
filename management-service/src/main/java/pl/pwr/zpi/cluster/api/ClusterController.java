@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.pwr.zpi.metadata.dto.application.Application;
 import pl.pwr.zpi.metadata.dto.cluster.Cluster;
 import pl.pwr.zpi.metadata.dto.node.Node;
-import pl.pwr.zpi.metadata.MetadataService;
+import pl.pwr.zpi.metadata.service.MetadataService;
 
 import java.util.List;
 

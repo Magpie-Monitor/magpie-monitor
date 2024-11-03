@@ -1,7 +1,7 @@
 package pl.pwr.zpi.metadata.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
-import pl.pwr.zpi.metadata.event.dto.cluster.AggregatedClusterMetadata;
+import pl.pwr.zpi.metadata.broker.dto.cluster.AggregatedClusterMetadata;
 
 import java.util.Optional;
 

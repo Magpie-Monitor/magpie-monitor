@@ -1,4 +1,4 @@
-package pl.pwr.zpi.metadata.event.dto.node;
+package pl.pwr.zpi.metadata.broker.dto.node;
 
 import java.util.List;
 
