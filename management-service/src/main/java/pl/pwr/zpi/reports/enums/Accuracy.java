@@ -1,6 +1,6 @@
 package pl.pwr.zpi.reports.enums;
 
-public enum Precision {
+public enum Accuracy {
     HIGH,
     MEDIUM,
     LOW

@@ -1,12 +1,12 @@
 package pl.pwr.zpi.reports.dto.request;
 
-import pl.pwr.zpi.reports.enums.Precision;
+import pl.pwr.zpi.reports.enums.Accuracy;
 
 import java.util.List;
 
 public record CreateReportRequest(
         String clusterId,
-        Precision precision,
+        Accuracy accuracy,
         Long sinceMs,
         Long toMs,
         List<Long> slackReceiverIds,
@@ -20,7 +20,7 @@ public record CreateReportRequest(
             String applicationName,
             String customPrompt,
             boolean enabled,
-            Precision precision
+            Accuracy accuracy
     ) {
     }
 
@@ -28,7 +28,7 @@ public record CreateReportRequest(
             String nodeName,
             String customPrompt,
             boolean enabled,
-            Precision precision
+            Accuracy accuracy
     ) {
     }
 }
