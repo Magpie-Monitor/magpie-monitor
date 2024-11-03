@@ -9,12 +9,12 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewEventEmitter(log *zap.Logger, credentials *messagebroker.KafkaCredentials) *EventEmitter {
-	return &EventEmitter{
+func NewMetadataEventPublisher(log *zap.Logger, credentials *messagebroker.KafkaCredentials) *MetadataEventPublisher {
+	return &MetadataEventPublisher{
 		log:                       log,
-		applicationMetadataWriter: NewApplicationMetadataBroker(log, credentials),
-		nodeMetadataWriter:        NewNodeMetadataBroker(log, credentials),
-		clusterMetadataWriter:     NewClusterMetadataBroker(log, credentials),
+		applicationMetadataBroker: NewApplicationMetadataBroker(log, credentials),
+		nodeMetadataBroker:        NewNodeMetadataBroker(log, credentials),
+		clusterMetadataBroker:     NewClusterMetadataBroker(log, credentials),
 	}
 }
 
@@ -60,24 +60,24 @@ type ClusterMetadataUpdated struct {
 	Metadata      repositories.AggregatedClusterMetadata `json:"metadata"`
 }
 
-type EventEmitter struct {
+type MetadataEventPublisher struct {
 	log                       *zap.Logger
-	applicationMetadataWriter *messagebroker.KafkaJsonMessageBroker[ApplicationMetadataUpdated]
-	nodeMetadataWriter        *messagebroker.KafkaJsonMessageBroker[NodeMetadataUpdated]
-	clusterMetadataWriter     *messagebroker.KafkaJsonMessageBroker[ClusterMetadataUpdated]
+	applicationMetadataBroker *messagebroker.KafkaJsonMessageBroker[ApplicationMetadataUpdated]
+	nodeMetadataBroker        *messagebroker.KafkaJsonMessageBroker[NodeMetadataUpdated]
+	clusterMetadataBroker     *messagebroker.KafkaJsonMessageBroker[ClusterMetadataUpdated]
 }
 
-func (e *EventEmitter) EmitApplicationMetadataUpdatedEvent(metadata repositories.AggregatedApplicationMetadata) error {
+func (e *MetadataEventPublisher) PublishApplicationMetadataUpdatedEvent(metadata repositories.AggregatedApplicationMetadata) error {
 	event := ApplicationMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
-	return e.applicationMetadataWriter.Publish(event.CorrelationId, event)
+	return e.applicationMetadataBroker.Publish(event.CorrelationId, event)
 }
 
-func (e *EventEmitter) EmitNodeMetadataUpdatedEvent(metadata repositories.AggregatedNodeMetadata) error {
+func (e *MetadataEventPublisher) PublishNodeMetadataUpdatedEvent(metadata repositories.AggregatedNodeMetadata) error {
 	event := NodeMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
-	return e.nodeMetadataWriter.Publish(event.CorrelationId, event)
+	return e.nodeMetadataBroker.Publish(event.CorrelationId, event)
 }
 
-func (e *EventEmitter) EmitClusterMetadataUpdatedEvent(metadata repositories.AggregatedClusterMetadata) error {
+func (e *MetadataEventPublisher) PublishClusterMetadataUpdatedEvent(metadata repositories.AggregatedClusterMetadata) error {
 	event := ClusterMetadataUpdated{CorrelationId: uuid.New().String(), Metadata: metadata}
-	return e.clusterMetadataWriter.Publish(event.CorrelationId, event)
+	return e.clusterMetadataBroker.Publish(event.CorrelationId, event)
 }

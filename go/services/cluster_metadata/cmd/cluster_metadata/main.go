@@ -74,7 +74,7 @@ func main() {
 			messagebroker.NewKafkaCredentials,
 
 			services.NewMetadataService,
-			services.NewEventEmitter,
+			services.NewMetadataEventPublisher,
 
 			repositories.NewApplicationMetadataCollection,
 			repositories.NewNodeMetadataCollection,
