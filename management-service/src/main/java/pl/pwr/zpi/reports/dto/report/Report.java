@@ -20,6 +20,8 @@ public record Report(
         List<ApplicationReport> applicationReports,
         Integer totalApplicationEntries,
         Integer totalNodeEntries,
+        Integer analyzedApplications,
+        Integer analyzedNodes,
         Urgency urgency,
         List<ScheduledApplicationInsight> scheduledApplicationInsights,
         List<ScheduledNodeInsights> scheduledNodeInsights
