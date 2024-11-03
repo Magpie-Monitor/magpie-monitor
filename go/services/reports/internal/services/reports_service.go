@@ -432,7 +432,10 @@ func (s *ReportsService) getTitleForReport(cluster string, fromDate time.Time, t
 	)
 }
 
-func (s *ReportsService) getApplicationIncidentFromInsight(insight insights.ApplicationInsightsWithMetadata) *repositories.ApplicationIncident {
+func (s *ReportsService) getApplicationIncidentFromInsight(
+	insight insights.ApplicationInsightsWithMetadata,
+	configuration *insights.ApplicationInsightConfiguration,
+) *repositories.ApplicationIncident {
 
 	sources := array.Map(func(metadata insights.ApplicationInsightMetadata) repositories.ApplicationIncidentSource {
 		return repositories.ApplicationIncidentSource{
@@ -445,9 +448,10 @@ func (s *ReportsService) getApplicationIncidentFromInsight(insight insights.Appl
 	})(insight.Metadata)
 
 	return &repositories.ApplicationIncident{
-
 		ApplicationName: insight.Metadata[0].ApplicationName,
 		ClusterId:       insight.Metadata[0].ClusterId,
+		CustomPrompt:    configuration.CustomPrompt,
+		Accuracy:        configuration.Accuracy,
 		Title:           insight.Insight.Title,
 		Category:        insight.Insight.Category,
 		Summary:         insight.Insight.Summary,
@@ -487,7 +491,7 @@ func (s *ReportsService) getReportUrgencyFromApplicationAndNodeReports(
 	return slices.Max(allUrgencies)
 }
 
-func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsightsWithMetadata) *repositories.NodeIncident {
+func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsightsWithMetadata, configuration *insights.NodeInsightConfiguration) *repositories.NodeIncident {
 
 	sources := array.Map(func(metadata insights.NodeInsightMetadata) repositories.NodeIncidentSource {
 		return repositories.NodeIncidentSource{
@@ -500,6 +504,8 @@ func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsight
 	return &repositories.NodeIncident{
 		ClusterId:      insight.Metadata[0].ClusterId,
 		NodeName:       insight.Metadata[0].NodeName,
+		CustomPrompt:   configuration.CustomPrompt,
+		Accuracy:       configuration.Accuracy,
 		Title:          insight.Insight.Title,
 		Category:       insight.Insight.Category,
 		Summary:        insight.Insight.Summary,
@@ -521,7 +527,9 @@ func (s *ReportsService) GetApplicationReportsFromInsights(
 
 	for applicationName, insightsForApplication := range insightsByApplication {
 
-		incidentsFromInsights := array.Map(s.getApplicationIncidentFromInsight)
+		incidentsFromInsights := array.Map(func(insight insights.ApplicationInsightsWithMetadata) *repositories.ApplicationIncident {
+			return s.getApplicationIncidentFromInsight(insight, configByApp[insight.Insight.ApplicationName])
+		})
 
 		incidents := incidentsFromInsights(insightsForApplication)
 		report := &repositories.ApplicationReport{
@@ -552,7 +560,10 @@ func (s *ReportsService) GetNodeReportsFromInsights(
 
 	for nodeName, insightsForNode := range insightsByNode {
 
-		nodeIncidentsFromInsights := array.Map(s.getNodeIncidentFromInsight)
+		nodeIncidentsFromInsights := array.Map(func(insight insights.NodeInsightsWithMetadata) *repositories.NodeIncident {
+			return s.getNodeIncidentFromInsight(insight, configByNode[insight.Insight.NodeName])
+		})
+
 		incidents := nodeIncidentsFromInsights(insightsForNode)
 
 		report := &repositories.NodeReport{

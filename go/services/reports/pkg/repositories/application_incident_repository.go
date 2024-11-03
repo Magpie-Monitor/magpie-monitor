@@ -24,6 +24,8 @@ type ApplicationIncident struct {
 	Category        string                      `bson:"category" json:"category"`
 	Summary         string                      `bson:"summary" json:"summary"`
 	Recommendation  string                      `bson:"recommendation" json:"recommendation"`
+	CustomPrompt    string                      `bson:"customPrompt" json:"customPrompt"`
+	Accuracy        insights.Accuracy           `bson:"accuracy" json:"accuracy"`
 	Urgency         insights.Urgency            `bson:"urgency" json:"urgency"`
 	Sources         []ApplicationIncidentSource `bson:"sources" json:"sources"`
 }
