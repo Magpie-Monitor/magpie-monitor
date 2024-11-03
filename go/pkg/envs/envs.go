@@ -3,6 +3,7 @@ package envs
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
 func ValidateEnvs(message string, envKeys []string) {
@@ -14,4 +15,21 @@ func ValidateEnvs(message string, envKeys []string) {
 		}
 	}
 
+}
+
+// Validates if env exists and converts it to int type, panics on error
+func ConvertToInt(env string) int {
+	ValidateEnvs("%s env variable not set", []string{env})
+
+	envInt, err := strconv.Atoi(os.Getenv(env))
+	if err != nil {
+		panic(fmt.Sprintf("%s has to be numeric", env))
+	}
+
+	return envInt
+}
+
+// Validates if env exists and converts it to int64 type, panics on error
+func ConvertToInt64(env string) int64 {
+	return int64(ConvertToInt(env))
 }

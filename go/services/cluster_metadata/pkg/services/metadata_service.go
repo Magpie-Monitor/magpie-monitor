@@ -5,6 +5,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	sharedrepo "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,27 +13,33 @@ import (
 	"go.uber.org/zap"
 )
 
-const (
-	clusterAggregatedStateUpdateSleepSeconds = 30        // how often cluster state is refreshed
-	nodeActivityWindowMillis                 = 3_600_000 // cluster node is considered as running if it has reported in this period
-	clusterActivityWindowMillis              = 3_600_000 // cluster is considered as running if it has reported in this period
-)
+type MetadataServiceParams struct {
+	fx.In
+	Lc                        fx.Lifecycle
+	Logger                    *zap.Logger
+	ClusterRepo               *sharedrepo.MongoDbCollection[repositories.ApplicationState]
+	NodeRepo                  *sharedrepo.MongoDbCollection[repositories.NodeState]
+	ApplicationAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
+	NodeAggregatedRepo        *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
+	ClusterAggregatedRepo     *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
+	EventEmitter              *MetadataEventPublisher
+}
 
-func NewMetadataService(lc fx.Lifecycle, log *zap.Logger, clusterRepo *sharedrepo.MongoDbCollection[repositories.ApplicationState], nodeRepo *sharedrepo.MongoDbCollection[repositories.NodeState],
-	applicationAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata], nodeAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata],
-	clusterAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata], eventEmitter *EventEmitter) *MetadataService {
-
+func NewMetadataService(params MetadataServiceParams) *MetadataService {
 	metadataService := MetadataService{
-		log:                        log,
-		clusterRepo:                clusterRepo,
-		nodeRepo:                   nodeRepo,
-		applicationAggregatedRepo:  applicationAggregatedRepo,
-		nodeAggregatedRepo:         nodeAggregatedRepo,
-		clusterStateAggregatedRepo: clusterAggregatedRepo,
-		eventEmitter:               eventEmitter,
+		log:                                      params.Logger,
+		clusterRepo:                              params.ClusterRepo,
+		nodeRepo:                                 params.NodeRepo,
+		applicationAggregatedRepo:                params.ApplicationAggregatedRepo,
+		nodeAggregatedRepo:                       params.NodeAggregatedRepo,
+		clusterStateAggregatedRepo:               params.ClusterAggregatedRepo,
+		eventEmitter:                             params.EventEmitter,
+		clusterAggregatedStateUpdateSleepSeconds: envs.ConvertToInt("CLUSTER_AGGREGATED_STATE_UPDATE_SLEEP_SECONDS"),
+		nodeActivityWindowMillis:                 envs.ConvertToInt64("NODE_ACTIVITY_WINDOW_MILLIS"),
+		clusterActivityWindowMillis:              envs.ConvertToInt64("CLUSTER_ACTIVITY_WINDOW_MILLIS"),
 	}
 
-	lc.Append(fx.Hook{
+	params.Lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			go metadataService.scheduleClusterStateUpdate()
 			return nil
@@ -43,14 +50,17 @@ func NewMetadataService(lc fx.Lifecycle, log *zap.Logger, clusterRepo *sharedrep
 }
 
 type MetadataService struct {
-	log                        *zap.Logger
-	Lc                         fx.Lifecycle
-	clusterRepo                *sharedrepo.MongoDbCollection[repositories.ApplicationState]
-	nodeRepo                   *sharedrepo.MongoDbCollection[repositories.NodeState]
-	applicationAggregatedRepo  *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
-	nodeAggregatedRepo         *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
-	clusterStateAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
-	eventEmitter               *EventEmitter
+	Lc                                       fx.Lifecycle
+	log                                      *zap.Logger
+	clusterRepo                              *sharedrepo.MongoDbCollection[repositories.ApplicationState]
+	nodeRepo                                 *sharedrepo.MongoDbCollection[repositories.NodeState]
+	applicationAggregatedRepo                *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
+	nodeAggregatedRepo                       *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
+	clusterStateAggregatedRepo               *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
+	eventEmitter                             *MetadataEventPublisher
+	clusterAggregatedStateUpdateSleepSeconds int   // how often cluster state is refreshed
+	nodeActivityWindowMillis                 int64 // cluster node is considered as running if it has reported in this period
+	clusterActivityWindowMillis              int64 // cluster is considered as running if it has reported in this period
 }
 
 func (m *MetadataService) InsertApplicationMetadata(metadata repositories.ApplicationState) error {
@@ -112,13 +122,15 @@ func (m *MetadataService) updateApplicationMetadataState(clusterId string, appli
 		newState.Metadata = append(newState.Metadata, repositories.ApplicationMetadata{Name: app.Name, Kind: app.Kind})
 	}
 
+	m.log.Info("Updated state", zap.Any("newState", newState))
+
 	_, err := m.applicationAggregatedRepo.InsertDocument(newState)
 	if err != nil {
 		m.log.Error("Error inserting updated application metadata", zap.Error(err))
 		return err
 	}
 
-	err = m.eventEmitter.EmitApplicationMetadataUpdatedEvent(newState)
+	err = m.eventEmitter.PublishApplicationMetadataUpdatedEvent(newState)
 	if err != nil {
 		m.log.Error("Error emitting application metadata updated event", zap.Error(err))
 		return err
@@ -174,7 +186,7 @@ func (m *MetadataService) InsertNodeMetadata(metadata repositories.NodeState) er
 func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles []string) error {
 	filter := bson.D{
 		{Key: "$and", Value: bson.A{
-			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: time.Now().UnixMilli() - nodeActivityWindowMillis}}}},
+			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$gte", Value: time.Now().UnixMilli() - m.nodeActivityWindowMillis}}}},
 			bson.D{{Key: "collectedAtMs", Value: bson.D{{Key: "$lte", Value: time.Now().UnixMilli()}}}},
 			bson.D{{Key: "clusterId", Value: bson.D{{Key: "$eq", Value: clusterId}}}},
 		}},
@@ -191,7 +203,7 @@ func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles
 		return err
 	}
 
-	nodes := make([]repositories.NodeMetadata, 0)
+	nodes := make([]repositories.NodeMetadata, 0, len(nodeSet))
 	for _, n := range nodeSet {
 		nodes = append(nodes, repositories.NodeMetadata{Name: n.(string), Files: fileset})
 	}
@@ -203,7 +215,7 @@ func (m *MetadataService) updateNodeMetadataState(clusterId string, watchedFiles
 		return err
 	}
 
-	err = m.eventEmitter.EmitNodeMetadataUpdatedEvent(aggregate)
+	err = m.eventEmitter.PublishNodeMetadataUpdatedEvent(aggregate)
 	if err != nil {
 		m.log.Error("Error emitting node metadata updated event", zap.Error(err))
 		return err
@@ -221,14 +233,14 @@ func (m *MetadataService) scheduleClusterStateUpdate() {
 			m.log.Error("Error updating cluster aggregated state", zap.Error(err))
 		}
 
-		time.Sleep(clusterAggregatedStateUpdateSleepSeconds * time.Second)
+		time.Sleep(time.Duration(m.clusterAggregatedStateUpdateSleepSeconds) * time.Second)
 	}
 }
 
 // Fetches clusters that reported state in last clusterActivityWindowMillis
 // If fetched state differs from the latest recorded state, a state update event is emitted
 func (m *MetadataService) updateClusterAggregatedState() error {
-	clusterSet, err := m.getUniqueClusterIdsForPeriod(clusterActivityWindowMillis)
+	clusterSet, err := m.getUniqueClusterIdsForPeriod(m.clusterActivityWindowMillis)
 	if err != nil {
 		m.log.Error("Error fetching unique cluster ID's", zap.Error(err))
 		return nil
@@ -330,7 +342,7 @@ func (m *MetadataService) createAggregatedClusterState(clusterSet map[string]str
 		return repositories.AggregatedClusterMetadata{}, err
 	}
 
-	err = m.eventEmitter.EmitClusterMetadataUpdatedEvent(metadata)
+	err = m.eventEmitter.PublishClusterMetadataUpdatedEvent(metadata)
 	if err != nil {
 		m.log.Error("Error emitting cluster metadata updated event", zap.Error(err))
 		return repositories.AggregatedClusterMetadata{}, err
