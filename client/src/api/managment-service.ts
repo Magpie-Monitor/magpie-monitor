@@ -22,6 +22,19 @@ export interface ReportSummary {
   [key: string]: string | number;
 }
 
+export interface ReportDetails {
+  id: string;
+  clusterId: string;
+  title: string;
+  urgency: UrgencyLevel;
+  totalApplicationEntries: number;
+  totalNodeEntries: number;
+  analyzedApplications: number;
+  analyzedNodes: number;
+  sinceMs: number;
+  toMs: number;
+}
+
 export interface ClusterSummary {
   id: string;
   isRunning: boolean;
@@ -79,11 +92,14 @@ const VALID_URGENCY_VALUES: ReportSummary['urgency'][] = [
 ];
 
 export interface ApplicationIncident {
+  id: string;
   clusterId: string;
   title: string;
+  category: string;
   applicationName: string;
   summary: string;
   customPrompt: string;
+  urgency: UrgencyLevel;
   accuracy: AccuracyLevel;
   recommendation: string;
   sources: ApplicationIncidentSource[];
@@ -98,14 +114,22 @@ export interface ApplicationIncidentSource {
 }
 
 export interface NodeIncident {
+  id: string;
   clusterId: string;
   title: string;
   nodeName: string;
+  category: string;
+  urgency: UrgencyLevel;
   customPrompt: string;
   accuracy: AccuracyLevel;
   summary: string;
   recommendation: string;
   sources: NodeIncidentSource[];
+}
+
+export interface AllIncidentsFromReport {
+  applicationIncidents: ApplicationIncident[];
+  nodeIncidents: NodeIncident[];
 }
 
 export interface NodeIncidentSource {
@@ -182,6 +206,79 @@ class ManagmentServiceApi {
     return user.data;
   }
 
+  public async getReport(id: string): Promise<ReportDetails> {
+    await this.refreshTokenIfExpired();
+    const report = await this.axiosInstance.get(`/api/v1/reports/${id}`);
+    return report.data;
+    // return {
+    //   analyzedApplications: 123,
+    //   analyzedNodes: 20,
+    //   id: 'report-1',
+    //   clusterId: 'cluster-1',
+    //   title: 'Report for this time',
+    //   urgency: 'HIGH',
+    //   totalApplicationEntries: 1000,
+    //   totalNodeEntries: 1000,
+    //   sinceMs: 212414123,
+    //   toMs: 212414123,
+    // };
+  }
+
+  public async getIncidentsFromReport(
+    reportId: string,
+  ): Promise<AllIncidentsFromReport> {
+    await this.refreshTokenIfExpired();
+    const report = await this.axiosInstance.get(
+      `/api/v1/reports/${reportId}/incidents`,
+    );
+    return report.data;
+    // return {
+    //   applicationIncidents: [
+    //     {
+    //       clusterId: 'Cluster 1',
+    //       title: 'Something wrong with app-1',
+    //       urgency: 'HIGH',
+    //       category: 'Serious category',
+    //       customPrompt: 'Custom prompt',
+    //       accuracy: 'HIGH',
+    //       applicationName: 'application-1',
+    //       summary: 'This is an summar of the incident',
+    //       recommendation: 'This is an recommendation of the incident',
+    //       sources: [
+    //         {
+    //           container: 'container-1',
+    //           timestamp: 213213124,
+    //           pod: 'pod-1',
+    //           image: 'image-1',
+    //           content: 'LOGS',
+    //         },
+    //       ],
+    //     },
+    //   ],
+    //   nodeIncidents: [
+    //     {
+    //       clusterId: 'cluster-1',
+    //       category: 'Serious category',
+    //       title: 'Something wrong with lke-123',
+    //       nodeName: 'lke-123213213',
+    //       urgency: 'HIGH',
+    //       accuracy: 'HIGH',
+    //       customPrompt: 'Custom prompt',
+    //       summary: 'Node incident summary',
+    //       recommendation: 'Node incident recommendation',
+    //       sources: [
+    //         {
+    //           timestamp: 123123123,
+    //           nodeName: 'lke-1231231',
+    //           content: 'LOGSGLOGSLGOS',
+    //           filename: 'file1/tmp/file2',
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // };
+  }
+
   public async getReports(): Promise<ReportSummary[]> {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get('/api/v1/reports');
@@ -202,7 +299,10 @@ class ManagmentServiceApi {
     _id: string,
   ): Promise<ApplicationIncident> {
     return {
+      id: '213213',
+      urgency: 'LOW',
       clusterId: 'Cluster 1',
+      category: 'Serious category',
       title: 'Something wrong with app-1',
       customPrompt: 'Custom prompt',
       accuracy: 'HIGH',
@@ -239,8 +339,11 @@ class ManagmentServiceApi {
   public async getNodeIncident(_id: string): Promise<NodeIncident> {
     const nodeIncident: NodeIncident = {
       clusterId: 'cluster-1',
+      urgency: 'LOW',
+      id: 'dsadas',
       title: 'Something wrong with lke-123',
       nodeName: 'lke-123213213',
+      category: 'Serious category',
       accuracy: 'HIGH',
       customPrompt: 'Custom prompt',
       summary: 'Node incident summary',

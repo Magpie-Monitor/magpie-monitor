@@ -14,6 +14,7 @@ export default defineConfig({
       assets: '/src/assets',
       lib: '/src/lib',
       providers: '/src/providers',
+      global: '/src/global',
     },
   },
 });
