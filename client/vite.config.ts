@@ -15,6 +15,7 @@ export default defineConfig({
       lib: '/src/lib',
       providers: '/src/providers',
       global: '/src/global',
+      types: '/src/types',
     },
   },
 });

@@ -1,157 +1,132 @@
-import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
 import PageTemplate from 'components/PageTemplate/PageTemplate';
-import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/HeaderWithIcon';
-import SVGIcon from 'components/SVGIcon/SVGIcon';
-import IncidentList from 'components/IncidentList/IncidentList';
 import Spinner from 'components/Spinner/Spinner';
 import useReportDetails, { IncidentStats } from 'hooks/useReportStats';
+import { useNavigate, useParams } from 'react-router-dom';
+import './ReportDetails.scss';
+import SectionComponent from 'components/SectionComponent/SectionComponent';
+import SVGIcon from 'components/SVGIcon/SVGIcon';
 import StatisticsDisplay, {
   StatItemData,
 } from 'components/StatisticsDisplay/StatisticsDisplay';
-import {
-  ApplicationIncident,
-  NodeIncident,
-  ReportDetails,
-  UrgencyLevel,
-} from 'api/managment-service';
+import { ReportDetails } from 'api/managment-service';
 import colors from 'global/colors';
-import ReportTitle from './components/ReportTitle/ReportTitle';
-import { useParams } from 'react-router-dom';
-import './ReportDetails.scss';
-import ReportDetailsSubsection from './components/Subsection/Subsection';
-
-const urgencyIncidentCount = (
-  stats: IncidentStats,
-): Record<UrgencyLevel, number> => ({
-  LOW: stats.lowUrgencyIncidents,
-  MEDIUM: stats.mediumUrgencyIncidents,
-  HIGH: stats.highUrgencyIncidents,
-});
+import IncidentList from 'components/IncidentList/IncidentList';
+import ReportHeader from './components/ReportHeader/ReportHeader';
+import {
+  genericIncidentsFromApplicationIncidents,
+  genericIncidentsFromNodeIncidents,
+  urgencyIncidentCount,
+} from 'types/incident';
 
 const statItems = (
   report: ReportDetails,
   stats: IncidentStats,
 ): StatItemData[] => [
-  {
-    title: 'Analyzed apps',
-    value: report.analyzedApplications,
-    unit: 'applications',
-    valueColor: colors.urgency.low,
-  },
-  {
-    title: 'Analyzed hosts',
-    value: report.analyzedNodes,
-    unit: 'hosts',
-    valueColor: colors.urgency.low,
-  },
-  {
-    title: 'Critical incidents',
-    value: stats.highUrgencyIncidents,
-    unit: 'incidents',
-    valueColor: colors.urgency.high,
-  },
-  {
-    title: 'Medium incidents',
-    value: stats.mediumUrgencyIncidents,
-    unit: 'incidents',
-    valueColor: colors.urgency.medium,
-  },
-  {
-    title: 'Low incidents',
-    value: stats.lowUrgencyIncidents,
-    unit: 'incidents',
-    valueColor: colors.urgency.low,
-  },
-  {
-    title: 'Application entries',
-    value: report.totalApplicationEntries,
-    unit: 'entries',
-    valueColor: colors.urgency.low,
-  },
-  {
-    title: 'Node entries',
-    value: report.totalNodeEntries,
-    unit: 'entries',
-    valueColor: colors.urgency.low,
-  },
-];
-
-const genericIncidentsFromApplicationIncidents = (
-  incidents: ApplicationIncident[],
-) =>
-  incidents.map((incident) => ({
-    source: incident.applicationName,
-    category: incident.category,
-    urgency: incident.urgency,
-    title: incident.title,
-    timestamp: incident.sources[0].timestamp,
-  }));
-
-const genericIncidentsFromNodeIncidents = (incidents: NodeIncident[]) =>
-  incidents.map((incident) => ({
-    source: incident.nodeName,
-    category: incident.category,
-    urgency: incident.urgency,
-    title: incident.title,
-    timestamp: incident.sources[0].timestamp,
-  }));
+    {
+      title: 'Analyzed apps',
+      value: report.analyzedApplications,
+      unit: 'applications',
+      valueColor: colors.urgency.low,
+    },
+    {
+      title: 'Analyzed hosts',
+      value: report.analyzedNodes,
+      unit: 'hosts',
+      valueColor: colors.urgency.low,
+    },
+    {
+      title: 'Critical incidents',
+      value: stats.highUrgencyIncidents,
+      unit: 'incidents',
+      valueColor: colors.urgency.high,
+    },
+    {
+      title: 'Medium incidents',
+      value: stats.mediumUrgencyIncidents,
+      unit: 'incidents',
+      valueColor: colors.urgency.medium,
+    },
+    {
+      title: 'Low incidents',
+      value: stats.lowUrgencyIncidents,
+      unit: 'incidents',
+      valueColor: colors.urgency.low,
+    },
+    {
+      title: 'Application entries',
+      value: report.totalApplicationEntries,
+      unit: 'entries',
+      valueColor: colors.urgency.low,
+    },
+    {
+      title: 'Node entries',
+      value: report.totalNodeEntries,
+      unit: 'entries',
+      valueColor: colors.urgency.low,
+    },
+  ];
 
 const ReportDetailsPage = () => {
   const { id } = useParams();
-  const {
-    incidents,
-    report,
-    incidentStats,
-    areIncidentsLoading,
-    isReportLoading,
-  } = useReportDetails(id!);
+  const { incidents, report, incidentStats, isReportLoading } =
+    useReportDetails(id!);
 
-  if (isReportLoading || !report) {
+  const navigate = useNavigate();
+
+  if (isReportLoading || !report || !incidents || !incidentStats) {
     return <Spinner />;
   }
 
   return (
-    <PageTemplate header={<HeaderWithIcon title={'Report'} />}>
-      <SectionComponent
-        icon={<SVGIcon iconName="chart-icon" />}
-        title={
-          <ReportTitle
-            source={report.clusterId}
-            startTime={report.sinceMs}
-            endTime={report.toMs}
+    <PageTemplate
+      header={
+        <ReportHeader
+          name={report.clusterId}
+          sinceMs={report.sinceMs}
+          toMs={report.toMs}
+        />
+      }
+    >
+      <div className="report-details">
+        <SectionComponent
+          icon={<SVGIcon iconName={'report-stats-icon'} />}
+          title={'Statistics'}
+        >
+          <div className="report-details__statistics">
+            <StatisticsDisplay
+              statItems={statItems(report, incidentStats)}
+              urgencyIncidentCount={urgencyIncidentCount(incidentStats)}
+            />
+          </div>
+        </SectionComponent>
+        <SectionComponent
+          icon={<SVGIcon iconName={'application-incident-metadata-icon'} />}
+          title={'Application incidents'}
+        >
+          <IncidentList
+            incidents={genericIncidentsFromApplicationIncidents(
+              incidents.applicationIncidents,
+            )}
+            onClick={({ id: incidentId }) =>
+              navigate(`/application-incidents/${incidentId}`)
+            }
           />
-        }
-      >
-        <div className="report-details">
-          {areIncidentsLoading && <Spinner />}
-          {incidents && incidentStats && (
-            <>
-              <ReportDetailsSubsection title={'Statistics'}>
-                <StatisticsDisplay
-                  statItems={statItems(report, incidentStats)}
-                  urgencyIncidentCount={urgencyIncidentCount(incidentStats)}
-                />
-              </ReportDetailsSubsection>
+        </SectionComponent>
 
-              <ReportDetailsSubsection title="Application incidents">
-                <IncidentList
-                  incidents={genericIncidentsFromApplicationIncidents(
-                    incidents.applicationIncidents,
-                  )}
-                />
-              </ReportDetailsSubsection>
-
-              <ReportDetailsSubsection title="Node incidents">
-                <IncidentList
-                  incidents={genericIncidentsFromNodeIncidents(
-                    incidents.nodeIncidents,
-                  )}
-                />
-              </ReportDetailsSubsection>
-            </>
-          )}
-        </div>
-      </SectionComponent>
+        <SectionComponent
+          icon={<SVGIcon iconName={'node-incident-metadata-icon'} />}
+          title={'Node incidents'}
+        >
+          <IncidentList
+            incidents={genericIncidentsFromNodeIncidents(
+              incidents.nodeIncidents,
+            )}
+            onClick={({ id: incidentId }) =>
+              navigate(`/node-incidents/${incidentId}`)
+            }
+          />
+        </SectionComponent>
+      </div>
     </PageTemplate>
   );
 };

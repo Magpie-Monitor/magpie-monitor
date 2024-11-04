@@ -59,14 +59,14 @@ const NodeIncidentPage = () => {
             endDateMs={endDate}
           />
 
-          <SummarySection summary={incident.summary} />
-        </div>
-        <div className="incident__row--two-columns">
-          <RecommendationSection recommendation={incident.recommendation} />
           <ConfigurationSection
             accuracy={incident.accuracy}
             customPrompt={incident.customPrompt}
           />
+        </div>
+        <div className="incident__row--two-columns">
+          <SummarySection summary={incident.summary} />
+          <RecommendationSection recommendation={incident.recommendation} />
         </div>
         {incident.sources.map((source, index) => (
           <NodeSourceSection

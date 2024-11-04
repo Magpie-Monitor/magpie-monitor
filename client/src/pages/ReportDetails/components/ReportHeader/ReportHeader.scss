@@ -1,0 +1,28 @@
+@import '@/variables';
+
+.report-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 1rem;
+  margin-left: 0.5rem;
+
+  &__name {
+    color: $green;
+    font-size: 2rem;
+
+    @media (max-width: $sm) {
+      font-size: 18px;
+    }
+  }
+
+  &__timestamp {
+    font-size: 0.9rem;
+    color: $font-color;
+    height: 100%;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+  }
+}

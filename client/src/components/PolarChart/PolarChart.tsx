@@ -54,22 +54,13 @@ const PolarChart = ({ data, label }: PolarChartProps) => {
         angleLines: {
           color: 'white',
         },
-        grid: {
-          // color: 'white',
-        },
+        grid: {},
         pointLabels: {
-          font: {
-            // size: 14,
-            // color: 'black',
-          },
+          font: {},
         },
         ticks: {
-          // color: 'white',
           backdropColor: 'transparent',
-          font: {
-            // size: 18,
-            // weight: 'bold',
-          },
+          font: {},
         },
       },
     },

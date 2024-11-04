@@ -1,0 +1,10 @@
+.dashboard-report-details-section {
+  margin: 1rem;
+  width: 100%;
+
+  &__incidents {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+  }
+}

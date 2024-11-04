@@ -11,9 +11,9 @@ import { useEffect, useState } from 'react';
 import { GenericIncident } from 'types/incident';
 
 export interface ReportStats {
-  incidents: AllIncidentsFromReport;
-  report: ReportDetails;
-  incidentStats: IncidentStats;
+  incidents: AllIncidentsFromReport | null;
+  report: ReportDetails | null;
+  incidentStats: IncidentStats | null;
   areIncidentsLoading: boolean;
   isReportLoading: boolean;
 }

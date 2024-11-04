@@ -27,9 +27,9 @@ const Reports = () => {
       header: 'Cluster',
       columnKey: 'clusterId',
       customComponent: (row: ReportSummary) => (
-          <LinkComponent href="#" onClick={() => handleRowClick(row.id)}>
-            {row.clusterId}
-          </LinkComponent>
+        <LinkComponent to="#" onClick={() => handleRowClick(row.id)}>
+          {row.clusterId}
+        </LinkComponent>
       ),
     },
     { header: 'Title', columnKey: 'title' },
@@ -74,20 +74,19 @@ const Reports = () => {
       }
     >
       <SectionComponent
-        icon={<SVGIcon iconName='chart-icon'/>}
+        icon={<SVGIcon iconName="chart-icon" />}
         title={'Weekly reports'}
       >
         {loading ? (
-            <Spinner />
+          <Spinner />
         ) : rows.length === 0 ? (
-            <p>No reports. Generate new report (TBA: link)</p>
+          <p>No reports. Generate new report (TBA: link)</p>
         ) : (
           <Table columns={columns} rows={rows} />
         )}
       </SectionComponent>
     </PageTemplate>
   );
-
 };
 
 export default Reports;

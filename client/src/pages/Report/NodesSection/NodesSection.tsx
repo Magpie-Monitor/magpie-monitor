@@ -3,11 +3,16 @@ import Table, { TableColumn } from 'components/Table/Table.tsx';
 import { useEffect, useState } from 'react';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
-import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionButton.tsx';
+import ActionButton, {
+    ActionButtonColor,
+} from 'components/ActionButton/ActionButton.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
-import { ManagmentServiceApiInstance, AccuracyLevel} from 'api/managment-service';
+import {
+    ManagmentServiceApiInstance,
+    AccuracyLevel,
+} from 'api/managment-service';
 import Spinner from 'components/Spinner/Spinner.tsx';
 
 export interface NodeEntry {
@@ -30,14 +35,16 @@ const NodesSection = () => {
             setLoading(true);
             const nodesData = await ManagmentServiceApiInstance.getNodes();
 
-            const nodeRows = nodesData.map((node): NodeEntry => ({
-                name: node.name,
-                running: node.running,
-                accuracy: node.accuracy,
-                customPrompt: node.customPrompt,
-                updated: node.updated,
-                added: node.added,
-            }));
+            const nodeRows = nodesData.map(
+                (node): NodeEntry => ({
+                    name: node.name,
+                    running: node.running,
+                    accuracy: node.accuracy,
+                    customPrompt: node.customPrompt,
+                    updated: node.updated,
+                    added: node.added,
+                }),
+            );
 
             setRows(nodeRows);
         } catch (e: unknown) {
@@ -61,17 +68,15 @@ const NodesSection = () => {
 
     const handleAccuracyChange = (name: string, accuracy: AccuracyLevel) => {
         setRows((prevRows) =>
-            prevRows.map((row) =>
-                row.name === name ? { ...row, accuracy } : row
-            )
+            prevRows.map((row) => (row.name === name ? { ...row, accuracy } : row)),
         );
     };
 
     const handleCustomPromptChange = (name: string, customPrompt: string) => {
         setRows((prevRows) =>
             prevRows.map((row) =>
-                row.name === name ? { ...row, customPrompt } : row
-            )
+                row.name === name ? { ...row, customPrompt } : row,
+            ),
         );
     };
 
@@ -84,7 +89,7 @@ const NodesSection = () => {
             header: 'Name',
             columnKey: 'name',
             customComponent: (row: NodeEntry) => (
-                <LinkComponent href="#" isRunning={row.running}>
+                <LinkComponent to="" isRunning={row.running}>
                     {row.name}
                 </LinkComponent>
             ),
@@ -96,7 +101,9 @@ const NodesSection = () => {
                 <TagButton
                     listItems={['HIGH', 'MEDIUM', 'LOW']}
                     chosenItem={row.accuracy}
-                    onSelect={(item) => handleAccuracyChange(row.name, item as AccuracyLevel)}
+                    onSelect={(item) =>
+                        handleAccuracyChange(row.name, item as AccuracyLevel)
+                    }
                 />
             ),
         },
@@ -123,14 +130,15 @@ const NodesSection = () => {
                     color={ActionButtonColor.RED}
                 />
             ),
-        }
+        },
     ];
 
     return (
         <SectionComponent
             icon={<SVGIcon iconName="application-icon" />}
             title={'Nodes'}
-            callback={handleAddClick}>
+            callback={handleAddClick}
+        >
             {showModal && (
                 <OverlayComponent isDisplayed={showModal} onClose={handleCloseModal}>
                     <p>No nodes here (probably Wojciech dropped all of them)</p>
