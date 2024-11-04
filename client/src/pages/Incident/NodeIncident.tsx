@@ -72,7 +72,6 @@ const NodeIncidentPage = () => {
           <NodeSourceSection
             content={source.content}
             key={index}
-            nodeName={source.nodeName}
             timestamp={source.timestamp}
             filename={source.filename}
           />
