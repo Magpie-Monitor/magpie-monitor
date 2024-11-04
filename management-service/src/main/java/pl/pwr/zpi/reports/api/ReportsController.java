@@ -39,12 +39,12 @@ public class ReportsController {
     }
 
     @GetMapping("/application-incidents/{id}")
-    public ResponseEntity<List<ApplicationIncident>> getApplicationIncidentById(@PathVariable String id) {
+    public ResponseEntity<ApplicationIncident> getApplicationIncidentById(@PathVariable String id) {
         return ResponseEntity.ok().body(reportsService.getApplicationIncidentById(id));
     }
 
     @GetMapping("/node-incidents/{id}")
-    public ResponseEntity<List<NodeIncident>> getNodeIncidentById(@PathVariable String id) {
+    public ResponseEntity<NodeIncident> getNodeIncidentById(@PathVariable String id) {
         return ResponseEntity.ok().body(reportsService.getNodeIncidentById(id));
     }
 
