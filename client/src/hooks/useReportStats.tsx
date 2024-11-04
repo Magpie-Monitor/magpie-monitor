@@ -1,14 +1,11 @@
 import {
   AllIncidentsFromReport,
-  ApplicationIncident,
   ManagmentServiceApiInstance,
-  NodeIncident,
   ReportDetails,
   UrgencyLevel,
 } from 'api/managment-service';
 import { groupBy } from 'lib/arrays';
 import { useEffect, useState } from 'react';
-import { GenericIncident } from 'types/incident';
 
 export interface ReportStats {
   incidents: AllIncidentsFromReport | null;
@@ -55,27 +52,27 @@ const getRecordWithLongestValueArray = <T,>(
   return [highestValueKey, highestValue];
 };
 
-const groupIncidentsByCategory = (
-  incidents: GenericIncident[],
-): Record<string, GenericIncident[]> => {
+const groupIncidentsByCategory = <T extends { category: string }>(
+  incidents: T[],
+): Record<string, T[]> => {
   return groupBy(incidents, (incident) => incident.category);
 };
 
-const groupIncidentsByUrgency = (
-  incidents: GenericIncident[],
-): Record<UrgencyLevel, GenericIncident[]> => {
+const groupIncidentsByUrgency = <T extends { urgency: UrgencyLevel }>(
+  incidents: T[],
+): Record<UrgencyLevel, T[]> => {
   return groupBy(incidents, (incident) => incident.urgency);
 };
 
-const groupIncidentsByApplication = (
-  incidents: ApplicationIncident[],
-): Record<string, ApplicationIncident[]> => {
+const groupIncidentsByApplication = <T extends { applicationName: string }>(
+  incidents: T[],
+): Record<string, T[]> => {
   return groupBy(incidents, (incident) => incident.applicationName);
 };
 
-const groupIncidentsByNode = (
-  incidents: NodeIncident[],
-): Record<string, NodeIncident[]> => {
+const groupIncidentsByNode = <T extends { nodeName: string }>(
+  incidents: T[],
+): Record<string, T[]> => {
   return groupBy(incidents, (incident) => incident.nodeName);
 };
 

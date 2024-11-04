@@ -1,11 +1,13 @@
 import React from 'react';
 import Table, { TableColumn } from 'components/Table/Table';
 import Channels from './NotificationChannelsColumn/NotificationChannelColumn';
-import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionButton';
+import ActionButton, {
+    ActionButtonColor,
+} from 'components/ActionButton/ActionButton';
 import { NotificationChannel } from './NotificationSection.tsx';
 import {
     transformNotificationChannelToServiceColumn,
-    transformNotificationChannelToDetailsColumn
+    transformNotificationChannelToDetailsColumn,
 } from './NotificationUtils.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 
@@ -14,15 +16,16 @@ interface NotificationChannelTableProps {
     onDelete: (id: string) => void;
 }
 
-const NotificationChannelTable: React.FC<NotificationChannelTableProps> = ({ rows, onDelete }) => {
+const NotificationChannelTable: React.FC<NotificationChannelTableProps> = ({
+    rows,
+    onDelete,
+}) => {
     const columns: Array<TableColumn<NotificationChannel>> = [
         {
             header: 'Name',
             columnKey: 'name',
-            customComponent: (row ) => (
-                <LinkComponent href="#">
-                    {row.name}
-                </LinkComponent>
+            customComponent: (row) => (
+                <LinkComponent to="#">{row.name}</LinkComponent>
             ),
         },
         {
