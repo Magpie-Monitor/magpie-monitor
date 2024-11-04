@@ -53,23 +53,21 @@ public class ReportsService {
         return getReportRepresentationById(reportId, ReportDetailedSummary.class);
     }
 
-    public List<ApplicationIncident> getApplicationIncidentById(String incidentId) {
+    public ApplicationIncident getApplicationIncidentById(String incidentId) {
         String url = String.format("%s/v1/application-incidents/%s", REPORT_SERVICE_BASE_URL, incidentId);
-        return httpClient.getList(
+        return httpClient.get(
                 url,
                 Collections.emptyMap(),
-                new TypeReference<>() {
-                }
+                ApplicationIncident.class
         );
     }
 
-    public List<NodeIncident> getNodeIncidentById(String incidentId) {
+    public NodeIncident getNodeIncidentById(String incidentId) {
         String url = String.format("%s/v1/node-incidents/%s", REPORT_SERVICE_BASE_URL, incidentId);
-        return httpClient.getList(
+        return httpClient.get(
                 url,
                 Collections.emptyMap(),
-                new TypeReference<>() {
-                }
+                NodeIncident.class
         );
     }
 
