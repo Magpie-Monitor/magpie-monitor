@@ -7,7 +7,13 @@
 
 .link-component {
   color: $green;
-  cursor: default;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: all 0.1s;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
 
   &__down {
     color: $application-down-color;

@@ -1,21 +1,40 @@
 import React from 'react';
 import './LinkComponent.scss';
 import StateBadge from 'components/StateBadge/StateBadge';
+import { useNavigate } from 'react-router-dom';
 
 interface LinkComponentProps {
-    href: string;
+    to: string;
     children: React.ReactNode;
     className?: string;
-    onClick?: React.MouseEventHandler<HTMLAnchorElement>;
+    onClick?: React.MouseEventHandler<HTMLDivElement>;
     isRunning?: boolean;
 }
 
-const LinkComponent: React.FC<LinkComponentProps> = ({ href, children, className = '', onClick, isRunning }) => {
+const LinkComponent: React.FC<LinkComponentProps> = ({
+    to,
+    children,
+    className = '',
+    onClick,
+    isRunning,
+}) => {
+    const navigate = useNavigate();
+
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (onClick) {
+            onClick(e);
+        }
+
+        navigate(to);
+    };
     return (
         <div className="link-container">
-            <a href={href} className={`link-component ${className} link-component__${isRunning === false ? 'down' : 'up'}`} onClick={onClick}>
+            <div
+                className={`link-component ${className} link-component__${isRunning === false ? 'down' : 'up'}`}
+                onClick={handleClick}
+            >
                 {children}
-            </a>
+            </div>
             {isRunning !== undefined && (
                 <StateBadge label={isRunning ? 'UP' : 'DOWN'} />
             )}
