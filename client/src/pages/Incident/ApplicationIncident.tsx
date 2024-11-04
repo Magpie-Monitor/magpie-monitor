@@ -74,8 +74,8 @@ const ApplicationIncidentPage = () => {
           <ApplicationSourceSection
             content={source.content}
             key={index}
-            container={source.container}
-            pod={source.pod}
+            container={source.containerName}
+            pod={source.podName}
             image={source.image}
             timestamp={source.timestamp}
           />
