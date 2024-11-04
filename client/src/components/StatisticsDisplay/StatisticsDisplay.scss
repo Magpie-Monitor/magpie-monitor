@@ -17,9 +17,9 @@
   &__items {
     display: flex;
     flex-wrap: wrap;
+    height: 100%;
     column-gap: 10px;
     row-gap: 10px;
-    justify-content: space-between;
   }
 
   &__chart {

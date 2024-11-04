@@ -107,18 +107,28 @@
   mask: url('/src/assets/drop-down-icon.svg') no-repeat center;
 }
 
+.report-stats-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/report-stats-icon.svg') no-repeat center;
+}
+
 .reports-list-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/reports_list_icon.svg') no-repeat center;
+}
+
+.report-details-icon {
   @extend .svg-icon;
   mask: url('/src/assets/reports_list_icon.svg') no-repeat center;
 }
 
 .plus-icon {
   @extend .svg-icon;
-  background-color: $component-border-color;
   mask: url('/src/assets/plus-icon.svg') no-repeat center;
 
   .svg-icon {
     transition: fill 0.3s ease;
+    background-color: $component-border-color;
 
     &:hover {
       background-color: $green;
@@ -153,6 +163,43 @@
     background-color: $red;
     width: 25px;
     height: 25px;
+  }
+}
+
+.incident-category-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/fire-icon.svg') no-repeat center;
+  width: 25px;
+  height: 25px;
+  margin-right: 3px;
+
+  .svg-icon {
+    width: 25px;
+    height: 25px;
+  }
+
+  &--high-urgency {
+    @extend .incident-category-icon;
+
+    .svg-icon {
+      background-color: $red;
+    }
+  }
+
+  &--medium-urgency {
+    @extend .incident-category-icon;
+
+    .svg-icon {
+      background-color: $medium-urgency-background;
+    }
+  }
+
+  &--low-urgency {
+    @extend .incident-category-icon;
+
+    .svg-icon {
+      background-color: $green;
+    }
   }
 }
 

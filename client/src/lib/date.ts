@@ -5,6 +5,10 @@ export const dateFromTimestampMs = (timestamp: number): string => {
   return new Date(timestamp).toLocaleString();
 };
 
+export const dateOnlyFromTimestampMs = (timestamp: number): string => {
+  return new Date(timestamp).toLocaleDateString();
+};
+
 export const getFirstAndLastDateFromTimestamps = (
   timestamps: number[],
 ): number[] => {

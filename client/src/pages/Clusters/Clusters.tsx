@@ -71,7 +71,10 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
     header: 'Name',
     columnKey: 'name',
     customComponent: (row: ClusterDataRow) => (
-      <LinkComponent href="#" isRunning={row.state === 'ONLINE'}>
+      <LinkComponent
+        to={`/reports/${row.name}/scheduled`}
+        isRunning={row.state === 'ONLINE'}
+      >
         {row.name}
       </LinkComponent>
     ),

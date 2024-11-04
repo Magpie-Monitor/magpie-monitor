@@ -236,6 +236,7 @@ class ManagmentServiceApi {
     //   applicationIncidents: [
     //     {
     //       clusterId: 'Cluster 1',
+    //       id: 'udd',
     //       title: 'Something wrong with app-1',
     //       urgency: 'HIGH',
     //       category: 'Serious category',
@@ -257,6 +258,7 @@ class ManagmentServiceApi {
     //   ],
     //   nodeIncidents: [
     //     {
+    //       id: 'uid',
     //       clusterId: 'cluster-1',
     //       category: 'Serious category',
     //       title: 'Something wrong with lke-123',
@@ -298,6 +300,14 @@ class ManagmentServiceApi {
   public async getApplicationIncident(
     _id: string,
   ): Promise<ApplicationIncident> {
+    // await this.refreshTokenIfExpired();
+    // const response = await this.axiosInstance.get(
+    //   `/api/v1/reports/application-incidents/${id}`,
+    // );
+    //
+    // return response.data;
+    // const reports: ReportSummary[] = response.data;
+
     return {
       id: '213213',
       urgency: 'LOW',
@@ -337,6 +347,12 @@ class ManagmentServiceApi {
   }
 
   public async getNodeIncident(_id: string): Promise<NodeIncident> {
+    // await this.refreshTokenIfExpired();
+    // const response = await this.axiosInstance.get(
+    //   `/api/v1/reports/application-incidents/${id}`,
+    // );
+    //
+    // return response.data;
     const nodeIncident: NodeIncident = {
       clusterId: 'cluster-1',
       urgency: 'LOW',
