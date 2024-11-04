@@ -9,8 +9,6 @@ import pl.pwr.zpi.reports.dto.report.ReportSummaryDTO;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
-import pl.pwr.zpi.reports.entity.report.application.ApplicationIncident;
-import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
 import pl.pwr.zpi.reports.entity.report.request.ReportGenerationRequestMetadata;
 import pl.pwr.zpi.reports.service.ReportGenerationService;
 import pl.pwr.zpi.reports.service.ReportsService;
