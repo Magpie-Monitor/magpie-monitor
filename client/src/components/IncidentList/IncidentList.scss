@@ -4,6 +4,12 @@
   display: grid;
   grid-template-columns: 1fr 1fr 2fr 1fr;
   overflow-x: scroll;
+  width: 100%;
+
+  &--no-incidents {
+    width: 100%;
+    text-align: center;
+  }
 
   &__headers {
     display: grid;
@@ -44,14 +50,29 @@
     &__date {
       padding: 5px;
       min-width: 150px;
-      grid-template-columns: subgrid;
     }
 
     &__category {
-      color: $red;
-      display: flex;
-      align-items: center;
-      grid-template-columns: subgrid;
+      &--high-urgency {
+        color: $red;
+
+        display: flex;
+        align-items: center;
+      }
+
+      &--medium-urgency {
+        color: $medium-urgency-background;
+
+        display: flex;
+        align-items: center;
+      }
+
+      &--low-urgency {
+        color: $green;
+
+        display: flex;
+        align-items: center;
+      }
     }
   }
 }
