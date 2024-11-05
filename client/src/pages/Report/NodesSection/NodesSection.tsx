@@ -10,7 +10,7 @@ import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
 import { AccuracyLevel } from 'api/managment-service';
 import NodesEntriesSelector from 'components/NodesEntriesSelector/NodesEntriesSelector.tsx';
 
-export interface NodeEntry { //change to NodeDataRow
+export interface NodeDataRow {
     name: string;
     running: boolean;
     accuracy: AccuracyLevel;
@@ -21,13 +21,13 @@ export interface NodeEntry { //change to NodeDataRow
 }
 
 interface NodesSectionProps {
-    setNodes: (nodes: NodeEntry[]) => void;
+    setNodes: (nodes: NodeDataRow[]) => void;
 }
 
 const NodesSection: React.FC<NodesSectionProps> = ({ setNodes }) => {
-    const [rows, setRows] = useState<NodeEntry[]>([]);
+    const [rows, setRows] = useState<NodeDataRow[]>([]);
     const [showModal, setShowModal] = useState(false);
-    const [selectedNodes, setSelectedNodes] = useState<NodeEntry[]>([]);
+    const [selectedNodes, setSelectedNodes] = useState<NodeDataRow[]>([]);
 
     useEffect(() => {
         setNodes(rows);
@@ -63,11 +63,11 @@ const NodesSection: React.FC<NodesSectionProps> = ({ setNodes }) => {
         setRows((prevRows) => prevRows.filter((row) => row.name !== name));
     };
 
-    const columns: Array<TableColumn<NodeEntry>> = [
+    const columns: Array<TableColumn<NodeDataRow>> = [
         {
             header: 'Name',
             columnKey: 'name',
-            customComponent: (row: NodeEntry) => (
+            customComponent: (row: NodeDataRow) => (
                 <LinkComponent to="" isRunning={row.running}>
                     {row.name}
                 </LinkComponent>
@@ -76,7 +76,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({ setNodes }) => {
         {
             header: 'Accuracy',
             columnKey: 'accuracy',
-            customComponent: (row: NodeEntry) => (
+            customComponent: (row: NodeDataRow) => (
                 <TagButton
                     listItems={['HIGH', 'MEDIUM', 'LOW']}
                     chosenItem={row.accuracy}
@@ -89,7 +89,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({ setNodes }) => {
         {
             header: 'Custom prompt',
             columnKey: 'customPrompt',
-            customComponent: (row: NodeEntry) => (
+            customComponent: (row: NodeDataRow) => (
                 <CustomPrompt
                     value={row.customPrompt}
                     onChange={(value) => handleCustomPromptChange(row.name, value)}
@@ -102,7 +102,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({ setNodes }) => {
         {
             header: 'Actions',
             columnKey: 'actions',
-            customComponent: (row: NodeEntry) => (
+            customComponent: (row: NodeDataRow) => (
                 <ActionButton
                     onClick={() => handleDelete(row.name)}
                     description="Delete"
