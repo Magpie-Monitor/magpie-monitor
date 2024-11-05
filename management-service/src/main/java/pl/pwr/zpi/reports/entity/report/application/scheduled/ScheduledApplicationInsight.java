@@ -1,10 +1,14 @@
 package pl.pwr.zpi.reports.entity.report.application.scheduled;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ScheduledApplicationInsight {
     private List<String> scheduledJobIds;
     private Long sinceMs;

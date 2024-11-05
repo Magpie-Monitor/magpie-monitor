@@ -11,7 +11,7 @@ public interface ReportRepository extends MongoRepository<Report, String> {
 
     List<ReportSummaryProjection> findAllProjectedBy();
 
-    Optional<ReportDetailedSummaryProjection> findProjectedBy(String reportId);
+    Optional<ReportDetailedSummaryProjection> findProjectedDetailedById(String reportId);
 
-    Optional<ReportIncidentsProjection> findProjectedById(String reportId);
+    Optional<ReportIncidentsProjection> findProjectedIncidentsById(String reportId);
 }

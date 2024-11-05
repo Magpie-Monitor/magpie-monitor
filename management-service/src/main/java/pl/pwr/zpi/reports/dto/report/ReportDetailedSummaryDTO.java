@@ -10,10 +10,14 @@ public record ReportDetailedSummaryDTO(
         String clusterId,
         String title,
         Urgency urgency,
+        Long requestedAtMs,
         Long sinceMs,
         Long toMs,
         Integer totalApplicationEntries,
-        Integer totalNodeEntries) {
+        Integer totalNodeEntries,
+        Integer analyzedApplications,
+        Integer analyzedNodes
+) {
 
     public static ReportDetailedSummaryDTO fromReportDetailedSummaryProjection(ReportDetailedSummaryProjection projection) {
         return ReportDetailedSummaryDTO.builder()
@@ -21,10 +25,13 @@ public record ReportDetailedSummaryDTO(
                 .clusterId(projection.getClusterId())
                 .title(projection.getTitle())
                 .urgency(projection.getUrgency())
+                .requestedAtMs(projection.getRequestedAtMs())
                 .sinceMs(projection.getSinceMs())
                 .toMs(projection.getToMs())
                 .totalApplicationEntries(projection.getTotalApplicationEntries())
                 .totalNodeEntries(projection.getTotalNodeEntries())
+                .analyzedApplications(projection.getAnalyzedApplications())
+                .analyzedNodes(projection.getAnalyzedNodes())
                 .build();
     }
 }

@@ -1,8 +1,10 @@
 package pl.pwr.zpi.reports.entity.report;
 
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncident;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationReport;
 import pl.pwr.zpi.reports.entity.report.application.scheduled.ScheduledApplicationInsight;
@@ -15,9 +17,13 @@ import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Report {
     @Id
     private String id;
+    private String correlationId;
+    private String status;
     private String clusterId;
     private Long sinceMs;
     private Long toMs;
