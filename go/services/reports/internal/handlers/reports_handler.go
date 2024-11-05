@@ -413,6 +413,5 @@ func (h *ReportsHandler) PollReports() {
 				err.Msg,
 			))
 		}
-
 	}
 }
