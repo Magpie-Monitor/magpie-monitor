@@ -1,5 +1,6 @@
 package pl.pwr.zpi.reports.entity.report.node;
 
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NodeIncident {
+    @Id
     private String id;
     private String title;
     private Accuracy accuracy;
