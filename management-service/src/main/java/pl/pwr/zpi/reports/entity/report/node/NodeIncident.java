@@ -1,10 +1,10 @@
 package pl.pwr.zpi.reports.entity.report.node;
 
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 import pl.pwr.zpi.reports.enums.Accuracy;
 import pl.pwr.zpi.reports.enums.Urgency;
 
@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NodeIncident {
-    @Id
+    @MongoId
     private String id;
     private String title;
     private Accuracy accuracy;

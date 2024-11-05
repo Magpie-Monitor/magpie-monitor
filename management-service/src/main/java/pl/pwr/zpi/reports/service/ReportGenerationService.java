@@ -52,19 +52,28 @@ public class ReportGenerationService {
     public void handleReportGenerationError(ReportRequestFailed requestFailed) {
         log.error("Report generation request failed: {}", requestFailed);
         reportGenerationRequestMetadataRepository.findByCorrelationId(requestFailed.correlationId())
-                .ifPresentOrElse(this::failReportGenerationRequest, () -> {
-                    throw new RuntimeException(
-                            String.format("Report generation request of correlationId: %s has failed, " +
+                .ifPresentOrElse(
+                        metadata -> failReportGenerationRequest(metadata, requestFailed),
+                        () -> {
+                            throw new RuntimeException(
+                                String.format("Report generation request of correlationId: %s has failed, " +
                                     "but there's no corresponding request metadata.", requestFailed.correlationId()
-                            ));
+                                ));
                 });
     }
 
-    private void failReportGenerationRequest(ReportGenerationRequestMetadata requestMetadata) {
+    private void failReportGenerationRequest(ReportGenerationRequestMetadata requestMetadata,
+                                             ReportRequestFailed requestFailed) {
         log.info("Report generation request failed, correlationId: {}, clusterId: {}", requestMetadata.getCorrelationId(), requestMetadata.getCreateReportRequest().clusterId());
 
-        updateReportGenerationRequestMetadataStatus(requestMetadata, ReportGenerationStatus.ERROR);
+        markReportGenerationRequestAsFailed(requestMetadata, requestFailed);
         notifyReportGenerationFailed(requestMetadata);
+    }
+
+    private void markReportGenerationRequestAsFailed(
+            ReportGenerationRequestMetadata requestMetadata, ReportRequestFailed requestFailed) {
+        requestMetadata.setError(requestFailed);
+        updateReportGenerationRequestMetadataStatus(requestMetadata, ReportGenerationStatus.ERROR);
     }
 
     public void handleReportGenerated(ReportGenerated reportGenerated) {
