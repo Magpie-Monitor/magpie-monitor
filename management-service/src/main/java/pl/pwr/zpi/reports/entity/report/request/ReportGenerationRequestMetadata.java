@@ -20,7 +20,7 @@ public class ReportGenerationRequestMetadata {
     ) {
         return ReportGenerationRequestMetadata.builder()
                 .correlationId(correlationId)
-                .status(ReportGenerationStatus.GENERATED)
+                .status(ReportGenerationStatus.GENERATING)
                 .createReportRequest(createReportRequest)
                 .build();
     }

@@ -17,6 +17,7 @@ public class ReportPublisher {
 
     @Value("${kafka.report.requested.topic}")
     private String REPORT_REQUESTED_TOPIC;
+    private final String ERROR_TYPE = "KAFKA_REPORT_GENERATION_PUBLISH_ERROR";
     private final KafkaTemplate<String, ReportRequested> kafkaTemplate;
 
     public void publishReportRequestedEvent(ReportRequested reportRequested, Consumer<ReportRequestFailed> onError) {
@@ -30,7 +31,7 @@ public class ReportPublisher {
                 onError.accept(
                         ReportRequestFailed.builder()
                                 .correlationId(reportRequested.correlationId())
-                                .errorType("KAFKA_SENDING_ERROR")
+                                .errorType(ERROR_TYPE)
                                 .errorMessage(ex.getMessage())
                                 .build()
                 );

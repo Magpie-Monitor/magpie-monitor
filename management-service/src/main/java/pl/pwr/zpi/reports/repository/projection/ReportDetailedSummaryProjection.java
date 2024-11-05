@@ -11,6 +11,8 @@ public interface ReportDetailedSummaryProjection {
 
     Urgency getUrgency();
 
+    Long getRequestedAtMs();
+
     Long getSinceMs();
 
     Long getToMs();
@@ -18,4 +20,8 @@ public interface ReportDetailedSummaryProjection {
     Integer getTotalApplicationEntries();
 
     Integer getTotalNodeEntries();
+
+    Integer getAnalyzedApplications();
+
+    Integer getAnalyzedNodes();
 }

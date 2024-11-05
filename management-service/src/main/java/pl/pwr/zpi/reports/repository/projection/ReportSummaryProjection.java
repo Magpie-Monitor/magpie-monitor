@@ -11,6 +11,8 @@ public interface ReportSummaryProjection {
 
     Urgency getUrgency();
 
+    Long getRequestedAtMs();
+
     Long getSinceMs();
 
     Long getToMs();
