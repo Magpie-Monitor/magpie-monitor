@@ -23,31 +23,6 @@ public class ReportsController {
     private final ReportsService reportsService;
     private final ReportGenerationService reportGenerationService;
 
-//    @GetMapping
-//    public ResponseEntity<List<ReportSummary>> getReports() {
-//        return ResponseEntity.ok().body(reportsService.getReportSummaries());
-//    }
-
-//    @GetMapping("/{id}")
-//    public ResponseEntity<ReportDetailedSummary> getReportById(@PathVariable String id) {
-//        return ResponseEntity.ok().body(reportsService.getReportDetailedSummaryById(id));
-//    }
-
-//    @GetMapping("/{id}/incidents")
-//    public ResponseEntity<ReportIncidents> getReportIncidents(@PathVariable String id) {
-//        return ResponseEntity.ok().body(reportsService.getReportIncidents(id));
-//    }
-
-    @GetMapping("/application-incidents/{id}")
-    public ResponseEntity<ApplicationIncident> getApplicationIncidentById(@PathVariable String id) {
-        return ResponseEntity.ok().body(reportsService.getApplicationIncidentById(id));
-    }
-
-    @GetMapping("/node-incidents/{id}")
-    public ResponseEntity<NodeIncident> getNodeIncidentById(@PathVariable String id) {
-        return ResponseEntity.ok().body(reportsService.getNodeIncidentById(id));
-    }
-
     @PostMapping
     public ResponseEntity<Void> createReport(@RequestBody CreateReportRequest reportRequest) {
         reportGenerationService.createReport(reportRequest);
