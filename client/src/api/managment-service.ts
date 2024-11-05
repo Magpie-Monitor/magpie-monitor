@@ -84,6 +84,14 @@ export interface Node {
   added: string;
 }
 
+export interface Email {
+  id: string;
+  receiverName: string;
+  receiverEmail: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const MANAGMENT_SERVICE_URL = import.meta.env.VITE_BACKEND_URL;
 const VALID_URGENCY_VALUES: ReportSummary['urgency'][] = [
   'HIGH',
@@ -456,7 +464,7 @@ class ManagmentServiceApi {
         added: '07.03.2024 15:32',
       },
       {
-        id: '2',
+        id: '1',
         name: 'Infra team discord',
         service: 'DISCORD',
         details: 'wms_dev/#dev-infra-alerts',
@@ -464,7 +472,7 @@ class ManagmentServiceApi {
         added: '07.03.2024 15:32',
       },
       {
-        id: '3',
+        id: '1',
         name: 'Kontakt wms',
         service: 'EMAIL',
         details: 'kontakt@wmsdev.pl',

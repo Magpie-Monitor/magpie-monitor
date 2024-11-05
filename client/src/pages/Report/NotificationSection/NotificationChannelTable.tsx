@@ -13,7 +13,7 @@ import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 
 interface NotificationChannelTableProps {
     rows: NotificationChannel[];
-    onDelete: (id: string) => void;
+    onDelete: (id: string, service: string) => void;
 }
 
 const NotificationChannelTable: React.FC<NotificationChannelTableProps> = ({
@@ -49,7 +49,7 @@ const NotificationChannelTable: React.FC<NotificationChannelTableProps> = ({
             columnKey: 'actions',
             customComponent: (row: NotificationChannel) => (
                 <ActionButton
-                    onClick={() => onDelete(row.id)}
+                    onClick={() => onDelete(row.id, row.service)}
                     description="Delete"
                     color={ActionButtonColor.RED}
                 />

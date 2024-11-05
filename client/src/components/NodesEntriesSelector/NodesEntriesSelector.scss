@@ -1,0 +1,11 @@
+.nodes-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  &__button-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+}
