@@ -406,11 +406,13 @@ func (h *ReportsHandler) PollReports() {
 			h.reportGeneratedBroker.Publish(report.CorrelationId, brokers.NewReportGenerated(
 				report,
 			))
+
 		case err := <-errChannel:
 			h.reportRequestFailedBroker.Publish(err.Report.CorrelationId, *brokers.NewReportRequestFailedInternalError(
 				err.Report.CorrelationId,
 				err.Msg,
 			))
 		}
+
 	}
 }
