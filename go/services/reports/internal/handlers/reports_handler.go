@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	messagebroker "github.com/Magpie-Monitor/magpie-monitor/pkg/message-broker"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
@@ -402,92 +401,16 @@ func (h *ReportsHandler) PollReports() {
 	go h.reportsService.PollReports(context.Background(), reportsChannel, errChannel)
 
 	for {
-		// select {
-		// case report := <-reportsChannel:
-		report := &repositories.Report{
-			Id:                      "test",
-			CorrelationId:           "1234",
-			Status:                  repositories.ReportState_Generated,
-			SinceMs:                 1234,
-			ToMs:                    4567,
-			RequestedAtMs:           1000,
-			ScheduledGenerationAtMs: 900,
-			Title:                   "title",
-			TotalApplicationEntries: 300,
-			TotalNodeEntries:        300,
-			NodeReports: []*repositories.NodeReport{
-				&repositories.NodeReport{
-					Node:         "test",
-					Accuracy:     insights.Accuracy__High,
-					CustomPrompt: "custom prompt - test",
-					Incidents: []*repositories.NodeIncident{
-						&repositories.NodeIncident{
-							Id:             "test",
-							Title:          "test2",
-							Accuracy:       insights.Accuracy__High,
-							CustomPrompt:   "test",
-							ClusterId:      "test2",
-							NodeName:       "test",
-							Category:       "test",
-							Summary:        "test",
-							Recommendation: "test",
-							Urgency:        insights.Urgency_High,
-							Sources: []repositories.NodeIncidentSource{
-								repositories.NodeIncidentSource{
-									Timestamp: 1234,
-									Content:   "test",
-									Filename:  "test",
-								},
-							},
-						},
-					},
-				},
-			},
-			ApplicationReports: []*repositories.ApplicationReport{
-				&repositories.ApplicationReport{
-					ApplicationName: "test",
-					Accuracy:        insights.Accuracy__High,
-					CustomPrompt:    "test",
-					Incidents: []*repositories.ApplicationIncident{
-						&repositories.ApplicationIncident{
-							Id:              "test",
-							Title:           "test2",
-							ApplicationName: "test",
-							CustomPrompt:    "test",
-							ClusterId:       "test2",
-							Category:        "test",
-							Summary:         "test",
-							Recommendation:  "test",
-							Urgency:         insights.Urgency_High,
-							Accuracy:        insights.Accuracy__High,
-							Sources: []repositories.ApplicationIncidentSource{
-								repositories.ApplicationIncidentSource{
-									Timestamp:     1234,
-									PodName:       "test",
-									ContainerName: "test2",
-									Image:         "TESST",
-									Content:       "testwst",
-								},
-							},
-						},
-					},
-				},
-			},
-			Urgency: insights.Urgency_High,
+		select {
+		case report := <-reportsChannel:
+			h.reportGeneratedBroker.Publish(report.CorrelationId, brokers.NewReportGenerated(
+				report,
+			))
+		case err := <-errChannel:
+			h.reportRequestFailedBroker.Publish(err.Report.CorrelationId, *brokers.NewReportRequestFailedInternalError(
+				err.Report.CorrelationId,
+				err.Msg,
+			))
 		}
-
-		h.reportGeneratedBroker.Publish(report.CorrelationId, brokers.NewReportGenerated(
-			report,
-		))
-
-		// case err := <-errChannel:
-		h.reportRequestFailedBroker.Publish("1234", *brokers.NewReportRequestFailedInternalError(
-			"1234",
-			"mock-error",
-		))
-		// }
-
-		time.Sleep(15 * time.Second)
 	}
-
 }
