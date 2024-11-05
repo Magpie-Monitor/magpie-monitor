@@ -1,8 +1,10 @@
 package pl.pwr.zpi.reports.entity.report.request;
 
-import jakarta.persistence.Id;
+import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.MongoId;
+import pl.pwr.zpi.reports.dto.event.ReportRequestFailed;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
 import pl.pwr.zpi.reports.enums.ReportGenerationStatus;
 
@@ -11,9 +13,11 @@ import java.util.List;
 @Data
 @Builder
 public class ReportGenerationRequestMetadata {
-    @Id
+    @MongoId
+    @Column(name = "correlationId")
     private String correlationId;
     private ReportGenerationStatus status;
+    private ReportRequestFailed error;
     private CreateReportRequest createReportRequest;
 
     public static ReportGenerationRequestMetadata fromCreateReportRequest(
