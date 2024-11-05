@@ -1,16 +1,16 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
 import Table, { TableColumn } from 'components/Table/Table.tsx';
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionButton.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
-import { ManagmentServiceApiInstance, AccuracyLevel} from 'api/managment-service';
-import Spinner from 'components/Spinner/Spinner.tsx';
+import { AccuracyLevel } from 'api/managment-service';
+import NodesEntriesSelector from 'components/NodesEntriesSelector/NodesEntriesSelector.tsx';
 
-export interface NodeEntry {
+export interface NodeEntry { //change to NodeDataRow
     name: string;
     running: boolean;
     accuracy: AccuracyLevel;
@@ -20,39 +20,23 @@ export interface NodeEntry {
     [key: string]: string | boolean | AccuracyLevel;
 }
 
-const NodesSection = () => {
+interface NodesSectionProps {
+    setNodes: (nodes: NodeEntry[]) => void;
+}
+
+const NodesSection: React.FC<NodesSectionProps> = ({ setNodes }) => {
     const [rows, setRows] = useState<NodeEntry[]>([]);
     const [showModal, setShowModal] = useState(false);
-    const [loading, setLoading] = useState(true);
-
-    const fetchNodes = async () => {
-        try {
-            setLoading(true);
-            const nodesData = await ManagmentServiceApiInstance.getNodes();
-
-            const nodeRows = nodesData.map((node): NodeEntry => ({
-                name: node.name,
-                running: node.running,
-                accuracy: node.accuracy,
-                customPrompt: node.customPrompt,
-                updated: node.updated,
-                added: node.added,
-            }));
-
-            setRows(nodeRows);
-        } catch (e: unknown) {
-            console.error('Failed to fetch nodes', e);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [selectedNodes, setSelectedNodes] = useState<NodeEntry[]>([]);
 
     useEffect(() => {
-        fetchNodes();
-    }, []);
+        setNodes(rows);
+    }, [rows, setNodes]);
 
-    const handleAddClick = () => {
-        setShowModal(true);
+    const handleAddNodes = () => {
+        setRows([...rows, ...selectedNodes]);
+        setSelectedNodes([]);
+        setShowModal(false);
     };
 
     const handleCloseModal = () => {
@@ -130,15 +114,22 @@ const NodesSection = () => {
         <SectionComponent
             icon={<SVGIcon iconName="application-icon" />}
             title={'Nodes'}
-            callback={handleAddClick}>
+            callback={() => setShowModal(true)}>
             {showModal && (
-                <OverlayComponent isDisplayed={showModal} onClose={handleCloseModal}>
-                    <p>No nodes here (probably Wojciech dropped all of them)</p>
+                <OverlayComponent
+                    isDisplayed={showModal}
+                    onClose={handleCloseModal}
+                >
+                    <NodesEntriesSelector
+                        selectedNodes={selectedNodes}
+                        setSelectedNodes={setSelectedNodes}
+                        nodesToExclude={rows}
+                        onAdd={handleAddNodes}
+                        onClose={handleCloseModal}
+                    />
                 </OverlayComponent>
             )}
-            {loading ? (
-                <Spinner />
-            ) : rows.length === 0 ? (
+            {rows.length === 0 ? (
                 <p>No Nodes selected, please add new</p>
             ) : (
                 <Table columns={columns} rows={rows} />

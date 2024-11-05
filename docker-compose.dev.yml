@@ -16,130 +16,130 @@ services:
           target: /app/src
         - action: rebuild
           path: ./client/package.json
-  logs-generation-service:
-    user: "0"
-    container_name: magpie-monitor-logs-generation-service
-    restart: on-failure
-    image: magpiemonitor/logs-generation-service
-    build:
-      context: ./go
-      dockerfile: ./docker/logs_generation/Dockerfile
-    environment:
-      - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
-      - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
-      - LOGS_INGESTION_QUEUE_USERNAME=${KAFKA_CLIENT_USERNAME}
-      - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
-    develop:
-      watch:
-        - action: rebuild
-          path: ./go/services/logs_generation
-          target: /src
-        - action: rebuild
-          path: ./go/pkg
-          target: /src
-  pod-agent:
-    user: "0" # Elevated permission needed for bind mount
-    container_name: magpie-monitor-pod-agent
-    image: magpiemonitor/agent
-    build:
-      context: ./agent/app
-      dockerfile: Dockerfile
-    restart: always
-    command:
-      - "--runningMode"
-      - "local"
-      - "--clusterFriendlyName"
-      - "local-docker"
-      - "--scrape"
-      - "pods"
-      - "--logScrapeIntervalSeconds"
-      - ${POD_AGENT_LOG_SCRAPE_INTERVAL_SECONDS}
-      - "--metadataScrapeIntervalSeconds"
-      - ${POD_AGENT_METADATA_SCRAPE_INTERVAL_SECONDS}
-      - "--remoteWriteBrokerUrl"
-      - ${KAFKA_BROKER_URL}
-      - "--remoteWriteBrokerUsername"
-      - ${KAFKA_CLIENT_USERNAME}
-      - "--remoteWriteBrokerPassword"
-      - ${KAFKA_CLIENT_PASSWORD}
-      - "--remoteWriteBatchSize"
-      - ${KAFKA_CLIENT_BATCH_SIZE}
-      - "--podRemoteWriteMetadataUrl"
-      - ${POD_AGENT_METADATA_REMOTE_WRITE_URL}
-      - "--clusterMetadataServiceClientSecret"
-      - ${CLUSTER_METADATA_SERVICE_CLIENT_SECRET}
-    develop:
-      watch:
-        - action: rebuild
-          path: ./agent/app
-          target: /src
-    volumes:
-      - ${POD_AGENT_HOST_KUBECONFIG_PATH:-/.kube}:/root/.kube
-  node-agent:
-    user: "0" # Elevated permission needed for bind mount
-    container_name: magpie-monitor-node-agent
-    image: magpiemonitor/agent
-    depends_on:
-      - redis
-    build:
-      context: ./agent/app
-      dockerfile: Dockerfile
-    restart: always
-    command:
-      - "--runningMode"
-      - "local"
-      - "--scrape"
-      - "nodes"
-      - "--logScrapeIntervalSeconds"
-      - ${NODE_AGENT_LOG_SCRAPE_INTERVAL_SECONDS}
-      - "--metadataScrapeIntervalSeconds"
-      - ${NODE_AGENT_METADATA_SCRAPE_INTERVAL_SECONDS}
-      - "--redisUrl"
-      - "magpie-monitor-redis:6379"
-      - "--redisPassword"
-      - ${REDIS_PASSWORD}
-      - "--file"
-      - ${NODE_AGENT_WATCHED_FILE}
-      - "--remoteWriteBrokerUrl"
-      - ${KAFKA_BROKER_URL}
-      - "--remoteWriteBrokerUsername"
-      - ${KAFKA_CLIENT_USERNAME}
-      - "--remoteWriteBrokerPassword"
-      - ${KAFKA_CLIENT_PASSWORD}
-      - "--remoteWriteBatchSize"
-      - ${KAFKA_CLIENT_BATCH_SIZE}
-      - "--nodeRemoteWriteMetadataUrl"
-      - ${NODE_AGENT_METADATA_REMOTE_WRITE_URL}
-      - "--clusterMetadataServiceClientSecret"
-      - ${CLUSTER_METADATA_SERVICE_CLIENT_SECRET}
-    environment:
-      NODE_NAME: "mock-node-name"
-    develop:
-      watch:
-        - action: rebuild
-          path: ./agent/app
-          target: /src
-    volumes:
-      - ${NODE_AGENT_HOST_WATCHED_FILE_PATH:-/log/file}:/var/log/file
-  # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in a dev environment.
-  redis:
-    container_name: magpie-monitor-redis
-    image: redis:7.4-alpine
-    restart: always
-    command:
-      - "--requirepass"
-      - ${REDIS_PASSWORD:-6379}
-    ports:
-      - "6380:6379"
-    volumes:
-      - redisdata:/data
-  redisinsight:
-    container_name: magpie-monitor-redisinsight
-    image: redis/redisinsight:latest
-    ports:
-      - ${REPORTS_REDISINSIGHT_PORT}:5540
-    volumes:
-      - redisinsight:/data
+#  logs-generation-service:
+#    user: "0"
+#    container_name: magpie-monitor-logs-generation-service
+#    restart: on-failure
+#    image: magpiemonitor/logs-generation-service
+#    build:
+#      context: ./go
+#      dockerfile: ./docker/logs_generation/Dockerfile
+#    environment:
+#      - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
+#      - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
+#      - LOGS_INGESTION_QUEUE_USERNAME=${KAFKA_CLIENT_USERNAME}
+#      - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
+#    develop:
+#      watch:
+#        - action: rebuild
+#          path: ./go/services/logs_generation
+#          target: /src
+#        - action: rebuild
+#          path: ./go/pkg
+#          target: /src
+#  pod-agent:
+#    user: "0" # Elevated permission needed for bind mount
+#    container_name: magpie-monitor-pod-agent
+#    image: magpiemonitor/agent
+#    build:
+#      context: ./agent/app
+#      dockerfile: Dockerfile
+#    restart: always
+#    command:
+#      - "--runningMode"
+#      - "local"
+#      - "--clusterFriendlyName"
+#      - "local-docker"
+#      - "--scrape"
+#      - "pods"
+#      - "--logScrapeIntervalSeconds"
+#      - ${POD_AGENT_LOG_SCRAPE_INTERVAL_SECONDS}
+#      - "--metadataScrapeIntervalSeconds"
+#      - ${POD_AGENT_METADATA_SCRAPE_INTERVAL_SECONDS}
+#      - "--remoteWriteBrokerUrl"
+#      - ${KAFKA_BROKER_URL}
+#      - "--remoteWriteBrokerUsername"
+#      - ${KAFKA_CLIENT_USERNAME}
+#      - "--remoteWriteBrokerPassword"
+#      - ${KAFKA_CLIENT_PASSWORD}
+#      - "--remoteWriteBatchSize"
+#      - ${KAFKA_CLIENT_BATCH_SIZE}
+#      - "--podRemoteWriteMetadataUrl"
+#      - ${POD_AGENT_METADATA_REMOTE_WRITE_URL}
+#      - "--clusterMetadataServiceClientSecret"
+#      - ${CLUSTER_METADATA_SERVICE_CLIENT_SECRET}
+#    develop:
+#      watch:
+#        - action: rebuild
+#          path: ./agent/app
+#          target: /src
+#    volumes:
+#      - ${POD_AGENT_HOST_KUBECONFIG_PATH:-/.kube}:/root/.kube
+#  node-agent:
+#    user: "0" # Elevated permission needed for bind mount
+#    container_name: magpie-monitor-node-agent
+#    image: magpiemonitor/agent
+#    depends_on:
+#      - redis
+#    build:
+#      context: ./agent/app
+#      dockerfile: Dockerfile
+#    restart: always
+#    command:
+#      - "--runningMode"
+#      - "local"
+#      - "--scrape"
+#      - "nodes"
+#      - "--logScrapeIntervalSeconds"
+#      - ${NODE_AGENT_LOG_SCRAPE_INTERVAL_SECONDS}
+#      - "--metadataScrapeIntervalSeconds"
+#      - ${NODE_AGENT_METADATA_SCRAPE_INTERVAL_SECONDS}
+#      - "--redisUrl"
+#      - "magpie-monitor-redis:6379"
+#      - "--redisPassword"
+#      - ${REDIS_PASSWORD}
+#      - "--file"
+#      - ${NODE_AGENT_WATCHED_FILE}
+#      - "--remoteWriteBrokerUrl"
+#      - ${KAFKA_BROKER_URL}
+#      - "--remoteWriteBrokerUsername"
+#      - ${KAFKA_CLIENT_USERNAME}
+#      - "--remoteWriteBrokerPassword"
+#      - ${KAFKA_CLIENT_PASSWORD}
+#      - "--remoteWriteBatchSize"
+#      - ${KAFKA_CLIENT_BATCH_SIZE}
+#      - "--nodeRemoteWriteMetadataUrl"
+#      - ${NODE_AGENT_METADATA_REMOTE_WRITE_URL}
+#      - "--clusterMetadataServiceClientSecret"
+#      - ${CLUSTER_METADATA_SERVICE_CLIENT_SECRET}
+#    environment:
+#      NODE_NAME: "mock-node-name"
+#    develop:
+#      watch:
+#        - action: rebuild
+#          path: ./agent/app
+#          target: /src
+#    volumes:
+#      - ${NODE_AGENT_HOST_WATCHED_FILE_PATH:-/log/file}:/var/log/file
+#  # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in a dev environment.
+#  redis:
+#    container_name: magpie-monitor-redis
+#    image: redis:7.4-alpine
+#    restart: always
+#    command:
+#      - "--requirepass"
+#      - ${REDIS_PASSWORD:-6379}
+#    ports:
+#      - "6380:6379"
+#    volumes:
+#      - redisdata:/data
+#  redisinsight:
+#    container_name: magpie-monitor-redisinsight
+#    image: redis/redisinsight:latest
+#    ports:
+#      - ${REPORTS_REDISINSIGHT_PORT}:5540
+#    volumes:
+#      - redisinsight:/data
 
 volumes:
   redisdata:

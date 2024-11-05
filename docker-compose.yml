@@ -12,164 +12,164 @@ services:
       - VIRTUAL_HOST=${CLIENT_PRODUCTION_HOST}
       - LETSENCRYPT_HOST=${CLIENT_PRODUCTION_HOST}
       - VIRTUAL_PORT=80
-  reports-service:
-    user: "0"
-    container_name: magpie-monitor-reports-service
-    restart: on-failure
-    image: magpiemonitor/reports-service
-    build:
-      context: ./go
-      dockerfile: ./docker/reports/Dockerfile
-    ports:
-      - ${REPORTS_SERVICE_PORT:-8090}:${REPORTS_SERVICE_PORT:-8090}
-    develop:
-      watch:
-        - action: rebuild
-          path: ./go/services/reports
-          target: /src
-        - action: rebuild
-          path: ./go/pkg
-          target: /src
-    volumes:
-      - es-certs:/usr/local/share
-    healthcheck:
-      test: curl --fail http://localhost:8080 || exit 1
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    environment:
-      - REPORTSDB_USER=${REPORTSDB_USER}
-      - REPORTSDB_PASSWORD=${REPORTSDB_PASSWORD}
-      - REPORTSDB_HOST=${REPORTSDB_HOST}
-      - REPORTSDB_PORT=${REPORTSDB_PORT}
-      - REPORTS_SERVICE_PORT=${REPORTS_SERVICE_PORT}
-      - LOGSDB_PORT=${LOGSDB_PORT}
-      - LOGSDB_HOST=${LOGSDB_HOST}
-      - LOGSDB_USER=${LOGSDB_USER}
-      - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
-      - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
-      - REPORTS_OPENAI_API_KEY=${REPORTS_OPENAI_API_KEY}
-      - REPORTS_OPENAI_API_URL=${REPORTS_OPENAI_API_URL}
-      - REPORTS_OPENAI_API_MODEL=${REPORTS_OPENAI_API_MODEL}
-      - REPORTS_OPENAI_BATCH_SIZE_BYTES=${REPORTS_OPENAI_BATCH_SIZE_BYTES}
-      - REPORTS_OPENAI_CONTEXT_SIZE_BYTES=${REPORTS_OPENAI_CONTEXT_SIZE_BYTES}
-      - REPORTS_OPENAI_MODEL_TEMPERATURE=${REPORTS_OPENAI_MODEL_TEMPERATURE}
-      - REPORTS_OPENAI_POLLING_INTERVAL_SECONDS=${REPORTS_OPENAI_POLLING_INTERVAL_SECONDS}
-      - REPORTS_BATCH_AWAITING_INTERVAL_SECONDS=${REPORTS_BATCH_AWAITING_INTERVAL_SECONDS}
-      - REPORTS_POLLING_INTERVAL_SECONDS=${REPORTS_POLLING_INTERVAL_SECONDS}
-      - REPORTS_PENDING_BATCH_REDIS_URL=${REPORTS_PENDING_BATCH_REDIS_URL}
-      - REPORTS_PENDING_BATCH_REDIS_PASSWORD=${REPORTS_PENDING_BATCH_REDIS_PASSWORD}
-      - REPORTS_PENDING_BATCH_REDIS_DB=${REPORTS_PENDING_BATCH_REDIS_DB}
-      - MESSAGE_BROKER_USERNAME=${MESSAGE_BROKER_USERNAME}
-      - MESSAGE_BROKER_PASSWORD=${MESSAGE_BROKER_PASSWORD}
-      - MESSAGE_BROKER_ADDRESS=${MESSAGE_BROKER_ADDRESS}
-      - KAFKA_MAX_MESSAGE_SIZE_BYTES=${KAFKA_MAX_MESSAGE_SIZE_BYTES}
-      - KAFKA_BROKER_GROUP_ID=${KAFKA_BROKER_GROUP_ID}
-      - REPORT_GENERATED_BROKER_TOPIC=${REPORT_GENERATED_BROKER_TOPIC}
-      - REPORT_REQUEST_FAILED_BROKER_TOPIC=${REPORT_REQUEST_FAILED_BROKER_TOPIC}
-      - REPORT_REQUESTED_BROKER_TOPIC=${REPORT_REQUESTED_BROKER_TOPIC}
-      - REPORTS_MAX_IN_PRORESS_TOKENS=${REPORTS_MAX_IN_PRORESS_TOKENS}
-      - REPORTS_MAX_OPENAI_OUTPUT_COMPLETION_TOKENS=${REPORTS_MAX_OPENAI_OUTPUT_COMPLETION_TOKENS}
-      - SWAGGER_HOST=${REPORTS_SERVICE_HOST}
-      - VIRTUAL_HOST=${REPORTS_PRODUCTION_HOST}
-      - LETSENCRYPT_HOST=${REPORTS_PRODUCTION_HOST}
-      - VIRTUAL_PORT=${REPORTS_SERVICE_PORT}
-  reports-redis:
-    container_name: magpie-monitor-reports-redis
-    image: redis:7.4-alpine
-    restart: always
-    command:
-      - "--requirepass"
-      - ${REPORTS_PENDING_BATCH_REDIS_PASSWORD}
-    volumes:
-      - redisdata:/data
-  logs-ingestion-service:
-    user: "0"
-    container_name: magpie-monitor-logs-ingestion-service
-    restart: on-failure
-    image: magpiemonitor/logs-ingestion-service
-    build:
-      context: ./go
-      dockerfile: ./docker/logs_ingestion/Dockerfile
-    environment:
-      - LOGSDB_PORT=${LOGSDB_PORT}
-      - LOGSDB_HOST=${LOGSDB_HOST}
-      - LOGSDB_USER=${LOGSDB_USER}
-      - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
-      - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
-      - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
-      - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
-      - LOGS_INGESTION_QUEUE_USERNAME=${KAFKA_CLIENT_USERNAME}
-      - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
-    develop:
-      watch:
-        - action: rebuild
-          path: ./go/services/logs_ingestion
-          target: /src
-        - action: rebuild
-          path: ./go/pkg
-          target: /src
-    deploy:
-      resources:
-        limits:
-          cpus: "0.8"
-          memory: 1G
-    volumes:
-      - es-certs:/usr/local/share
-    depends_on:
-      - kafka
-    healthcheck:
-      test: curl --fail http://localhost:8080 || exit 1
-      interval: 10s
-      timeout: 5s
-      retries: 5
-  kafka:
-    image: bitnami/kafka
-    container_name: magpie-monitor-kafka
-    ports:
-      - "9094:9094"
-    environment:
-      KAFKA_CFG_NODE_ID: 0
-      KAFKA_CFG_PROCESS_ROLES: "controller,broker"
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "0@kafka:9093"
-      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL_DIFFERENT_HOST://0.0.0.0:9094,EXTERNAL_SAME_HOST://0.0.0.0:9095"
-      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,EXTERNAL_DIFFERENT_HOST://${KAFKA_EXTERNAL_HOSTNAME}:9094,EXTERNAL_SAME_HOST://kafka:9095"
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,EXTERNAL:SASL_PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL_DIFFERENT_HOST:SASL_PLAINTEXT,EXTERNAL_SAME_HOST:SASL_PLAINTEXT"
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CLIENT_USERS: ${KAFKA_CLIENT_USERNAME}
-      KAFKA_CLIENT_PASSWORDS: ${KAFKA_CLIENT_PASSWORD}
-      KAFKA_CFG_MESSAGE_MAX_BYTES: ${KAFKA_MAX_MESSAGE_SIZE_BYTES}
-      KAFKA_CFG_MAX_REQUEST_SIZE: ${KAFKA_MAX_MESSAGE_SIZE_BYTES}
-
-  reports-mongodb:
-    container_name: magpie-monitor-reports-mongodb
-    image: mongo
-    volumes:
-      - db-reports-data:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${REPORTSDB_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${REPORTSDB_PASSWORD}
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
-      interval: 10s
-      timeout: 5s
-      retries: 5
-  reports-mongo-express:
-    container_name: magpie-monitor-reports-mongo-express
-    image: mongo-express
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_SERVER: ${REPORTSDB_HOST}
-      ME_CONFIG_BASICAUTH_USERNAME: ${REPORTSDB_USER}
-      ME_CONFIG_BASICAUTH_PASSWORD: ${REPORTSDB_PASSWORD}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${REPORTSDB_PASSWORD}
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${REPORTSDB_USER}
-      VIRTUAL_HOST: ${REPORTS_MONGO_EXPRESS_PRODUCTION_HOST}
-      LETSENCRYPT_HOST: ${REPORTS_MONGO_EXPRESS_PRODUCTION_HOST}
-      VIRTUAL_PORT: 8081
-    depends_on:
-      - reports-mongodb
+#  reports-service:
+#    user: "0"
+#    container_name: magpie-monitor-reports-service
+#    restart: on-failure
+#    image: magpiemonitor/reports-service
+#    build:
+#      context: ./go
+#      dockerfile: ./docker/reports/Dockerfile
+#    ports:
+#      - ${REPORTS_SERVICE_PORT:-8090}:${REPORTS_SERVICE_PORT:-8090}
+#    develop:
+#      watch:
+#        - action: rebuild
+#          path: ./go/services/reports
+#          target: /src
+#        - action: rebuild
+#          path: ./go/pkg
+#          target: /src
+#    volumes:
+#      - es-certs:/usr/local/share
+#    healthcheck:
+#      test: curl --fail http://localhost:8080 || exit 1
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#    environment:
+#      - REPORTSDB_USER=${REPORTSDB_USER}
+#      - REPORTSDB_PASSWORD=${REPORTSDB_PASSWORD}
+#      - REPORTSDB_HOST=${REPORTSDB_HOST}
+#      - REPORTSDB_PORT=${REPORTSDB_PORT}
+#      - REPORTS_SERVICE_PORT=${REPORTS_SERVICE_PORT}
+#      - LOGSDB_PORT=${LOGSDB_PORT}
+#      - LOGSDB_HOST=${LOGSDB_HOST}
+#      - LOGSDB_USER=${LOGSDB_USER}
+#      - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
+#      - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
+#      - REPORTS_OPENAI_API_KEY=${REPORTS_OPENAI_API_KEY}
+#      - REPORTS_OPENAI_API_URL=${REPORTS_OPENAI_API_URL}
+#      - REPORTS_OPENAI_API_MODEL=${REPORTS_OPENAI_API_MODEL}
+#      - REPORTS_OPENAI_BATCH_SIZE_BYTES=${REPORTS_OPENAI_BATCH_SIZE_BYTES}
+#      - REPORTS_OPENAI_CONTEXT_SIZE_BYTES=${REPORTS_OPENAI_CONTEXT_SIZE_BYTES}
+#      - REPORTS_OPENAI_MODEL_TEMPERATURE=${REPORTS_OPENAI_MODEL_TEMPERATURE}
+#      - REPORTS_OPENAI_POLLING_INTERVAL_SECONDS=${REPORTS_OPENAI_POLLING_INTERVAL_SECONDS}
+#      - REPORTS_BATCH_AWAITING_INTERVAL_SECONDS=${REPORTS_BATCH_AWAITING_INTERVAL_SECONDS}
+#      - REPORTS_POLLING_INTERVAL_SECONDS=${REPORTS_POLLING_INTERVAL_SECONDS}
+#      - REPORTS_PENDING_BATCH_REDIS_URL=${REPORTS_PENDING_BATCH_REDIS_URL}
+#      - REPORTS_PENDING_BATCH_REDIS_PASSWORD=${REPORTS_PENDING_BATCH_REDIS_PASSWORD}
+#      - REPORTS_PENDING_BATCH_REDIS_DB=${REPORTS_PENDING_BATCH_REDIS_DB}
+#      - MESSAGE_BROKER_USERNAME=${MESSAGE_BROKER_USERNAME}
+#      - MESSAGE_BROKER_PASSWORD=${MESSAGE_BROKER_PASSWORD}
+#      - MESSAGE_BROKER_ADDRESS=${MESSAGE_BROKER_ADDRESS}
+#      - KAFKA_MAX_MESSAGE_SIZE_BYTES=${KAFKA_MAX_MESSAGE_SIZE_BYTES}
+#      - KAFKA_BROKER_GROUP_ID=${KAFKA_BROKER_GROUP_ID}
+#      - REPORT_GENERATED_BROKER_TOPIC=${REPORT_GENERATED_BROKER_TOPIC}
+#      - REPORT_REQUEST_FAILED_BROKER_TOPIC=${REPORT_REQUEST_FAILED_BROKER_TOPIC}
+#      - REPORT_REQUESTED_BROKER_TOPIC=${REPORT_REQUESTED_BROKER_TOPIC}
+#      - REPORTS_MAX_IN_PRORESS_TOKENS=${REPORTS_MAX_IN_PRORESS_TOKENS}
+#      - REPORTS_MAX_OPENAI_OUTPUT_COMPLETION_TOKENS=${REPORTS_MAX_OPENAI_OUTPUT_COMPLETION_TOKENS}
+#      - SWAGGER_HOST=${REPORTS_SERVICE_HOST}
+#      - VIRTUAL_HOST=${REPORTS_PRODUCTION_HOST}
+#      - LETSENCRYPT_HOST=${REPORTS_PRODUCTION_HOST}
+#      - VIRTUAL_PORT=${REPORTS_SERVICE_PORT}
+#  reports-redis:
+#    container_name: magpie-monitor-reports-redis
+#    image: redis:7.4-alpine
+#    restart: always
+#    command:
+#      - "--requirepass"
+#      - ${REPORTS_PENDING_BATCH_REDIS_PASSWORD}
+#    volumes:
+#      - redisdata:/data
+#  logs-ingestion-service:
+#    user: "0"
+#    container_name: magpie-monitor-logs-ingestion-service
+#    restart: on-failure
+#    image: magpiemonitor/logs-ingestion-service
+#    build:
+#      context: ./go
+#      dockerfile: ./docker/logs_ingestion/Dockerfile
+#    environment:
+#      - LOGSDB_PORT=${LOGSDB_PORT}
+#      - LOGSDB_HOST=${LOGSDB_HOST}
+#      - LOGSDB_USER=${LOGSDB_USER}
+#      - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
+#      - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
+#      - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
+#      - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
+#      - LOGS_INGESTION_QUEUE_USERNAME=${KAFKA_CLIENT_USERNAME}
+#      - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
+#    develop:
+#      watch:
+#        - action: rebuild
+#          path: ./go/services/logs_ingestion
+#          target: /src
+#        - action: rebuild
+#          path: ./go/pkg
+#          target: /src
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.8"
+#          memory: 1G
+#    volumes:
+#      - es-certs:/usr/local/share
+#    depends_on:
+#      - kafka
+#    healthcheck:
+#      test: curl --fail http://localhost:8080 || exit 1
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#  kafka:
+#    image: bitnami/kafka
+#    container_name: magpie-monitor-kafka
+#    ports:
+#      - "9094:9094"
+#    environment:
+#      KAFKA_CFG_NODE_ID: 0
+#      KAFKA_CFG_PROCESS_ROLES: "controller,broker"
+#      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "0@kafka:9093"
+#      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL_DIFFERENT_HOST://0.0.0.0:9094,EXTERNAL_SAME_HOST://0.0.0.0:9095"
+#      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,EXTERNAL_DIFFERENT_HOST://${KAFKA_EXTERNAL_HOSTNAME}:9094,EXTERNAL_SAME_HOST://kafka:9095"
+#      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,EXTERNAL:SASL_PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL_DIFFERENT_HOST:SASL_PLAINTEXT,EXTERNAL_SAME_HOST:SASL_PLAINTEXT"
+#      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+#      KAFKA_CLIENT_USERS: ${KAFKA_CLIENT_USERNAME}
+#      KAFKA_CLIENT_PASSWORDS: ${KAFKA_CLIENT_PASSWORD}
+#      KAFKA_CFG_MESSAGE_MAX_BYTES: ${KAFKA_MAX_MESSAGE_SIZE_BYTES}
+#      KAFKA_CFG_MAX_REQUEST_SIZE: ${KAFKA_MAX_MESSAGE_SIZE_BYTES}
+#
+#  reports-mongodb:
+#    container_name: magpie-monitor-reports-mongodb
+#    image: mongo
+#    volumes:
+#      - db-reports-data:/data/db
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: ${REPORTSDB_USER}
+#      MONGO_INITDB_ROOT_PASSWORD: ${REPORTSDB_PASSWORD}
+#    healthcheck:
+#      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#  reports-mongo-express:
+#    container_name: magpie-monitor-reports-mongo-express
+#    image: mongo-express
+#    ports:
+#      - 8081:8081
+#    environment:
+#      ME_CONFIG_MONGODB_SERVER: ${REPORTSDB_HOST}
+#      ME_CONFIG_BASICAUTH_USERNAME: ${REPORTSDB_USER}
+#      ME_CONFIG_BASICAUTH_PASSWORD: ${REPORTSDB_PASSWORD}
+#      ME_CONFIG_MONGODB_ADMINPASSWORD: ${REPORTSDB_PASSWORD}
+#      ME_CONFIG_MONGODB_ADMINUSERNAME: ${REPORTSDB_USER}
+#      VIRTUAL_HOST: ${REPORTS_MONGO_EXPRESS_PRODUCTION_HOST}
+#      LETSENCRYPT_HOST: ${REPORTS_MONGO_EXPRESS_PRODUCTION_HOST}
+#      VIRTUAL_PORT: 8081
+#    depends_on:
+#      - reports-mongodb
   management-service:
     container_name: magpie-monitor-management-service
     restart: unless-stopped
@@ -218,96 +218,96 @@ services:
     volumes:
       - db-management-data:/var/lib/postgresql/data
 
-  management-pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=${MANAGEMENT_PGADMIN_MAIL}
-      - PGADMIN_DEFAULT_PASSWORD=${MANAGEMENT_PGADMIN_PASSWORD}
-      - VIRTUAL_HOST=${MANAGEMENT_PGADMIN_PRODUCTION_HOST}
-      - LETSENCRYPT_HOST=${MANAGEMENT_PGADMIN_PRODUCTION_HOST}
-    volumes:
-      - management-pgadmin-data:/var/lib/pgadmin
-  metadata-mongodb:
-    container_name: cluster-metadata-service-mongodb
-    image: mongo
-    ports:
-      - ${CLUSTER_METADATA_MONGODB_PORT-27017}:27017
-    volumes:
-      - db-metadata-data:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${CLUSTER_METADATA_MONGODB_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
-      interval: 10s
-      timeout: 5s
-      retries: 5
-  metadata-mongo-express:
-    container_name: cluster-metadata-service-mongo-express
-    image: mongo-express
-    ports:
-      - ${CLUSTER_METADATA_MONGO_EXPRESS_PORT:-8081}:8081
-    environment:
-      ME_CONFIG_MONGODB_SERVER: ${CLUSTER_METADATA_MONGODB_HOST}
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${CLUSTER_METADATA_MONGODB_USER}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
-      ME_CONFIG_BASICAUTH_USERNAME: ${CLUSTER_METADATA_MONGODB_USER}
-      ME_CONFIG_BASICAUTH_PASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
-      VIRTUAL_HOST: ${METADATA_MONGO_EXPRESS_PRODUCTION_HOST}
-      LETSENCRYPT_HOST: ${METADATA_MONGO_EXPRESS_PRODUCTION_HOST}
-      VIRTUAL_PORT: 8081
-    depends_on:
-      - metadata-mongodb
-  cluster-metadata-service:
-    user: "0"
-    container_name: magpie-monitor-cluster-metadata-service
-    restart: on-failure
-    image: magpiemonitor/cluster-metadata-service
-    build:
-      context: ./go
-      dockerfile: ./docker/cluster_metadata/Dockerfile
-    ports:
-      - ${CLUSTER_METADATA_HTTP_PORT:-8092}:${CLUSTER_METADATA_HTTP_PORT:-8092}
-    environment:
-      HTTP_PORT: ${CLUSTER_METADATA_HTTP_PORT}
-      CLIENT_SECRET: ${CLUSTER_METADATA_SERVICE_CLIENT_SECRET}
-      METADATADB_USER: ${CLUSTER_METADATA_MONGODB_USER}
-      METADATADB_PASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
-      METADATADB_HOST: ${CLUSTER_METADATA_MONGODB_HOST}
-      METADATADB_PORT: ${CLUSTER_METADATA_MONGODB_PORT}
-      SWAGGER_HOST: ${CLUSTER_METADATA_SERVICE_HOST}
-      VIRTUAL_HOST: ${CLUSTER_METADATA_PRODUCTION_HOST}
-      LETSENCRYPT_HOST: ${CLUSTER_METADATA_PRODUCTION_HOST}
-      VIRTUAL_PORT: ${CLUSTER_METADATA_HTTP_PORT}
-      CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS: ${CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS}
-    develop:
-      watch:
-        - action: rebuild
-          path: ./go/services/cluster_metadata
-          target: /src
-        - action: rebuild
-          path: ./go/pkg
-          target: /src
-    depends_on:
-      - metadata-mongodb
-    healthcheck:
-      test: curl --fail http://localhost:9090/v1/metadata/healthz || exit 1
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  kafka-ui:
-    container_name: magpie-monitor-kafka-ui
-    image: provectuslabs/kafka-ui:latest
-    ports:
-      - ${KAFKA_UI_PORT:-8011}:8080
-    environment:
-      DYNAMIC_CONFIG_ENABLED: "true"
-      VIRTUAL_HOST: ${KAFKA_UI_PRODUCTION_HOST}
-      LETSENCRYPT_HOST: ${KAFKA_UI_PRODUCTION_HOST}
-      VIRTUAL_PORT: 8080
-    volumes:
-      - kafkaui-data:/etc/kafkaui
+#  management-pgadmin:
+#    image: dpage/pgadmin4
+#    environment:
+#      - PGADMIN_DEFAULT_EMAIL=${MANAGEMENT_PGADMIN_MAIL}
+#      - PGADMIN_DEFAULT_PASSWORD=${MANAGEMENT_PGADMIN_PASSWORD}
+#      - VIRTUAL_HOST=${MANAGEMENT_PGADMIN_PRODUCTION_HOST}
+#      - LETSENCRYPT_HOST=${MANAGEMENT_PGADMIN_PRODUCTION_HOST}
+#    volumes:
+#      - management-pgadmin-data:/var/lib/pgadmin
+#  metadata-mongodb:
+#    container_name: cluster-metadata-service-mongodb
+#    image: mongo
+#    ports:
+#      - ${CLUSTER_METADATA_MONGODB_PORT-27017}:27017
+#    volumes:
+#      - db-metadata-data:/data/db
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: ${CLUSTER_METADATA_MONGODB_USER}
+#      MONGO_INITDB_ROOT_PASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
+#    healthcheck:
+#      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#  metadata-mongo-express:
+#    container_name: cluster-metadata-service-mongo-express
+#    image: mongo-express
+#    ports:
+#      - ${CLUSTER_METADATA_MONGO_EXPRESS_PORT:-8081}:8081
+#    environment:
+#      ME_CONFIG_MONGODB_SERVER: ${CLUSTER_METADATA_MONGODB_HOST}
+#      ME_CONFIG_MONGODB_ADMINUSERNAME: ${CLUSTER_METADATA_MONGODB_USER}
+#      ME_CONFIG_MONGODB_ADMINPASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
+#      ME_CONFIG_BASICAUTH_USERNAME: ${CLUSTER_METADATA_MONGODB_USER}
+#      ME_CONFIG_BASICAUTH_PASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
+#      VIRTUAL_HOST: ${METADATA_MONGO_EXPRESS_PRODUCTION_HOST}
+#      LETSENCRYPT_HOST: ${METADATA_MONGO_EXPRESS_PRODUCTION_HOST}
+#      VIRTUAL_PORT: 8081
+#    depends_on:
+#      - metadata-mongodb
+#  cluster-metadata-service:
+#    user: "0"
+#    container_name: magpie-monitor-cluster-metadata-service
+#    restart: on-failure
+#    image: magpiemonitor/cluster-metadata-service
+#    build:
+#      context: ./go
+#      dockerfile: ./docker/cluster_metadata/Dockerfile
+#    ports:
+#      - ${CLUSTER_METADATA_HTTP_PORT:-8092}:${CLUSTER_METADATA_HTTP_PORT:-8092}
+#    environment:
+#      HTTP_PORT: ${CLUSTER_METADATA_HTTP_PORT}
+#      CLIENT_SECRET: ${CLUSTER_METADATA_SERVICE_CLIENT_SECRET}
+#      METADATADB_USER: ${CLUSTER_METADATA_MONGODB_USER}
+#      METADATADB_PASSWORD: ${CLUSTER_METADATA_MONGODB_PASSWORD}
+#      METADATADB_HOST: ${CLUSTER_METADATA_MONGODB_HOST}
+#      METADATADB_PORT: ${CLUSTER_METADATA_MONGODB_PORT}
+#      SWAGGER_HOST: ${CLUSTER_METADATA_SERVICE_HOST}
+#      VIRTUAL_HOST: ${CLUSTER_METADATA_PRODUCTION_HOST}
+#      LETSENCRYPT_HOST: ${CLUSTER_METADATA_PRODUCTION_HOST}
+#      VIRTUAL_PORT: ${CLUSTER_METADATA_HTTP_PORT}
+#      CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS: ${CLUSTER_METADATA_SERVICE_CLUSTER_ACTIVITY_WINDOW_MILLIS}
+#    develop:
+#      watch:
+#        - action: rebuild
+#          path: ./go/services/cluster_metadata
+#          target: /src
+#        - action: rebuild
+#          path: ./go/pkg
+#          target: /src
+#    depends_on:
+#      - metadata-mongodb
+#    healthcheck:
+#      test: curl --fail http://localhost:9090/v1/metadata/healthz || exit 1
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#
+#  kafka-ui:
+#    container_name: magpie-monitor-kafka-ui
+#    image: provectuslabs/kafka-ui:latest
+#    ports:
+#      - ${KAFKA_UI_PORT:-8011}:8080
+#    environment:
+#      DYNAMIC_CONFIG_ENABLED: "true"
+#      VIRTUAL_HOST: ${KAFKA_UI_PRODUCTION_HOST}
+#      LETSENCRYPT_HOST: ${KAFKA_UI_PRODUCTION_HOST}
+#      VIRTUAL_PORT: 8080
+#    volumes:
+#      - kafkaui-data:/etc/kafkaui
 
 volumes:
   redisdata:

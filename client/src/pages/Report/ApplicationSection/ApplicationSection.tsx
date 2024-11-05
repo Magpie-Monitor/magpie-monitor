@@ -1,16 +1,17 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
 import Table, { TableColumn } from 'components/Table/Table.tsx';
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionButton.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
-import { ManagmentServiceApiInstance, AccuracyLevel } from 'api/managment-service';
-import Spinner from 'components/Spinner/Spinner.tsx';
+import { AccuracyLevel } from 'api/managment-service';
+// eslint-disable-next-line max-len
+import ApplicationsEntriesSelector from 'components/ApplicationsEntriesSelector/ApplicationsEntriesSelector.tsx';
 
-interface ApplicationDataRow {
+export interface ApplicationDataRow {
     name: string;
     running: boolean;
     accuracy: AccuracyLevel;
@@ -20,38 +21,24 @@ interface ApplicationDataRow {
     [key: string]: string | boolean | AccuracyLevel;
 }
 
-const ApplicationSection = () => {
+interface ApplicationSectionProps {
+    setApplications: (apps: ApplicationDataRow[]) => void;
+}
+
+const ApplicationSection: React.FC<ApplicationSectionProps> = ({ setApplications }) => {
     const [rows, setRows] = useState<ApplicationDataRow[]>([]);
-    const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
-
-    const fetchApplications = async () => {
-        setLoading(true);
-        try {
-            const applicationsData = await ManagmentServiceApiInstance.getApplications();
-
-            const applicationsRows = applicationsData.map(
-                (application): ApplicationDataRow => ({
-                    name: application.name,
-                    running: application.running,
-                    accuracy: application.accuracy,
-                    customPrompt: application.customPrompt,
-                    updated: application.updated,
-                    added: application.added,
-                }),
-            );
-
-            setRows(applicationsRows);
-        } catch (e: unknown) {
-            console.error('Failed to fetch applications', e);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [selectedApplications, setSelectedApplications] = useState<ApplicationDataRow[]>([]);
 
     useEffect(() => {
-        fetchApplications();
-    }, []);
+        setApplications(rows);
+    }, [rows, setApplications]);
+
+    const handleAddApplications = () => {
+        setRows([...rows, ...selectedApplications]);
+        setSelectedApplications([]);
+        setShowModal(false);
+    };
 
     const handleAccuracyChange = (name: string, accuracy: AccuracyLevel) => {
         setRows((prevRows) =>
@@ -69,16 +56,12 @@ const ApplicationSection = () => {
         );
     };
 
-    const handleDelete = (name: string) => {
-        setRows((prevRows) => prevRows.filter((row) => row.name !== name));
-    };
-
-    const handleAddClick = () => {
-        setShowModal(true);
-    };
-
     const handleCloseModal = () => {
         setShowModal(false);
+    };
+
+    const handleDelete = (name: string) => {
+        setRows((prevRows) => prevRows.filter((row) => row.name !== name));
     };
 
     const columns: Array<TableColumn<ApplicationDataRow>> = [
@@ -132,15 +115,22 @@ const ApplicationSection = () => {
         <SectionComponent
             icon={<SVGIcon iconName='application-icon' />}
             title={'Applications'}
-            callback={handleAddClick}>
+            callback={() => setShowModal(true)}>
             {showModal && (
-                <OverlayComponent isDisplayed={showModal} onClose={handleCloseModal}>
-                    <p>No applications here (probably Wojciech dropped all of them)</p>
+                <OverlayComponent
+                    isDisplayed={showModal}
+                    onClose={handleCloseModal}
+                >
+                    <ApplicationsEntriesSelector
+                        selectedApplications={selectedApplications}
+                        setSelectedApplications={setSelectedApplications}
+                        applicationsToExclude={rows}
+                        onAdd={handleAddApplications}
+                        onClose={handleCloseModal}
+                    />
                 </OverlayComponent>
             )}
-            {loading ? (
-                <Spinner />
-            ) : rows.length === 0 ? (
+            {rows.length === 0 ? (
                 <p>No Applications selected, please add new</p>
             ) : (
                 <Table columns={columns} rows={rows} />
@@ -150,3 +140,4 @@ const ApplicationSection = () => {
 };
 
 export default ApplicationSection;
+
