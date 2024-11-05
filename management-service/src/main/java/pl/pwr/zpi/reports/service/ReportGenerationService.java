@@ -52,7 +52,12 @@ public class ReportGenerationService {
     public void handleReportGenerationError(ReportRequestFailed requestFailed) {
         log.error("Report generation request failed: {}", requestFailed);
         reportGenerationRequestMetadataRepository.findByCorrelationId(requestFailed.correlationId())
-                .ifPresent(this::failReportGenerationRequest);
+                .ifPresentOrElse(this::failReportGenerationRequest, () -> {
+                    throw new RuntimeException(
+                            String.format("Report generation request of correlationId: %s has failed, " +
+                                    "but there's no corresponding request metadata.", requestFailed.correlationId()
+                            ));
+                });
     }
 
     private void failReportGenerationRequest(ReportGenerationRequestMetadata requestMetadata) {

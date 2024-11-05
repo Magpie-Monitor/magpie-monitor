@@ -10,6 +10,7 @@ public record ReportSummaryDTO(
         String clusterId,
         String title,
         Urgency urgency,
+        Long requestedAtMs,
         Long sinceMs,
         Long toMs) {
 
@@ -19,6 +20,7 @@ public record ReportSummaryDTO(
                 .clusterId(reportSummaryProjection.getClusterId())
                 .title(reportSummaryProjection.getTitle())
                 .urgency(reportSummaryProjection.getUrgency())
+                .requestedAtMs(reportSummaryProjection.getRequestedAtMs())
                 .sinceMs(reportSummaryProjection.getSinceMs())
                 .toMs(reportSummaryProjection.getToMs())
                 .build();

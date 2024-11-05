@@ -42,12 +42,12 @@ public class ReportsService {
     }
 
     public Optional<ReportDetailedSummaryDTO> getReportDetailedSummaryById(String reportId) {
-        return reportRepository.findProjectedBy(reportId)
+        return reportRepository.findProjectedDetailedById(reportId)
                 .map(ReportDetailedSummaryDTO::fromReportDetailedSummaryProjection);
     }
 
     public Optional<ReportIncidentsDTO> getReportIncidents(String reportId) {
-        return reportRepository.findProjectedById(reportId).map(incidentProjection -> {
+        return reportRepository.findProjectedIncidentsById(reportId).map(incidentProjection -> {
             return ReportIncidentsDTO.builder()
                     .applicationIncidents(extractApplicationIncidents(incidentProjection))
                     .nodeIncidents(extractNodeIncidents(incidentProjection))

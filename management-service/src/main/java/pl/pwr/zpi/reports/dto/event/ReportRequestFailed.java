@@ -7,6 +7,6 @@ public record ReportRequestFailed(
         String correlationId,
         String errorType,
         String errorMessage,
-        Long TimestampMs
+        Long timestampMs
 ) {
 }
