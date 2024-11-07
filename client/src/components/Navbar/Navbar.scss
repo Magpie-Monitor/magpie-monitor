@@ -2,7 +2,6 @@
 
 .navbar {
   width: 12rem;
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -10,19 +9,21 @@
   margin-right: 0;
   padding-left: 0.2rem;
   padding-right: 0.9rem;
+  padding-top: 0.5rem;
   background-color: $navbar-backgroud-color;
 
   &__logo {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
+    column-gap: 0.5rem;
     align-items: center;
     margin: 10px;
 
     &__image {
       width: 3.5rem;
       height: 3rem;
-      border-radius: 7rem;
+      border-radius: 10px;
     }
 
     &__name {
@@ -35,7 +36,7 @@
   &__links {
     display: flex;
     flex-direction: column;
-    margin-left: 1rem;
+    margin-left: 10px;
     margin-top: 1.5rem;
   }
 
@@ -43,5 +44,29 @@
     margin-top: auto;
     margin-left: 1rem;
     margin-bottom: 1rem;
+  }
+
+  @media (max-width: $sm) {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0rem;
+    height: 3rem;
+    flex-direction: row;
+
+    &__links {
+      flex-direction: row;
+      margin: 0;
+    }
+
+    &__logo {
+      display: none;
+    }
+
+    &__sign-out {
+      margin-top: auto;
+      margin-left: 1rem;
+      margin-bottom: 0rem;
+    }
   }
 }

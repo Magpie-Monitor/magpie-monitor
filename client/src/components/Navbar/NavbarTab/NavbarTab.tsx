@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './NavbarTab.scss';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 
@@ -15,10 +15,11 @@ const NavbarTab = ({
   iconName,
   onClick = () => {},
 }: NavbarTabProps) => {
+  const location = useLocation();
+
   return (
     <Link
-      key="dashboard link"
-      className="navbar-tab"
+      className={`navbar-tab ${location.pathname == destination ? 'navbar-tab--selected' : ''}`}
       to={destination}
       onClick={onClick}
     >
