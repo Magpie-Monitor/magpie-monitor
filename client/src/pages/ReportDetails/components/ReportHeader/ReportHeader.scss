@@ -10,10 +10,6 @@
   &__name {
     color: $green;
     font-size: 2rem;
-
-    @media (max-width: $sm) {
-      font-size: 18px;
-    }
   }
 
   &__timestamp {

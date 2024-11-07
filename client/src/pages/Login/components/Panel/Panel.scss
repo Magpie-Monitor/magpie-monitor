@@ -19,6 +19,10 @@
     width: 300px;
   }
 
+  @media (max-width: $sm) {
+    width: 270px;
+  }
+
   &__header {
     font-size: 3rem;
     font-weight: 500;
