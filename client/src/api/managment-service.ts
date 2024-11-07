@@ -78,7 +78,7 @@ export interface Node {
 }
 
 export interface Slack {
-  id: number;
+  id: string;
   receiverName: string;
   webhookUrl: string;
   createdAt: string;
@@ -86,7 +86,7 @@ export interface Slack {
 }
 
 export interface Discord {
-  id: number;
+  id: string;
   receiverName: string;
   webhookUrl: string;
   createdAt: string;
@@ -470,7 +470,7 @@ class ManagmentServiceApi {
       this.axiosInstance.get('/api/v1/notification-channels/mails')
     ]);
     const slackChannels = slack.data.map((channel: Slack) => ({
-      id: channel.id.toString(),
+      id: channel.id,
       name: channel.receiverName,
       service: 'SLACK',
       details: channel.webhookUrl,
@@ -479,7 +479,7 @@ class ManagmentServiceApi {
     }));
 
     const discordChannels = discord.data.map((channel: Discord) => ({
-      id: channel.id.toString(),
+      id: channel.id,
       name: channel.receiverName,
       service: 'DISCORD',
       details: channel.webhookUrl,
