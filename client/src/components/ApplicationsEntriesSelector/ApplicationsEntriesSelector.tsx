@@ -77,7 +77,6 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
                 (selectedApp) => selectedApp.name === app.name
             );
             return isSelected
-                // eslint-disable-next-line max-len
                 ? prevSelected.filter((selectedApp) => selectedApp.name !== app.name)
                 : [...prevSelected, app];
         });
@@ -115,19 +114,25 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
 
     return (
         <div className="application-entries">
-            <Table
-                columns={columns}
-                rows={availableApplications.map((app) => ({
-                    ...app,
-                    key: app.name,
-                }))}
-            />
-            <div className="application-entries__buttons">
-                <ActionButton
-                    onClick={onAdd}
-                    description="Add"
-                    color={ActionButtonColor.GREEN}
+            {availableApplications.length === 0 ? (
+                <p>There is no application to add.</p>
+            ) : (
+                <Table
+                    columns={columns}
+                    rows={availableApplications.map((app) => ({
+                        ...app,
+                        key: app.name,
+                    }))}
                 />
+            )}
+            <div className="application-entries__buttons">
+                {availableApplications.length > 0 && (
+                    <ActionButton
+                        onClick={onAdd}
+                        description="Add"
+                        color={ActionButtonColor.GREEN}
+                    />
+                )}
                 <ActionButton
                     onClick={onClose}
                     description="Close"

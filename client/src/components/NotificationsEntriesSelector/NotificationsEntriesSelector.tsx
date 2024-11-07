@@ -58,8 +58,8 @@ const NotificationsEntriesSelector: React.FC<EntriesSelectorProps> = ({
     );
 
     useEffect(() => {
-        // eslint-disable-next-line max-len
-        setSelectAll(availableChannels.length > 0 && selectedChannels.length === availableChannels.length);
+        setSelectAll(availableChannels.length > 0
+            && selectedChannels.length === availableChannels.length);
     }, [selectedChannels, availableChannels]);
 
     const getUniqueKey = (channel: NotificationChannel) => `${channel.id}-${channel.service}`;
@@ -136,7 +136,8 @@ const NotificationsEntriesSelector: React.FC<EntriesSelectorProps> = ({
                     <p>
                         No notification channels to display.
                     </p>
-                    <LinkComponent to="/settings" className="notification-entries__no-channels-message__link">
+                    <LinkComponent to="/settings"
+                                   className="notification-entries__no-channels-message__link">
                         You can create new one here.
                     </LinkComponent>
                 </div>
@@ -151,11 +152,13 @@ const NotificationsEntriesSelector: React.FC<EntriesSelectorProps> = ({
                 />
             )}
             <div className="notification-entries__buttons">
-                <ActionButton
-                    onClick={onAdd}
-                    description="Add"
-                    color={ActionButtonColor.GREEN}
-                />
+                {availableChannels.length > 0 && (
+                    <ActionButton
+                        onClick={onAdd}
+                        description="Add"
+                        color={ActionButtonColor.GREEN}
+                    />
+                )}
                 <ActionButton
                     onClick={onClose}
                     description="Close"

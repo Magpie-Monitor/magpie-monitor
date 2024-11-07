@@ -108,19 +108,25 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
 
     return (
         <div className="nodes-entries">
-            <Table
-                columns={columns}
-                rows={availableNodes.map((node) => ({
-                    ...node,
-                    key: node.name,
-                }))}
-            />
-            <div className="nodes-entries__buttons">
-                <ActionButton
-                    onClick={onAdd}
-                    description="Add"
-                    color={ActionButtonColor.GREEN}
+            {availableNodes.length === 0 ? (
+                <p>There is no node to add.</p>
+            ) : (
+                <Table
+                    columns={columns}
+                    rows={availableNodes.map((node) => ({
+                        ...node,
+                        key: node.name,
+                    }))}
                 />
+            )}
+            <div className="nodes-entries__buttons">
+                {availableNodes.length > 0 && (
+                    <ActionButton
+                        onClick={onAdd}
+                        description="Add"
+                        color={ActionButtonColor.GREEN}
+                    />
+                )}
                 <ActionButton
                     onClick={onClose}
                     description="Close"
