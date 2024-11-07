@@ -38,7 +38,7 @@ const NodeIncidentPage = () => {
   }, [id]);
 
   if (isLoading || !incident) {
-    return <Spinner />;
+    return <PageTemplate header={''}> <Spinner /> </PageTemplate>;
   }
 
   const [startDate, endDate] = getFirstAndLastDateFromTimestamps(
