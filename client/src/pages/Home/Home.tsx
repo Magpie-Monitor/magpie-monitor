@@ -33,12 +33,9 @@ const Home = () => {
     fetchReports();
   }, []);
 
-  if (isReportLoading || !report) {
-    return <Spinner />;
-  }
-
   return (
     <PageTemplate header={<HeaderWithIcon title={'Dashboard'} />}>
+      {(isReportLoading || !report) && <Spinner />}
       <ReportDetailsSection
         report={report}
         incidents={incidents}

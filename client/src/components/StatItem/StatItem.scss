@@ -34,14 +34,10 @@
 
   @media (max-width: $sm) {
     width: 90px;
-    padding: 10px 10px 10px 15px;
+    padding: 8px 8px 8px 12px;
 
     &__title {
       font-size: 12px;
-    }
-
-    &__number {
-      font-size: 30px;
     }
   }
 }
