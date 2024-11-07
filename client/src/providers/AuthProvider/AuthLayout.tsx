@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { Await, useLoaderData, useOutlet } from 'react-router-dom';
 
 import { AuthProvider, AuthenticationInfo } from './AuthProvider';
+import Spinner from 'components/Spinner/Spinner';
 
 export const AuthLayout = () => {
   const outlet = useOutlet();
@@ -10,7 +11,7 @@ export const AuthLayout = () => {
   };
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Spinner />}>
       <Await resolve={authData}>
         {(authenticationInfo) => {
           return (
