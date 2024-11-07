@@ -2,10 +2,16 @@ import './Navbar.scss';
 import magpieMonitorLogo from 'assets/magpie-monitor-icon.png';
 import NavbarTab from './NavbarTab/NavbarTab';
 import { ManagmentServiceApiInstance } from 'api/managment-service';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const signOut = () => {
     ManagmentServiceApiInstance.logout();
+  };
+
+  const handleHomeNavigation = () => {
+    navigate('/dashboard');
   };
 
   return (
@@ -16,6 +22,7 @@ const Navbar = () => {
             src={magpieMonitorLogo}
             alt="Magpie Monitor logo"
             className="navbar__logo__image"
+            onClick={handleHomeNavigation}
           />
           <div className="navbar__logo__name">
             <div>Magpie</div>
