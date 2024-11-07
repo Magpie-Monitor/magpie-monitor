@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: row;
   cursor: pointer;
-  border-radius: 1rem;
+  border-radius: 10px;
   padding: 0.3rem;
 
   .navbar-tab__link-wrapper {
@@ -20,8 +20,7 @@
     color: $navbar-text-color;
   }
 
-
-  &:hover {
+  &--selected {
     background-color: $secondary;
 
     .navbar-tab__link-wrapper {
@@ -34,7 +33,17 @@
     }
 
     .svg-icon {
-      background-color: $green;
+      background-color: $green !important;
+    }
+  }
+
+  &:hover {
+    @extend .navbar-tab--selected;
+  }
+
+  @media (max-width: $sm) {
+    &__link {
+      display: none;
     }
   }
 }
