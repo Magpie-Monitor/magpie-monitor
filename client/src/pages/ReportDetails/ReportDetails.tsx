@@ -22,49 +22,49 @@ const statItems = (
   report: ReportDetails,
   stats: IncidentStats,
 ): StatItemData[] => [
-    {
-      title: 'Analyzed apps',
-      value: report.analyzedApplications,
-      unit: 'applications',
-      valueColor: colors.urgency.low,
-    },
-    {
-      title: 'Analyzed hosts',
-      value: report.analyzedNodes,
-      unit: 'hosts',
-      valueColor: colors.urgency.low,
-    },
-    {
-      title: 'Critical incidents',
-      value: stats.highUrgencyIncidents,
-      unit: 'incidents',
-      valueColor: colors.urgency.high,
-    },
-    {
-      title: 'Medium incidents',
-      value: stats.mediumUrgencyIncidents,
-      unit: 'incidents',
-      valueColor: colors.urgency.medium,
-    },
-    {
-      title: 'Low incidents',
-      value: stats.lowUrgencyIncidents,
-      unit: 'incidents',
-      valueColor: colors.urgency.low,
-    },
-    {
-      title: 'Application entries',
-      value: report.totalApplicationEntries,
-      unit: 'entries',
-      valueColor: colors.urgency.low,
-    },
-    {
-      title: 'Node entries',
-      value: report.totalNodeEntries,
-      unit: 'entries',
-      valueColor: colors.urgency.low,
-    },
-  ];
+  {
+    title: 'Analyzed apps',
+    value: report.analyzedApplications,
+    unit: 'applications',
+    valueColor: colors.urgency.low,
+  },
+  {
+    title: 'Analyzed hosts',
+    value: report.analyzedNodes,
+    unit: 'hosts',
+    valueColor: colors.urgency.low,
+  },
+  {
+    title: 'Critical incidents',
+    value: stats.highUrgencyIncidents,
+    unit: 'incidents',
+    valueColor: colors.urgency.high,
+  },
+  {
+    title: 'Medium incidents',
+    value: stats.mediumUrgencyIncidents,
+    unit: 'incidents',
+    valueColor: colors.urgency.medium,
+  },
+  {
+    title: 'Low incidents',
+    value: stats.lowUrgencyIncidents,
+    unit: 'incidents',
+    valueColor: colors.urgency.low,
+  },
+  {
+    title: 'Application entries',
+    value: report.totalApplicationEntries,
+    unit: 'entries',
+    valueColor: colors.urgency.low,
+  },
+  {
+    title: 'Node entries',
+    value: report.totalNodeEntries,
+    unit: 'entries',
+    valueColor: colors.urgency.low,
+  },
+];
 
 const ReportDetailsPage = () => {
   const { id } = useParams();
@@ -92,12 +92,10 @@ const ReportDetailsPage = () => {
           icon={<SVGIcon iconName={'report-stats-icon'} />}
           title={'Statistics'}
         >
-          <div className="report-details__statistics">
-            <StatisticsDisplay
-              statItems={statItems(report, incidentStats)}
-              urgencyIncidentCount={urgencyIncidentCount(incidentStats)}
-            />
-          </div>
+          <StatisticsDisplay
+            statItems={statItems(report, incidentStats)}
+            urgencyIncidentCount={urgencyIncidentCount(incidentStats)}
+          />
         </SectionComponent>
         <SectionComponent
           icon={<SVGIcon iconName={'application-incident-metadata-icon'} />}

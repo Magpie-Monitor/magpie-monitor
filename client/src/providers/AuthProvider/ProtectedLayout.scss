@@ -1,7 +1,16 @@
+@import '@/variables';
+
 .protected-layout {
   display: flex;
   flex-direction: row;
   height: 100vh;
   width: 100vw;
   flex-direction: row;
+  padding: 0rem;
+  margin: 0rem;
+
+  @media (max-width: $sm) {
+    flex-direction: column;
+    flex-flow: column-reverse;
+  }
 }
