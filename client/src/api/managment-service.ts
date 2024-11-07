@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, {AxiosInstance} from 'axios';
 
 interface UserInfo {
   nickname: string;
@@ -83,6 +83,23 @@ export interface Node {
   updated: string;
   added: string;
 }
+
+export interface Slack {
+  id: number;
+  receiverName: string;
+  webhookUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Discord {
+  id: number;
+  receiverName: string;
+  webhookUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 
 export interface Email {
   id: string;
@@ -204,8 +221,7 @@ class ManagmentServiceApi {
 
   public async getTokenInfo(): Promise<TokenInfo> {
     await this.refreshTokenIfExpired();
-    const data = this.getTokenInfoWithoutRefreshing();
-    return data;
+    return this.getTokenInfoWithoutRefreshing();
   }
 
   public async getUserInfo(): Promise<UserInfo> {
@@ -454,36 +470,79 @@ class ManagmentServiceApi {
   }
 
   public async getNotificationChannels(): Promise<NotificationChannel[]> {
-    const mockNotificatoinChannels: Array<NotificationChannel> = [
-      {
-        id: '1',
-        name: 'Infra team slack',
-        service: 'SLACK',
-        details: 'wms_dev/#infra-alerts',
-        updated: '07.03.2024 15:32',
-        added: '07.03.2024 15:32',
-      },
-      {
-        id: '1',
-        name: 'Infra team discord',
-        service: 'DISCORD',
-        details: 'wms_dev/#dev-infra-alerts',
-        updated: '07.03.2024 15:32',
-        added: '07.03.2024 15:32',
-      },
-      {
-        id: '1',
-        name: 'Kontakt wms',
-        service: 'EMAIL',
-        details: 'kontakt@wmsdev.pl',
-        updated: '07.03.2024 15:32',
-        added: '07.03.2024 21:37',
-      },
-    ];
-    return mockNotificatoinChannels;
+    await this.refreshTokenIfExpired();
+    const [slack, discord, mail] = await Promise.all([
+      this.axiosInstance.get('/api/v1/notification-channels/slack'),
+      this.axiosInstance.get('/api/v1/notification-channels/discord'),
+      this.axiosInstance.get('/api/v1/notification-channels/mails')
+    ]);
+    const slackChannels = slack.data.map((channel: Slack) => ({
+      id: channel.id.toString(),
+      name: channel.receiverName,
+      service: 'slack',
+      details: channel.webhookUrl,
+      updated: channel.updatedAt,
+      added: channel.createdAt
+    }));
+
+    const discordChannels = discord.data.map((channel: Discord) => ({
+      id: channel.id.toString(),
+      name: channel.receiverName,
+      service: 'discord',
+      details: channel.webhookUrl,
+      updated: channel.updatedAt,
+      added: channel.createdAt
+    }));
+
+    const mailChannels = mail.data.map((channel: Email) => ({
+      id: channel.id.toString(),
+      name: channel.receiverName,
+      service: 'mail',
+      details: channel.receiverEmail,
+      updated: channel.updatedAt,
+      added: channel.createdAt
+    }));
+
+    return [...slackChannels, ...discordChannels, ...mailChannels];
+
+
+    // const mockNotificatoinChannels: Array<NotificationChannel> = [
+    //   {
+    //     id: '1',
+    //     name: 'Infra team slack',
+    //     service: 'SLACK',
+    //     details: 'wms_dev/#infra-alerts',
+    //     updated: '07.03.2024 15:32',
+    //     added: '07.03.2024 15:32',
+    //   },
+    //   {
+    //     id: '1',
+    //     name: 'Infra team discord',
+    //     service: 'DISCORD',
+    //     details: 'wms_dev/#dev-infra-alerts',
+    //     updated: '07.03.2024 15:32',
+    //     added: '07.03.2024 15:32',
+    //   },
+    //   {
+    //     id: '1',
+    //     name: 'Kontakt wms',
+    //     service: 'EMAIL',
+    //     details: 'kontakt@wmsdev.pl',
+    //     updated: '07.03.2024 15:32',
+    //     added: '07.03.2024 21:37',
+    //   },
+    // ];
+    // return mockNotificatoinChannels;
   }
 
-  public async getApplications(): Promise<Application[]> {
+  public async getApplications(clusterId: string): Promise<Application[]> {
+    // await this.refreshTokenIfExpired();
+    // const response = await this.axiosInstance.get(
+    //     `/api/v1/clusters/${clusterId}/applications`,
+    // );
+    //
+    // return response.data;
+    console.log(clusterId);
     const mockApplications: Array<Application> = [
       {
         name: 'alerts-api-database',
@@ -513,7 +572,14 @@ class ManagmentServiceApi {
     return mockApplications;
   }
 
-  public async getNodes(): Promise<Node[]> {
+  public async getNodes(clusterId: string): Promise<Node[]> {
+    // await this.refreshTokenIfExpired();
+    // const response = await this.axiosInstance.get(
+    //     `/api/v1/clusters/${clusterId}/nodes`,
+    // );
+    //
+    // return response.data;
+    console.log(clusterId);
     const mockNodes: Array<Node> = [
       {
         name: 'node 1',

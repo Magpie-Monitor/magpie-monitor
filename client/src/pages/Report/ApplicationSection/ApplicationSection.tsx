@@ -1,5 +1,5 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
-import Table, { TableColumn } from 'components/Table/Table.tsx';
+import Table, {TableColumn} from 'components/Table/Table.tsx';
 import {useEffect, useState} from 'react';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
@@ -9,9 +9,9 @@ import ActionButton, {
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
-import { AccuracyLevel } from 'api/managment-service';
-// eslint-disable-next-line max-len
-import ApplicationsEntriesSelector from 'components/ApplicationsEntriesSelector/ApplicationsEntriesSelector.tsx';
+import {AccuracyLevel} from 'api/managment-service';
+import ApplicationsEntriesSelector
+    from 'components/ApplicationsEntriesSelector/ApplicationsEntriesSelector.tsx';
 
 export interface ApplicationDataRow {
     name: string;
@@ -20,14 +20,16 @@ export interface ApplicationDataRow {
     customPrompt: string;
     updated: string;
     added: string;
+
     [key: string]: string | boolean | AccuracyLevel;
 }
 
 interface ApplicationSectionProps {
     setApplications: (apps: ApplicationDataRow[]) => void;
+    clusterId: string;
 }
 
-const ApplicationSection: React.FC<ApplicationSectionProps> = ({ setApplications }) => {
+const ApplicationSection: React.FC<ApplicationSectionProps> = ({setApplications, clusterId}) => {
     const [rows, setRows] = useState<ApplicationDataRow[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedApplications, setSelectedApplications] = useState<ApplicationDataRow[]>([]);
@@ -44,14 +46,14 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({ setApplications
 
     const handleAccuracyChange = (name: string, accuracy: AccuracyLevel) => {
         setRows((prevRows) =>
-            prevRows.map((row) => (row.name === name ? { ...row, accuracy } : row)),
+            prevRows.map((row) => (row.name === name ? {...row, accuracy} : row)),
         );
     };
 
     const handleCustomPromptChange = (name: string, customPrompt: string) => {
         setRows((prevRows) =>
             prevRows.map((row) =>
-                row.name === name ? { ...row, customPrompt } : row,
+                row.name === name ? {...row, customPrompt} : row,
             ),
         );
     };
@@ -98,8 +100,8 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({ setApplications
                 />
             ),
         },
-        { header: 'Updated at', columnKey: 'updated' },
-        { header: 'Added at', columnKey: 'added' },
+        {header: 'Updated at', columnKey: 'updated'},
+        {header: 'Added at', columnKey: 'added'},
         {
             header: 'Actions',
             columnKey: 'actions',
@@ -115,27 +117,26 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({ setApplications
 
     return (
         <SectionComponent
-            icon={<SVGIcon iconName="application-icon" />}
+            icon={<SVGIcon iconName="application-icon"/>}
             title={'Applications'}
             callback={() => setShowModal(true)}>
-            {showModal && (
-                <OverlayComponent
-                    isDisplayed={showModal}
+            <OverlayComponent
+                isDisplayed={showModal}
+                onClose={handleCloseModal}
+            >
+                <ApplicationsEntriesSelector
+                    selectedApplications={selectedApplications}
+                    setSelectedApplications={setSelectedApplications}
+                    applicationsToExclude={rows}
+                    onAdd={handleAddApplications}
                     onClose={handleCloseModal}
-                >
-                    <ApplicationsEntriesSelector
-                        selectedApplications={selectedApplications}
-                        setSelectedApplications={setSelectedApplications}
-                        applicationsToExclude={rows}
-                        onAdd={handleAddApplications}
-                        onClose={handleCloseModal}
-                    />
-                </OverlayComponent>
-            )}
+                    clusterId={clusterId}
+                />
+            </OverlayComponent>
             {rows.length === 0 ? (
                 <p>No Applications selected, please add new</p>
             ) : (
-                <Table columns={columns} rows={rows} />
+                <Table columns={columns} rows={rows}/>
             )}
         </SectionComponent>
     );

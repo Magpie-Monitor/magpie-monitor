@@ -4,15 +4,16 @@ import Table, {TableColumn} from 'components/Table/Table';
 import Checkbox from 'components/Checkbox/Checkbox';
 import {ManagmentServiceApiInstance} from 'api/managment-service';
 import LinkComponent from 'components/LinkComponent/LinkComponent';
-import {NodeEntry} from 'pages/Report/NodesSection/NodesSection';
+import { NodeDataRow } from 'pages/Report/NodesSection/NodesSection';
 import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
 
 interface NodesEntriesSelectorProps {
-    selectedNodes: NodeEntry[];
-    setSelectedNodes: React.Dispatch<React.SetStateAction<NodeEntry[]>>;
-    nodesToExclude: NodeEntry[];
+    selectedNodes: NodeDataRow[];
+    setSelectedNodes: React.Dispatch<React.SetStateAction<NodeDataRow[]>>;
+    nodesToExclude: NodeDataRow[];
     onAdd: () => void;
     onClose: () => void;
+    clusterId: string;
 }
 
 const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
@@ -21,14 +22,15 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
                                                                        nodesToExclude,
                                                                        onAdd,
                                                                        onClose,
+                                                                       clusterId,
                                                                    }) => {
-    const [nodes, setNodes] = useState<NodeEntry[]>([]);
+    const [nodes, setNodes] = useState<NodeDataRow[]>([]);
     const [selectAll, setSelectAll] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchNodes = async () => {
             try {
-                const data = await ManagmentServiceApiInstance.getNodes();
+                const data = await ManagmentServiceApiInstance.getNodes(clusterId);
                 const rows = data.map((node) => ({
                     name: node.name,
                     running: node.running,
@@ -43,7 +45,7 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
             }
         };
         fetchNodes();
-    }, []);
+    }, [clusterId]);
 
     const availableNodes = nodes.filter(
         (node) => !nodesToExclude.some((excluded) => excluded.name === node.name)
@@ -64,7 +66,7 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
         setSelectAll(!selectAll);
     };
 
-    const handleCheckboxChange = (node: NodeEntry) => {
+    const handleCheckboxChange = (node: NodeDataRow) => {
         setSelectedNodes((prevSelected) => {
             const isSelected = prevSelected.some(
                 (selectedNode) => selectedNode.name === node.name
@@ -75,7 +77,7 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
         });
     };
 
-    const columns: TableColumn<NodeEntry>[] = [
+    const columns: TableColumn<NodeDataRow>[] = [
         {
             header: (
                 <Checkbox
@@ -84,7 +86,7 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
                 />
             ),
             columnKey: 'checkbox',
-            customComponent: (row: NodeEntry) => (
+            customComponent: (row: NodeDataRow) => (
                 <Checkbox
                     checked={selectedNodes.some(
                         (selectedNode) => selectedNode.name === row.name
@@ -96,8 +98,8 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
         {
             header: 'Name',
             columnKey: 'name',
-            customComponent: (row: NodeEntry) => (
-                <LinkComponent href="#" isRunning={row.running}>
+            customComponent: (row: NodeDataRow) => (
+                <LinkComponent to="#" isRunning={row.running}>
                     {row.name}
                 </LinkComponent>
             ),
@@ -113,7 +115,7 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
                     key: node.name,
                 }))}
             />
-            <div className="nodes-entries__button-container">
+            <div className="nodes-entries__buttons">
                 <ActionButton
                     onClick={onAdd}
                     description="Add"

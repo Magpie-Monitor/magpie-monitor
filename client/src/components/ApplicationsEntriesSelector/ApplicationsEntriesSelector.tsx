@@ -13,6 +13,7 @@ interface ApplicationsEntriesSelectorProps {
     applicationsToExclude: ApplicationDataRow[];
     onAdd: () => void;
     onClose: () => void;
+    clusterId: string;
 }
 
 const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = ({
@@ -21,6 +22,7 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
                                         applicationsToExclude,
                                         onAdd,
                                         onClose,
+                                        clusterId,
                                                                                  }) => {
     const [applications, setApplications] = useState<ApplicationDataRow[]>([]);
     const [selectAll, setSelectAll] = useState<boolean>(false);
@@ -28,7 +30,7 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
     useEffect(() => {
         const fetchApplications = async () => {
             try {
-                const data = await ManagmentServiceApiInstance.getApplications();
+                const data = await ManagmentServiceApiInstance.getApplications(clusterId);
                 const rows = data.map((app) => ({
                     name: app.name,
                     running: app.running,
@@ -43,7 +45,7 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
             }
         };
         fetchApplications();
-    }, []);
+    }, [clusterId]);
 
     const availableApplications = applications.filter(
         (app) =>
@@ -102,7 +104,7 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
             header: 'Name',
             columnKey: 'name',
             customComponent: (row: ApplicationDataRow) => (
-                <LinkComponent href="#" isRunning={row.running}>
+                <LinkComponent to="#" isRunning={row.running}>
                     {row.name}
                 </LinkComponent>
             ),
@@ -118,7 +120,7 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
                     key: app.name,
                 }))}
             />
-            <div className="application-entries__button-container">
+            <div className="application-entries__buttons">
                 <ActionButton
                     onClick={onAdd}
                     description="Add"

@@ -1,13 +1,13 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
-import Table, { TableColumn } from 'components/Table/Table.tsx';
+import Table, {TableColumn} from 'components/Table/Table.tsx';
 import {useEffect, useState} from 'react';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
-import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionButton.tsx';
+import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
-import { AccuracyLevel } from 'api/managment-service';
+import {AccuracyLevel} from 'api/managment-service';
 import NodesEntriesSelector from 'components/NodesEntriesSelector/NodesEntriesSelector.tsx';
 
 export interface NodeDataRow {
@@ -17,14 +17,16 @@ export interface NodeDataRow {
     customPrompt: string;
     updated: string;
     added: string;
+
     [key: string]: string | boolean | AccuracyLevel;
 }
 
 interface NodesSectionProps {
     setNodes: (nodes: NodeDataRow[]) => void;
+    clusterId: string;
 }
 
-const NodesSection: React.FC<NodesSectionProps> = ({ setNodes }) => {
+const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId}) => {
     const [rows, setRows] = useState<NodeDataRow[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedNodes, setSelectedNodes] = useState<NodeDataRow[]>([]);
@@ -46,7 +48,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({ setNodes }) => {
     const handleAccuracyChange = (name: string, accuracy: AccuracyLevel) => {
         setRows((prevRows) =>
             prevRows.map((row) =>
-                row.name === name ? { ...row, accuracy } : row
+                row.name === name ? {...row, accuracy} : row
             )
         );
     };
@@ -54,7 +56,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({ setNodes }) => {
     const handleCustomPromptChange = (name: string, customPrompt: string) => {
         setRows((prevRows) =>
             prevRows.map((row) =>
-                row.name === name ? { ...row, customPrompt } : row,
+                row.name === name ? {...row, customPrompt} : row,
             ),
         );
     };
@@ -97,8 +99,8 @@ const NodesSection: React.FC<NodesSectionProps> = ({ setNodes }) => {
                 />
             ),
         },
-        { header: 'Updated at', columnKey: 'updated' },
-        { header: 'Added at', columnKey: 'added' },
+        {header: 'Updated at', columnKey: 'updated'},
+        {header: 'Added at', columnKey: 'added'},
         {
             header: 'Actions',
             columnKey: 'actions',
@@ -114,27 +116,26 @@ const NodesSection: React.FC<NodesSectionProps> = ({ setNodes }) => {
 
     return (
         <SectionComponent
-            icon={<SVGIcon iconName="application-icon" />}
+            icon={<SVGIcon iconName="application-icon"/>}
             title={'Nodes'}
             callback={() => setShowModal(true)}>
-            {showModal && (
-                <OverlayComponent
-                    isDisplayed={showModal}
+            <OverlayComponent
+                isDisplayed={showModal}
+                onClose={handleCloseModal}
+            >
+                <NodesEntriesSelector
+                    selectedNodes={selectedNodes}
+                    setSelectedNodes={setSelectedNodes}
+                    nodesToExclude={rows}
+                    onAdd={handleAddNodes}
                     onClose={handleCloseModal}
-                >
-                    <NodesEntriesSelector
-                        selectedNodes={selectedNodes}
-                        setSelectedNodes={setSelectedNodes}
-                        nodesToExclude={rows}
-                        onAdd={handleAddNodes}
-                        onClose={handleCloseModal}
-                    />
-                </OverlayComponent>
-            )}
+                    clusterId={clusterId}
+                />
+            </OverlayComponent>
             {rows.length === 0 ? (
                 <p>No Nodes selected, please add new</p>
             ) : (
-                <Table columns={columns} rows={rows} />
+                <Table columns={columns} rows={rows}/>
             )}
         </SectionComponent>
     );

@@ -110,7 +110,7 @@ const NotificationsEntriesSelector: React.FC<EntriesSelectorProps> = ({
             header: 'Name',
             columnKey: 'name',
             customComponent: (row) => (
-                <LinkComponent href="#">
+                <LinkComponent to="#">
                     {row.name}
                 </LinkComponent>
             ),
@@ -139,7 +139,7 @@ const NotificationsEntriesSelector: React.FC<EntriesSelectorProps> = ({
                         No notification channels to display.
                     </p>
                     {/* eslint-disable-next-line max-len */}
-                    <LinkComponent href="/settings" className="notification-entries__no-channels-message__link">
+                    <LinkComponent to="/settings" className="notification-entries__no-channels-message__link">
                         You can create new one here.
                     </LinkComponent>
                 </div>
@@ -153,7 +153,7 @@ const NotificationsEntriesSelector: React.FC<EntriesSelectorProps> = ({
                     alignLeft={false}
                 />
             )}
-            <div className="notification-entries__button-container">
+            <div className="notification-entries__buttons">
                 <ActionButton
                     onClick={onAdd}
                     description="Add"

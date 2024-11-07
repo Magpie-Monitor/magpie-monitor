@@ -11,13 +11,13 @@ import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { NotificationChannel } from './NotificationSection/NotificationSection';
 import { ApplicationDataRow } from './ApplicationSection/ApplicationSection';
-import { NodeEntry } from './NodesSection/NodesSection';
+import { NodeDataRow } from './NodesSection/NodesSection';
 
 const OnDemandReport = () => {
     const { id } = useParams<{ id: string }>();
     const [notificationChannels, setNotificationChannels] = useState<NotificationChannel[]>([]);
     const [applications, setApplications] = useState<ApplicationDataRow[]>([]);
-    const [nodes, setNodes] = useState<NodeEntry[]>([]);
+    const [nodes, setNodes] = useState<NodeDataRow[]>([]);
 
     const handleGenerateReport = () => {
         console.log('Notification Channels:', notificationChannels);
@@ -34,8 +34,8 @@ const OnDemandReport = () => {
                 </div>
 
                 <NotificationSection setNotificationChannels={setNotificationChannels}/>
-                <ApplicationSection setApplications={setApplications}/>
-                <NodesSection setNodes={setNodes}/>
+                <ApplicationSection setApplications={setApplications} clusterId={id ?? ''}/>
+                <NodesSection setNodes={setNodes} clusterId={id ?? ''}/>
             </div>
 
             <div className="on-demand-report__actions">
