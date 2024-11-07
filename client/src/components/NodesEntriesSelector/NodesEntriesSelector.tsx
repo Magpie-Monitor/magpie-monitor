@@ -2,7 +2,7 @@ import './NodesEntriesSelector.scss';
 import React, {useEffect, useState} from 'react';
 import Table, {TableColumn} from 'components/Table/Table';
 import Checkbox from 'components/Checkbox/Checkbox';
-import {ManagmentServiceApiInstance} from 'api/managment-service';
+import {AccuracyLevel, ManagmentServiceApiInstance} from 'api/managment-service';
 import LinkComponent from 'components/LinkComponent/LinkComponent';
 import { NodeDataRow } from 'pages/Report/NodesSection/NodesSection';
 import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
@@ -14,6 +14,7 @@ interface NodesEntriesSelectorProps {
     onAdd: () => void;
     onClose: () => void;
     clusterId: string;
+    defaultAccuracy: AccuracyLevel;
 }
 
 const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
@@ -23,6 +24,7 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
                                                                        onAdd,
                                                                        onClose,
                                                                        clusterId,
+                                                                       defaultAccuracy,
                                                                    }) => {
     const [nodes, setNodes] = useState<NodeDataRow[]>([]);
     const [selectAll, setSelectAll] = useState<boolean>(false);
@@ -34,10 +36,8 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
                 const rows = data.map((node) => ({
                     name: node.name,
                     running: node.running,
-                    accuracy: node.accuracy,
-                    customPrompt: node.customPrompt,
-                    updated: node.updated,
-                    added: node.added,
+                    accuracy: defaultAccuracy,
+                    customPrompt: '',
                 }));
                 setNodes(rows);
             } catch (error) {

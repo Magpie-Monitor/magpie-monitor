@@ -2,7 +2,7 @@ import './ApplicationsEntriesSelector.scss';
 import React, {useState, useEffect} from 'react';
 import Table, {TableColumn} from 'components/Table/Table';
 import Checkbox from 'components/Checkbox/Checkbox';
-import {ManagmentServiceApiInstance} from 'api/managment-service';
+import {ManagmentServiceApiInstance, AccuracyLevel} from 'api/managment-service';
 import LinkComponent from 'components/LinkComponent/LinkComponent';
 import {ApplicationDataRow} from 'pages/Report/ApplicationSection/ApplicationSection';
 import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
@@ -14,6 +14,7 @@ interface ApplicationsEntriesSelectorProps {
     onAdd: () => void;
     onClose: () => void;
     clusterId: string;
+    defaultAccuracy: AccuracyLevel;
 }
 
 const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = ({
@@ -23,6 +24,7 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
                                         onAdd,
                                         onClose,
                                         clusterId,
+                                        defaultAccuracy,
                                                                                  }) => {
     const [applications, setApplications] = useState<ApplicationDataRow[]>([]);
     const [selectAll, setSelectAll] = useState<boolean>(false);
@@ -34,10 +36,9 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
                 const rows = data.map((app) => ({
                     name: app.name,
                     running: app.running,
-                    accuracy: app.accuracy,
-                    customPrompt: app.customPrompt,
-                    updated: app.updated,
-                    added: app.added,
+                    kind: app.kind,
+                    accuracy: defaultAccuracy,
+                    customPrompt: '',
                 }));
                 setApplications(rows);
             } catch (error) {
@@ -108,7 +109,8 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
                     {row.name}
                 </LinkComponent>
             ),
-        }
+        },
+        {header: 'Kind', columnKey: 'kind'},
     ];
 
     return (

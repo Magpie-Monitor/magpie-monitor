@@ -15,8 +15,6 @@ export interface NodeDataRow {
     running: boolean;
     accuracy: AccuracyLevel;
     customPrompt: string;
-    updated: string;
-    added: string;
 
     [key: string]: string | boolean | AccuracyLevel;
 }
@@ -24,9 +22,10 @@ export interface NodeDataRow {
 interface NodesSectionProps {
     setNodes: (nodes: NodeDataRow[]) => void;
     clusterId: string;
+    defaultAccuracy: AccuracyLevel;
 }
 
-const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId}) => {
+const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId, defaultAccuracy}) => {
     const [rows, setRows] = useState<NodeDataRow[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedNodes, setSelectedNodes] = useState<NodeDataRow[]>([]);
@@ -99,8 +98,6 @@ const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId}) => {
                 />
             ),
         },
-        {header: 'Updated at', columnKey: 'updated'},
-        {header: 'Added at', columnKey: 'added'},
         {
             header: 'Actions',
             columnKey: 'actions',
@@ -130,6 +127,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId}) => {
                     onAdd={handleAddNodes}
                     onClose={handleCloseModal}
                     clusterId={clusterId}
+                    defaultAccuracy={defaultAccuracy}
                 />
             </OverlayComponent>
             {rows.length === 0 ? (

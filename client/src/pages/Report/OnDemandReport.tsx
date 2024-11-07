@@ -12,12 +12,14 @@ import { useState } from 'react';
 import { NotificationChannel } from './NotificationSection/NotificationSection';
 import { ApplicationDataRow } from './ApplicationSection/ApplicationSection';
 import { NodeDataRow } from './NodesSection/NodesSection';
+import {AccuracyLevel} from 'api/managment-service.ts';
 
 const OnDemandReport = () => {
     const { id } = useParams<{ id: string }>();
     const [notificationChannels, setNotificationChannels] = useState<NotificationChannel[]>([]);
     const [applications, setApplications] = useState<ApplicationDataRow[]>([]);
     const [nodes, setNodes] = useState<NodeDataRow[]>([]);
+    const [accuracy, setAccuracy] = useState<AccuracyLevel>('HIGH');
 
     const handleGenerateReport = () => {
         console.log('Notification Channels:', notificationChannels);
@@ -29,13 +31,13 @@ const OnDemandReport = () => {
     <PageTemplate header={<HeaderWithIcon title={`Generate report on demand for ${id}`} />}>
         <div className="on-demand-report__section">
                 <div className="on-demand-report__row">
-                    <AccuracySection/>
+                    <AccuracySection setParentAccuracy={setAccuracy} />
                     <DateRangeSection/>
                 </div>
 
                 <NotificationSection setNotificationChannels={setNotificationChannels}/>
-                <ApplicationSection setApplications={setApplications} clusterId={id ?? ''}/>
-                <NodesSection setNodes={setNodes} clusterId={id ?? ''}/>
+                <ApplicationSection setApplications={setApplications} clusterId={id ?? ''} defaultAccuracy={accuracy}/>
+                <NodesSection setNodes={setNodes} clusterId={id ?? ''} defaultAccuracy={accuracy}/>
             </div>
 
             <div className="on-demand-report__actions">

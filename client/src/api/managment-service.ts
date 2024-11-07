@@ -69,19 +69,12 @@ export interface NotificationChannel {
 export interface Application {
   name: string;
   running: boolean;
-  accuracy: AccuracyLevel;
-  customPrompt: string;
-  updated: string;
-  added: string;
+  kind: string;
 }
 
 export interface Node {
   name: string;
   running: boolean;
-  accuracy: AccuracyLevel;
-  customPrompt: string;
-  updated: string;
-  added: string;
 }
 
 export interface Slack {
@@ -536,77 +529,56 @@ class ManagmentServiceApi {
   }
 
   public async getApplications(clusterId: string): Promise<Application[]> {
-    // await this.refreshTokenIfExpired();
-    // const response = await this.axiosInstance.get(
-    //     `/api/v1/clusters/${clusterId}/applications`,
-    // );
-    //
-    // return response.data;
-    console.log(clusterId);
-    const mockApplications: Array<Application> = [
-      {
-        name: 'alerts-api-database',
-        running: true,
-        accuracy: 'HIGH',
-        customPrompt: 'ignore s3 logs...',
-        updated: '07.03.2024 15:32',
-        added: '07.03.2024 15:32',
-      },
-      {
-        name: 'alerts-api-backend',
-        running: false,
-        accuracy: 'LOW',
-        customPrompt: '',
-        updated: '07.03.2024 15:32',
-        added: '07.03.2024 15:32',
-      },
-      {
-        name: 'is-jsos-down',
-        running: true,
-        accuracy: 'MEDIUM',
-        customPrompt: 'dont ignore s3 logs...',
-        updated: '07.03.2024 15:32',
-        added: '07.03.2024 15:32',
-      },
-    ];
-    return mockApplications;
+    await this.refreshTokenIfExpired();
+    const response = await this.axiosInstance.get(
+        `/api/v1/clusters/${clusterId}/applications`,
+    );
+
+    return response.data;
+    // console.log(clusterId);
+    // const mockApplications: Array<Application> = [
+    //   {
+    //     name: 'alerts-api-database',
+    //     running: true,
+    //     kind: 'Deployment',
+    //   },
+    //   {
+    //     name: 'alerts-api-backend',
+    //     running: false,
+    //     kind: 'Deployment',
+    //   },
+    //   {
+    //     name: 'is-jsos-down',
+    //     running: true,
+    //     kind: 'Deployment',
+    //   },
+    // ];
+    // return mockApplications;
   }
 
   public async getNodes(clusterId: string): Promise<Node[]> {
-    // await this.refreshTokenIfExpired();
-    // const response = await this.axiosInstance.get(
-    //     `/api/v1/clusters/${clusterId}/nodes`,
-    // );
-    //
-    // return response.data;
-    console.log(clusterId);
-    const mockNodes: Array<Node> = [
-      {
-        name: 'node 1',
-        running: true,
-        accuracy: 'HIGH',
-        customPrompt: 'ignore s3 logs...',
-        updated: '07.03.2024 15:32',
-        added: '07.03.2024 15:32',
-      },
-      {
-        name: 'node 2',
-        running: true,
-        accuracy: 'LOW',
-        customPrompt: 'ignore s3 logs...',
-        updated: '07.03.2024 15:32',
-        added: '07.03.2024 15:32',
-      },
-      {
-        name: 'node 3',
-        running: false,
-        accuracy: 'MEDIUM',
-        customPrompt: '',
-        updated: '07.03.2024 15:32',
-        added: '07.03.2024 15:32',
-      },
-    ];
-    return mockNodes;
+    await this.refreshTokenIfExpired();
+    const response = await this.axiosInstance.get(
+        `/api/v1/clusters/${clusterId}/nodes`,
+    );
+
+    return response.data;
+    // console.log(clusterId);
+    // const mockNodes: Array<Node> = [
+    //   {
+    //     name: 'node 1',
+    //     running: true,
+    //   },
+    //   {
+    //     name: 'node 2',
+    //     running: true,
+    //   },
+    //   {
+    //     name: 'node 3',
+    //     running: false,
+    //   },
+    // ];
+    // return mockNodes;
   }
 }
 

@@ -18,8 +18,7 @@ export interface ApplicationDataRow {
     running: boolean;
     accuracy: AccuracyLevel;
     customPrompt: string;
-    updated: string;
-    added: string;
+    kind: string;
 
     [key: string]: string | boolean | AccuracyLevel;
 }
@@ -27,9 +26,10 @@ export interface ApplicationDataRow {
 interface ApplicationSectionProps {
     setApplications: (apps: ApplicationDataRow[]) => void;
     clusterId: string;
+    defaultAccuracy: AccuracyLevel;
 }
 
-const ApplicationSection: React.FC<ApplicationSectionProps> = ({setApplications, clusterId}) => {
+const ApplicationSection: React.FC<ApplicationSectionProps> = ({setApplications, clusterId, defaultAccuracy}) => {
     const [rows, setRows] = useState<ApplicationDataRow[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedApplications, setSelectedApplications] = useState<ApplicationDataRow[]>([]);
@@ -100,8 +100,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({setApplications,
                 />
             ),
         },
-        {header: 'Updated at', columnKey: 'updated'},
-        {header: 'Added at', columnKey: 'added'},
+        {header: 'Kind', columnKey: 'kind'},
         {
             header: 'Actions',
             columnKey: 'actions',
@@ -131,6 +130,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({setApplications,
                     onAdd={handleAddApplications}
                     onClose={handleCloseModal}
                     clusterId={clusterId}
+                    defaultAccuracy={defaultAccuracy}
                 />
             </OverlayComponent>
             {rows.length === 0 ? (
