@@ -108,7 +108,7 @@ const NotificationsEntriesSelector: React.FC<EntriesSelectorProps> = ({
             header: 'Name',
             columnKey: 'name',
             customComponent: (row) => (
-                <LinkComponent to="#">
+                <LinkComponent to="">
                     {row.name}
                 </LinkComponent>
             ),

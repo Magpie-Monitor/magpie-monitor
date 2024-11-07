@@ -25,7 +25,7 @@ const NotificationChannelTable: React.FC<NotificationChannelTableProps> = ({
             header: 'Name',
             columnKey: 'name',
             customComponent: (row) => (
-                <LinkComponent to="#">{row.name}</LinkComponent>
+                <LinkComponent to="">{row.name}</LinkComponent>
             ),
         },
         {

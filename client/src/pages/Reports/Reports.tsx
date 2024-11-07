@@ -27,7 +27,7 @@ const Reports = () => {
       header: 'Cluster',
       columnKey: 'clusterId',
       customComponent: (row: ReportSummary) => (
-        <LinkComponent to="#" onClick={() => handleRowClick(row.id)}>
+        <LinkComponent to="" onClick={() => handleRowClick(row.id)}>
           {row.clusterId}
         </LinkComponent>
       ),
