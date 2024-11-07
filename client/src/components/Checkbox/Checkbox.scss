@@ -1,6 +1,8 @@
 @use "sass:color";
 @import '@/variables';
 
+//TODO: for future fix: class as a selector
+
 input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
