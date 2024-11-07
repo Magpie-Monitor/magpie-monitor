@@ -30,7 +30,8 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
     return (
         <div className="link-container">
             <div
-                className={`link-component ${className} link-component__${isRunning === false ? 'down' : 'up'}`}
+                className={`link-component ${className} 
+                link-component__${isRunning === false ? 'down' : 'up'}`}
                 onClick={handleClick}
             >
                 {children}

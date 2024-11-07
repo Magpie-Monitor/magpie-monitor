@@ -1,0 +1,29 @@
+@use "sass:color";
+@import '@/variables';
+
+//TODO: for future fix: class as a selector
+
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 0.15rem solid $component-border-color;
+  border-radius: 0.2rem;
+  background-color: $background;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    border-color: color.adjust($component-border-color, $lightness: -10%);
+  }
+
+  &:checked {
+    background-color: $green;
+    border-color: $green;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='black' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 16.2l-3.5-3.5a.996.996 0 1 1 1.41-1.41l2.79 2.79 7.79-7.79a.996.996 0 1 1 1.41 1.41l-8.49 8.49z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+}

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import './OverlayComponent.scss';
-import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionButton.tsx';
 
 interface OverlayComponentProps {
     isDisplayed: boolean;
@@ -46,11 +45,6 @@ const OverlayComponent: React.FC<OverlayComponentProps> = ({ isDisplayed, onClos
             <div className="modal-overlay">
                 <div ref={overlayRef} className="modal-content">
                     {children || <p>List placeholder</p>}
-                    <ActionButton
-                        onClick={onClose}
-                        description="Close"
-                        color={ActionButtonColor.RED}
-                    />
                 </div>
             </div>
         )

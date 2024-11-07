@@ -1,4 +1,5 @@
 import './Table.scss';
+import React from "react";
 
 interface TableRow {
   [key: string]: string | number | boolean | unknown;
@@ -25,7 +26,7 @@ export interface TableProps<Row extends TableRow> {
 }
 
 export interface TableColumn<Row extends TableRow> {
-  header: string;
+  header: React.ReactNode;
   columnKey: keyof Row;
   customComponent?: (row: Row) => React.ReactNode;
 }

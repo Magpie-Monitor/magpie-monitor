@@ -1,65 +1,43 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
-import Table, { TableColumn } from 'components/Table/Table.tsx';
-import { useEffect, useState } from 'react';
+import Table, {TableColumn} from 'components/Table/Table.tsx';
+import {useEffect, useState} from 'react';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
-import ActionButton, {
-    ActionButtonColor,
-} from 'components/ActionButton/ActionButton.tsx';
+import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
-import {
-    ManagmentServiceApiInstance,
-    AccuracyLevel,
-} from 'api/managment-service';
-import Spinner from 'components/Spinner/Spinner.tsx';
+import {AccuracyLevel} from 'api/managment-service';
+import NodesEntriesSelector from 'components/NodesEntriesSelector/NodesEntriesSelector.tsx';
 
-export interface NodeEntry {
+export interface NodeDataRow {
     name: string;
     running: boolean;
     accuracy: AccuracyLevel;
     customPrompt: string;
-    updated: string;
-    added: string;
+
     [key: string]: string | boolean | AccuracyLevel;
 }
 
-const NodesSection = () => {
-    const [rows, setRows] = useState<NodeEntry[]>([]);
+interface NodesSectionProps {
+    setNodes: (nodes: NodeDataRow[]) => void;
+    clusterId: string;
+    defaultAccuracy: AccuracyLevel;
+}
+
+const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId, defaultAccuracy}) => {
+    const [rows, setRows] = useState<NodeDataRow[]>([]);
     const [showModal, setShowModal] = useState(false);
-    const [loading, setLoading] = useState(true);
-
-    const fetchNodes = async () => {
-        try {
-            setLoading(true);
-            const nodesData = await ManagmentServiceApiInstance.getNodes();
-
-            const nodeRows = nodesData.map(
-                (node): NodeEntry => ({
-                    name: node.name,
-                    running: node.running,
-                    accuracy: node.accuracy,
-                    customPrompt: node.customPrompt,
-                    updated: node.updated,
-                    added: node.added,
-                }),
-            );
-
-            setRows(nodeRows);
-        } catch (e: unknown) {
-            console.error('Failed to fetch nodes', e);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [selectedNodes, setSelectedNodes] = useState<NodeDataRow[]>([]);
 
     useEffect(() => {
-        fetchNodes();
-    }, []);
+        setNodes(rows);
+    }, [rows, setNodes]);
 
-    const handleAddClick = () => {
-        setShowModal(true);
+    const handleAddNodes = () => {
+        setRows([...rows, ...selectedNodes]);
+        setSelectedNodes([]);
+        setShowModal(false);
     };
 
     const handleCloseModal = () => {
@@ -68,14 +46,16 @@ const NodesSection = () => {
 
     const handleAccuracyChange = (name: string, accuracy: AccuracyLevel) => {
         setRows((prevRows) =>
-            prevRows.map((row) => (row.name === name ? { ...row, accuracy } : row)),
+            prevRows.map((row) =>
+                row.name === name ? {...row, accuracy} : row
+            )
         );
     };
 
     const handleCustomPromptChange = (name: string, customPrompt: string) => {
         setRows((prevRows) =>
             prevRows.map((row) =>
-                row.name === name ? { ...row, customPrompt } : row,
+                row.name === name ? {...row, customPrompt} : row,
             ),
         );
     };
@@ -84,11 +64,11 @@ const NodesSection = () => {
         setRows((prevRows) => prevRows.filter((row) => row.name !== name));
     };
 
-    const columns: Array<TableColumn<NodeEntry>> = [
+    const columns: Array<TableColumn<NodeDataRow>> = [
         {
             header: 'Name',
             columnKey: 'name',
-            customComponent: (row: NodeEntry) => (
+            customComponent: (row: NodeDataRow) => (
                 <LinkComponent to="" isRunning={row.running}>
                     {row.name}
                 </LinkComponent>
@@ -97,7 +77,7 @@ const NodesSection = () => {
         {
             header: 'Accuracy',
             columnKey: 'accuracy',
-            customComponent: (row: NodeEntry) => (
+            customComponent: (row: NodeDataRow) => (
                 <TagButton
                     listItems={['HIGH', 'MEDIUM', 'LOW']}
                     chosenItem={row.accuracy}
@@ -110,7 +90,7 @@ const NodesSection = () => {
         {
             header: 'Custom prompt',
             columnKey: 'customPrompt',
-            customComponent: (row: NodeEntry) => (
+            customComponent: (row: NodeDataRow) => (
                 <CustomPrompt
                     value={row.customPrompt}
                     onChange={(value) => handleCustomPromptChange(row.name, value)}
@@ -118,12 +98,10 @@ const NodesSection = () => {
                 />
             ),
         },
-        { header: 'Updated at', columnKey: 'updated' },
-        { header: 'Added at', columnKey: 'added' },
         {
             header: 'Actions',
             columnKey: 'actions',
-            customComponent: (row: NodeEntry) => (
+            customComponent: (row: NodeDataRow) => (
                 <ActionButton
                     onClick={() => handleDelete(row.name)}
                     description="Delete"
@@ -135,21 +113,27 @@ const NodesSection = () => {
 
     return (
         <SectionComponent
-            icon={<SVGIcon iconName="application-icon" />}
+            icon={<SVGIcon iconName="application-icon"/>}
             title={'Nodes'}
-            callback={handleAddClick}
-        >
-            {showModal && (
-                <OverlayComponent isDisplayed={showModal} onClose={handleCloseModal}>
-                    <p>No nodes here (probably Wojciech dropped all of them)</p>
-                </OverlayComponent>
-            )}
-            {loading ? (
-                <Spinner />
-            ) : rows.length === 0 ? (
+            callback={() => setShowModal(true)}>
+            <OverlayComponent
+                isDisplayed={showModal}
+                onClose={handleCloseModal}
+            >
+                <NodesEntriesSelector
+                    selectedNodes={selectedNodes}
+                    setSelectedNodes={setSelectedNodes}
+                    nodesToExclude={rows}
+                    onAdd={handleAddNodes}
+                    onClose={handleCloseModal}
+                    clusterId={clusterId}
+                    defaultAccuracy={defaultAccuracy}
+                />
+            </OverlayComponent>
+            {rows.length === 0 ? (
                 <p>No Nodes selected, please add new</p>
             ) : (
-                <Table columns={columns} rows={rows} />
+                <Table columns={columns} rows={rows}/>
             )}
         </SectionComponent>
     );

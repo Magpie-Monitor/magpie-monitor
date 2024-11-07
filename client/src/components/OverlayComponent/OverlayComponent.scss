@@ -18,8 +18,7 @@
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  min-width: 300px;
-  max-width: 500px;
-  text-align: center;
   border: 2px solid $component-border-color;
+  overflow-x: scroll;
+  margin: 0 5px;
 }
