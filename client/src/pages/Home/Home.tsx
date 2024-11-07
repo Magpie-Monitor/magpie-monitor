@@ -1,7 +1,6 @@
 import { ManagmentServiceApiInstance } from 'api/managment-service';
 import PageTemplate from 'components/PageTemplate/PageTemplate';
 import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/HeaderWithIcon';
-import Spinner from 'components/Spinner/Spinner';
 import useReportDetails from 'hooks/useReportStats';
 
 import { useEffect, useState } from 'react';
@@ -35,7 +34,6 @@ const Home = () => {
 
   return (
     <PageTemplate header={<HeaderWithIcon title={'Dashboard'} />}>
-      {(isReportLoading || !report) && <Spinner />}
       <ReportDetailsSection
         report={report}
         incidents={incidents}
