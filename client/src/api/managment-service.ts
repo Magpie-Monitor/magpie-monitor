@@ -479,7 +479,7 @@ class ManagmentServiceApi {
     const slackChannels = slack.data.map((channel: Slack) => ({
       id: channel.id.toString(),
       name: channel.receiverName,
-      service: 'slack',
+      service: 'SLACK',
       details: channel.webhookUrl,
       updated: channel.updatedAt,
       added: channel.createdAt
@@ -488,7 +488,7 @@ class ManagmentServiceApi {
     const discordChannels = discord.data.map((channel: Discord) => ({
       id: channel.id.toString(),
       name: channel.receiverName,
-      service: 'discord',
+      service: 'DISCORD',
       details: channel.webhookUrl,
       updated: channel.updatedAt,
       added: channel.createdAt
@@ -497,7 +497,7 @@ class ManagmentServiceApi {
     const mailChannels = mail.data.map((channel: Email) => ({
       id: channel.id.toString(),
       name: channel.receiverName,
-      service: 'mail',
+      service: 'EMAIL',
       details: channel.receiverEmail,
       updated: channel.updatedAt,
       added: channel.createdAt

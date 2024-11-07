@@ -4,9 +4,7 @@ import Table, {TableColumn} from 'components/Table/Table';
 import {ManagmentServiceApiInstance} from 'api/managment-service.ts';
 import {NotificationChannel} from 'pages/Report/NotificationSection/NotificationSection';
 import Checkbox from 'components/Checkbox/Checkbox';
-// eslint-disable-next-line max-len
 import Channels from 'pages/Report/NotificationSection/NotificationChannelsColumn/NotificationChannelColumn.tsx';
-// eslint-disable-next-line max-len
 import {
     transformNotificationChannelToDetailsColumn,
     transformNotificationChannelToServiceColumn
@@ -138,7 +136,6 @@ const NotificationsEntriesSelector: React.FC<EntriesSelectorProps> = ({
                     <p>
                         No notification channels to display.
                     </p>
-                    {/* eslint-disable-next-line max-len */}
                     <LinkComponent to="/settings" className="notification-entries__no-channels-message__link">
                         You can create new one here.
                     </LinkComponent>
