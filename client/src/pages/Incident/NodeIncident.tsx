@@ -52,21 +52,25 @@ const NodeIncidentPage = () => {
       }
     >
       <div className="incident">
-        <div className="incident__row--two-columns">
-          <NodeMetadataSection
-            nodeName={incident.nodeName}
-            startDateMs={startDate}
-            endDateMs={endDate}
-          />
+        <div>
+          <div className="incident__row--two-columns">
+            <NodeMetadataSection
+                nodeName={incident.nodeName}
+                startDateMs={startDate}
+                endDateMs={endDate}
+            />
 
-          <ConfigurationSection
-            accuracy={incident.accuracy}
-            customPrompt={incident.customPrompt}
-          />
+            <ConfigurationSection
+                accuracy={incident.accuracy}
+                customPrompt={incident.customPrompt}
+            />
+          </div>
         </div>
-        <div className="incident__row--two-columns">
-          <SummarySection summary={incident.summary} />
-          <RecommendationSection recommendation={incident.recommendation} />
+        <div>
+            <div className="incident__row--two-columns">
+              <SummarySection summary={incident.summary}/>
+              <RecommendationSection recommendation={incident.recommendation}/>
+            </div>
         </div>
         {incident.sources.map((source, index) => (
           <NodeSourceSection
@@ -78,7 +82,7 @@ const NodeIncidentPage = () => {
         ))}
       </div>
     </PageTemplate>
-  );
+);
 };
 
 export default NodeIncidentPage;

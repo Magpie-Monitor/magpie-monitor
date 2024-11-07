@@ -148,7 +148,7 @@ const NotificationsEntriesSelector: React.FC<EntriesSelectorProps> = ({
                         ...channel,
                         key: getUniqueKey(channel)
                     }))}
-                    alignLeft={false}
+                    maxHeight="65vh"
                 />
             )}
             <div className="notification-entries__buttons">
