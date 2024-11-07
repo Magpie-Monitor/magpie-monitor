@@ -117,6 +117,7 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
                         ...node,
                         key: node.name,
                     }))}
+                    maxHeight="65vh"
                 />
             )}
             <div className="nodes-entries__buttons">

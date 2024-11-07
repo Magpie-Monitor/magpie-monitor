@@ -123,6 +123,7 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
                         ...app,
                         key: app.name,
                     }))}
+                    maxHeight="65vh"
                 />
             )}
             <div className="application-entries__buttons">
