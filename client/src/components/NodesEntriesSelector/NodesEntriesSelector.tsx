@@ -45,7 +45,7 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
             }
         };
         fetchNodes();
-    }, [clusterId]);
+    }, [clusterId, defaultAccuracy]);
 
     const availableNodes = nodes.filter(
         (node) => !nodesToExclude.some((excluded) => excluded.name === node.name)

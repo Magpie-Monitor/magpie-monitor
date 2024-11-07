@@ -46,7 +46,7 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
             }
         };
         fetchApplications();
-    }, [clusterId]);
+    }, [clusterId, defaultAccuracy]);
 
     const availableApplications = applications.filter(
         (app) =>
