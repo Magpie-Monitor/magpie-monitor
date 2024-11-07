@@ -31,4 +31,17 @@
     font-size: 14px;
     margin-left: 5px;
   }
+
+  @media (max-width: $sm) {
+    width: 90px;
+    padding: 10px 10px 10px 15px;
+
+    &__title {
+      font-size: 12px;
+    }
+
+    &__number {
+      font-size: 30px;
+    }
+  }
 }
