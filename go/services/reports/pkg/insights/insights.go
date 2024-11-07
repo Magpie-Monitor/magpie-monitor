@@ -8,14 +8,38 @@ import (
 	"go.uber.org/zap"
 )
 
-type Urgency int
+type Urgency string
 
 const (
-	_ Urgency = iota
-	Urgency_Low
-	Urgency_Medium
-	Urgency_High
+	Urgency_Low    Urgency = "LOW"
+	Urgency_Medium Urgency = "MEDIUM"
+	Urgency_High   Urgency = "HIGH"
 )
+
+func (u Urgency) Level() int {
+	switch u {
+	case Urgency_Low:
+		return 0
+	case Urgency_Medium:
+		return 1
+	case Urgency_High:
+		return 2
+	}
+
+	return 0
+}
+
+func MaxUrgency(urgencies []Urgency) Urgency {
+	maxUrgency := Urgency_Low
+
+	for _, urgency := range urgencies {
+		if urgency.Level() > maxUrgency.Level() {
+			maxUrgency = urgency
+		}
+	}
+
+	return maxUrgency
+}
 
 type OpenAiInsightsGenerator struct {
 	client                    *openai.Client

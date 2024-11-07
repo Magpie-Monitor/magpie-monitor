@@ -11,7 +11,6 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"os"
-	"slices"
 	"strconv"
 	"time"
 )
@@ -493,7 +492,7 @@ func (s *ReportsService) getReportUrgencyFromApplicationAndNodeReports(
 		return insights.Urgency_Low
 	}
 
-	return slices.Max(allUrgencies)
+	return insights.MaxUrgency(allUrgencies)
 }
 
 func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsightsWithMetadata, configuration *insights.NodeInsightConfiguration) *repositories.NodeIncident {

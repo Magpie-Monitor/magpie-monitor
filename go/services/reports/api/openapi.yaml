@@ -359,9 +359,8 @@ components:
           type: integer
 
     Urgency:
-      type: integer
-      enum: [1, 2, 3]
-      description: 1 = Low, 2 = Medium, 3 = High
+      type: string
+      enum: [LOW, MEDIUM, HIGH]
 
     Accuracy:
       type: string
