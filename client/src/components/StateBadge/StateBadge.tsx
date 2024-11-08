@@ -3,11 +3,14 @@ import './StateBadge.scss';
 
 interface StateBadgeProps {
     label: 'UP' | 'DOWN';
+    className?: string;
 }
 
-const StateBadge: React.FC<StateBadgeProps> = ({ label }) => {
+const StateBadge: React.FC<StateBadgeProps> = ({ label, className = '' }) => {
     return (
-        <span className={`state-badge state-badge--${label.toLowerCase()}`}>
+        <span
+            className={`state-badge state-badge--${label.toLowerCase()} ${className}`}
+        >
             {label}
         </span>
     );

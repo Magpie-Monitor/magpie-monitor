@@ -3,6 +3,18 @@
 .link-container {
   display: flex;
   align-items: center;
+  position: relative;
+
+  &__state-badge {
+    transition: opacity 0.2s ease-in-out;
+    opacity: 0;
+  }
+
+  &:hover {
+    .link-container__state-badge {
+      opacity: 1;
+    }
+  }
 }
 
 .link-component {

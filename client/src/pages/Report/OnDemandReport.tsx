@@ -29,7 +29,7 @@ const OnDemandReport = () => {
     };
 
     const handleCancelReport = () => {
-        navigate('/');
+        navigate('/dashboard');
     };
 
     return (
