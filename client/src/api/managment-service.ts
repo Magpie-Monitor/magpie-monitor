@@ -36,8 +36,8 @@ export interface ReportDetails {
 }
 
 export interface ClusterSummary {
-  id: string;
-  isRunning: boolean;
+  clusterId: string;
+  running: boolean;
   accuracy: AccuracyLevel;
   updatedAt: number;
   slackChannels: {
@@ -397,69 +397,18 @@ class ManagmentServiceApi {
   }
 
   public async getClusters(): Promise<ClusterSummary[]> {
-    const mockClusters: Array<ClusterSummary> = [
-      {
-        id: 'cluster-1-abcd',
-        isRunning: true,
-        accuracy: 'LOW',
-        updatedAt: 1730233614763,
-        slackChannels: [
-          {
-            webhookUrl: 'mywebhookurl',
-            name: 'wms-dev/infra',
-            updatedAt: 1730233614763,
-          },
-        ],
-        discordChannels: [
-          {
-            webhookUrl: 'mywebhookurl',
-            name: 'wms-dev/infra',
-            updatedAt: 1730233614763,
-          },
-        ],
-        mailChannels: [
-          {
-            email: 'mail',
-            name: 'wms-dev/infra',
-            updatedAt: 1730233614763,
-          },
-        ],
-      },
-      {
-        id: 'cluster-2-abcd',
-        isRunning: false,
-        accuracy: 'HIGH',
-        updatedAt: 1730233614763,
-        slackChannels: [
-          {
-            webhookUrl: 'mywebhookurl',
-            name: 'wms-dev/infra',
-            updatedAt: 1730233614763,
-          },
-        ],
-        discordChannels: [
-          {
-            webhookUrl: 'mywebhookurl',
-            name: 'wms-dev/infra',
-            updatedAt: 1730233614763,
-          },
 
-          {
-            webhookUrl: 'mywebhookurl',
-            name: 'wms-dev/infra-2',
-            updatedAt: 1730233614763,
-          },
-        ],
-        mailChannels: [
-          {
-            email: 'mail',
-            name: 'wms-dev/infra',
-            updatedAt: 1730233614763,
-          },
-        ],
-      },
-    ];
-    return mockClusters;
+    await this.refreshTokenIfExpired();
+    const response = await this.axiosInstance.get("api/v1/clusters")
+    const data = response.data;
+
+    data.updatedAt = 0;
+    data.accuracy = "LOW";
+    data.slackChannels = []
+    data.discordChannels= []
+    data.mailChannels= []
+
+    return data;
   }
 
   public async getNotificationChannels(): Promise<NotificationChannel[]> {
