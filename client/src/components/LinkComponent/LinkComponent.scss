@@ -3,14 +3,20 @@
 .link-container {
   display: flex;
   align-items: center;
+  position: relative;
 
-  .state-badge {
-    opacity: 0;
+  &__state-badge {
+    display: none;
     transition: opacity 0.2s ease-in-out;
   }
 
-  &:hover .state-badge {
-    opacity: 1;
+  &:hover {
+    .link-container__state-badge {
+      position: absolute;
+      display: block;
+      right: 0;
+      transform: translateX(90%) translateY(60%);
+    }
   }
 }
 

@@ -37,7 +37,9 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
                 {children}
             </div>
             {isRunning !== undefined && (
-                <StateBadge className="state-badge" label={isRunning ? 'UP' : 'DOWN'} />
+                <div className="link-container__state-badge">
+                    <StateBadge label={isRunning ? 'UP' : 'DOWN'} />
+                </div>
             )}
         </div>
     );
