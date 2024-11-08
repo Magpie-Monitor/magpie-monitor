@@ -19,8 +19,7 @@ public record ReportRequested(
             Long sinceMs,
             Long toMs,
             List<ApplicationConfiguration> applicationConfiguration,
-            List<NodeConfiguration> nodeConfiguration,
-            Integer maxLength
+            List<NodeConfiguration> nodeConfiguration
     ) {
     }
 
@@ -64,7 +63,6 @@ public record ReportRequested(
                                                 ))
                                                 .toList()
                                 )
-                                .maxLength(100)
                                 .build()
                 )
                 .build();
