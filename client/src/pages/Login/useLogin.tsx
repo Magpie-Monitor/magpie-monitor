@@ -9,7 +9,7 @@ const useLogin = () => {
   useEffect(() => {
     isTokenValid().then((isValid) => {
       if (isValid) {
-        navigate('/');
+        navigate('/dashboard');
       }
     });
   }, [setAuthenticationInfo, navigate, isTokenValid]);

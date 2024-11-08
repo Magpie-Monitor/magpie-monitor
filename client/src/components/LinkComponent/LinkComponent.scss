@@ -3,6 +3,15 @@
 .link-container {
   display: flex;
   align-items: center;
+
+  .state-badge {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  &:hover .state-badge {
+    opacity: 1;
+  }
 }
 
 .link-component {

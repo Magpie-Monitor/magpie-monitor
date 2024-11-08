@@ -31,16 +31,17 @@ const LinkComponent: React.FC<LinkComponentProps> = ({
         <div className="link-container">
             <div
                 className={`link-component ${className} 
-                link-component__${isRunning === false ? 'down' : 'up'}`}
+            link-component__${isRunning === false ? 'down' : 'up'}`}
                 onClick={handleClick}
             >
                 {children}
             </div>
             {isRunning !== undefined && (
-                <StateBadge label={isRunning ? 'UP' : 'DOWN'} />
+                <StateBadge className="state-badge" label={isRunning ? 'UP' : 'DOWN'} />
             )}
         </div>
     );
+
 };
 
 export default LinkComponent;
