@@ -1,5 +1,7 @@
 package pl.pwr.zpi.reports.dto.request;
 
+import pl.pwr.zpi.reports.dto.report.application.ApplicationConfiguration;
+import pl.pwr.zpi.reports.dto.report.node.NodeConfiguration;
 import pl.pwr.zpi.reports.enums.Accuracy;
 
 import java.util.List;
@@ -15,20 +17,4 @@ public record CreateReportRequest(
         List<ApplicationConfiguration> applicationConfigurations,
         List<NodeConfiguration> nodeConfigurations
 ) {
-
-    public record ApplicationConfiguration(
-            String applicationName,
-            String customPrompt,
-            boolean enabled,
-            Accuracy accuracy
-    ) {
-    }
-
-    public record NodeConfiguration(
-            String nodeName,
-            String customPrompt,
-            boolean enabled,
-            Accuracy accuracy
-    ) {
-    }
 }
