@@ -157,6 +157,27 @@ export interface NodeIncidentSource {
   timestamp: number;
 }
 
+export interface ReportPost {
+    clusterId: string;
+    accuracy: AccuracyLevel;
+    sinceMs: number;
+    toMs: number;
+    slackReceiverIds: number[];
+    discordReceiverIds: number[];
+    mailReceiverIds: number[];
+    applicationConfigurations: {
+        applicationName: string;
+        customPrompt: string;
+        accuracy: AccuracyLevel;
+    }[];
+    nodeConfigurations: {
+        nodeName: string;
+        customPrompt: string;
+        accuracy: AccuracyLevel;
+    }[];
+
+}
+
 class ManagmentServiceApi {
   private axiosInstance: AxiosInstance;
 
@@ -399,14 +420,14 @@ class ManagmentServiceApi {
   public async getClusters(): Promise<ClusterSummary[]> {
 
     await this.refreshTokenIfExpired();
-    const response = await this.axiosInstance.get("api/v1/clusters")
+    const response = await this.axiosInstance.get('api/v1/clusters');
     const data = response.data;
 
     data.updatedAt = 0;
-    data.accuracy = "LOW";
-    data.slackChannels = []
-    data.discordChannels= []
-    data.mailChannels= []
+    data.accuracy = 'LOW';
+    data.slackChannels = [];
+    data.discordChannels= [];
+    data.mailChannels= [];
 
     return data;
   }
@@ -528,6 +549,11 @@ class ManagmentServiceApi {
     //   },
     // ];
     // return mockNodes;
+  }
+
+  public async generateOnDemandReport(reportData: ReportPost): Promise<void> {
+    await this.refreshTokenIfExpired();
+    await this.axiosInstance.post('/api/v1/reports', reportData);
   }
 }
 

@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { NotificationChannel } from './NotificationSection/NotificationSection';
 import { ApplicationDataRow } from './ApplicationSection/ApplicationSection';
 import { NodeDataRow } from './NodesSection/NodesSection';
-import {AccuracyLevel} from 'api/managment-service.ts';
+import {AccuracyLevel, ManagmentServiceApiInstance, ReportPost} from 'api/managment-service.ts';
 
 const OnDemandReport = () => {
     const { id } = useParams<{ id: string }>();
@@ -26,6 +26,26 @@ const OnDemandReport = () => {
         console.log('Notification Channels:', notificationChannels);
         console.log('Applications:', applications);
         console.log('Nodes:', nodes);
+        const report: ReportPost = {
+            clusterId: id ?? '',
+            accuracy: 'HIGH',
+            sinceMs: 0,
+            toMs: 1731087021005,
+            slackReceiverIds: [],
+            discordReceiverIds: [],
+            mailReceiverIds: [],
+            applicationConfigurations: applications.map((app) => ({
+                applicationName: app.name,
+                accuracy: app.accuracy,
+                customPrompt: app.customPrompt,
+            })),
+            nodeConfigurations: nodes.map((node) => ({
+                nodeName: node.name,
+                accuracy: node.accuracy,
+                customPrompt: node.customPrompt,
+            })),
+        };
+        ManagmentServiceApiInstance.generateOnDemandReport(report);
     };
 
     const handleCancelReport = () => {
