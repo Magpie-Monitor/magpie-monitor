@@ -80,16 +80,16 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
     ),
   },
   {
-    header: 'Accuracy',
-    columnKey: 'accuracy',
-    customComponent: ({ accuracy }) => <AccuracyBadge label={accuracy} />,
-  },
-  {
     header: 'Notification',
     columnKey: 'notificationChannels',
     customComponent: ({ notificationChannels }) => (
       <Channels channels={notificationChannels} />
     ),
+  },
+  {
+    header: 'Accuracy',
+    columnKey: 'accuracy',
+    customComponent: ({ accuracy }) => <AccuracyBadge label={accuracy} />,
   },
   {
     header: 'Updated at',

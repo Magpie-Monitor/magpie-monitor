@@ -6,16 +6,13 @@
   position: relative;
 
   &__state-badge {
-    display: none;
     transition: opacity 0.2s ease-in-out;
+    opacity: 0;
   }
 
   &:hover {
     .link-container__state-badge {
-      position: absolute;
-      display: block;
-      right: 0;
-      transform: translateX(90%) translateY(60%);
+      opacity: 1;
     }
   }
 }
