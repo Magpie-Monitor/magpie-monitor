@@ -421,15 +421,18 @@ class ManagmentServiceApi {
 
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get('api/v1/clusters');
-    const data = response.data;
+    const clusters = response.data;
 
-    data.updatedAt = 0;
-    data.accuracy = 'LOW';
-    data.slackChannels = [];
-    data.discordChannels= [];
-    data.mailChannels= [];
-
-    return data;
+    return clusters.map((cluster:ClusterSummary)=>{
+      return {
+      ...cluster,
+      updatedAt: 0,
+      accuracy: 'LOW',
+      slackChannels: [],
+      discordChannels: [],
+      mailChannels: [],
+      }
+    })
   }
 
   public async getNotificationChannels(): Promise<NotificationChannel[]> {
