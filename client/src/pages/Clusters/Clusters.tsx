@@ -58,7 +58,7 @@ const transformNotificationChannelsToColumns = (
 const transformIsRunningLabel = (
   cluster: ClusterSummary,
 ): ClusterDataRow['state'] => {
-  return cluster.isRunning ? 'ONLINE' : 'OFFLINE';
+  return cluster.running? 'ONLINE' : 'OFFLINE';
 };
 
 const transformUpdatedAtDate = (cluster: ClusterSummary) => {
@@ -114,7 +114,7 @@ const Clusters = () => {
 
       const clusterRows = clustersData.map(
         (cluster): ClusterDataRow => ({
-          name: cluster.id,
+          name: cluster.clusterId,
           accuracy: cluster.accuracy,
           state: transformIsRunningLabel(cluster),
           notificationChannels: transformNotificationChannelsToColumns(cluster),
