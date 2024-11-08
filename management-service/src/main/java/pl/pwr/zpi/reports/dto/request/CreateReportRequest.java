@@ -8,7 +8,7 @@ import java.util.List;
 
 public record CreateReportRequest(
         String clusterId,
-        Accuracy accuracy,
+        Accuracy accuracy, // TODO - validate if needed with reports service
         Long sinceMs,
         Long toMs,
         List<Long> slackReceiverIds,

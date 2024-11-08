@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
-	"github.com/Magpie-Monitor/magpie-monitor/pkg/message-broker"
+	messagebroker "github.com/Magpie-Monitor/magpie-monitor/pkg/message-broker"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -66,6 +66,7 @@ func NewReportRequestedBroker(lc fx.Lifecycle, logger *zap.Logger) *messagebroke
 	)
 
 	return broker
+
 }
 
 func ProvideAsReportRequestedBroker(f any) any {
