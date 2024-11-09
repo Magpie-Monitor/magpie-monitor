@@ -1,4 +1,3 @@
-import './NotificationEntriesSelector.scss';
 import React from 'react';
 import EntriesSelector from 'components/EntriesSelector/EntriesSelector';
 import {ManagmentServiceApiInstance} from 'api/managment-service.ts';
@@ -11,6 +10,7 @@ import {
 } from 'pages/Report/NotificationSection/NotificationUtils.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import {TableColumn} from 'components/Table/Table.tsx';
+import {dateFromTimestampMs} from 'lib/date.ts';
 
 interface NotificationsEntriesSelectorProps {
     selectedChannels: NotificationChannel[];
@@ -21,12 +21,12 @@ interface NotificationsEntriesSelectorProps {
 }
 
 const NotificationsEntriesSelector: React.FC<NotificationsEntriesSelectorProps> = ({
-                                                                                       selectedChannels,
-                                                                                       setSelectedChannels,
-                                                                                       channelsToExclude,
-                                                                                       onAdd,
-                                                                                       onClose,
-                                                                                   }) => {
+      selectedChannels,
+      setSelectedChannels,
+      channelsToExclude,
+      onAdd,
+      onClose,
+      }) => {
     const fetchNotificationChannels = async () => {
         try {
             const channels = await ManagmentServiceApiInstance.getNotificationChannels();
@@ -35,8 +35,8 @@ const NotificationsEntriesSelector: React.FC<NotificationsEntriesSelectorProps> 
                 name: channel.name,
                 service: channel.service,
                 details: channel.details,
-                updated: new Date(channel.updated).toLocaleString(),
-                added: new Date(channel.added).toLocaleString(),
+                updated: dateFromTimestampMs(channel.updated),
+                added: dateFromTimestampMs(channel.added),
             }));
         } catch (error) {
             console.error('Failed to fetch channels:', error);
@@ -81,15 +81,12 @@ const NotificationsEntriesSelector: React.FC<NotificationsEntriesSelectorProps> 
             onClose={onClose}
             fetchData={fetchNotificationChannels}
             columns={columns}
-            getUniqueKey={getUniqueKey}
+            getKey={getUniqueKey}
             entityLabel="notification-channel"
             noEntriesMessage={
                 <>
                     <p>There is no notification channel to add.</p>
-                    <LinkComponent
-                        to="/settings"
-                        className="notification-channel-entries__no-channels-message__link"
-                    >
+                    <LinkComponent to="/settings">
                         You can create a new one here.
                     </LinkComponent>
                 </>

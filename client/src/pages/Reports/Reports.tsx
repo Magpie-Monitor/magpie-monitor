@@ -12,6 +12,7 @@ import PageTemplate from 'components/PageTemplate/PageTemplate';
 import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/HeaderWithIcon';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import Spinner from 'components/Spinner/Spinner.tsx';
+import {dateFromTimestampMs} from 'lib/date.ts';
 
 const Reports = () => {
   const [rows, setRows] = useState<ReportSummary[]>([]);
@@ -49,8 +50,8 @@ const Reports = () => {
       const reports = await ManagmentServiceApiInstance.getReports();
       const mappedReports = reports.map((report: ReportSummary) => ({
         ...report,
-        startDate: new Date(report.sinceMs).toLocaleString(),
-        endDate: new Date(report.toMs).toLocaleString(),
+        startDate: dateFromTimestampMs(report.sinceMs),
+        endDate: dateFromTimestampMs(report.toMs),
       }));
       setRows(mappedReports);
     } catch (error) {

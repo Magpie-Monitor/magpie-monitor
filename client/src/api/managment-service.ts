@@ -62,8 +62,8 @@ export interface NotificationChannel {
   name: string;
   service: string;
   details: string;
-  updated: string;
-  added: string;
+  updated: number;
+  added: number;
 }
 
 export interface Application {

@@ -58,7 +58,7 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
             onClose={onClose}
             fetchData={fetchApplications}
             columns={columns}
-            getUniqueKey={getUniqueKey}
+            getKey={getUniqueKey}
             entityLabel="application"
             noEntriesMessage={<p>There is no application to add.</p>}
         />

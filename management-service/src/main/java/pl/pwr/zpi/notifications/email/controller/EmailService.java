@@ -5,8 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.notifications.email.EmailNotificationService;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
@@ -32,7 +30,7 @@ public class EmailService {
         EmailReceiver receiver = EmailReceiver.builder()
                 .receiverName(emailReceiver.getName())
                 .receiverEmail(emailReceiver.getEmail())
-                .createdAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .createdAt(System.currentTimeMillis())
                 .build();
         emailRepository.save(receiver);
     }
@@ -44,7 +42,7 @@ public class EmailService {
 
         receiver.setReceiverName(emailReceiver.getName());
         receiver.setReceiverEmail(emailReceiver.getEmail());
-        receiver.setUpdatedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli());
+        receiver.setUpdatedAt(System.currentTimeMillis());
         return emailRepository.save(receiver);
     }
 
