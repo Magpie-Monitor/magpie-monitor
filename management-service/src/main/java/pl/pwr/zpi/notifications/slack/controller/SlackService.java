@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 import pl.pwr.zpi.notifications.slack.SlackNotificationService;
 import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.time.ZoneOffset;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +33,7 @@ public class SlackService {
         SlackReceiver receiver = SlackReceiver.builder()
                 .receiverName(slackIntegration.getName())
                 .webhookUrl(encryptedWebhookUrl)
-                .createdAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .createdAt(System.currentTimeMillis())
                 .build();
         slackRepository.save(receiver);
     }
@@ -47,7 +45,7 @@ public class SlackService {
 
         receiver.setReceiverName(slackReceiver.getName());
         receiver.setWebhookUrl(encryptedWebhookUrl);
-        receiver.setUpdatedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli());
+        receiver.setUpdatedAt(System.currentTimeMillis());
         return slackRepository.save(receiver);
     }
 

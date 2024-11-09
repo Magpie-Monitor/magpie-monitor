@@ -11,8 +11,8 @@ interface EntriesSelectorProps<T extends TableRow> {
     onAdd: () => void;
     onClose: () => void;
     fetchData: () => Promise<T[]>;
-    columns: TableColumn<T & { key: string }>[];
-    getUniqueKey: (item: T) => string;
+    columns: TableColumn<T>[];
+    getKey: (item: T) => string;
     entityLabel: string;
     noEntriesMessage?: React.ReactNode;
 }
@@ -25,10 +25,10 @@ const EntriesSelector = <T extends TableRow>({
                                                  onClose,
                                                  fetchData,
                                                  columns,
-                                                 getUniqueKey,
+                                                 getKey,
                                                  entityLabel,
                                                  noEntriesMessage,
-                                             }: EntriesSelectorProps<T>): JSX.Element => {
+                                             }: EntriesSelectorProps<T>): React.ReactNode => {
     const [items, setItems] = useState<T[]>([]);
     const [selectAll, setSelectAll] = useState(false);
 
@@ -45,7 +45,7 @@ const EntriesSelector = <T extends TableRow>({
     }, [fetchData, entityLabel]);
 
     const availableItems = items.filter(
-        (item) => !itemsToExclude.some((excluded) => getUniqueKey(excluded) === getUniqueKey(item))
+        (item) => !itemsToExclude.some((excluded) => getKey(excluded) === getKey(item))
     );
 
     useEffect(() => {
@@ -62,16 +62,16 @@ const EntriesSelector = <T extends TableRow>({
     const handleCheckboxChange = (item: T) => {
         setSelectedItems((prevSelected) => {
             const isSelected = prevSelected.some(
-                (selectedItem) => getUniqueKey(selectedItem) === getUniqueKey(item)
+                (selectedItem) => getKey(selectedItem) === getKey(item)
             );
             return isSelected
                 // eslint-disable-next-line max-len
-                ? prevSelected.filter((selectedItem) => getUniqueKey(selectedItem) !== getUniqueKey(item))
+                ? prevSelected.filter((selectedItem) => getKey(selectedItem) !== getKey(item))
                 : [...prevSelected, item];
         });
     };
 
-    const updatedColumns: TableColumn<T & { key: string }>[] = [
+    const updatedColumns: TableColumn<T>[] = [
         {
             header: (
                 <Checkbox
@@ -80,10 +80,10 @@ const EntriesSelector = <T extends TableRow>({
                 />
             ),
             columnKey: 'checkbox',
-            customComponent: (row: T & { key: string }) => (
+            customComponent: (row: T) => (
                 <Checkbox
                     checked={selectedItems.some(
-                        (selectedItem) => getUniqueKey(selectedItem) === getUniqueKey(row)
+                        (selectedItem) => getKey(selectedItem) === getKey(row)
                     )}
                     onChange={() => handleCheckboxChange(row)}
                 />
@@ -95,7 +95,7 @@ const EntriesSelector = <T extends TableRow>({
     return (
         <div className="entries-selector">
             {availableItems.length === 0 ? (
-                <div className="entries-selector__no-entries-message">
+                <div className="entries-selector--no-entries-message">
                     {noEntriesMessage || <p>No {entityLabel} to add.</p>}
                 </div>
             ) : (
@@ -103,9 +103,9 @@ const EntriesSelector = <T extends TableRow>({
                     columns={updatedColumns}
                     rows={availableItems.map((item) => ({
                         ...item,
-                        key: getUniqueKey(item),
+                        key: getKey(item),
                     }))}
-                    maxHeight="65vh"
+                    maxHeight="65svh"
                 />
             )}
             <div className="entries-selector__buttons">

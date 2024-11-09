@@ -61,7 +61,7 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
             onClose={onClose}
             fetchData={fetchNodes}
             columns={columns}
-            getUniqueKey={getUniqueKey}
+            getKey={getUniqueKey}
             entityLabel="node"
             noEntriesMessage={<p>There is no node to add.</p>}
         />

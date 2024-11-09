@@ -1,4 +1,4 @@
-import { NotificationChannel } from 'api/managment-service';
+import {NotificationChannel} from 'pages/Report/NotificationSection/NotificationSection.tsx';
 
 export type NotificationChannelKind = 'SLACK' | 'DISCORD' | 'EMAIL';
 
