@@ -1,7 +1,7 @@
 import './Table.scss';
-import React from "react";
+import React from 'react';
 
-interface TableRow {
+export interface TableRow {
   [key: string]: string | number | boolean | unknown;
 }
 
