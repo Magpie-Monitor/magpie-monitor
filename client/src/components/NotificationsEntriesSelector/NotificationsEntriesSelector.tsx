@@ -39,8 +39,8 @@ const NotificationsEntriesSelector: React.FC<EntriesSelectorProps> = ({
                     name: channel.name,
                     service: channel.service,
                     details: channel.details,
-                    updated: channel.updated,
-                    added: channel.added,
+                    updated: new Date(channel.updated).toLocaleString(),
+                    added: new Date(channel.added).toLocaleString(),
                 }));
                 setNotificationChannels(channelRows);
             } catch (error) {

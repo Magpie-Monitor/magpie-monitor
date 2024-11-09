@@ -8,6 +8,7 @@ import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder;
 import pl.pwr.zpi.notifications.discord.DiscordNotificationService;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
@@ -35,7 +36,7 @@ public class DiscordService {
         DiscordReceiver receiver = DiscordReceiver.builder()
                 .receiverName(discordIntegration.getName())
                 .webhookUrl(encryptedWebhookUrl)
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .build();
         discordRepository.save(receiver);
     }
@@ -47,7 +48,7 @@ public class DiscordService {
 
         receiver.setReceiverName(discordReceiver.getName());
         receiver.setWebhookUrl(encryptedWebhookUrl);
-        receiver.setUpdatedAt(LocalDateTime.now());
+        receiver.setUpdatedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli());
         return discordRepository.save(receiver);
     }
 

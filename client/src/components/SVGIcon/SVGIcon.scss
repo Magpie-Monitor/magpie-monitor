@@ -99,12 +99,24 @@
 .drop-down-icon {
   @extend .svg-icon;
   mask: url('/src/assets/drop-down-icon.svg') no-repeat center;
+  width: 25px;
+  height: 25px;
+  .svg-icon {
+    width: 25px;
+    height: 25px;
+  }
 }
 
 .reverse-drop-down-icon {
   @extend .svg-icon;
   transform: rotate(180deg);
   mask: url('/src/assets/drop-down-icon.svg') no-repeat center;
+  width: 25px;
+  height: 25px;
+  .svg-icon {
+    width: 25px;
+    height: 25px;
+  }
 }
 
 .report-stats-icon {

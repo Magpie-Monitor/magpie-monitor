@@ -2,28 +2,31 @@
 
 .tag-button {
   position: relative;
-  width: 8rem;
+  width: 100%;
+  max-width: 8rem;
 
   &__toggle {
     cursor: pointer;
     border: 1px solid $green;
     background-color: $component-background;
     color: $green;
-    border-radius: 5px;
+    border-radius: 4px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.1rem 0.6rem;
+    padding: 0.1rem 0.4rem;
     width: 100%;
+    font-size: 0.9rem;
     outline: none;
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.2s, color 0.2s;
 
     .svg-icon {
       background-color: $green;
+      transition: background-color 0.2s;
     }
 
     &__description {
-      width: 6rem;
+      flex: 1;
       text-align: left;
     }
 
@@ -49,14 +52,17 @@
     background-color: $component-background;
     color: $green;
     width: 100%;
-    border-radius: 5px;
-    z-index: 1000;
-    transition: all 0.3s;
+    border-radius: 4px;
+    z-index: 9999;
+    transition: opacity 0.2s ease;
+    opacity: 0;
+    animation: fadeIn 0.15s forwards;
 
     &__element {
-      padding: 0.7rem 1.5rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
       cursor: pointer;
-      border-bottom: 0.3px solid $green;
+      border-bottom: 1px solid $green;
 
       &:last-child {
         border-bottom: none;
@@ -68,5 +74,14 @@
         background-color: $green;
       }
     }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
