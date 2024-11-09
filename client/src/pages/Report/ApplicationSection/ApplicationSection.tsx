@@ -11,7 +11,7 @@ import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
 import {AccuracyLevel} from 'api/managment-service';
 import ApplicationsEntriesSelector
-    from 'components/ApplicationsEntriesSelector/ApplicationsEntriesSelector.tsx';
+    from 'components/EntriesSelector/ApplicationsEntriesSelector/ApplicationsEntriesSelector.tsx';
 
 export interface ApplicationDataRow {
     name: string;

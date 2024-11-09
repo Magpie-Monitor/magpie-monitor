@@ -8,7 +8,7 @@ import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
 import {AccuracyLevel} from 'api/managment-service';
-import NodesEntriesSelector from 'components/NodesEntriesSelector/NodesEntriesSelector.tsx';
+import NodesEntriesSelector from 'components/EntriesSelector/NodesEntriesSelector/NodesEntriesSelector.tsx';
 
 export interface NodeDataRow {
     name: string;

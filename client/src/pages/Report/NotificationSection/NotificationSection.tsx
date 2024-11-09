@@ -4,7 +4,7 @@ import {useEffect, useState} from 'react';
 import NotificationChannelTable from './NotificationChannelTable';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import NotificationsEntriesSelector
-    from 'components/NotificationsEntriesSelector/NotificationsEntriesSelector.tsx';
+    from 'components/EntriesSelector/NotificationsEntriesSelector/NotificationsEntriesSelector.tsx';
 
 export interface NotificationChannel {
     id: string;
