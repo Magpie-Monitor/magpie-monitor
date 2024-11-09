@@ -32,23 +32,11 @@ public class ClusterController {
 
     @GetMapping("/{id}/nodes")
     public ResponseEntity<List<Node>> getClusterNodes(@PathVariable String id) {
-//        return ResponseEntity.ok(metadataService.getClusterNodes(id));
-        //mock data
-        return ResponseEntity.ok(List.of(
-                new Node("node1", true),
-                new Node("node2", true),
-                new Node("node3", false)
-        ));
+        return ResponseEntity.ok(metadataService.getClusterNodes(id));
     }
 
     @GetMapping("/{id}/applications")
     public ResponseEntity<List<Application>> getClusterApplications(@PathVariable String id) {
-//        return ResponseEntity.ok(metadataService.getClusterApplications(id));
-    //mock data
-        return ResponseEntity.ok(List.of(
-                new Application("app1","kind1", true),
-                new Application("app2","kind2", true),
-                new Application("app3","kind3", false)
-        ));
+        return ResponseEntity.ok(metadataService.getClusterApplications(id));
     }
 }
