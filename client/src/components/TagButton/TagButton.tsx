@@ -1,5 +1,5 @@
 import './TagButton.scss';
-import React, { useEffect, useRef, useReducer } from 'react';
+import React, { useEffect, useRef, useReducer, useCallback } from 'react';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 
 interface TagButtonProps<T> {
@@ -31,72 +31,90 @@ function reducer<T>(state: State<T>, action: Action<T>): State<T> {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const TagButton = <T,>({ listItems, chosenItem, onSelect }: TagButtonProps<T>) => {
-  const [{ isOpen, selectedOption }, dispatch] = useReducer(reducer, {
-    isOpen: false,
-    selectedOption: chosenItem,
-  });
+const TagButton = <T,>({ listItems, chosenItem, onSelect }: TagButtonProps<T>): JSX.Element => {
+    const [{ isOpen, selectedOption }, dispatch] = useReducer(reducer, {
+        isOpen: false,
+        selectedOption: chosenItem,
+    });
 
-  const menuRef = useRef<HTMLUListElement>(null);
+    const menuRef = useRef<HTMLUListElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-          menuRef.current &&
-          !menuRef.current.contains(event.target as Node) &&
-          !(event.target as HTMLElement).closest('.tag-button__toggle')
-      ) {
-        dispatch({ type: 'CLOSE' });
-      }
+    const closeMenu = useCallback(() => dispatch({ type: 'CLOSE' }), []);
+
+    const handleClickOutside = useCallback(
+        (event: MouseEvent) => {
+            if (
+                menuRef.current &&
+                !menuRef.current.contains(event.target as Node) &&
+                !buttonRef.current?.contains(event.target as Node)
+            ) {
+                closeMenu();
+            }
+        },
+        [closeMenu]
+    );
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [handleClickOutside]);
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Escape') closeMenu();
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
-  const handleBlur = (e: React.FocusEvent<HTMLButtonElement>) => {
-    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-      dispatch({ type: 'CLOSE' });
-    }
-  };
+    const handleSelect = (item: T) => {
+        dispatch({ type: 'SELECT_OPTION', payload: item });
+        onSelect(item);
+        buttonRef.current?.focus();
+    };
 
-  const handleSelect = (item: T) => {
-    dispatch({ type: 'SELECT_OPTION', payload: item });
-    onSelect(item);
-  };
-
-  return (
-      <div className="tag-button">
-        <button
-            className="tag-button__toggle"
-            onClick={() => dispatch({ type: 'TOGGLE' })}
-            onBlur={handleBlur}
-            aria-haspopup="true"
-            aria-expanded={isOpen}
-        >
-        <span className="tag-button__toggle__description">
-          {selectedOption as string}
-        </span>
-          <SVGIcon iconName={isOpen ? 'reverse-drop-down-icon' : 'drop-down-icon'} />
-        </button>
-        {isOpen && (
-            <ul className="tag-button__menu" ref={menuRef} role="menu">
-              {listItems.map((item, index) => (
-                  <li
-                      key={index}
-                      className="tag-button__menu__element"
-                      onClick={() => handleSelect(item)}
-                      role="menuitem"
-                      tabIndex={0}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSelect(item)}
-                  >
-                    {item as string}
-                  </li>
-              ))}
-            </ul>
-        )}
-      </div>
-  );
+    return (
+        <div className="tag-button">
+            <button
+                className="tag-button__toggle"
+                ref={buttonRef}
+                onClick={() => dispatch({ type: 'TOGGLE' })}
+                onKeyDown={handleKeyDown}
+                aria-haspopup="listbox"
+                aria-expanded={isOpen}
+            >
+                <span className="tag-button__toggle__description">
+                    {selectedOption as string}
+                </span>
+                <SVGIcon iconName={isOpen ? 'reverse-drop-down-icon' : 'drop-down-icon'} />
+            </button>
+            {isOpen && (
+                <ul
+                    className="tag-button__menu"
+                    ref={menuRef}
+                    role="listbox"
+                    aria-activedescendant={`tag-button-option-${listItems.indexOf(
+                        selectedOption as T
+                    )}`}
+                    tabIndex={-1}
+                >
+                    {listItems.map((item, index) => (
+                        <li
+                            id={`tag-button-option-${index}`}
+                            key={index}
+                            className="tag-button__menu__element"
+                            onClick={() => handleSelect(item)}
+                            role="option"
+                            aria-selected={selectedOption === item}
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') handleSelect(item);
+                            }}
+                        >
+                            {item as string}
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
 };
 
 export default TagButton;
