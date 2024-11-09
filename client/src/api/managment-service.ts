@@ -1,4 +1,4 @@
-import axios, {AxiosInstance} from 'axios';
+import axios, { AxiosInstance } from 'axios';
 
 interface UserInfo {
   nickname: string;
@@ -92,7 +92,6 @@ export interface Discord {
   createdAt: string;
   updatedAt: string;
 }
-
 
 export interface Email {
   id: string;
@@ -323,77 +322,15 @@ class ManagmentServiceApi {
     );
 
     return response.data;
-    // const reports: ReportSummary[] = response.data;
-
-    // return {
-    //   id: '213213',
-    //   urgency: 'LOW',
-    //   clusterId: 'Cluster 1',
-    //   category: 'Serious category',
-    //   title: 'Something wrong with app-1',
-    //   customPrompt: 'Custom prompt',
-    //   accuracy: 'HIGH',
-    //   applicationName: 'application-1',
-    //   summary: 'This is an summar of the incident',
-    //   recommendation: 'This is an recommendation of the incident',
-    //   sources: [
-    //     {
-    //       container: 'container-1',
-    //       timestamp: 213213124,
-    //       pod: 'pod-1',
-    //       image: 'image-1',
-    //       content:
-    //         'LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //         LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //         LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //       LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //       LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //       LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //       LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //       LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //       LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //       LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //       LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //       LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //       LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //         LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS\
-    //          LOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOSLOGSLOGSLOGSLGOSLGOSGLOSGLOSGLOSGLOS',
-    //     },
-    //   ],
-    // };
   }
 
   public async getNodeIncident(id: string): Promise<NodeIncident> {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get(
-      `/api/v1/reports/application-incidents/${id}`,
+      `/api/v1/reports/node-incidents/${id}`,
     );
-    //
+
     return response.data;
-    // const nodeIncident: NodeIncident = {
-    //   clusterId: 'cluster-1',
-    //   urgency: 'LOW',
-    //   id: 'dsadas',
-    //   title: 'Something wrong with lke-123',
-    //   nodeName: 'lke-123213213',
-    //   category: 'Serious category',
-    //   accuracy: 'HIGH',
-    //   customPrompt: 'Custom prompt',
-    //   summary: 'Node incident summary',
-    //   recommendation: 'Node incident recommendation',
-    //   sources: [
-    //     {
-    //       timestamp: 123123123,
-    //       nodeName: 'lke-1231231',
-    //       content: 'LOGSGLOGSLGOS',
-    //       filename: 'file1/tmp/file2',
-    //     },
-    //   ],
-    // };
-    //
-    // return new Promise((res) => {
-    //   setTimeout(() => res(nodeIncident), 2000);
-    // });
   }
 
   public async getClusters(): Promise<ClusterSummary[]> {
@@ -467,7 +404,7 @@ class ManagmentServiceApi {
     const [slack, discord, mail] = await Promise.all([
       this.axiosInstance.get('/api/v1/notification-channels/slack'),
       this.axiosInstance.get('/api/v1/notification-channels/discord'),
-      this.axiosInstance.get('/api/v1/notification-channels/mails')
+      this.axiosInstance.get('/api/v1/notification-channels/mails'),
     ]);
     const slackChannels = slack.data.map((channel: Slack) => ({
       id: channel.id,
@@ -475,7 +412,7 @@ class ManagmentServiceApi {
       service: 'SLACK',
       details: channel.webhookUrl,
       updated: channel.updatedAt,
-      added: channel.createdAt
+      added: channel.createdAt,
     }));
 
     const discordChannels = discord.data.map((channel: Discord) => ({
@@ -484,7 +421,7 @@ class ManagmentServiceApi {
       service: 'DISCORD',
       details: channel.webhookUrl,
       updated: channel.updatedAt,
-      added: channel.createdAt
+      added: channel.createdAt,
     }));
 
     const mailChannels = mail.data.map((channel: Email) => ({
@@ -493,11 +430,10 @@ class ManagmentServiceApi {
       service: 'EMAIL',
       details: channel.receiverEmail,
       updated: channel.updatedAt,
-      added: channel.createdAt
+      added: channel.createdAt,
     }));
 
     return [...slackChannels, ...discordChannels, ...mailChannels];
-
 
     // const mockNotificatoinChannels: Array<NotificationChannel> = [
     //   {
@@ -531,7 +467,7 @@ class ManagmentServiceApi {
   public async getApplications(clusterId: string): Promise<Application[]> {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get(
-        `/api/v1/clusters/${clusterId}/applications`,
+      `/api/v1/clusters/${clusterId}/applications`,
     );
 
     return response.data;
@@ -559,7 +495,7 @@ class ManagmentServiceApi {
   public async getNodes(clusterId: string): Promise<Node[]> {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get(
-        `/api/v1/clusters/${clusterId}/nodes`,
+      `/api/v1/clusters/${clusterId}/nodes`,
     );
 
     return response.data;
