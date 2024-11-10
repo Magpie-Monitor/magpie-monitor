@@ -1,4 +1,4 @@
-package pl.pwr.zpi.notifications.slack.controller;
+package pl.pwr.zpi.notifications.slack.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

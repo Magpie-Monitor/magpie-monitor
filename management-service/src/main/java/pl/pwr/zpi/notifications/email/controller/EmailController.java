@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.pwr.zpi.notifications.slack.controller.SlackReceiver;
+import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
 
 import java.util.List;
 
