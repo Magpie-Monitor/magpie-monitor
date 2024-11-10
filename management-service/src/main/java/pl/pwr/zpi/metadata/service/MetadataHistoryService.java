@@ -2,8 +2,8 @@ package pl.pwr.zpi.metadata.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.pwr.zpi.metadata.dto.application.Application;
-import pl.pwr.zpi.metadata.dto.node.Node;
+import pl.pwr.zpi.metadata.dto.application.ApplicationMetadataDTO;
+import pl.pwr.zpi.metadata.dto.node.NodeMetadataDTO;
 import pl.pwr.zpi.metadata.entity.ClusterHistory;
 import pl.pwr.zpi.metadata.broker.dto.application.ApplicationMetadata;
 import pl.pwr.zpi.metadata.broker.dto.cluster.ClusterMetadata;
@@ -24,16 +24,16 @@ public class MetadataHistoryService {
         return clusterHistoryRepository.findAll();
     }
 
-    public Set<Node> getNodeHistory(String clusterId) {
+    public Set<NodeMetadataDTO> getNodeHistory(String clusterId) {
         ClusterHistory history = clusterHistoryRepository.findById(clusterId)
                 .orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
-        return history.nodes();
+        return history.nodeMetadataDTOS();
     }
 
-    public Set<Application> getApplicationHistory(String clusterId) {
+    public Set<ApplicationMetadataDTO> getApplicationHistory(String clusterId) {
         ClusterHistory history = clusterHistoryRepository.findById(clusterId)
                 .orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
-        return history.applications();
+        return history.applicationMetadataDTOS();
     }
 
     public void updateClustersHistory(List<ClusterMetadata> metadata) {
@@ -46,7 +46,7 @@ public class MetadataHistoryService {
         ClusterHistory history = clusterHistoryRepository.findById(clusterId)
                 .orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
 
-        metadata.forEach(m -> history.nodes().add(new Node(m.name(), false)));
+        metadata.forEach(m -> history.nodeMetadataDTOS().add(new NodeMetadataDTO(m.name(), false)));
 
         clusterHistoryRepository.save(history);
     }
@@ -55,7 +55,7 @@ public class MetadataHistoryService {
         ClusterHistory history = clusterHistoryRepository.findById(clusterId)
                 .orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
 
-        metadata.forEach(m -> history.applications().add(new Application(m.name(), m.kind(), false)));
+        metadata.forEach(m -> history.applicationMetadataDTOS().add(new ApplicationMetadataDTO(m.name(), m.kind(), false)));
 
         clusterHistoryRepository.save(history);
     }
