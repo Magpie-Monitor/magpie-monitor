@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.pwr.zpi.cluster.dto.NodeConfigurationDTO;
 import pl.pwr.zpi.reports.enums.Accuracy;
 
 @Data
@@ -22,4 +23,12 @@ public class NodeConfiguration {
     private String name;
     private Accuracy accuracy;
     private String customPrompt;
+
+    public static NodeConfiguration fromNodeConfigurationDTO(NodeConfigurationDTO nodeConfigurationDTO) {
+        return NodeConfiguration.builder()
+                .name(nodeConfigurationDTO.name())
+                .accuracy(nodeConfigurationDTO.accuracy())
+                .customPrompt(nodeConfigurationDTO.customPrompt())
+                .build();
+    }
 }

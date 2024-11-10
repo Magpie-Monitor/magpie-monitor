@@ -2,7 +2,10 @@ package pl.pwr.zpi.reports.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import pl.pwr.zpi.reports.entity.report.Report;
-import pl.pwr.zpi.reports.repository.projection.*;
+import pl.pwr.zpi.reports.repository.projection.ReportDetailedSummaryProjection;
+import pl.pwr.zpi.reports.repository.projection.ReportIncidentsProjection;
+import pl.pwr.zpi.reports.repository.projection.ReportRequestedAtMillisProjection;
+import pl.pwr.zpi.reports.repository.projection.ReportSummaryProjection;
 
 import java.util.List;
 import java.util.Optional;

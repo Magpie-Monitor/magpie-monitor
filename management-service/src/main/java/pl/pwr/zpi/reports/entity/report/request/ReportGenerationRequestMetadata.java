@@ -44,6 +44,6 @@ public class ReportGenerationRequestMetadata {
     }
 
     public List<Long> getMailReceiverIds() {
-        return createReportRequest.mailReceiverIds();
+        return createReportRequest.emailReceiverIds();
     }
 }

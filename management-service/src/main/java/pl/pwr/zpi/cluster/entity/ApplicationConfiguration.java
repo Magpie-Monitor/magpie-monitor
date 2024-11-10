@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.pwr.zpi.cluster.dto.ApplicationConfigurationDTO;
 import pl.pwr.zpi.reports.enums.Accuracy;
 
 @Data
@@ -23,4 +24,13 @@ public class ApplicationConfiguration {
     private String kind;
     private Accuracy accuracy;
     private String customPrompt;
+
+    public static ApplicationConfiguration fromApplicationConfigurationDTO(ApplicationConfigurationDTO applicationConfigurationDTO) {
+        return ApplicationConfiguration.builder()
+                .name(applicationConfigurationDTO.name())
+                .kind(applicationConfigurationDTO.kind())
+                .accuracy(applicationConfigurationDTO.accuracy())
+                .customPrompt(applicationConfigurationDTO.customPrompt())
+                .build();
+    }
 }

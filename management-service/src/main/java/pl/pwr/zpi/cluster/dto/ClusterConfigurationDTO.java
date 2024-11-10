@@ -25,6 +25,8 @@ public record ClusterConfigurationDTO(
         List<NodeConfiguration> nodeConfigurations
 ) {
 
+
+
     public static ClusterConfigurationDTO ofCluster(ClusterConfiguration clusterConfiguration, boolean running) {
         return ClusterConfigurationDTO.builder()
                 .id(clusterConfiguration.getId())
