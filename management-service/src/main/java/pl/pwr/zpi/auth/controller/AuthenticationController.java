@@ -1,5 +1,7 @@
 package pl.pwr.zpi.auth.controller;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -10,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import pl.pwr.zpi.auth.oauth2.OauthRefreshTokenService;
 import pl.pwr.zpi.auth.service.AuthenticationService;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 public class AuthenticationController {
@@ -18,18 +22,18 @@ public class AuthenticationController {
     private final OauthRefreshTokenService oauthRefreshTokenService;
 
     @GetMapping("/api/v1/auth/user-details")
-    public ResponseEntity<?> getUser(Authentication authentication) {
-        return ResponseEntity.ok().body(service.getUserDetails(authentication));
+    public ResponseEntity<?> getUser(@CookieValue("authToken") String authToken) throws IOException {
+        return ResponseEntity.ok().body(service.getUserDetails(authToken));
     }
 
     @GetMapping("/api/v1/auth/auth-token/validation-time")
-    public ResponseEntity<?> getTokenValidationTime(HttpServletRequest request) {
-        return ResponseEntity.ok().body(service.getTokenValidationTime(request));
+    public ResponseEntity<?> getTokenValidationTime(@CookieValue("authToken") String authToken) {
+        return ResponseEntity.ok().body(service.getTokenValidationTime(authToken));
     }
 
     @GetMapping("/api/v1/auth/refresh-token")
-    public ResponseEntity<?> refreshToken(Authentication authentication) {
-        ResponseCookie updatedToken = oauthRefreshTokenService.updateAuthToken(authentication);
+    public ResponseEntity<?> refreshToken(@CookieValue("refreshToken") String refreshToken) {
+        ResponseCookie updatedToken = oauthRefreshTokenService.updateAuthToken(refreshToken);
 
         return ResponseEntity
                 .ok()

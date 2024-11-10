@@ -57,11 +57,9 @@ public class SecurityConfig {
                         .successHandler(oAuth2LoginSuccessHandler))
                 .logout((logout) -> logout
                         .logoutUrl("/api/v1/auth/logout")
+                        .deleteCookies("authToken", "refreshToken", "JSESSIONID")
                         .clearAuthentication(true)
                         .invalidateHttpSession(true)
-                        .deleteCookies("authToken")
-                        .deleteCookies("refreshToken")
-                        .deleteCookies("JSESSIONID")
                         .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)))
                 .addFilterBefore(new OauthAuthenticator(authorizedClientService), AuthorizationFilter.class)
                 .exceptionHandling(exception ->
