@@ -15,6 +15,7 @@ interface EntriesSelectorProps<T extends TableRow> {
     getKey: (item: T) => string;
     entityLabel: string;
     noEntriesMessage?: React.ReactNode;
+    title?: string;
 }
 
 const EntriesSelector = <T extends TableRow>({
@@ -28,6 +29,7 @@ const EntriesSelector = <T extends TableRow>({
                                                  getKey,
                                                  entityLabel,
                                                  noEntriesMessage,
+                                                 title,
                                              }: EntriesSelectorProps<T>): React.ReactNode => {
     const [items, setItems] = useState<T[]>([]);
     const [selectAll, setSelectAll] = useState(false);
@@ -94,6 +96,7 @@ const EntriesSelector = <T extends TableRow>({
 
     return (
         <div className="entries-selector">
+            {title && <h3 className="entries-selector__title">{title}</h3>}
             {availableItems.length === 0 ? (
                 <div className="entries-selector--no-entries-message">
                     {noEntriesMessage || <p>No {entityLabel} to add.</p>}

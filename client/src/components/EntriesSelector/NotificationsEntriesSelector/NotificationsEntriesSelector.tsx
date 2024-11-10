@@ -91,6 +91,7 @@ const NotificationsEntriesSelector: React.FC<NotificationsEntriesSelectorProps> 
                     </LinkComponent>
                 </>
             }
+            title="Select Notifications"
         />
     );
 };

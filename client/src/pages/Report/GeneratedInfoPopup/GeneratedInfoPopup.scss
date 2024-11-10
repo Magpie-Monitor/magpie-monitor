@@ -1,0 +1,22 @@
+@import '@/variables';
+
+.report-generated-info-popup {
+  text-align: center;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: $green;
+  }
+  p {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  &__button {
+    display: flex;
+    justify-content: flex-end;
+  }
+}

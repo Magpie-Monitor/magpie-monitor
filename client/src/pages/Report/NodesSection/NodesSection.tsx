@@ -1,14 +1,16 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
 import Table, {TableColumn} from 'components/Table/Table.tsx';
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
-import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
 import {AccuracyLevel} from 'api/managment-service';
-import NodesEntriesSelector from 'components/EntriesSelector/NodesEntriesSelector/NodesEntriesSelector.tsx';
+import NodesEntriesSelector
+    from 'components/EntriesSelector/NodesEntriesSelector/NodesEntriesSelector.tsx';
+import CustomTag from 'components/BrandTag/CustomTag.tsx';
+import CustomPromptPopup from 'components/CustomPromptPopup/CustomPromptPopup.tsx';
 
 export interface NodeDataRow {
     name: string;
@@ -29,6 +31,8 @@ const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId, default
     const [rows, setRows] = useState<NodeDataRow[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedNodes, setSelectedNodes] = useState<NodeDataRow[]>([]);
+    const [showCustomPromptPopup, setShowCustomPromptPopup] = useState(false);
+    const [selectedApp, setSelectedApp] = useState<NodeDataRow | null>(null);
 
     useEffect(() => {
         setNodes(rows);
@@ -52,12 +56,19 @@ const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId, default
         );
     };
 
-    const handleCustomPromptChange = (name: string, customPrompt: string) => {
-        setRows((prevRows) =>
-            prevRows.map((row) =>
-                row.name === name ? {...row, customPrompt} : row,
-            ),
-        );
+    const handleCustomPromptSave = (newPrompt: string) => {
+        if (selectedApp) {
+            setRows((prevRows) =>
+                prevRows.map((row) =>
+                    (row.name === selectedApp.name ? { ...row, customPrompt: newPrompt } : row))
+            );
+            setShowCustomPromptPopup(false);
+        }
+    };
+
+    const handleCustomPromptClick = (row: NodeDataRow) => {
+        setSelectedApp(row);
+        setShowCustomPromptPopup(true);
     };
 
     const handleDelete = (name: string) => {
@@ -91,10 +102,9 @@ const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId, default
             header: 'Custom prompt',
             columnKey: 'customPrompt',
             customComponent: (row: NodeDataRow) => (
-                <CustomPrompt
-                    value={row.customPrompt}
-                    onChange={(value) => handleCustomPromptChange(row.name, value)}
-                    className="node-section__input"
+                <CustomTag
+                    name={row.customPrompt || 'Enter custom prompt...'}
+                    onClick={() => handleCustomPromptClick(row)}
                 />
             ),
         },
@@ -134,6 +144,15 @@ const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId, default
                 <p>No Nodes selected, please add new</p>
             ) : (
                 <Table columns={columns} rows={rows}/>
+            )}
+
+            {selectedApp && (
+                <CustomPromptPopup
+                    initialValue={selectedApp.customPrompt}
+                    isDisplayed={showCustomPromptPopup}
+                    onSave={handleCustomPromptSave}
+                    onClose={() => setShowCustomPromptPopup(false)}
+                />
             )}
         </SectionComponent>
     );
