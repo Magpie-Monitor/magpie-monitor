@@ -13,6 +13,7 @@ public record ApplicationIncidentDTO(
         String clusterId,
         String applicationName,
         String category,
+        String title,
         String summary,
         Accuracy accuracy,
         String customPrompt,
@@ -26,6 +27,7 @@ public record ApplicationIncidentDTO(
                 .clusterId(incident.getClusterId())
                 .applicationName(incident.getApplicationName())
                 .category(incident.getCategory())
+                .title(incident.getTitle())
                 .summary(incident.getSummary())
                 .accuracy(incident.getAccuracy())
                 .customPrompt(incident.getCustomPrompt())

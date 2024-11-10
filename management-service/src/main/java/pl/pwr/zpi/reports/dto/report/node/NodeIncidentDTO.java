@@ -13,6 +13,7 @@ public record NodeIncidentDTO(
         String category,
         String clusterId,
         String nodeName,
+        String title,
         String summary,
         Accuracy accuracy,
         String customPrompt,
@@ -26,6 +27,7 @@ public record NodeIncidentDTO(
                 .category(incident.getCategory())
                 .clusterId(incident.getClusterId())
                 .nodeName(incident.getNodeName())
+                .title(incident.getTitle())
                 .summary(incident.getSummary())
                 .accuracy(incident.getAccuracy())
                 .customPrompt(incident.getCustomPrompt())
