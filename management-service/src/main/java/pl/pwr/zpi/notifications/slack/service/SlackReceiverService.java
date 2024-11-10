@@ -1,26 +1,26 @@
-package pl.pwr.zpi.notifications.slack.controller;
+package pl.pwr.zpi.notifications.slack.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import pl.pwr.zpi.notifications.slack.SlackNotificationService;
 import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder;
+import pl.pwr.zpi.notifications.slack.dto.SlackReceiverDTO;
+import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
+import pl.pwr.zpi.notifications.slack.repository.SlackRepository;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SlackService {
+public class SlackReceiverService {
 
-    private final SlackNotificationService slackNotificationService;
+    //    private final SlackNotificationService slackNotificationService;
     private final SlackRepository slackRepository;
     private final ConfidentialTextEncoder confidentialTextEncoder;
 
-    public void sendTestMessage(Long receiverSlackId) throws Exception {
-        var receiver = getSlackReceiver(receiverSlackId);
-        String decodedWebhookUrl = confidentialTextEncoder.decrypt(receiver.getWebhookUrl());
-        slackNotificationService.sendTestMessage(decodedWebhookUrl);
+    public boolean existsById(Long receiverId) {
+        return slackRepository.existsById(receiverId);
     }
 
     public List<SlackReceiver> getAllSlackIntegrations() {
@@ -39,7 +39,7 @@ public class SlackService {
     }
 
     public SlackReceiver updateSlackIntegration(Long id, SlackReceiverDTO slackReceiver) throws Exception {
-        var receiver = getSlackReceiver(id);
+        var receiver = getById(id);
         String encryptedWebhookUrl = confidentialTextEncoder.encrypt(slackReceiver.getWebhookUrl());
         checkIfUserCanUpdateWebhookUrl(encryptedWebhookUrl, id);
 
@@ -49,8 +49,8 @@ public class SlackService {
         return slackRepository.save(receiver);
     }
 
-    private SlackReceiver getSlackReceiver(Long receiverWebhookId) {
-        return slackRepository.findById(receiverWebhookId)
+    public SlackReceiver getById(Long receiverId) {
+        return slackRepository.findById(receiverId)
                 .orElseThrow(() -> new IllegalArgumentException("Webhook with given clusterId not found"));
     }
 
@@ -67,7 +67,7 @@ public class SlackService {
     }
 
     public SlackReceiver getEncodedWebhookUrl(Long id) throws Exception {
-        var receiver = getSlackReceiver(id);
+        var receiver = getById(id);
         receiver.setWebhookUrl(confidentialTextEncoder.decrypt(receiver.getWebhookUrl()));
         return receiver;
     }

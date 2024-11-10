@@ -67,7 +67,7 @@ public class ReportGenerationService {
         log.info("Report generation request failed, correlationId: {}, clusterId: {}", requestMetadata.getCorrelationId(), requestMetadata.getCreateReportRequest().clusterId());
 
         markReportGenerationRequestAsFailed(requestMetadata, requestFailed);
-        notifyReportGenerationFailed(requestMetadata);
+//        notifyReportGenerationFailed(requestMetadata, requestFailed);
     }
 
     private void markReportGenerationRequestAsFailed(
@@ -86,7 +86,7 @@ public class ReportGenerationService {
     private void saveGeneratedReport(ReportGenerationRequestMetadata requestMetadata, ReportGenerated reportGenerated) {
         persistReport(reportGenerated.report());
         updateReportGenerationRequestMetadataStatus(requestMetadata, ReportGenerationStatus.GENERATED);
-        notifyReportGenerated(requestMetadata);
+        notifyReportGenerated(requestMetadata, reportGenerated.report().getId());
     }
 
     private void updateReportGenerationRequestMetadataStatus(ReportGenerationRequestMetadata requestMetadata, ReportGenerationStatus generationStatus) {
@@ -101,16 +101,16 @@ public class ReportGenerationService {
     }
 
     // TODO - stub implementation
-    public void notifyReportGenerated(ReportGenerationRequestMetadata requestMetadata) {
-        notificationService.notifySlack(requestMetadata.getSlackReceiverIds());
-        notificationService.notifyDiscord(requestMetadata.getDiscordReceiverIds());
-        notificationService.notifyEmail(requestMetadata.getMailReceiverIds());
+    public void notifyReportGenerated(ReportGenerationRequestMetadata requestMetadata, String reportId) {
+        notificationService.notifySlack(requestMetadata.getSlackReceiverIds(), reportId);
+//        notificationService.notifyDiscord(requestMetadata.getDiscordReceiverIds());
+//        notificationService.notifyEmail(requestMetadata.getMailReceiverIds());
     }
 
     // TODO - stub implementation
-    public void notifyReportGenerationFailed(ReportGenerationRequestMetadata requestMetadata) {
-        notificationService.notifySlack(requestMetadata.getSlackReceiverIds());
-        notificationService.notifyDiscord(requestMetadata.getDiscordReceiverIds());
-        notificationService.notifyEmail(requestMetadata.getMailReceiverIds());
+    public void notifyReportGenerationFailed(ReportGenerationRequestMetadata requestMetadata, String reportId) {
+        notificationService.notifySlack(requestMetadata.getSlackReceiverIds(), reportId);
+//        notificationService.notifyDiscord(requestMetadata.getDiscordReceiverIds());
+//        notificationService.notifyEmail(requestMetadata.getMailReceiverIds());
     }
 }

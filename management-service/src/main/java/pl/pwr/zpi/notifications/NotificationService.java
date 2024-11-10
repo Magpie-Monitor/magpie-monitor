@@ -2,7 +2,7 @@ package pl.pwr.zpi.notifications;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pl.pwr.zpi.notifications.slack.controller.SlackService;
+import pl.pwr.zpi.notifications.slack.service.SlackNotificationService;
 
 import java.util.List;
 
@@ -10,24 +10,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificationService {
 
-    private final SlackService slackService;
+    private final SlackNotificationService slackNotificationService;
 
-    public List<SlackChannel> getSlackReceivers() {
-        return slackService.getAllSlackIntegrations().stream()
-                .map(SlackChannel::of)
-                .toList();
+    public void notifySlack(List<Long> receiverIds, String reportId) {
+        receiverIds.forEach(id -> slackNotificationService.notifyOnReportCreated(id, reportId));
     }
 
-    // TODO - implement notifications
-    public void notifySlack(List<Long> receiverIds) {
+    public void notifyDiscord(List<Long> receiverIds, String reportId) {
 
     }
 
-    public void notifyDiscord(List<Long> receiverIds) {
-
-    }
-
-    public void notifyEmail(List<Long> receiverIds) {
+    public void notifyEmail(List<Long> receiverIds, String reportId) {
 
     }
 }

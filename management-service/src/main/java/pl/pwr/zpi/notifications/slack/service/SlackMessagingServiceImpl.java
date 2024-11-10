@@ -1,7 +1,6 @@
-package pl.pwr.zpi.notifications.slack;
+package pl.pwr.zpi.notifications.slack.service;
 
 import com.slack.api.Slack;
-import com.slack.api.model.Attachment;
 import com.slack.api.webhook.Payload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,8 @@ import java.io.IOException;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SlackServiceImpl implements SlackService {
+public class SlackMessagingServiceImpl implements SlackMessagingService {
+
     @Override
     public void sendMessage(String message, String webhookUrl) {
         Payload payload = Payload.builder()

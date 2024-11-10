@@ -1,4 +1,4 @@
-package pl.pwr.zpi.notifications.slack.controller;
+package pl.pwr.zpi.notifications.slack.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
