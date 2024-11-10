@@ -26,8 +26,7 @@ public class ClusterConfiguration {
     private String id;
     private Accuracy accuracy;
     private boolean isEnabled;
-    private Long sinceMs;
-    private Long toMs;
+    private Long generatedEveryMillis;
 
     @OneToMany
     private List<SlackReceiver> slackReceivers;
@@ -46,8 +45,7 @@ public class ClusterConfiguration {
                 .id(configurationRequest.id())
                 .accuracy(configurationRequest.accuracy())
                 .isEnabled(configurationRequest.isEnabled())
-                .sinceMs(configurationRequest.sinceMs())
-                .toMs(configurationRequest.toMs())
+                .generatedEveryMillis(configurationRequest.generatedEveryMillis())
                 .applicationConfigurations(configurationRequest.applicationConfigurations())
                 .nodeConfigurations(configurationRequest.nodeConfigurations())
                 .build();

@@ -17,8 +17,7 @@ public record ClusterConfigurationDTO(
         Accuracy accuracy,
         boolean isEnabled,
         boolean running,
-        Long sinceMs,
-        Long toMs,
+        Long generatedEveryMillis,
         List<SlackReceiver> slackReceivers,
         List<DiscordReceiver> discordReceivers,
         List<EmailReceiver> emailReceivers,
@@ -32,8 +31,7 @@ public record ClusterConfigurationDTO(
                 .accuracy(clusterConfiguration.getAccuracy())
                 .isEnabled(clusterConfiguration.isEnabled())
                 .running(running)
-                .sinceMs(clusterConfiguration.getSinceMs())
-                .toMs(clusterConfiguration.getToMs())
+                .generatedEveryMillis(clusterConfiguration.getGeneratedEveryMillis())
                 .slackReceivers(clusterConfiguration.getSlackReceivers())
                 .discordReceivers(clusterConfiguration.getDiscordReceivers())
                 .emailReceivers(clusterConfiguration.getEmailReceivers())
