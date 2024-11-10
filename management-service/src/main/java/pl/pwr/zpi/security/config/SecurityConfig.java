@@ -1,8 +1,5 @@
 package pl.pwr.zpi.security.config;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,17 +8,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pl.pwr.zpi.auth.CustomAccessDeniedHandler;
+import pl.pwr.zpi.auth.oauth2.CustomCookieClearingLogoutHandler;
 import pl.pwr.zpi.auth.oauth2.CustomOAuth2UserService;
 import pl.pwr.zpi.auth.oauth2.OAuthLoginSuccessHandler;
 import pl.pwr.zpi.auth.oauth2.OauthAuthenticator;
@@ -36,6 +32,7 @@ public class SecurityConfig {
     private final OAuthLoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomOAuth2UserService oauthUserService;
     private final OAuth2AuthorizedClientService authorizedClientService;
+    private final CustomCookieClearingLogoutHandler customLogoutHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
@@ -62,7 +59,7 @@ public class SecurityConfig {
                         .successHandler(oAuth2LoginSuccessHandler))
                 .logout((logout) -> logout
                         .logoutUrl("/api/v1/auth/logout")
-                        .addLogoutHandler(new CustomCookieClearingLogoutHandler())
+                        .addLogoutHandler(customLogoutHandler)
                         .clearAuthentication(true)
                         .invalidateHttpSession(true)
                         .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)))
@@ -90,21 +87,5 @@ public class SecurityConfig {
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return new CustomAccessDeniedHandler();
-    }
-
-    private static class CustomCookieClearingLogoutHandler implements LogoutHandler {
-        @Override
-        public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-            clearCookie(response, "authToken", "/");
-            clearCookie(response, "refreshToken", "/api/v1/auth/refresh-token");
-            clearCookie(response, "JSESSIONID", "/");
-        }
-
-        private void clearCookie(HttpServletResponse response, String name, String path) {
-            Cookie cookie = new Cookie(name, null);
-            cookie.setPath(path);
-            cookie.setMaxAge(0);
-            response.addCookie(cookie);
-        }
     }
 }
