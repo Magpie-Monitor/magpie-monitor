@@ -46,7 +46,7 @@ public record ReportRequested(
                                 .sinceMs(reportRequest.sinceMs())
                                 .toMs(reportRequest.toMs())
                                 .applicationConfiguration(
-                                        reportRequest.applicationConfigurationDTOS().stream()
+                                        reportRequest.applicationConfigurations().stream()
                                                 .map(configuration -> new ApplicationConfiguration(
                                                         configuration.applicationName(),
                                                         configuration.accuracy(),
@@ -55,7 +55,7 @@ public record ReportRequested(
                                                 .toList()
                                 )
                                 .nodeConfiguration(
-                                        reportRequest.nodeConfigurationDTOS().stream()
+                                        reportRequest.nodeConfigurations().stream()
                                                 .map(configuration -> new NodeConfiguration(
                                                         configuration.nodeName(),
                                                         configuration.accuracy(),

@@ -2,9 +2,11 @@ package pl.pwr.zpi.reports.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.reports.dto.report.ReportDetailedSummaryDTO;
 import pl.pwr.zpi.reports.dto.report.ReportIncidentsDTO;
+import pl.pwr.zpi.reports.dto.report.ReportPaginatedIncidentsDTO;
 import pl.pwr.zpi.reports.dto.report.ReportSummaryDTO;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
@@ -53,6 +55,32 @@ public class ReportsService {
                     .nodeIncidents(extractNodeIncidents(incidentProjection))
                     .build();
         });
+    }
+
+    public ReportPaginatedIncidentsDTO<ApplicationIncidentDTO> getReportApplicationIncidents(
+            String reportId, int pageNumber, int pageSize) {
+
+        return ReportPaginatedIncidentsDTO.<ApplicationIncidentDTO>builder()
+                .data(
+                    applicationIncidentRepository.findByReportId(reportId, PageRequest.of(pageNumber, pageSize)).stream()
+                            .map(ApplicationIncidentDTO::fromApplicationIncident)
+                            .toList()
+                )
+                .totalEntries(applicationIncidentRepository.countByReportId(reportId))
+                .build();
+    }
+
+    public ReportPaginatedIncidentsDTO<NodeIncidentDTO> getReportNodeIncidents(
+            String reportId, int pageNumber, int pageSize) {
+
+        return ReportPaginatedIncidentsDTO.<NodeIncidentDTO>builder()
+                .data(
+                        nodeIncidentRepository.findByReportId(reportId, PageRequest.of(pageNumber, pageSize)).stream()
+                                .map(NodeIncidentDTO::fromNodeIncident)
+                                .toList()
+                )
+                .totalEntries(nodeIncidentRepository.countByReportId(reportId))
+                .build();
     }
 
     private List<ApplicationIncident> extractApplicationIncidents(ReportIncidentsProjection reportIncidentsProjection) {

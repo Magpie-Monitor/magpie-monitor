@@ -17,6 +17,7 @@ import java.util.List;
 public class ApplicationIncident {
     @MongoId
     private String id;
+    private String reportId;
     private String title;
     private Accuracy accuracy;
     private String customPrompt;
