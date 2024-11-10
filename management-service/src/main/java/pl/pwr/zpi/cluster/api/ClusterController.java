@@ -7,9 +7,9 @@ import pl.pwr.zpi.cluster.dto.ClusterConfigurationDTO;
 import pl.pwr.zpi.cluster.dto.ClusterConfigurationRequest;
 import pl.pwr.zpi.cluster.dto.ClusterIdResponse;
 import pl.pwr.zpi.cluster.service.ClusterService;
-import pl.pwr.zpi.metadata.dto.application.Application;
-import pl.pwr.zpi.metadata.dto.cluster.Cluster;
-import pl.pwr.zpi.metadata.dto.node.Node;
+import pl.pwr.zpi.metadata.dto.application.ApplicationMetadataDTO;
+import pl.pwr.zpi.metadata.dto.cluster.ClusterMetadataDTO;
+import pl.pwr.zpi.metadata.dto.node.NodeMetadataDTO;
 import pl.pwr.zpi.metadata.service.MetadataService;
 
 import java.util.List;
@@ -22,29 +22,18 @@ public class ClusterController {
     private final MetadataService metadataService;
     private final ClusterService clusterService;
 
-    // TODO - return receivers
     @GetMapping
-    public ResponseEntity<List<Cluster>> getClusters() {
+    public ResponseEntity<List<ClusterMetadataDTO>> getClusters() {
         return ResponseEntity.ok(metadataService.getAllClusters());
     }
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<Cluster> getClusterById(@PathVariable String id) {
-//        return ResponseEntity.of(metadataService.getClusterById(id));
-//    }
-
-    @GetMapping("/{id}/summary")
-    public ResponseEntity<Cluster> getClusterSummaryById(@PathVariable String id) {
-        return ResponseEntity.of(metadataService.getClusterById(id));
-    }
-
     @GetMapping("/{id}/nodes")
-    public ResponseEntity<List<Node>> getClusterNodes(@PathVariable String id) {
+    public ResponseEntity<List<NodeMetadataDTO>> getClusterNodes(@PathVariable String id) {
         return ResponseEntity.ok(metadataService.getClusterNodes(id));
     }
 
     @GetMapping("/{id}/applications")
-    public ResponseEntity<List<Application>> getClusterApplications(@PathVariable String id) {
+    public ResponseEntity<List<ApplicationMetadataDTO>> getClusterApplications(@PathVariable String id) {
         return ResponseEntity.ok(metadataService.getClusterApplications(id));
     }
 

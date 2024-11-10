@@ -7,6 +7,7 @@ import pl.pwr.zpi.cluster.dto.ClusterConfigurationRequest;
 import pl.pwr.zpi.cluster.dto.ClusterIdResponse;
 import pl.pwr.zpi.cluster.entity.Cluster;
 import pl.pwr.zpi.cluster.repository.ClusterRepository;
+import pl.pwr.zpi.metadata.dto.cluster.ClusterMetadataDTO;
 import pl.pwr.zpi.metadata.service.MetadataService;
 import pl.pwr.zpi.notifications.ReceiverService;
 import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
@@ -66,6 +67,6 @@ public class ClusterService {
     }
 
     private Optional<Boolean> isClusterRunning(String clusterId) {
-        return metadataService.getClusterById(clusterId).map(pl.pwr.zpi.metadata.dto.cluster.Cluster::running);
+        return metadataService.getClusterById(clusterId).map(ClusterMetadataDTO::running);
     }
 }

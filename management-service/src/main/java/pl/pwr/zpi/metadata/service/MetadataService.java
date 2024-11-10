@@ -3,9 +3,9 @@ package pl.pwr.zpi.metadata.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import pl.pwr.zpi.metadata.dto.application.Application;
-import pl.pwr.zpi.metadata.dto.cluster.Cluster;
-import pl.pwr.zpi.metadata.dto.node.Node;
+import pl.pwr.zpi.metadata.dto.application.ApplicationMetadataDTO;
+import pl.pwr.zpi.metadata.dto.cluster.ClusterMetadataDTO;
+import pl.pwr.zpi.metadata.dto.node.NodeMetadataDTO;
 import pl.pwr.zpi.metadata.broker.dto.application.AggregatedApplicationMetadata;
 import pl.pwr.zpi.metadata.broker.dto.cluster.AggregatedClusterMetadata;
 import pl.pwr.zpi.metadata.broker.dto.node.AggregatedNodeMetadata;
@@ -29,92 +29,92 @@ public class MetadataService {
     private final AggregatedClusterMetadataRepository clusterMetadataRepository;
     private final MetadataHistoryService metadataHistoryService;
 
-    public List<Cluster> getAllClusters() {
-        List<Cluster> activeClusters = getActiveClusters();
+    public List<ClusterMetadataDTO> getAllClusters() {
+        List<ClusterMetadataDTO> activeClusterMetadataDTOS = getActiveClusters();
 
-        Set<Cluster> inactiveClusters = filterInactiveClusters(activeClusters);
-        activeClusters.addAll(inactiveClusters);
+        Set<ClusterMetadataDTO> inactiveClusterMetadataDTOS = filterInactiveClusters(activeClusterMetadataDTOS);
+        activeClusterMetadataDTOS.addAll(inactiveClusterMetadataDTOS);
 
-        return activeClusters;
+        return activeClusterMetadataDTOS;
     }
 
-    public List<Cluster> getActiveClusters() {
+    public List<ClusterMetadataDTO> getActiveClusters() {
         return clusterMetadataRepository.findFirstByOrderByCollectedAtMsDesc()
                 .map(metadata -> metadata.metadata()
                         .stream()
-                        .map(cluster -> new Cluster(cluster.clusterId(), true))
+                        .map(cluster -> new ClusterMetadataDTO(cluster.clusterId(), true))
                         .collect(Collectors.toCollection(ArrayList::new))
                 )
                 .orElse(new ArrayList<>());
     }
 
-    private Set<Cluster> filterInactiveClusters(List<Cluster> activeClusters) {
-        Set<String> activeClusterIds = activeClusters.stream().map(Cluster::clusterId).collect(Collectors.toSet());
+    private Set<ClusterMetadataDTO> filterInactiveClusters(List<ClusterMetadataDTO> activeClusterMetadataDTOS) {
+        Set<String> activeClusterIds = activeClusterMetadataDTOS.stream().map(ClusterMetadataDTO::clusterId).collect(Collectors.toSet());
 
         return metadataHistoryService.getClustersHistory().stream()
-                .map(clusterHistory -> new Cluster(clusterHistory.id(), false))
-                .filter(cluster -> !activeClusterIds.contains(cluster.clusterId()))
+                .map(clusterHistory -> new ClusterMetadataDTO(clusterHistory.id(), false))
+                .filter(clusterMetadataDTO -> !activeClusterIds.contains(clusterMetadataDTO.clusterId()))
                 .collect(Collectors.toSet());
     }
 
-    public Optional<Cluster> getClusterById(String clusterId) {
+    public Optional<ClusterMetadataDTO> getClusterById(String clusterId) {
         if (!clusterMetadataRepository.existsByMetadataClusterId(clusterId)) {
             return Optional.empty();
         }
-        return Optional.of(new Cluster(clusterId, getActiveClusters().contains(new Cluster(clusterId, false))));
+        return Optional.of(new ClusterMetadataDTO(clusterId, getActiveClusters().contains(new ClusterMetadataDTO(clusterId, false))));
     }
 
-    public List<Node> getClusterNodes(String clusterId) {
-        List<Node> activeNodes = getActiveNodesForClusterId(clusterId);
+    public List<NodeMetadataDTO> getClusterNodes(String clusterId) {
+        List<NodeMetadataDTO> activeNodeMetadataDTOS = getActiveNodesForClusterId(clusterId);
 
-        Set<Node> inactiveNodes = filterInactiveNodesForClusterId(clusterId, activeNodes);
-        activeNodes.addAll(inactiveNodes);
+        Set<NodeMetadataDTO> inactiveNodeMetadataDTOS = filterInactiveNodesForClusterId(clusterId, activeNodeMetadataDTOS);
+        activeNodeMetadataDTOS.addAll(inactiveNodeMetadataDTOS);
 
-        return activeNodes;
+        return activeNodeMetadataDTOS;
     }
 
-    private List<Node> getActiveNodesForClusterId(String clusterId) {
+    private List<NodeMetadataDTO> getActiveNodesForClusterId(String clusterId) {
         return nodeMetadataRepository.findFirstByClusterIdOrderByCollectedAtMsDesc(clusterId)
                 .map(aggregatedNodeMetadata -> aggregatedNodeMetadata.metadata().stream()
-                        .map(nodeMetadata -> new Node(nodeMetadata.name(), true))
+                        .map(nodeMetadata -> new NodeMetadataDTO(nodeMetadata.name(), true))
                         .collect(Collectors.toCollection(ArrayList::new))
                 ).orElse(new ArrayList<>());
     }
 
-    private Set<Node> filterInactiveNodesForClusterId(String clusterId, List<Node> activeNodes) {
-        Set<String> activeNodeIs = activeNodes.stream().map(Node::name).collect(Collectors.toSet());
+    private Set<NodeMetadataDTO> filterInactiveNodesForClusterId(String clusterId, List<NodeMetadataDTO> activeNodeMetadataDTOS) {
+        Set<String> activeNodeIs = activeNodeMetadataDTOS.stream().map(NodeMetadataDTO::name).collect(Collectors.toSet());
 
         return metadataHistoryService.getNodeHistory(clusterId)
                 .stream()
-                .filter(node -> !activeNodeIs.contains(node.name()))
+                .filter(nodeMetadataDTO -> !activeNodeIs.contains(nodeMetadataDTO.name()))
                 .collect(Collectors.toSet());
     }
 
-    public List<Application> getClusterApplications(String clusterId) {
-        List<Application> activeApplications = getActiveApplicationsForClusterId(clusterId);
+    public List<ApplicationMetadataDTO> getClusterApplications(String clusterId) {
+        List<ApplicationMetadataDTO> activeApplicationMetadataDTOS = getActiveApplicationsForClusterId(clusterId);
 
-        Set<Application> inactiveApplications = filterInactiveApplicationsForClusterId(clusterId, activeApplications);
-        activeApplications.addAll(inactiveApplications);
+        Set<ApplicationMetadataDTO> inactiveApplicationMetadataDTOS = filterInactiveApplicationsForClusterId(clusterId, activeApplicationMetadataDTOS);
+        activeApplicationMetadataDTOS.addAll(inactiveApplicationMetadataDTOS);
 
-        return activeApplications;
+        return activeApplicationMetadataDTOS;
     }
 
-    private List<Application> getActiveApplicationsForClusterId(String clusterId) {
+    private List<ApplicationMetadataDTO> getActiveApplicationsForClusterId(String clusterId) {
         return applicationMetadataRepository.findFirstByClusterIdOrderByCollectedAtMsDesc(clusterId)
                 .map(metadata -> metadata.metadata().stream()
-                        .map(application -> new Application(application.name(), application.kind(), true))
+                        .map(application -> new ApplicationMetadataDTO(application.name(), application.kind(), true))
                         .collect(Collectors.toCollection(ArrayList::new))
                 )
                 .orElse(new ArrayList<>());
     }
 
-    private Set<Application> filterInactiveApplicationsForClusterId(String clusterId, List<Application> activeApplications) {
-        Set<String> activeApplicationIds = activeApplications.stream()
-                .map(Application::name)
+    private Set<ApplicationMetadataDTO> filterInactiveApplicationsForClusterId(String clusterId, List<ApplicationMetadataDTO> activeApplicationMetadataDTOS) {
+        Set<String> activeApplicationIds = activeApplicationMetadataDTOS.stream()
+                .map(ApplicationMetadataDTO::name)
                 .collect(Collectors.toSet());
 
         return metadataHistoryService.getApplicationHistory(clusterId).stream()
-                .filter(applicationMetadata -> !activeApplicationIds.contains(applicationMetadata.name()))
+                .filter(applicationMetadataDTOMetadata -> !activeApplicationIds.contains(applicationMetadataDTOMetadata.name()))
                 .collect(Collectors.toSet());
     }
 
