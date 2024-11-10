@@ -376,6 +376,11 @@ func (c *Client) createBatch(batchParams CreateBatchRequest) (*Batch, error) {
 		return nil, err
 	}
 
+	if decodedResponse.Id == "" {
+		c.logger.Error("Failed to recieve id from a batch", zap.Any("response", respBody))
+		return nil, errors.New("Failed to recieve id from a batch")
+	}
+
 	return &decodedResponse, nil
 }
 
@@ -446,12 +451,15 @@ func (c *Client) SplitCompletionReqestsByBatchSize(completionRequests []*Complet
 	return requestPackets, nil
 }
 
-func (c *Client) UploadAndCreateBatch(completionRequests []*CompletionRequest) (*Batch, error) {
+func (c *Client) UploadAndCreateBatch(completionRequests map[string]*CompletionRequest) (*Batch, error) {
 
-	batchRequestEntries := array.Map(NewBatchEntryFromCompletionRequet)(completionRequests)
+	batchCompletionEntries := make([]*BatchFileCompletionRequestEntry, 0, len(completionRequests))
+	for customId, request := range completionRequests {
+		batchCompletionEntries = append(batchCompletionEntries, NewBatchEntryFromCompletionRequest(request, customId))
+	}
 
 	batchFile := bytes.NewBufferString("")
-	err := jsonl.NewJsonLinesEncoder(batchFile).Encode(batchRequestEntries)
+	err := jsonl.NewJsonLinesEncoder(batchFile).Encode(batchCompletionEntries)
 
 	if err != nil {
 		c.logger.Sugar().Errorln("Failed to encode messages to complete", zap.Error(err))
@@ -475,13 +483,15 @@ func (c *Client) UploadAndCreateBatch(completionRequests []*CompletionRequest) (
 		c.logger.Error("Failed to execute batch", zap.Error(err))
 		return nil, err
 	}
+	c.logger.Info("batch response", zap.Any("batch", batchCreateResponse))
 
 	return batchCreateResponse, nil
 }
 
-func NewBatchEntryFromCompletionRequet(completionRequest *CompletionRequest) *BatchFileCompletionRequestEntry {
+func NewBatchEntryFromCompletionRequest(completionRequest *CompletionRequest, customId string) *BatchFileCompletionRequestEntry {
 	return &BatchFileCompletionRequestEntry{
-		CustomId: fmt.Sprintf("report-%s", time.Now().String()),
+		// CustomId: fmt.Sprintf("report-%s", time.Now().String()),
+		CustomId: customId,
 		Method:   "POST",
 		Url:      COMPLETION_PATH,
 		Body:     completionRequest,
