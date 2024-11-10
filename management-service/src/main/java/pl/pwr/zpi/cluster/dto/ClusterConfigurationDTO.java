@@ -2,7 +2,7 @@ package pl.pwr.zpi.cluster.dto;
 
 import lombok.Builder;
 import pl.pwr.zpi.cluster.entity.ApplicationConfiguration;
-import pl.pwr.zpi.cluster.entity.Cluster;
+import pl.pwr.zpi.cluster.entity.ClusterConfiguration;
 import pl.pwr.zpi.cluster.entity.NodeConfiguration;
 import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
@@ -26,19 +26,19 @@ public record ClusterConfigurationDTO(
         List<NodeConfiguration> nodeConfigurations
 ) {
 
-    public static ClusterConfigurationDTO ofCluster(Cluster cluster, boolean running) {
+    public static ClusterConfigurationDTO ofCluster(ClusterConfiguration clusterConfiguration, boolean running) {
         return ClusterConfigurationDTO.builder()
-                .id(cluster.getId())
-                .accuracy(cluster.getAccuracy())
-                .isEnabled(cluster.isEnabled())
+                .id(clusterConfiguration.getId())
+                .accuracy(clusterConfiguration.getAccuracy())
+                .isEnabled(clusterConfiguration.isEnabled())
                 .running(running)
-                .sinceMs(cluster.getSinceMs())
-                .toMs(cluster.getToMs())
-                .slackReceivers(cluster.getSlackReceivers())
-                .discordReceivers(cluster.getDiscordReceivers())
-                .emailReceivers(cluster.getEmailReceivers())
-                .applicationConfigurations(cluster.getApplicationConfigurations())
-                .nodeConfigurations(cluster.getNodeConfigurations())
+                .sinceMs(clusterConfiguration.getSinceMs())
+                .toMs(clusterConfiguration.getToMs())
+                .slackReceivers(clusterConfiguration.getSlackReceivers())
+                .discordReceivers(clusterConfiguration.getDiscordReceivers())
+                .emailReceivers(clusterConfiguration.getEmailReceivers())
+                .applicationConfigurations(clusterConfiguration.getApplicationConfigurations())
+                .nodeConfigurations(clusterConfiguration.getNodeConfigurations())
                 .build();
     }
 }

@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pl.pwr.zpi.cluster.dto.ClusterConfigurationRequest;
+import pl.pwr.zpi.cluster.dto.UpdateClusterConfigurationRequest;
 import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
@@ -21,7 +21,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Cluster {
+public class ClusterConfiguration {
     @Id
     private String id;
     private Accuracy accuracy;
@@ -41,8 +41,8 @@ public class Cluster {
     @OneToMany(cascade = CascadeType.ALL)
     private List<NodeConfiguration> nodeConfigurations;
 
-    public static Cluster ofClusterConfigurationRequest(ClusterConfigurationRequest configurationRequest) {
-        return Cluster.builder()
+    public static ClusterConfiguration ofClusterConfigurationRequest(UpdateClusterConfigurationRequest configurationRequest) {
+        return ClusterConfiguration.builder()
                 .id(configurationRequest.id())
                 .accuracy(configurationRequest.accuracy())
                 .isEnabled(configurationRequest.isEnabled())
