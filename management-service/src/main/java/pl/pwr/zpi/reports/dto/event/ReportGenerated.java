@@ -7,4 +7,7 @@ public record ReportGenerated(
         Report report,
         Long timestampMs
 ) {
+    public String getReportId() {
+        return report.getId();
+    }
 }

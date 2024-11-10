@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.pwr.zpi.notifications.discord.DiscordNotificationService;
 import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.discord.dto.DiscordReceiverDTO;
 import pl.pwr.zpi.notifications.discord.service.DiscordReceiverService;
@@ -15,6 +16,7 @@ import java.util.List;
 @RequestMapping("/api/v1/notification-channels/discord")
 public class DiscordController {
     private final DiscordReceiverService discordReceiverService;
+    private final DiscordNotificationService discordNotificationService;
 
     @GetMapping
     public ResponseEntity<List<DiscordReceiver>> getAllDiscordIntegrations() {
@@ -34,7 +36,7 @@ public class DiscordController {
 
     @PostMapping("/{id}/test-notification")
     public ResponseEntity<DiscordReceiver> sendTestMessage(@PathVariable Long id) throws Exception {
-        discordReceiverService.sendTestMessage(id);
+        discordNotificationService.sendTestMessage(id);
         return ResponseEntity.ok().build();
     }
 

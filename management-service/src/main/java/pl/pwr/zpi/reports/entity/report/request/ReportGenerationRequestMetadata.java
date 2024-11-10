@@ -31,6 +31,10 @@ public class ReportGenerationRequestMetadata {
                 .build();
     }
 
+    public String getClusterId() {
+        return createReportRequest.clusterId();
+    }
+
     public List<Long> getSlackReceiverIds() {
         return createReportRequest.slackReceiverIds();
     }
