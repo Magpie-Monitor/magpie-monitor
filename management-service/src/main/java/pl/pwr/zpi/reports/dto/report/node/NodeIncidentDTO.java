@@ -2,6 +2,7 @@ package pl.pwr.zpi.reports.dto.report.node;
 
 import lombok.Builder;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
+import pl.pwr.zpi.reports.enums.Accuracy;
 import pl.pwr.zpi.reports.enums.Urgency;
 
 import java.util.List;
@@ -13,6 +14,8 @@ public record NodeIncidentDTO(
         String clusterId,
         String nodeName,
         String summary,
+        Accuracy accuracy,
+        String customPrompt,
         String recommendation,
         Urgency urgency,
         List<NodeIncidentSourceDTO> sources
@@ -24,6 +27,8 @@ public record NodeIncidentDTO(
                 .clusterId(incident.getClusterId())
                 .nodeName(incident.getNodeName())
                 .summary(incident.getSummary())
+                .accuracy(incident.getAccuracy())
+                .customPrompt(incident.getCustomPrompt())
                 .recommendation(incident.getRecommendation())
                 .urgency(incident.getUrgency())
                 .sources(incident.getSources().stream()

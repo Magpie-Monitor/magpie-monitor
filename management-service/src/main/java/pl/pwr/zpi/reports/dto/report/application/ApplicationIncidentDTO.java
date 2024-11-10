@@ -2,6 +2,7 @@ package pl.pwr.zpi.reports.dto.report.application;
 
 import lombok.Builder;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncident;
+import pl.pwr.zpi.reports.enums.Accuracy;
 import pl.pwr.zpi.reports.enums.Urgency;
 
 import java.util.List;
@@ -13,6 +14,8 @@ public record ApplicationIncidentDTO(
         String applicationName,
         String category,
         String summary,
+        Accuracy accuracy,
+        String customPrompt,
         String recommendation,
         Urgency urgency,
         List<ApplicationIncidentSourceDTO> sources
@@ -24,6 +27,8 @@ public record ApplicationIncidentDTO(
                 .applicationName(incident.getApplicationName())
                 .category(incident.getCategory())
                 .summary(incident.getSummary())
+                .accuracy(incident.getAccuracy())
+                .customPrompt(incident.getCustomPrompt())
                 .recommendation(incident.getRecommendation())
                 .urgency(incident.getUrgency())
                 .sources(incident.getSources()
