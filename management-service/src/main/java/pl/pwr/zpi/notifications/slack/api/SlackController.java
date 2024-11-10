@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.pwr.zpi.notifications.slack.SlackNotificationService;
 import pl.pwr.zpi.notifications.slack.dto.SlackReceiverDTO;
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
 import pl.pwr.zpi.notifications.slack.service.SlackReceiverService;
@@ -14,7 +15,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/notification-channels/slack")
 public class SlackController {
+
     private final SlackReceiverService slackReceiverService;
+    private final SlackNotificationService slackNotificationService;
 
     @GetMapping
     public ResponseEntity<List<SlackReceiver>> getAllSlackIntegrations() {
@@ -34,7 +37,7 @@ public class SlackController {
 
     @PostMapping("/{id}/test-notification")
     public ResponseEntity<SlackReceiver> sendTestMessage(@PathVariable Long id) throws Exception {
-//        slackReceiverService.sendTestMessage(id);
+        slackNotificationService.sendTestMessage(id);
         return ResponseEntity.ok().build();
     }
 
