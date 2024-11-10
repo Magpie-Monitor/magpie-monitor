@@ -3,11 +3,15 @@ import magpieMonitorLogo from 'assets/magpie-monitor-icon.png';
 import NavbarTab from './NavbarTab/NavbarTab';
 import { ManagmentServiceApiInstance } from 'api/managment-service';
 import { useNavigate } from 'react-router-dom';
+import {useAuth} from 'providers/AuthProvider/AuthProvider.tsx';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const {setAuthenticationInfo} =     useAuth();
   const signOut = () => {
+    setAuthenticationInfo(null);
     ManagmentServiceApiInstance.logout();
+    navigate('/login');
   };
 
   const handleHomeNavigation = () => {

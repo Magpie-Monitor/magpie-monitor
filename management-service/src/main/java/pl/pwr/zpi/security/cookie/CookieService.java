@@ -28,7 +28,6 @@ public class CookieService {
                 .build();
     }
 
-
     public ResponseCookie createRefreshCookie(String token) {
         return ResponseCookie.from("refreshToken", token)
                 .httpOnly(true)
@@ -37,5 +36,4 @@ public class CookieService {
                 .path("/api/v1/auth/refresh-token")
                 .build();
     }
-
 }

@@ -35,25 +35,11 @@ public class OauthRefreshTokenService {
     @Value("${google.oauth.cookie.exp-time}")
     private Long cookieExpTime;
 
-    private final OAuth2AuthorizedClientService authorizedClientService;
     private final CookieService cookieService;
 
-
-    public ResponseCookie updateAuthToken(Authentication authentication) {
-        OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-        String registrationId = oauthToken.getAuthorizedClientRegistrationId();
-
-        OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(registrationId, authentication.getName());
-
-        OAuth2RefreshToken oAuth2RefreshToken = authorizedClient.getRefreshToken();
-
-        if (oAuth2RefreshToken == null) {
-            throw new RuntimeException("Refresh token is null");
-        }
-
-        return cookieService.createAuthCookie(refreshAccessToken(oAuth2RefreshToken.getTokenValue()), Instant.now().plusSeconds(cookieExpTime));
+    public ResponseCookie updateAuthToken(String refreshToken) {
+        return cookieService.createAuthCookie(refreshAccessToken(refreshToken), Instant.now().plusSeconds(cookieExpTime));
     }
-
 
     private String refreshAccessToken(String refreshToken) {
         GsonFactory jsonFactory = GsonFactory.getDefaultInstance();

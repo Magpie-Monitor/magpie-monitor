@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -24,12 +23,11 @@ import pl.pwr.zpi.security.cookie.CookieService;
 import pl.pwr.zpi.user.data.User;
 import pl.pwr.zpi.user.dto.Provider;
 import pl.pwr.zpi.user.service.UserService;
-import pl.pwr.zpi.utils.AuthenticationUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 
 @Component
@@ -42,9 +40,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
     private final UserService userService;
     private final OAuth2AuthorizedClientService authorizedClientService;
-    private final AuthenticationUtils authenticationUtils;
     private final CookieService cookieService;
-
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -85,9 +81,10 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     }
 
     private void createOrUpdateUser(Authentication authentication) {
-        authenticationUtils.getOAuthUserFromAuthentication(authentication)
+        getOAuthUserFromAuthentication(authentication)
                 .ifPresentOrElse(
-                        (storedUser) -> {},
+                        (storedUser) -> {
+                        },
                         () -> userService.saveUser(User.builder()
                                 .email(((DefaultOidcUser) authentication.getPrincipal()).getEmail())
                                 .nickname(((DefaultOidcUser) authentication.getPrincipal()).getEmail().split("@")[0])
@@ -96,4 +93,8 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
                 );
     }
 
+    private Optional<User> getOAuthUserFromAuthentication(Authentication authentication) {
+        String email = ((OAuth2User) authentication.getPrincipal()).getAttribute("email");
+        return userService.findByEmail(email);
+    }
 }

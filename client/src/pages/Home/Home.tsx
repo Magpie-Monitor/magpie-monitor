@@ -9,14 +9,6 @@ import ReportDetailsSection from './components/ReportDetailsSection/ReportDetail
 const Home = () => {
   const [lastReportId, setLastReportId] = useState<string | null>(null);
 
-  const {
-    incidents,
-    report,
-    incidentStats,
-    areIncidentsLoading,
-    isReportLoading,
-  } = useReportDetails(lastReportId!);
-
   useEffect(() => {
     const fetchReports = async () => {
       try {
@@ -31,6 +23,14 @@ const Home = () => {
 
     fetchReports();
   }, []);
+
+  const {
+    incidents,
+    report,
+    incidentStats,
+    areIncidentsLoading,
+    isReportLoading,
+  } = useReportDetails(lastReportId);
 
   return (
     <PageTemplate header={<HeaderWithIcon title={'Dashboard'} />}>

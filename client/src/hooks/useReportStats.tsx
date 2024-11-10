@@ -76,7 +76,7 @@ const groupIncidentsByNode = <T extends { nodeName: string }>(
   return groupBy(incidents, (incident) => incident.nodeName);
 };
 
-const useReportDetails = (reportId: string) => {
+const useReportDetails = (reportId: string | null) => {
   const [report, setReport] = useState<ReportDetails | null>(null);
   const [incidents, setIncidents] = useState<AllIncidentsFromReport | null>(
     null,
@@ -88,6 +88,8 @@ const useReportDetails = (reportId: string) => {
   );
 
   useEffect(() => {
+    if (!reportId) return;
+
     const fetchReport = async (id: string) => {
       try {
         const reportData = await ManagmentServiceApiInstance.getReport(id);
@@ -102,6 +104,7 @@ const useReportDetails = (reportId: string) => {
   }, [reportId]);
 
   useEffect(() => {
+    if (!report || !reportId) return;
     const fetchIncidents = async () => {
       try {
         const incidentsData =
@@ -121,9 +124,7 @@ const useReportDetails = (reportId: string) => {
   }, [reportId, report]);
 
   useEffect(() => {
-    if (!incidents) {
-      return;
-    }
+    if (!incidents) return;
 
     const incidentsByUrgency = groupIncidentsByUrgency([
       ...incidents.applicationIncidents,

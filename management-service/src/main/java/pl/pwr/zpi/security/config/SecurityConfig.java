@@ -17,6 +17,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pl.pwr.zpi.auth.CustomAccessDeniedHandler;
+import pl.pwr.zpi.auth.oauth2.CustomCookieClearingLogoutHandler;
 import pl.pwr.zpi.auth.oauth2.CustomOAuth2UserService;
 import pl.pwr.zpi.auth.oauth2.OAuthLoginSuccessHandler;
 import pl.pwr.zpi.auth.oauth2.OauthAuthenticator;
@@ -31,6 +32,7 @@ public class SecurityConfig {
     private final OAuthLoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomOAuth2UserService oauthUserService;
     private final OAuth2AuthorizedClientService authorizedClientService;
+    private final CustomCookieClearingLogoutHandler customLogoutHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
@@ -57,11 +59,9 @@ public class SecurityConfig {
                         .successHandler(oAuth2LoginSuccessHandler))
                 .logout((logout) -> logout
                         .logoutUrl("/api/v1/auth/logout")
+                        .addLogoutHandler(customLogoutHandler)
                         .clearAuthentication(true)
                         .invalidateHttpSession(true)
-                        .deleteCookies("authToken")
-                        .deleteCookies("refreshToken")
-                        .deleteCookies("JSESSIONID")
                         .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)))
                 .addFilterBefore(new OauthAuthenticator(authorizedClientService), AuthorizationFilter.class)
                 .exceptionHandling(exception ->
