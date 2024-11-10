@@ -3,6 +3,7 @@ package pl.pwr.zpi.notifications.discord;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.notifications.ReportNotifier;
+import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder;
 import pl.pwr.zpi.notifications.common.ResourceLoaderUtils;
 import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.discord.service.DiscordMessagingService;
@@ -18,8 +19,15 @@ public class DiscordNotificationService implements ReportNotifier {
 
     private final DiscordMessagingService discordMessagingService;
     private final DiscordReceiverService discordReceiverService;
+    private final ConfidentialTextEncoder confidentialTextEncoder;
 
-    public void sendTestMessage(String webhookUrl) {
+    public void sendTestMessage(Long receiverDiscordId) throws Exception {
+        var receiver = discordReceiverService.getDiscordReceiver(receiverDiscordId);
+        String decodedWebhookUrl = confidentialTextEncoder.decrypt(receiver.getWebhookUrl());
+        sendTestMessage(decodedWebhookUrl);
+    }
+
+    private void sendTestMessage(String webhookUrl) {
         discordMessagingService.sendMessage(
                 ResourceLoaderUtils.loadResourceToString(TEST_MESSAGE_PATH),
                 webhookUrl);
@@ -36,7 +44,7 @@ public class DiscordNotificationService implements ReportNotifier {
     }
 
     @Override
-    public void notifyOnReportGenerationFailed(Long receiverId, String reportId) {
+    public void notifyOnReportGenerationFailed(Long receiverId, String clusterId) {
 
     }
 }

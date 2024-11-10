@@ -36,7 +36,7 @@ public class ReportGenerationService {
             createReport(metadata.getCreateReportRequest());
         });
     }
-    
+
     public void createReport(CreateReportRequest reportRequest) {
         ReportRequested reportRequested = ReportRequested.of(reportRequest);
         persistReportGenerationRequestMetadata(reportRequested.correlationId(), reportRequest);
@@ -56,10 +56,10 @@ public class ReportGenerationService {
                         metadata -> failReportGenerationRequest(metadata, requestFailed),
                         () -> {
                             throw new RuntimeException(
-                                String.format("Report generation request of correlationId: %s has failed, " +
-                                    "but there's no corresponding request metadata.", requestFailed.correlationId()
-                                ));
-                });
+                                    String.format("Report generation request of correlationId: %s has failed, " +
+                                            "but there's no corresponding request metadata.", requestFailed.correlationId()
+                                    ));
+                        });
     }
 
     private void failReportGenerationRequest(ReportGenerationRequestMetadata requestMetadata,
@@ -67,7 +67,7 @@ public class ReportGenerationService {
         log.info("Report generation request failed, correlationId: {}, clusterId: {}", requestMetadata.getCorrelationId(), requestMetadata.getCreateReportRequest().clusterId());
 
         markReportGenerationRequestAsFailed(requestMetadata, requestFailed);
-//        notifyReportGenerationFailed(requestMetadata, requestFailed);
+        notifyReportGenerationFailed(requestMetadata, requestMetadata.getClusterId());
     }
 
     private void markReportGenerationRequestAsFailed(
@@ -86,7 +86,7 @@ public class ReportGenerationService {
     private void saveGeneratedReport(ReportGenerationRequestMetadata requestMetadata, ReportGenerated reportGenerated) {
         persistReport(reportGenerated.report());
         updateReportGenerationRequestMetadataStatus(requestMetadata, ReportGenerationStatus.GENERATED);
-        notifyReportGenerated(requestMetadata, reportGenerated.report().getId());
+        notifyReportGenerated(requestMetadata, reportGenerated.getReportId());
     }
 
     private void updateReportGenerationRequestMetadataStatus(ReportGenerationRequestMetadata requestMetadata, ReportGenerationStatus generationStatus) {
@@ -100,17 +100,15 @@ public class ReportGenerationService {
         applicationIncidentRepository.saveAll(report.getApplicationIncidents());
     }
 
-    // TODO - stub implementation
     public void notifyReportGenerated(ReportGenerationRequestMetadata requestMetadata, String reportId) {
         reportNotificationService.notifySlackOnReportCreated(requestMetadata.getSlackReceiverIds(), reportId);
-//        notificationService.notifyDiscord(requestMetadata.getDiscordReceiverIds());
-//        notificationService.notifyEmail(requestMetadata.getMailReceiverIds());
+        reportNotificationService.notifyDiscordOnReportCreated(requestMetadata.getDiscordReceiverIds(), reportId);
+        reportNotificationService.notifyEmailOnReportCreated(requestMetadata.getMailReceiverIds(), reportId);
     }
 
-    // TODO - stub implementation
-    public void notifyReportGenerationFailed(ReportGenerationRequestMetadata requestMetadata, String reportId) {
-        reportNotificationService.notifySlackOnReportCreated(requestMetadata.getSlackReceiverIds(), reportId);
-//        notificationService.notifyDiscord(requestMetadata.getDiscordReceiverIds());
-//        notificationService.notifyEmail(requestMetadata.getMailReceiverIds());
+    public void notifyReportGenerationFailed(ReportGenerationRequestMetadata requestMetadata, String clusterId) {
+        reportNotificationService.notifySlackOnReportGenerationFailed(requestMetadata.getSlackReceiverIds(), clusterId);
+        reportNotificationService.notifyDiscordOnReportGenerationFailed(requestMetadata.getDiscordReceiverIds(), clusterId);
+        reportNotificationService.notifyEmailOnReportGenerationFailed(requestMetadata.getMailReceiverIds(), clusterId);
     }
 }

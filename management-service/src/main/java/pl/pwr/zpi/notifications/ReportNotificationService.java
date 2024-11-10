@@ -29,11 +29,23 @@ public class ReportNotificationService {
         receiverIds.forEach(id -> slackNotificationService.notifyOnReportGenerated(id, reportId));
     }
 
+    public void notifySlackOnReportGenerationFailed(List<Long> receiverIds, String clusterId) {
+        receiverIds.forEach(id -> slackNotificationService.notifyOnReportGenerationFailed(id, clusterId));
+    }
+
     public void notifyDiscordOnReportCreated(List<Long> receiverIds, String reportId) {
         receiverIds.forEach(id -> discordNotificationService.notifyOnReportGenerated(id, reportId));
     }
 
+    public void notifyDiscordOnReportGenerationFailed(List<Long> receiverIds, String clusterId) {
+        receiverIds.forEach(id -> discordNotificationService.notifyOnReportGenerationFailed(id, clusterId));
+    }
+
     public void notifyEmailOnReportCreated(List<Long> receiverIds, String reportId) {
         receiverIds.forEach(id -> emailNotificationService.notifyOnReportGenerated(id, reportId));
+    }
+
+    public void notifyEmailOnReportGenerationFailed(List<Long> receiverIds, String clusterId) {
+        receiverIds.forEach(id -> emailNotificationService.notifyOnReportGenerationFailed(id, clusterId));
     }
 }

@@ -3,26 +3,18 @@ package pl.pwr.zpi.notifications.email.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import pl.pwr.zpi.notifications.email.EmailNotificationService;
-import pl.pwr.zpi.notifications.email.repository.EmailRepository;
 import pl.pwr.zpi.notifications.email.dto.EmailReceiverDTO;
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
+import pl.pwr.zpi.notifications.email.repository.EmailRepository;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class EmailReceiverService {
 
-    private final EmailNotificationService emailNotificationService;
     private final EmailRepository emailRepository;
-
-    public void sendTestEmail(Long receiverEmailId) {
-        var receiver = getEmailReceiver(receiverEmailId);
-        log.info("Sending test email to: {}", receiver.getReceiverEmail());
-        emailNotificationService.sendTestEmail(receiver.getReceiverEmail());
-    }
 
     public List<EmailReceiver> getAllEmails() {
         return emailRepository.findAll();

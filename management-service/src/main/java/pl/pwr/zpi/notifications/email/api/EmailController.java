@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.pwr.zpi.notifications.email.EmailNotificationService;
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
 import pl.pwr.zpi.notifications.email.dto.EmailReceiverDTO;
 import pl.pwr.zpi.notifications.email.service.EmailReceiverService;
@@ -15,7 +16,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/notification-channels/mails")
 public class EmailController {
+
     private final EmailReceiverService emailReceiverService;
+    private final EmailNotificationService emailNotificationService;
 
     @GetMapping
     public ResponseEntity<List<EmailReceiver>> getAllEmails() {
@@ -35,7 +38,7 @@ public class EmailController {
 
     @GetMapping("/{id}/test-notification")
     public ResponseEntity<SlackReceiver> sendTestEmail(@PathVariable Long id) {
-        emailReceiverService.sendTestEmail(id);
+        emailNotificationService.sendTestEmail(id);
         return ResponseEntity.ok().build();
     }
 }

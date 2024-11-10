@@ -50,7 +50,7 @@ public class SlackNotificationService implements ReportNotifier {
 
     // TODO - implement
     @Override
-    public void notifyOnReportGenerationFailed(Long receiverId, String reportId) {
+    public void notifyOnReportGenerationFailed(Long receiverId, String clusterId) {
     }
 
     private String loadResource(String resourcePath) {
