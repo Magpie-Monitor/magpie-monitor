@@ -96,8 +96,16 @@ public class ReportGenerationService {
 
     private void persistReport(Report report) {
         reportRepository.save(report);
+
+        extendIncidentsWithReportId(report);
+
         nodeIncidentRepository.saveAll(report.getNodeIncidents());
         applicationIncidentRepository.saveAll(report.getApplicationIncidents());
+    }
+
+    private void extendIncidentsWithReportId(Report report) {
+        report.getNodeIncidents().forEach(nodeIncident -> nodeIncident.setReportId(report.getId()));
+        report.getApplicationIncidents().forEach(applicationIncident -> applicationIncident.setReportId(report.getId()));
     }
 
     public void notifyReportGenerated(ReportGenerationRequestMetadata requestMetadata, String reportId) {

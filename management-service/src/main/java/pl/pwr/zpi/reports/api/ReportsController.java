@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.pwr.zpi.reports.dto.report.ReportDetailedSummaryDTO;
 import pl.pwr.zpi.reports.dto.report.ReportIncidentsDTO;
+import pl.pwr.zpi.reports.dto.report.ReportPaginatedIncidentsDTO;
 import pl.pwr.zpi.reports.dto.report.ReportSummaryDTO;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
@@ -53,6 +54,24 @@ public class ReportsController {
     @GetMapping("/{id}/incidents")
     public ResponseEntity<ReportIncidentsDTO> getReportIncidents(@PathVariable String id) {
         return ResponseEntity.of(reportsService.getReportIncidents(id));
+    }
+
+    @GetMapping("/{id}/application-incidents")
+    public ResponseEntity<ReportPaginatedIncidentsDTO<ApplicationIncidentDTO>> getApplicationIncidentsForReport(
+            @PathVariable String id,
+            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize
+    ) {
+        return ResponseEntity.ok(reportsService.getReportApplicationIncidents(id, pageNumber, pageSize));
+    }
+
+    @GetMapping("/{id}/node-incidents")
+    public ResponseEntity<ReportPaginatedIncidentsDTO<NodeIncidentDTO>> getNodeIncidentsForReport(
+            @PathVariable String id,
+            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize
+    ) {
+        return ResponseEntity.ok(reportsService.getReportNodeIncidents(id, pageNumber, pageSize));
     }
 
     @GetMapping("/application-incidents/{id}")
