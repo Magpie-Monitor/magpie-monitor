@@ -55,6 +55,6 @@ public class ClusterController {
 
     @PutMapping
     public ResponseEntity<ClusterIdResponse> updateClusterConfiguration(@RequestBody ClusterConfigurationRequest configurationRequest) {
-        return ResponseEntity.ok(clusterService.updateCluster(configurationRequest));
+        return ResponseEntity.ok(clusterService.updateClusterConfiguration(configurationRequest));
     }
 }

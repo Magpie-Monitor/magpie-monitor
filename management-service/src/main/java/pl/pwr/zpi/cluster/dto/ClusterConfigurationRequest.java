@@ -14,7 +14,7 @@ public record ClusterConfigurationRequest(
         Long toMs,
         List<Long> slackReceiverIds,
         List<Long> discordReceiverIds,
-        List<Long> mailReceiverIds,
+        List<Long> emailReceiverIds,
         List<ApplicationConfiguration> applicationConfigurations,
         List<NodeConfiguration> nodeConfigurations
 ) {

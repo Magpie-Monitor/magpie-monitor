@@ -3,7 +3,7 @@ package pl.pwr.zpi.reports.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import pl.pwr.zpi.notifications.NotificationService;
+import pl.pwr.zpi.notifications.ReportNotificationService;
 import pl.pwr.zpi.reports.broker.ReportPublisher;
 import pl.pwr.zpi.reports.dto.event.ReportGenerated;
 import pl.pwr.zpi.reports.dto.event.ReportRequestFailed;
@@ -23,7 +23,7 @@ import pl.pwr.zpi.reports.repository.ReportRepository;
 public class ReportGenerationService {
 
     private final ReportPublisher reportPublisher;
-    private final NotificationService notificationService;
+    private final ReportNotificationService reportNotificationService;
 
     private final ReportRepository reportRepository;
     private final NodeIncidentRepository nodeIncidentRepository;
@@ -102,14 +102,14 @@ public class ReportGenerationService {
 
     // TODO - stub implementation
     public void notifyReportGenerated(ReportGenerationRequestMetadata requestMetadata, String reportId) {
-        notificationService.notifySlack(requestMetadata.getSlackReceiverIds(), reportId);
+        reportNotificationService.notifySlackOnReportCreated(requestMetadata.getSlackReceiverIds(), reportId);
 //        notificationService.notifyDiscord(requestMetadata.getDiscordReceiverIds());
 //        notificationService.notifyEmail(requestMetadata.getMailReceiverIds());
     }
 
     // TODO - stub implementation
     public void notifyReportGenerationFailed(ReportGenerationRequestMetadata requestMetadata, String reportId) {
-        notificationService.notifySlack(requestMetadata.getSlackReceiverIds(), reportId);
+        reportNotificationService.notifySlackOnReportCreated(requestMetadata.getSlackReceiverIds(), reportId);
 //        notificationService.notifyDiscord(requestMetadata.getDiscordReceiverIds());
 //        notificationService.notifyEmail(requestMetadata.getMailReceiverIds());
     }

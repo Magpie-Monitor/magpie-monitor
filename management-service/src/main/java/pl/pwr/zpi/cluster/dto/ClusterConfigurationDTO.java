@@ -4,8 +4,8 @@ import lombok.Builder;
 import pl.pwr.zpi.cluster.entity.ApplicationConfiguration;
 import pl.pwr.zpi.cluster.entity.Cluster;
 import pl.pwr.zpi.cluster.entity.NodeConfiguration;
-import pl.pwr.zpi.notifications.discord.controller.DiscordReceiver;
-import pl.pwr.zpi.notifications.email.controller.EmailReceiver;
+import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
+import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
 import pl.pwr.zpi.reports.enums.Accuracy;
 
