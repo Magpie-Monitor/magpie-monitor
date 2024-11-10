@@ -3,9 +3,9 @@ package pl.pwr.zpi.cluster.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.cluster.dto.ClusterConfigurationDTO;
-import pl.pwr.zpi.cluster.dto.ClusterConfigurationRequest;
-import pl.pwr.zpi.cluster.dto.ClusterIdResponse;
-import pl.pwr.zpi.cluster.entity.Cluster;
+import pl.pwr.zpi.cluster.dto.UpdateClusterConfigurationRequest;
+import pl.pwr.zpi.cluster.dto.UpdateClusterConfigurationResponse;
+import pl.pwr.zpi.cluster.entity.ClusterConfiguration;
 import pl.pwr.zpi.cluster.repository.ClusterRepository;
 import pl.pwr.zpi.metadata.dto.cluster.ClusterMetadataDTO;
 import pl.pwr.zpi.metadata.service.MetadataService;
@@ -25,17 +25,17 @@ public class ClusterService {
     private final ReceiverService receiverService;
     private final MetadataService metadataService;
 
-    public ClusterIdResponse updateClusterConfiguration(ClusterConfigurationRequest configurationRequest) {
-        Cluster cluster = Cluster.ofClusterConfigurationRequest(configurationRequest);
-        setClusterNotificationReceivers(cluster, configurationRequest);
-        clusterRepository.save(cluster);
-        return new ClusterIdResponse(cluster.getId());
+    public UpdateClusterConfigurationResponse updateClusterConfiguration(UpdateClusterConfigurationRequest configurationRequest) {
+        ClusterConfiguration clusterConfiguration = ClusterConfiguration.ofClusterConfigurationRequest(configurationRequest);
+        setClusterNotificationReceivers(clusterConfiguration, configurationRequest);
+        clusterRepository.save(clusterConfiguration);
+        return new UpdateClusterConfigurationResponse(clusterConfiguration.getId());
     }
 
-    private void setClusterNotificationReceivers(Cluster cluster, ClusterConfigurationRequest configurationRequest) {
-        cluster.setSlackReceivers(getSlackReceiversByIds(configurationRequest.slackReceiverIds()));
-        cluster.setDiscordReceivers(getDiscordReceiversByIds(configurationRequest.discordReceiverIds()));
-        cluster.setEmailReceivers(getEmailReceiversByIds(configurationRequest.emailReceiverIds()));
+    private void setClusterNotificationReceivers(ClusterConfiguration clusterConfiguration, UpdateClusterConfigurationRequest configurationRequest) {
+        clusterConfiguration.setSlackReceivers(getSlackReceiversByIds(configurationRequest.slackReceiverIds()));
+        clusterConfiguration.setDiscordReceivers(getDiscordReceiversByIds(configurationRequest.discordReceiverIds()));
+        clusterConfiguration.setEmailReceivers(getEmailReceiversByIds(configurationRequest.emailReceiverIds()));
     }
 
     private List<SlackReceiver> getSlackReceiversByIds(List<Long> receiverIds) {
@@ -57,11 +57,11 @@ public class ClusterService {
     }
 
     public Optional<ClusterConfigurationDTO> getClusterById(String clusterId) {
-        return clusterRepository.findById(clusterId).map(cluster -> {
+        return clusterRepository.findById(clusterId).map(clusterConfiguration -> {
             Optional<Boolean> isRunning = isClusterRunning(clusterId);
             return isRunning
-                    .map(running -> ClusterConfigurationDTO.ofCluster(cluster, running))
-                    .orElse(ClusterConfigurationDTO.ofCluster(cluster, false));
+                    .map(running -> ClusterConfigurationDTO.ofCluster(clusterConfiguration, running))
+                    .orElse(ClusterConfigurationDTO.ofCluster(clusterConfiguration, false));
 
         });
     }

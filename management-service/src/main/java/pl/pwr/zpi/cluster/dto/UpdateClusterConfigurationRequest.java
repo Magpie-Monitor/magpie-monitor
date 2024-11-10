@@ -6,7 +6,7 @@ import pl.pwr.zpi.reports.enums.Accuracy;
 
 import java.util.List;
 
-public record ClusterConfigurationRequest(
+public record UpdateClusterConfigurationRequest(
         String id,
         Accuracy accuracy,
         boolean isEnabled,

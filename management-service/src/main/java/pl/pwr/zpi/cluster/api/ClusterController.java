@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.pwr.zpi.cluster.dto.ClusterConfigurationDTO;
-import pl.pwr.zpi.cluster.dto.ClusterConfigurationRequest;
-import pl.pwr.zpi.cluster.dto.ClusterIdResponse;
+import pl.pwr.zpi.cluster.dto.UpdateClusterConfigurationRequest;
+import pl.pwr.zpi.cluster.dto.UpdateClusterConfigurationResponse;
 import pl.pwr.zpi.cluster.service.ClusterService;
 import pl.pwr.zpi.metadata.dto.application.ApplicationMetadataDTO;
 import pl.pwr.zpi.metadata.dto.cluster.ClusterMetadataDTO;
@@ -43,7 +43,8 @@ public class ClusterController {
     }
 
     @PutMapping
-    public ResponseEntity<ClusterIdResponse> updateClusterConfiguration(@RequestBody ClusterConfigurationRequest configurationRequest) {
+    public ResponseEntity<UpdateClusterConfigurationResponse> updateClusterConfiguration(
+            @RequestBody UpdateClusterConfigurationRequest configurationRequest) {
         return ResponseEntity.ok(clusterService.updateClusterConfiguration(configurationRequest));
     }
 }
