@@ -33,10 +33,15 @@ type ApplicationReport struct {
 type ReportState string
 
 const (
-	ReportState_FailedToGenerate   ReportState = "failed_to_generate"
-	ReportState_AwaitingGeneration ReportState = "awaiting_generation"
-	ReportState_Generated          ReportState = "generated"
+	ReportState_FailedToGenerate        ReportState = "failed_to_generate"
+	ReportState_AwaitingGeneration      ReportState = "awaiting_generation"
+	ReportState_AwaitingIncidentMerging ReportState = "awaiting_incident_merging"
+	ReportState_Generated               ReportState = "generated"
 )
+
+type ScheduledIncidentMergerJob struct {
+	Id string
+}
 
 type Report struct {
 	Id                      string               `bson:"_id,omitempty" json:"id"`
@@ -59,6 +64,10 @@ type Report struct {
 	ScheduledNodeInsights        *insights.ScheduledNodeInsights        `bson:"scheduledNodeInsights" json:"scheduledNodeInsights"`
 	AnalyzedApplications         int                                    `bson:"analyzedApplications" json:"analyzedApplications"`
 	AnalyzedNodes                int                                    `bson:"analyzedNodes" json:"analyzedNodes"`
+
+	// Filled only when report is generated and awaiting summarization
+	ScheduledApplicationIncidentMergerJobs []*ScheduledIncidentMergerJob
+	ScheduledNodeIncidentMergerJobs        []*ScheduledIncidentMergerJob
 }
 
 type ReportRepositoryErrorKind string
@@ -114,16 +123,28 @@ type ReportRepository interface {
 	InsertReport(ctx context.Context, report *Report) (*Report, *ReportRepositoryError)
 	GetSingleReport(ctx context.Context, id string) (*Report, *ReportRepositoryError)
 	UpdateReport(ctx context.Context, report *Report) *ReportRepositoryError
-	InsertApplicationIncidents(ctx context.Context, reports []*ApplicationReport) error
-	InsertNodeIncidents(ctx context.Context, reports []*NodeReport) error
-	GetPendingReports(ctx context.Context) ([]*Report, error)
+	InsertApplicationIncidents(ctx context.Context, incidents []*ApplicationIncident) ([]*ApplicationIncident, error)
+	InsertNodeIncidents(ctx context.Context, reports []*NodeIncident) ([]*NodeIncident, error)
+	GetPendingGenerationReports(ctx context.Context) ([]*Report, error)
+	GetPendingIncidentMergingReports(ctx context.Context) ([]*Report, error)
 }
 
-func (r *MongoDbReportRepository) GetPendingReports(ctx context.Context) ([]*Report, error) {
+func (r *MongoDbReportRepository) GetPendingGenerationReports(ctx context.Context) ([]*Report, error) {
 
 	result, err := r.mongoDbCollection.GetDocuments(primitive.D{{Key: "status", Value: ReportState_AwaitingGeneration}}, primitive.D{})
 	if err != nil {
 		r.logger.Error("Failed to get all pending reports", zap.Error(err))
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MongoDbReportRepository) GetPendingIncidentMergingReports(ctx context.Context) ([]*Report, error) {
+
+	result, err := r.mongoDbCollection.GetDocuments(primitive.D{{Key: "status", Value: ReportState_AwaitingIncidentMerging}}, primitive.D{})
+	if err != nil {
+		r.logger.Error("Failed to get all reports awaiting incident merging", zap.Error(err))
 		return nil, err
 	}
 
@@ -197,44 +218,38 @@ func (r *MongoDbReportRepository) GetAllReports(ctx context.Context, filter Filt
 	return reports, nil
 }
 
-func (r *MongoDbReportRepository) InsertApplicationIncidents(ctx context.Context, reports []*ApplicationReport) error {
+func (r *MongoDbReportRepository) InsertApplicationIncidents(ctx context.Context, incidents []*ApplicationIncident) ([]*ApplicationIncident, error) {
 
-	for _, report := range reports {
-		ids, err := r.applicationIncidentsRepository.InsertIncidents(ctx, report.Incidents)
-		if err != nil {
-			r.logger.Error("Failed to insert incident incidents for a report", zap.Error(err))
-			return err
-		}
-
-		insertedIncidents, err := r.applicationIncidentsRepository.GetIncidentsByIds(ctx, ids)
-		if err != nil {
-			r.logger.Error("Failed to retrieve inserted node incidents", zap.Error(err))
-			return err
-		}
-		report.Incidents = insertedIncidents
+	ids, err := r.applicationIncidentsRepository.InsertIncidents(ctx, incidents)
+	if err != nil {
+		r.logger.Error("Failed to insert incident incidents for a report", zap.Error(err))
+		return nil, err
 	}
 
-	return nil
+	insertedIncidents, err := r.applicationIncidentsRepository.GetIncidentsByIds(ctx, ids)
+	if err != nil {
+		r.logger.Error("Failed to retrieve inserted node incidents", zap.Error(err))
+		return nil, err
+	}
+
+	return insertedIncidents, nil
 }
 
-func (r *MongoDbReportRepository) InsertNodeIncidents(ctx context.Context, reports []*NodeReport) error {
+func (r *MongoDbReportRepository) InsertNodeIncidents(ctx context.Context, incidents []*NodeIncident) ([]*NodeIncident, error) {
 
-	for _, report := range reports {
-		ids, err := r.nodeIncidentsRepository.InsertIncidents(ctx, report.Incidents)
-		if err != nil {
-			r.logger.Error("Failed to insert incidents from a report", zap.Error(err))
-			return err
-		}
-
-		insertedIncidents, err := r.nodeIncidentsRepository.GetIncidentsByIds(ctx, ids)
-		if err != nil {
-			r.logger.Error("Failed to retrieve inserted node incidents", zap.Error(err))
-			return err
-		}
-		report.Incidents = insertedIncidents
+	ids, err := r.nodeIncidentsRepository.InsertIncidents(ctx, incidents)
+	if err != nil {
+		r.logger.Error("Failed to insert incidents from a report", zap.Error(err))
+		return nil, err
 	}
 
-	return nil
+	insertedIncidents, err := r.nodeIncidentsRepository.GetIncidentsByIds(ctx, ids)
+	if err != nil {
+		r.logger.Error("Failed to retrieve inserted node incidents", zap.Error(err))
+		return nil, err
+	}
+
+	return insertedIncidents, nil
 }
 
 func (r *MongoDbReportRepository) InsertReport(ctx context.Context, report *Report) (*Report, *ReportRepositoryError) {
