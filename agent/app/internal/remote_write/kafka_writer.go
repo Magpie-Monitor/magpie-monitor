@@ -16,7 +16,6 @@ type StreamWriter struct {
 	address   string
 	topic     string
 	batchSize int
-	buffer    []kafka.Message
 	writer    *kafka.Writer
 }
 
@@ -27,26 +26,14 @@ func NewStreamWriter(address, topic, username, password string, batchSize int) R
 		AllowAutoTopicCreation: true,
 		Transport:              &kafka.Transport{SASL: plain.Mechanism{Username: username, Password: password}},
 	}
-	return &StreamWriter{address: address, topic: topic, batchSize: batchSize, buffer: make([]kafka.Message, 0), writer: &writer}
+	return &StreamWriter{address: address, topic: topic, batchSize: batchSize, writer: &writer}
 }
 
 func (s *StreamWriter) Write(content string) {
 	msg := kafka.Message{Value: []byte(content)}
-	// s.buffer = append(s.buffer, msg)
 
 	err := s.writer.WriteMessages(context.Background(), msg)
 	if err != nil {
-		log.Printf("Error writing message: %v. Buffering, buffer size: %d.", err, len(s.buffer))
+		log.Printf("Error writing message: %v", err)
 	}
-
-	// if len(s.buffer) >= s.batchSize {
-	// 	log.Printf("Buffer reached the batch size of: %d, sending messages.", s.batchSize)
-
-	// 	err := s.writer.WriteMessages(context.Background(), s.buffer...)
-	// 	if err != nil {
-	// 		log.Printf("Error writing message: %v. Buffering, buffer size: %d.", err, len(s.buffer))
-	// 	} else {
-	// 		s.buffer = make([]kafka.Message, 0)
-	// 	}
-	// }
 }
