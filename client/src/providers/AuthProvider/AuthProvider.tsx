@@ -18,7 +18,7 @@ export const getAuthInfo = async (): Promise<AuthenticationInfo | null> => {
       email: userInfo.email,
     };
   } catch (err: unknown) {
-    console.error('Failed getting authentication info', err);
+    console.error('Failed to get user data');
     return null;
   }
 };
@@ -37,7 +37,7 @@ export interface AuthenticationContext {
 
 export const AuthContext = createContext<AuthenticationContext>({
   authenticationInfo: null,
-  setAuthenticationInfo: () => { },
+  setAuthenticationInfo: () => {},
   isTokenValid: () => Promise.resolve(false),
 });
 
@@ -64,7 +64,7 @@ export const AuthProvider = (props: {
 
   useEffect(() => {
     setAuthenticationInfo(props.authenticationInfo);
-  }, [props, setAuthenticationInfo]);
+  }, [setAuthenticationInfo]);
 
   return (
     <AuthContext.Provider
