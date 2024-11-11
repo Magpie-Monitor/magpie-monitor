@@ -2,7 +2,7 @@ agent:
   friendlyName: magpie-cloud-dev-cluster
   application:
     enabled: true
-    image: magpiemonitor/agent
+    image: woojciech/agent:latest
     excludedNamespaces:
       - kube-system
   node:
