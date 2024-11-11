@@ -66,8 +66,8 @@ type Report struct {
 	AnalyzedNodes                int                                    `bson:"analyzedNodes" json:"analyzedNodes"`
 
 	// Filled only when report is generated and awaiting summarization
-	ScheduledApplicationIncidentMergerJobs []*ScheduledIncidentMergerJob
-	ScheduledNodeIncidentMergerJobs        []*ScheduledIncidentMergerJob
+	ScheduledApplicationIncidentMergerJobs []*ScheduledIncidentMergerJob `json:"-"`
+	ScheduledNodeIncidentMergerJobs        []*ScheduledIncidentMergerJob `json:"-"`
 }
 
 type ReportRepositoryErrorKind string
