@@ -3,14 +3,25 @@ package repositories
 import (
 	"context"
 	"fmt"
+
 	"github.com/IBM/fp-go/array"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
+	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
 )
 
 type IncidentRepositoryErrorKind string
+
+type Incident interface {
+	GetId() string
+	GetTitle() string
+	GetRecommendation() string
+	GetSummary() string
+	GetUrgency() insights.Urgency
+	GetCategory() string
+}
 
 const (
 	IncidentNotFound      IncidentRepositoryErrorKind = "INCIDENT_NOT_FOUND"

@@ -30,6 +30,30 @@ type ApplicationIncident struct {
 	Sources         []ApplicationIncidentSource `bson:"sources" json:"sources"`
 }
 
+func (i *ApplicationIncident) GetRecommendation() string {
+	return i.Recommendation
+}
+
+func (i *ApplicationIncident) GetTitle() string {
+	return i.Title
+}
+
+func (i *ApplicationIncident) GetSummary() string {
+	return i.Summary
+}
+
+func (i *ApplicationIncident) GetId() string {
+	return i.Id
+}
+
+func (i *ApplicationIncident) GetCategory() string {
+	return i.Category
+}
+
+func (i *ApplicationIncident) GetUrgency() insights.Urgency {
+	return i.Urgency
+}
+
 func NewApplicationIncidentsCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[*ApplicationIncident] {
 	return &repositories.MongoDbCollection[*ApplicationIncident]{Log: log, Db: "reports", Col: "application_incidents", Client: client}
 }
@@ -58,3 +82,5 @@ func ProvideAsApplicationIncidentRepository(f any) any {
 // Compile-time check if MongoDbIncidentRepository implements
 // the IncidentRepository[ApplicationIncident] interface
 var _ IncidentRepository[ApplicationIncident] = &MongoDbIncidentRepository[ApplicationIncident]{}
+
+var _ Incident = &ApplicationIncident{}

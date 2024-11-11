@@ -28,6 +28,30 @@ type NodeIncident struct {
 	Sources        []NodeIncidentSource `bson:"sources" json:"sources"`
 }
 
+func (i *NodeIncident) GetRecommendation() string {
+	return i.Recommendation
+}
+
+func (i *NodeIncident) GetTitle() string {
+	return i.Title
+}
+
+func (i *NodeIncident) GetSummary() string {
+	return i.Summary
+}
+
+func (i *NodeIncident) GetId() string {
+	return i.Id
+}
+
+func (i *NodeIncident) GetCategory() string {
+	return i.Category
+}
+
+func (i *NodeIncident) GetUrgency() insights.Urgency {
+	return i.Urgency
+}
+
 func NewNodeIncidentsCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[*NodeIncident] {
 	return &repositories.MongoDbCollection[*NodeIncident]{Log: log, Db: "reports", Col: "node_incidents", Client: client}
 }
@@ -56,3 +80,5 @@ func ProvideAsNodeIncidentRepository(f any) any {
 // Compile-time check if MongoDbIncidentRepository implements
 // the IncidentRepository interface
 var _ IncidentRepository[NodeIncident] = &MongoDbIncidentRepository[NodeIncident]{}
+
+var _ Incident = &NodeIncident{}
