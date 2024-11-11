@@ -157,23 +157,24 @@ export interface NodeIncidentSource {
 }
 
 export interface ReportPost {
-  clusterId: string;
-  accuracy: AccuracyLevel;
-  sinceMs: number;
-  toMs: number;
-  slackReceiverIds: number[];
-  discordReceiverIds: number[];
-  mailReceiverIds: number[];
-  applicationConfigurations: {
-    applicationName: string;
-    customPrompt: string;
+    clusterId: string;
     accuracy: AccuracyLevel;
-  }[];
-  nodeConfigurations: {
-    nodeName: string;
-    customPrompt: string;
-    accuracy: AccuracyLevel;
-  }[];
+    sinceMs: number;
+    toMs: number;
+    slackReceiverIds: number[];
+    discordReceiverIds: number[];
+    mailReceiverIds: number[];
+    applicationConfigurations: {
+        applicationName: string;
+        customPrompt: string;
+        accuracy: AccuracyLevel;
+    }[];
+    nodeConfigurations: {
+        nodeName: string;
+        customPrompt: string;
+        accuracy: AccuracyLevel;
+    }[];
+
 }
 
 class ManagmentServiceApi {
@@ -243,78 +244,78 @@ class ManagmentServiceApi {
   }
 
   public async getReport(id: string): Promise<ReportDetails> {
-    // await this.refreshTokenIfExpired();
-    // const report = await this.axiosInstance.get(`/api/v1/reports/${id}`);
-    // return report.data;
-    return {
-      analyzedApplications: 123,
-      analyzedNodes: 20,
-      id: 'report-1',
-      clusterId: 'cluster-1',
-      title: 'Report for this time',
-      urgency: 'HIGH',
-      totalApplicationEntries: 1000,
-      totalNodeEntries: 1000,
-      sinceMs: 212414123,
-      toMs: 212414123,
-    };
+    await this.refreshTokenIfExpired();
+    const report = await this.axiosInstance.get(`/api/v1/reports/${id}`);
+    return report.data;
+    // return {
+    //   analyzedApplications: 123,
+    //   analyzedNodes: 20,
+    //   id: 'report-1',
+    //   clusterId: 'cluster-1',
+    //   title: 'Report for this time',
+    //   urgency: 'HIGH',
+    //   totalApplicationEntries: 1000,
+    //   totalNodeEntries: 1000,
+    //   sinceMs: 212414123,
+    //   toMs: 212414123,
+    // };
   }
 
   public async getIncidentsFromReport(
     reportId: string,
   ): Promise<AllIncidentsFromReport> {
-    // await this.refreshTokenIfExpired();
-    // const report = await this.axiosInstance.get(
-    //   `/api/v1/reports/${reportId}/incidents`,
-    // );
-    // return report.data;
-    return {
-      applicationIncidents: [
-        {
-          clusterId: 'Cluster 1',
-          id: 'udd',
-          title: 'Something wrong with app-1',
-          urgency: 'HIGH',
-          category: 'Serious category',
-          customPrompt: 'Custom prompt',
-          accuracy: 'HIGH',
-          applicationName: 'application-1dsahdahdakjdhaljsdhald',
-          summary: 'This is an summar of the incident',
-          recommendation: 'This is an recommendation of the incident',
-          sources: [
-            {
-              container: 'container-1',
-              timestamp: 213213124,
-              pod: 'pod-1',
-              image: 'image-1',
-              content: 'LOGS',
-            },
-          ],
-        },
-      ],
-      nodeIncidents: [
-        {
-          id: 'uid',
-          clusterId: 'cluster-1',
-          category: 'Serious category',
-          title: 'Something wrong with lke-123',
-          nodeName: 'lke-123213213',
-          urgency: 'HIGH',
-          accuracy: 'HIGH',
-          customPrompt: 'Custom prompt',
-          summary: 'Node incident summary',
-          recommendation: 'Node incident recommendation',
-          sources: [
-            {
-              timestamp: 123123123,
-              nodeName: 'lke-1231231',
-              content: 'LOGSGLOGSLGOS',
-              filename: 'file1/tmp/file2',
-            },
-          ],
-        },
-      ],
-    };
+    await this.refreshTokenIfExpired();
+    const report = await this.axiosInstance.get(
+      `/api/v1/reports/${reportId}/incidents`,
+    );
+    return report.data;
+    // return {
+    //   applicationIncidents: [
+    //     {
+    //       clusterId: 'Cluster 1',
+    //       id: 'udd',
+    //       title: 'Something wrong with app-1',
+    //       urgency: 'HIGH',
+    //       category: 'Serious category',
+    //       customPrompt: 'Custom prompt',
+    //       accuracy: 'HIGH',
+    //       applicationName: 'application-1',
+    //       summary: 'This is an summar of the incident',
+    //       recommendation: 'This is an recommendation of the incident',
+    //       sources: [
+    //         {
+    //           container: 'container-1',
+    //           timestamp: 213213124,
+    //           pod: 'pod-1',
+    //           image: 'image-1',
+    //           content: 'LOGS',
+    //         },
+    //       ],
+    //     },
+    //   ],
+    //   nodeIncidents: [
+    //     {
+    //       id: 'uid',
+    //       clusterId: 'cluster-1',
+    //       category: 'Serious category',
+    //       title: 'Something wrong with lke-123',
+    //       nodeName: 'lke-123213213',
+    //       urgency: 'HIGH',
+    //       accuracy: 'HIGH',
+    //       customPrompt: 'Custom prompt',
+    //       summary: 'Node incident summary',
+    //       recommendation: 'Node incident recommendation',
+    //       sources: [
+    //         {
+    //           timestamp: 123123123,
+    //           nodeName: 'lke-1231231',
+    //           content: 'LOGSGLOGSLGOS',
+    //           filename: 'file1/tmp/file2',
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // };
   }
 
   public async getReports(): Promise<ReportSummary[]> {
@@ -354,20 +355,21 @@ class ManagmentServiceApi {
   }
 
   public async getClusters(): Promise<ClusterSummary[]> {
+
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get('api/v1/clusters');
     const clusters = response.data;
 
-    return clusters.map((cluster: ClusterSummary) => {
+    return clusters.map((cluster:ClusterSummary)=>{
       return {
-        ...cluster,
-        updatedAt: 0,
-        accuracy: 'LOW',
-        slackChannels: [],
-        discordChannels: [],
-        mailChannels: [],
-      };
-    });
+      ...cluster,
+      updatedAt: 0,
+      accuracy: 'LOW',
+      slackChannels: [],
+      discordChannels: [],
+      mailChannels: [],
+      }
+    })
   }
 
   public async getNotificationChannels(): Promise<NotificationChannel[]> {
