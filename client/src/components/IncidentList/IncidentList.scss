@@ -2,9 +2,10 @@
 
 .incident-list {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr 1fr;
+  grid-template-columns: 2fr 1fr 2fr 1fr;
   overflow-x: scroll;
   width: 100%;
+  column-gap: 1rem;
 
   &--no-incidents {
     width: 100%;
@@ -14,7 +15,7 @@
   &__headers {
     display: grid;
     grid-template-columns: subgrid;
-    grid-column: span 5;
+    grid-column: span 6;
     border-radius: 8px;
     color: $font-color;
     font-weight: bold;
@@ -26,7 +27,7 @@
   &__entry {
     display: grid;
     grid-template-columns: subgrid;
-    grid-column: span 5;
+    grid-column: span 6;
     background-color: $component-secondary-background;
     padding: 10px;
     margin-bottom: 10px;
@@ -46,6 +47,9 @@
     &__date {
       padding: 5px;
       min-width: 150px;
+      margin-top: auto;
+      margin-bottom: auto;
+      word-break: break-all;
     }
 
     &__category {
