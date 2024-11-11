@@ -5,15 +5,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
-	"strconv"
-	"sync"
-	"time"
-
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
 	scheduledjobs "github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/scheduled_jobs"
 	"go.uber.org/zap"
+	"os"
+	"strconv"
+	"sync"
+	"time"
 )
 
 const (
@@ -114,7 +113,12 @@ func (p *BatchPoller) tokensFromJob(job *OpenAiJob) (int64, error) {
 	completionTokens := p.maxCompletionOutputTokens * len(job.CompletionRequests)
 
 	batchFile := bytes.NewBufferString("")
-	err := jsonl.NewJsonLinesEncoder(batchFile).Encode(job.CompletionRequests)
+	var completionRequestContent = make([]*CompletionRequest, len(job.CompletionRequests))
+	for _, value := range job.CompletionRequests {
+		completionRequestContent = append(completionRequestContent, value)
+	}
+
+	err := jsonl.NewJsonLinesEncoder(batchFile).Encode(completionRequestContent)
 	if err != nil {
 		p.client.logger.Error("Failed to encode scheduled job", zap.Error(err), zap.Any("job", job.Id))
 		return 0, err
@@ -185,7 +189,16 @@ func (p *BatchPoller) Start() {
 
 	for {
 		enqueuedJobs, err := p.scheduledJobsRepository.GetScheduledJobsByStatus(context.Background(), OpenAiJobStatus__Enqueued)
+		if err != nil {
+			p.client.logger.Error("Failed to get enqueued batches", zap.Error(err))
+			continue
+		}
+
 		pendingJobs, err := p.scheduledJobsRepository.GetScheduledJobsByStatus(context.Background(), OpenAiJobStatus__InProgress)
+		if err != nil {
+			p.client.logger.Error("Failed to get pending batches", zap.Error(err))
+			continue
+		}
 
 		p.client.logger.Debug("Enqueued jobs", zap.Any("jobs", len(enqueuedJobs)))
 		p.client.logger.Debug("Pending jobs", zap.Any("jobs", len(pendingJobs)))
@@ -193,11 +206,6 @@ func (p *BatchPoller) Start() {
 		scheduleErr := p.dequeScheduledJob(enqueuedJobs, pendingJobs)
 		if scheduleErr != nil {
 			p.client.logger.Error("Failed to dequeue scheduled job", zap.Error(err))
-			continue
-		}
-
-		if err != nil {
-			p.client.logger.Error("Failed to get pending batches", zap.Error(err))
 			continue
 		}
 
@@ -247,7 +255,22 @@ func (p *BatchPoller) BatchesFromJobs(jobs []*OpenAiJob) ([]*Batch, error) {
 	return batches, nil
 }
 
-func (p *BatchPoller) TryGettingJobIfReady(jobId string) (*OpenAiJob, error) {
+func (p *BatchPoller) IsJobFinished(jobId string) (bool, error) {
+
+	job, err := p.scheduledJobsRepository.GetScheduledJob(context.Background(), jobId)
+	if err != nil {
+		p.client.logger.Error("Failed to get scheduled job", zap.Error(err), zap.Any("jobId", (*job).Id))
+		return false, err
+	}
+
+	if (*job).Status == OpenAiJobStatus__InProgress || (*job).Status == OpenAiJobStatus__Enqueued {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func (p *BatchPoller) TryGettingJobIfFinished(jobId string) (*OpenAiJob, error) {
 
 	job, err := p.scheduledJobsRepository.GetScheduledJob(context.Background(), jobId)
 
@@ -256,7 +279,7 @@ func (p *BatchPoller) TryGettingJobIfReady(jobId string) (*OpenAiJob, error) {
 		return nil, err
 	}
 
-	if (*job).Status != OpenAiJobStatus__InProgress {
+	if (*job).Status == OpenAiJobStatus__InProgress || (*job).Status == OpenAiJobStatus__Enqueued {
 		return nil, errors.New(fmt.Sprintf("Job %s is not ready yet", jobId))
 	}
 

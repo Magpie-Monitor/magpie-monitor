@@ -60,6 +60,7 @@ func NewScheduledJobInternalError(err error) *ScheduledJobRepositoryError {
 
 type ScheduledJobRepository[T ScheduledJob] interface {
 	InsertScheduledJobs(ctx context.Context, jobs []T) ([]string, *ScheduledJobRepositoryError)
+	InsertScheduledJob(ctx context.Context, jobs T) (string, *ScheduledJobRepositoryError)
 	GetScheduledJob(ctx context.Context, id string) (*T, *ScheduledJobRepositoryError)
 	GetScheduledJobsByIds(ctx context.Context, ids []string) ([]T, *ScheduledJobRepositoryError)
 	GetScheduledJobsByStatus(ctx context.Context, status string) ([]T, *ScheduledJobRepositoryError)
@@ -78,15 +79,15 @@ func NewMongoDbScheduledJobRepository[T ScheduledJob](mongoDbCollection *reposit
 	}
 }
 
-func (r *MongoDbScheduledJobRepository[T]) InsertScheduledJobs(ctx context.Context, incidents []T) ([]string, *ScheduledJobRepositoryError) {
+func (r *MongoDbScheduledJobRepository[T]) InsertScheduledJobs(ctx context.Context, jobs []T) ([]string, *ScheduledJobRepositoryError) {
 
-	documents := make([]interface{}, 0, len(incidents))
+	documents := make([]interface{}, 0, len(jobs))
 
-	if len(incidents) == 0 {
+	if len(jobs) == 0 {
 		return make([]string, 0, 0), nil
 	}
 
-	for _, incident := range incidents {
+	for _, incident := range jobs {
 		documents = append(documents, incident)
 	}
 
@@ -102,6 +103,20 @@ func (r *MongoDbScheduledJobRepository[T]) InsertScheduledJobs(ctx context.Conte
 	})(ids)
 
 	return createdIds, nil
+}
+
+func (r *MongoDbScheduledJobRepository[T]) InsertScheduledJob(ctx context.Context, job T) (string, *ScheduledJobRepositoryError) {
+
+	id, err := r.mongoDbCollection.InsertDocument(ScheduledJob(job).(interface{}))
+
+	if err != nil {
+		r.logger.Error("Failed to insert jobs", zap.Error(err))
+		return "", NewScheduledJobInternalError(err)
+	}
+
+	createdId := id.Hex()
+
+	return createdId, nil
 }
 
 func (r *MongoDbScheduledJobRepository[T]) GetScheduledJob(ctx context.Context, id string) (*T, *ScheduledJobRepositoryError) {

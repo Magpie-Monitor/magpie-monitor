@@ -343,7 +343,7 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 
 	groupedLogs := GroupApplicationLogsByName(logs)
 	configurationsByApplication := MapApplicationNameToConfiguration(configuration)
-	completionRequests := make([]*openai.CompletionRequest, 0, len(groupedLogs))
+	completionRequests := make(map[string]*openai.CompletionRequest, len(groupedLogs))
 
 	// In place filtering based on configured accuracy
 	FilterByApplicationsAccuracy(groupedLogs, configurationsByApplication)
@@ -353,7 +353,7 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 
 		logPackets := repositories.SplitLogsIntoPackets(logs, g.client.ContextSizeBytes)
 
-		for _, logPacket := range logPackets {
+		for idx, logPacket := range logPackets {
 			messages, err := g.createMessagesFromApplicationLogs(
 				logPacket,
 				configurationsByApplication[applicationName],
@@ -363,14 +363,14 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 				return nil, err
 			}
 
-			completionRequests = append(completionRequests,
+			// Assign each request a customId with applicationName and a packetId
+			completionRequests[fmt.Sprintf("%s-%d", applicationName, idx)] =
 				&openai.CompletionRequest{
 					Messages:       messages,
 					Temperature:    g.client.Temperature,
 					ResponseFormat: openai.CreateJsonReponseFormat("insights", applicationInsightsResponseDto{}),
 					Model:          g.client.Model(),
-				},
-			)
+				}
 		}
 	}
 
@@ -415,27 +415,27 @@ func (g *OpenAiInsightsGenerator) createMessagesFromApplicationLogs(
 	messages := []*openai.Message{
 		{
 			Role: "system",
-			Content: fmt.Sprintf(`You are a kubernetes cluster system administrator. 
-			Given a list of logs from a Kubernetes cluster
-			find logs which might suggest any kind of errors or issues. Try to give a possible reason, 
-			category of an issue, urgency and possible resolution.   
-			Source is an fragment of a the provided log that you are referencing in summary and recommendation. 
-			Always declare a unmodified sources with every insight you give. Title is a max few word summary of the insight.
-			Summary itself might be longer (max 50 words).
-			Always give a recommendation on how to resolve the issue. Always give a source. Never repeat insights, ie. 
-			if you once use the source do not create an insight for it again. One insight per source. If you recognize the 
-			same events on different containers/pods. For each incident assign urgency which is always one of 
-			the following strings : LOW, MEDIUM or HIGH.
-			Add all logs (from all pods/containers) which belong to the same insight to the sourceIds array of a single insight.
-			Ignore logs which do not explicitly suggest an issue. Ignore logs which are describing usual actions.
-			If there are no errors or warnings don't even mention an insight. Here is the additional configuration 
-			that you should consider while generating insights %s`, customPrompt),
+			Content: fmt.Sprintf(`You are a Kubernetes cluster system administrator. 
+        Analyze the provided Kubernetes cluster logs and identify only meaningful insights that indicate potential errors or issues. 
+        For each identified issue, provide:
+        - A title as a brief summary (few words).
+        - A detailed summary (max 50 words) explaining the issue, likely cause, and category of the issue.
+        - An urgency level (LOW, MEDIUM, HIGH).
+        - A recommended action to resolve the issue.
+
+        Each insight should:
+        - Include the relevant unmodified source log entries in the sourceIds array, referencing logs across containers/pods if they indicate the same issue.
+        - Avoid redundant insights; if a source is already used in an insight, do not generate another one for it.
+        - Ignore logs that do not explicitly indicate issues or represent typical operational activities.
+        - Exclude insights entirely if no errors or warnings are present.
+
+        Here is the additional configuration to consider when generating insights: %s`, customPrompt),
 		},
 		{
 			Role: "user",
-			Content: fmt.Sprintf(`These are logs from my cluster. 
-			Please tell me if they might suggest any kind of issues:
-			%s`, encodedLogs),
+			Content: fmt.Sprintf(`These are logs from an application named: %s.
+        Please identify and describe any issues or anomalies indicated by the logs:
+        %s`, configuration.ApplicationName, encodedLogs),
 		},
 	}
 
