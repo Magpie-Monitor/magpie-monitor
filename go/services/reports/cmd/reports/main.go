@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
+	"net/http"
+	"os"
+
 	elasticsearch "github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
@@ -11,6 +15,7 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/database"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/handlers"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/services"
+	incidentcorrelation "github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/incident_correlation"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
@@ -18,9 +23,6 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
-	"net"
-	"net/http"
-	"os"
 )
 
 type ServerParams struct {
@@ -133,6 +135,11 @@ func main() {
 				fx.As(new(insights.NodeInsightsGenerator)),
 			),
 
+			fx.Annotate(
+				incidentcorrelation.NewOpenAiIncidentMerger,
+				fx.As(new(incidentcorrelation.IncidentMerger)),
+			),
+
 			zap.NewExample),
 		fx.Invoke(func(server *http.Server,
 			reportsService *services.ReportsService,
@@ -142,7 +149,7 @@ func main() {
 			// Listen for ReportRequested messages
 			go reportsHandler.ListenForReportRequests()
 
-			// Poll for pending reports
+			// Poll for reports pending generation
 			go reportsHandler.PollReports()
 
 			// Poll for pending OpenAi batches

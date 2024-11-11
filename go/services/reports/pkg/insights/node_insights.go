@@ -205,7 +205,7 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 
 	groupedLogs := GroupNodeLogsByName(logs)
 	configurationsByNode := MapNodeNameToConfiguration(configuration)
-	completionRequests := make([]*openai.CompletionRequest, 0, len(groupedLogs))
+	completionRequests := make(map[string]*openai.CompletionRequest, len(groupedLogs))
 
 	// In place filter based on node configuration
 	FilterByNodesAccuracy(groupedLogs, configurationsByNode)
@@ -216,7 +216,7 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 		// Split completion request to packets not greater than OpenAi model's context
 		logPackets := repositories.SplitLogsIntoPackets(logs, g.client.ContextSizeBytes)
 
-		for _, logPacket := range logPackets {
+		for idx, logPacket := range logPackets {
 			messages, err := g.createMessagesFromNodeLogs(
 				logPacket,
 				configurationsByNode[nodeName],
@@ -225,14 +225,14 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 				g.logger.Error("Failed to messages from logs", zap.Error(err), zap.String("node", nodeName))
 			}
 
-			completionRequests = append(completionRequests,
-				&openai.CompletionRequest{
-					Messages:       messages,
-					Temperature:    g.client.Temperature,
-					ResponseFormat: openai.CreateJsonReponseFormat("insights", nodeInsightsResponseDto{}),
-					Model:          g.client.Model(),
-				},
-			)
+			// Assign each request a customId with a nodeName and a packetId
+			completionRequests[fmt.Sprintf("%s-%d", nodeName, idx)] = &openai.CompletionRequest{
+				Messages:       messages,
+				Temperature:    g.client.Temperature,
+				ResponseFormat: openai.CreateJsonReponseFormat("insights", nodeInsightsResponseDto{}),
+				Model:          g.client.Model(),
+			}
+
 		}
 
 	}
@@ -278,26 +278,27 @@ func (g *OpenAiInsightsGenerator) createMessagesFromNodeLogs(
 	messages := []*openai.Message{
 		{
 			Role: "system",
-			Content: fmt.Sprintf(`You are a kubernetes cluster system administrator. 
-			Given a list of logs from a Kubernetes cluster
-			find logs which might suggest any kind of errors or issues. Try to give a possible reason, 
-			category of an issue, urgency and possible resolution.   
-			Source is an fragment of a the provided log that you are referencing in summary and recommendation. 
-			Always declare a unmodified source log with every insight you give.  Title is a few word summary of the insight.
-			Summary itself might be longer (max 50 words).
-			Always give a recommendation on how to resolve the issue. Always give a source. Never repeat insights, ie. 
-			if you once use the source do not create an insight for it again. One insight per source. Do not duplicate insights, 
-			only mention the same issue once. For each incident assign urgency which is always one of 
-			the following strings : LOW, MEDIUM or HIGH.
-			Ignore logs which do not explicitly suggest an issue. Ignore logs which are describing usual actions.
-			If there are no errors or warnings don't even mention an insight. Here is the additional configuration 
-			that you should consider while generating insights %s`, customPrompt),
+			Content: fmt.Sprintf(`You are a Kubernetes cluster system administrator.
+        Analyze the provided Kubernetes node logs and identify any meaningful insights indicating potential errors or issues. 
+        For each identified issue, provide:
+        - A concise title (few words) summarizing the insight.
+        - A detailed summary (max 50 words) that includes the probable cause, category of the issue, and context.
+        - An urgency level (LOW, MEDIUM, HIGH).
+        - A recommended action for resolution.
+
+        Each insight should:
+        - Include relevant, unmodified source log entries in the sourceIds array, aggregating similar logs across nodes if they pertain to the same issue.
+        - Avoid redundant insights; if a source has already been referenced, do not repeat it in another insight.
+        - Ignore logs that do not clearly suggest an issue or represent routine node activities.
+        - Exclude insights entirely if no errors or warnings are present.
+
+        Here is the additional configuration to consider when generating insights: %s`, customPrompt),
 		},
 		{
 			Role: "user",
-			Content: fmt.Sprintf(`These are logs from my cluster. 
-			Please tell me if they might suggest any kind of issues:
-			%s`, encodedLogs),
+			Content: fmt.Sprintf(`These are logs from my Kubernetes nodes.
+        Please identify and describe any issues or anomalies indicated by the logs:
+        %s`, encodedLogs),
 		},
 	}
 

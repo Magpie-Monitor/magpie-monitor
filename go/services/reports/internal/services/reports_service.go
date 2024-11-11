@@ -6,6 +6,7 @@ import (
 	"github.com/IBM/fp-go/array"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
+	incidentcorrelation "github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/incident_correlation"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	"go.uber.org/fx"
@@ -35,6 +36,7 @@ type ReportsService struct {
 	nodeLogsRepository           sharedrepositories.NodeLogsRepository
 	applicationInsightsGenerator insights.ApplicationInsightsGenerator
 	nodeInsightsGenerator        insights.NodeInsightsGenerator
+	incidentMerger               incidentcorrelation.IncidentMerger
 	pollingIntervalSeconds       int
 }
 
@@ -45,6 +47,7 @@ type ReportsServerParams struct {
 	ApplicationLogsRepository    sharedrepositories.ApplicationLogsRepository
 	NodeLogsRepository           sharedrepositories.NodeLogsRepository
 	ApplicationInsightsGenerator insights.ApplicationInsightsGenerator
+	IncidentMerger               incidentcorrelation.IncidentMerger
 	NodeInsightsGenerator        insights.NodeInsightsGenerator
 }
 
@@ -68,6 +71,7 @@ func NewReportsService(p ReportsServerParams) *ReportsService {
 		applicationInsightsGenerator: p.ApplicationInsightsGenerator,
 		nodeInsightsGenerator:        p.NodeInsightsGenerator,
 		pollingIntervalSeconds:       pollingIntervalSecondsInt,
+		incidentMerger:               p.IncidentMerger,
 	}
 }
 
@@ -146,12 +150,139 @@ type ReportGenerationError struct {
 	Report *repositories.Report
 }
 
+func (s *ReportsService) PollReportsPendingIncidentMerge(ctx context.Context, reportsChn chan<- *repositories.Report, errChn chan<- *ReportGenerationError) {
+
+	for {
+		reports, err := s.reportRepository.GetPendingIncidentMergingReports(ctx)
+
+		if err != nil {
+			s.logger.Error("Failed to get reports pending incident merging", zap.Error(err))
+			continue
+		}
+
+		for _, report := range reports {
+
+			applicationJobs := report.ScheduledApplicationIncidentMergerJobs
+			nodeJobs := report.ScheduledNodeIncidentMergerJobs
+
+			applicationJobsFinished, err := s.incidentMerger.AreAllJobsFinished(applicationJobs)
+			if err != nil {
+				s.logger.Error("Failed to check if application incident merger jobs were finished", zap.Error(err))
+				continue
+			}
+
+			nodeJobsFinished, err := s.incidentMerger.AreAllJobsFinished(nodeJobs)
+			if err != nil {
+				s.logger.Error("Failed to check if application incident merger jobs were finished")
+				continue
+			}
+
+			if !(nodeJobsFinished && applicationJobsFinished) {
+				continue
+			}
+
+			err = s.MergeApplicationIncidents(applicationJobs, report)
+			if err != nil {
+				s.logger.Error("Failed to merge application incidents", zap.Error(err))
+				continue
+			}
+
+			err = s.MergeNodeIncidents(nodeJobs, report)
+			if err != nil {
+				s.logger.Error("Failed to merge node incidents", zap.Error(err))
+				continue
+			}
+
+			// if err != nil {
+			// 	s.logger.Error("Failed to complete pending report", zap.Error(err), zap.Any("insights", report.ScheduledNodeInsights))
+			// 	errChn <- &ReportGenerationError{
+			// 		Msg:    fmt.Sprintf("Failed to complete pending report: %s", err.Error()),
+			// 		Report: report,
+			// 	}
+			// 	return
+			// }
+
+			report.Status = repositories.ReportState_Generated
+			repoErr := s.reportRepository.UpdateReport(context.TODO(), report)
+			if repoErr != nil {
+				s.logger.Error("Failed to update report after incident merge")
+			}
+
+			s.logger.Info("Merged incidents of a report", zap.Any("reportId", report.Id))
+			reportsChn <- report
+		}
+
+		time.Sleep(time.Second * time.Duration(s.pollingIntervalSeconds))
+	}
+}
+
+func (s *ReportsService) MergeApplicationIncidents(applicationMergerJobs []*repositories.ScheduledIncidentMergerJob, report *repositories.Report) error {
+
+	for _, job := range applicationMergerJobs {
+
+		applicationMergerGroups, err := s.incidentMerger.TryGettingIncidentMergerJobIfFinished(job)
+		if err != nil {
+			s.logger.Error("Failed to get application merger group", zap.Error(err))
+			continue
+		}
+
+		for idx, applicationReport := range report.ApplicationReports {
+			mergerGroups, ok := applicationMergerGroups[applicationReport.ApplicationName]
+			if !ok {
+				s.logger.Info("Application is not present in merger groups, skipping")
+				continue
+			}
+
+			newApplicationIncidents := incidentcorrelation.MergeApplicationIncidentsByGroups(mergerGroups, applicationReport)
+			insertedIncidents, err := s.reportRepository.InsertApplicationIncidents(context.TODO(), newApplicationIncidents)
+			if err != nil {
+				s.logger.Error("Failed to insert merged application incidents", zap.Error(err))
+				return err
+			}
+			report.ApplicationReports[idx].Incidents = insertedIncidents
+
+		}
+	}
+
+	return nil
+}
+
+func (s *ReportsService) MergeNodeIncidents(nodeIncidentMergerJobs []*repositories.ScheduledIncidentMergerJob, report *repositories.Report) error {
+
+	for _, job := range nodeIncidentMergerJobs {
+
+		nodeMergerGroups, err := s.incidentMerger.TryGettingIncidentMergerJobIfFinished(job)
+		if err != nil {
+			s.logger.Error("Failed to get application merger group", zap.Error(err))
+		}
+
+		for idx, nodeReport := range report.NodeReports {
+			mergerGroups, ok := nodeMergerGroups[nodeReport.Node]
+			if !ok {
+				s.logger.Info("Application is not present in merger groups, skipping")
+				continue
+			}
+
+			newNodeIncidents := incidentcorrelation.MergeNodeIncidentsByGroups(mergerGroups, nodeReport)
+			insertedIncidents, err := s.reportRepository.InsertNodeIncidents(context.TODO(), newNodeIncidents)
+			if err != nil {
+				s.logger.Error("Failed to insert merged application incidents", zap.Error(err))
+				return err
+			}
+
+			report.NodeReports[idx].Incidents = insertedIncidents
+		}
+	}
+
+	return nil
+}
+
 func (s *ReportsService) PollReports(ctx context.Context, reportsChn chan<- *repositories.Report, errChn chan<- *ReportGenerationError) {
 
 	pendingReports := make(map[string]bool)
 
 	for {
-		reports, err := s.reportRepository.GetPendingReports(ctx)
+		reports, err := s.reportRepository.GetPendingGenerationReports(ctx)
 
 		if err != nil {
 			s.logger.Error("Failed to get pending reports", zap.Error(err))
@@ -213,6 +344,69 @@ func (s *ReportsService) PollReports(ctx context.Context, reportsChn chan<- *rep
 	}
 }
 
+// // TODO: Fix working on it
+// func (s *ReportsService) UpdateReportIncidentMerging(mergedReport *repositories.Report,
+// 	newApplicationIncidents []*repositories.ApplicationIncident,
+// 	newNodeIncidents []*repositories.NodeIncident) (*repositories.Report, error) {
+//
+// 	// err := s.reportRepository.InsertNodeIncidents(context.TODO(), mergedReport.NodeReports)
+// 	s.InsertNodeIncidents()
+// 	if err != nil {
+// 		s.logger.Error("Failed to insert node incidents")
+// 		return nil, err
+// 	}
+//
+// 	err = s.reportRepository.InsertApplicationIncidents(context.TODO(), mergedReport.ApplicationReports)
+// 	if err != nil {
+// 		s.logger.Error("Failed to insert application incidents")
+// 		return nil, err
+// 	}
+//
+// 	mergedReport.Status = repositories.ReportState_Generated
+//
+// 	repoErr := s.reportRepository.UpdateReport(context.TODO(), mergedReport)
+// 	if repoErr != nil {
+// 		s.logger.Error("Failed to update a scheduled report", zap.Error(repoErr))
+// 		return nil, repoErr
+// 	}
+//
+// 	updatedReport, repoErr := s.reportRepository.GetSingleReport(context.TODO(), mergedReport.Id)
+// 	if repoErr != nil {
+// 		s.logger.Error("Failed to update a scheduled report", zap.Error(repoErr))
+// 		return nil, repoErr
+// 	}
+//
+// 	return updatedReport, nil
+// }
+
+func (s *ReportsService) InsertNodeIncidents(reports []*repositories.NodeReport) error {
+	for idx, report := range reports {
+		insertedIncidents, err := s.reportRepository.InsertNodeIncidents(context.TODO(), report.Incidents)
+		if err != nil {
+			s.logger.Error("Failed to insert node incidents", zap.Error(err))
+			return err
+		}
+
+		reports[idx].Incidents = insertedIncidents
+	}
+
+	return nil
+}
+
+func (s *ReportsService) InsertApplicationIncidents(reports []*repositories.ApplicationReport) error {
+	for idx, report := range reports {
+		insertedIncidents, err := s.reportRepository.InsertApplicationIncidents(context.TODO(), report.Incidents)
+		if err != nil {
+			s.logger.Error("Failed to insert node incidents", zap.Error(err))
+			return err
+		}
+
+		reports[idx].Incidents = insertedIncidents
+	}
+
+	return nil
+}
+
 func (s *ReportsService) CompletePendingReport(reportId string, applicationInsights []insights.ApplicationInsightsWithMetadata,
 	nodeInsights []insights.NodeInsightsWithMetadata) (*repositories.Report, error) {
 
@@ -237,24 +431,38 @@ func (s *ReportsService) CompletePendingReport(reportId string, applicationInsig
 		return nil, err
 	}
 
-	err = s.reportRepository.InsertNodeIncidents(context.TODO(), nodeReports)
+	err = s.InsertApplicationIncidents(applicationReports)
 	if err != nil {
 		s.logger.Error("Failed to insert node incidents")
 		return nil, err
 	}
 
-	err = s.reportRepository.InsertApplicationIncidents(context.TODO(), applicationReports)
+	err = s.InsertNodeIncidents(nodeReports)
 	if err != nil {
 		s.logger.Error("Failed to insert application incidents")
 		return nil, err
 	}
 
+	scheduledApplicationIncidentsMergerJobs, err := s.ScheduleApplicationIncidentsMerge(applicationReports)
+	if err != nil {
+		s.logger.Error("Failed to schedule application incident merge")
+		return nil, err
+	}
+
+	scheduledNodeIncidentsMergerJobs, err := s.ScheduleNodeIncidentsMerge(nodeReports)
+	if err != nil {
+		s.logger.Error("Failed to schedule node incident merge")
+		return nil, err
+	}
+
 	scheduledReport.ApplicationReports = applicationReports
 	scheduledReport.NodeReports = nodeReports
-	scheduledReport.Status = repositories.ReportState_Generated
+	scheduledReport.Status = repositories.ReportState_AwaitingIncidentMerging
 	scheduledReport.Urgency = s.getReportUrgencyFromApplicationAndNodeReports(applicationReports, nodeReports)
 	scheduledReport.AnalyzedNodes = len(scheduledReport.ScheduledNodeInsights.NodeConfiguration)
 	scheduledReport.AnalyzedApplications = len(scheduledReport.ScheduledApplicationInsights.ApplicationConfiguration)
+	scheduledReport.ScheduledNodeIncidentMergerJobs = scheduledNodeIncidentsMergerJobs
+	scheduledReport.ScheduledApplicationIncidentMergerJobs = scheduledApplicationIncidentsMergerJobs
 
 	repoErr = s.reportRepository.UpdateReport(context.TODO(), scheduledReport)
 	if repoErr != nil {
@@ -269,6 +477,27 @@ func (s *ReportsService) CompletePendingReport(reportId string, applicationInsig
 	}
 
 	return updatedReport, nil
+}
+
+func (s *ReportsService) ScheduleApplicationIncidentsMerge(
+	applicationReports []*repositories.ApplicationReport) ([]*repositories.ScheduledIncidentMergerJob, error) {
+
+	incidentsByApps := make(map[string][]repositories.Incident)
+	for _, report := range applicationReports {
+		incidentsByApps[report.ApplicationName] = incidentcorrelation.ConvertConcreteIncidentArrayIntoIncidents(report.Incidents)
+	}
+
+	return s.incidentMerger.ScheduleIncidentsMerge(incidentsByApps)
+}
+
+func (s *ReportsService) ScheduleNodeIncidentsMerge(nodeReports []*repositories.NodeReport) ([]*repositories.ScheduledIncidentMergerJob, error) {
+
+	incidentsByNodes := make(map[string][]repositories.Incident)
+	for _, report := range nodeReports {
+		incidentsByNodes[report.Node] = incidentcorrelation.ConvertConcreteIncidentArrayIntoIncidents(report.Incidents)
+	}
+
+	return s.incidentMerger.ScheduleIncidentsMerge(incidentsByNodes)
 }
 
 // TODO: Remove once CompletePendingReport is confirmed to be working as expeted
@@ -311,15 +540,15 @@ func (s *ReportsService) RetrieveScheduledReport(scheduledReportId string) (*rep
 		return nil, err
 	}
 
-	err = s.reportRepository.InsertNodeIncidents(context.TODO(), nodeReports)
+	err = s.InsertApplicationIncidents(applicationReports)
 	if err != nil {
-		s.logger.Error("Failed to insert node incidents")
+		s.logger.Error("Failed to insert application incidents", zap.Error(err))
 		return nil, err
 	}
 
-	err = s.reportRepository.InsertApplicationIncidents(context.TODO(), applicationReports)
+	err = s.InsertNodeIncidents(nodeReports)
 	if err != nil {
-		s.logger.Error("Failed to insert application incidents")
+		s.logger.Error("Failed to insert node incidents", zap.Error(err))
 		return nil, err
 	}
 
@@ -346,88 +575,88 @@ func (s *ReportsService) RetrieveScheduledReport(scheduledReportId string) (*rep
 	return updatedReport, nil
 }
 
-func (s *ReportsService) GenerateReport(
-	ctx context.Context,
-	params ReportGenerationFilters) (*repositories.Report, error) {
-
-	sinceDate := time.UnixMilli(params.SinceMs)
-	toDate := time.UnixMilli(params.ToMs)
-
-	applicationLogs, err := s.GetApplicationLogsByParams(
-		ctx,
-		params.ClusterId,
-		sinceDate,
-		toDate)
-	if err != nil {
-		s.logger.Error("Failed to get application logs", zap.Error(err))
-		return nil, err
-	}
-
-	applicationReports, err := s.GenerateApplicationReports(
-		ctx,
-		applicationLogs,
-		params.ApplicationConfiguration,
-	)
-	if err != nil {
-		s.logger.Error("Failed to get application reports", zap.Error(err))
-		return nil, err
-	}
-
-	nodeLogs, err := s.GetNodeLogsByParams(
-		ctx,
-		params.ClusterId,
-		sinceDate,
-		toDate)
-	if err != nil {
-		s.logger.Error("Failed to generate node report", zap.Error(err))
-		return nil, err
-	}
-
-	nodeReports, err := s.GenerateNodeReports(
-		ctx,
-		nodeLogs,
-		params.NodeConfiguration,
-	)
-	if err != nil {
-		s.logger.Error("Failed to get node reports", zap.Error(err))
-		return nil, err
-	}
-
-	urgency := s.getReportUrgencyFromApplicationAndNodeReports(
-		applicationReports,
-		nodeReports,
-	)
-
-	err = s.reportRepository.InsertNodeIncidents(ctx, nodeReports)
-	if err != nil {
-		s.logger.Error("Failed to insert node incidents")
-		return nil, err
-	}
-
-	err = s.reportRepository.InsertApplicationIncidents(ctx, applicationReports)
-	if err != nil {
-		s.logger.Error("Failed to insert application incidents")
-		return nil, err
-	}
-
-	report := repositories.Report{
-		Status:                  repositories.ReportState_Generated,
-		ClusterId:               params.ClusterId,
-		RequestedAtMs:           time.Now().UnixMilli(),
-		ScheduledGenerationAtMs: time.Now().UnixMilli(),
-		Title:                   s.getTitleForReport(params.ClusterId, sinceDate, toDate),
-		SinceMs:                 params.SinceMs,
-		ToMs:                    params.ToMs,
-		NodeReports:             nodeReports,
-		ApplicationReports:      applicationReports,
-		TotalApplicationEntries: len(applicationLogs),
-		TotalNodeEntries:        len(nodeLogs),
-		Urgency:                 urgency,
-	}
-
-	return &report, nil
-}
-
+// func (s *ReportsService) GenerateReport(
+//
+//		ctx context.Context,
+//		params ReportGenerationFilters) (*repositories.Report, error) {
+//
+//		sinceDate := time.UnixMilli(params.SinceMs)
+//		toDate := time.UnixMilli(params.ToMs)
+//
+//		applicationLogs, err := s.GetApplicationLogsByParams(
+//			ctx,
+//			params.ClusterId,
+//			sinceDate,
+//			toDate)
+//		if err != nil {
+//			s.logger.Error("Failed to get application logs", zap.Error(err))
+//			return nil, err
+//		}
+//
+//		applicationReports, err := s.GenerateApplicationReports(
+//			ctx,
+//			applicationLogs,
+//			params.ApplicationConfiguration,
+//		)
+//		if err != nil {
+//			s.logger.Error("Failed to get application reports", zap.Error(err))
+//			return nil, err
+//		}
+//
+//		nodeLogs, err := s.GetNodeLogsByParams(
+//			ctx,
+//			params.ClusterId,
+//			sinceDate,
+//			toDate)
+//		if err != nil {
+//			s.logger.Error("Failed to generate node report", zap.Error(err))
+//			return nil, err
+//		}
+//
+//		nodeReports, err := s.GenerateNodeReports(
+//			ctx,
+//			nodeLogs,
+//			params.NodeConfiguration,
+//		)
+//		if err != nil {
+//			s.logger.Error("Failed to get node reports", zap.Error(err))
+//			return nil, err
+//		}
+//
+//		urgency := s.getReportUrgencyFromApplicationAndNodeReports(
+//			applicationReports,
+//			nodeReports,
+//		)
+//
+//		err = s.reportRepository.InsertNodeIncidents(ctx, nodeReports)
+//		if err != nil {
+//			s.logger.Error("Failed to insert node incidents")
+//			return nil, err
+//		}
+//
+//		err = s.reportRepository.InsertApplicationIncidents(ctx, applicationReports)
+//		if err != nil {
+//			s.logger.Error("Failed to insert application incidents")
+//			return nil, err
+//		}
+//
+//		report := repositories.Report{
+//			Status:                  repositories.ReportState_Generated,
+//			ClusterId:               params.ClusterId,
+//			RequestedAtMs:           time.Now().UnixMilli(),
+//			ScheduledGenerationAtMs: time.Now().UnixMilli(),
+//			Title:                   s.getTitleForReport(params.ClusterId, sinceDate, toDate),
+//			SinceMs:                 params.SinceMs,
+//			ToMs:                    params.ToMs,
+//			NodeReports:             nodeReports,
+//			ApplicationReports:      applicationReports,
+//			TotalApplicationEntries: len(applicationLogs),
+//			TotalNodeEntries:        len(nodeLogs),
+//			Urgency:                 urgency,
+//		}
+//
+//		return &report, nil
+//	}
 func (s *ReportsService) getTitleForReport(cluster string, fromDate time.Time, toDate time.Time) string {
 	return fmt.Sprintf("Report for %s (%s - %s)",
 		cluster,
@@ -450,6 +679,10 @@ func (s *ReportsService) getApplicationIncidentFromInsight(
 			Image:         metadata.Image,
 		}
 	})(insight.Metadata)
+
+	if len(insight.Metadata) == 0 {
+		s.logger.Info("Metadata is empty", zap.Any("metadata", insight), zap.Any("conf", configuration))
+	}
 
 	return &repositories.ApplicationIncident{
 		ApplicationName: insight.Metadata[0].ApplicationName,
@@ -529,9 +762,13 @@ func (s *ReportsService) GetApplicationReportsFromInsights(
 	reports := make([]*repositories.ApplicationReport, 0, len(insightsByApplication))
 	configByApp := insights.MapApplicationNameToConfiguration(applicationConfiguration)
 
+	s.logger.Info("config", zap.Any("config", configByApp))
+
 	for applicationName, insightsForApplication := range insightsByApplication {
 
 		incidentsFromInsights := array.Map(func(insight insights.ApplicationInsightsWithMetadata) *repositories.ApplicationIncident {
+
+			s.logger.Info("config", zap.Any("app", insight.Insight.ApplicationName))
 			return s.getApplicationIncidentFromInsight(insight, configByApp[insight.Insight.ApplicationName])
 		})
 
@@ -587,28 +824,28 @@ func (s *ReportsService) GetNodeReportsFromInsights(
 	return reports, nil
 }
 
-func (s *ReportsService) GenerateAndSaveReport(ctx context.Context, params ReportGenerationFilters) (*repositories.Report, error) {
-	report, err := s.GenerateReport(ctx,
-		ReportGenerationFilters{
-			ClusterId:                params.ClusterId,
-			SinceMs:                  params.SinceMs,
-			ToMs:                     params.ToMs,
-			ApplicationConfiguration: params.ApplicationConfiguration,
-			NodeConfiguration:        params.NodeConfiguration,
-		})
-	if err != nil {
-		s.logger.Error("Failed to generate report", zap.Error(err))
-		return nil, err
-	}
-
-	insertedReport, repositoryErr := s.InsertReport(ctx, report)
-	if repositoryErr != nil {
-		s.logger.Error("Failed to save a report", zap.Error(err))
-		return nil, err
-	}
-
-	return insertedReport, err
-}
+// func (s *ReportsService) GenerateAndSaveReport(ctx context.Context, params ReportGenerationFilters) (*repositories.Report, error) {
+// 	report, err := s.GenerateReport(ctx,
+// 		ReportGenerationFilters{
+// 			ClusterId:                params.ClusterId,
+// 			SinceMs:                  params.SinceMs,
+// 			ToMs:                     params.ToMs,
+// 			ApplicationConfiguration: params.ApplicationConfiguration,
+// 			NodeConfiguration:        params.NodeConfiguration,
+// 		})
+// 	if err != nil {
+// 		s.logger.Error("Failed to generate report", zap.Error(err))
+// 		return nil, err
+// 	}
+//
+// 	insertedReport, repositoryErr := s.InsertReport(ctx, report)
+// 	if repositoryErr != nil {
+// 		s.logger.Error("Failed to save a report", zap.Error(err))
+// 		return nil, err
+// 	}
+//
+// 	return insertedReport, err
+// }
 
 func (s *ReportsService) GetApplicationLogsByParams(
 	ctx context.Context,

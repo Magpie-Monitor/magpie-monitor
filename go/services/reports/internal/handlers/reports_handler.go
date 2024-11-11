@@ -27,7 +27,7 @@ func NewReportsRouter(reportsHandler *ReportsHandler, rootRouter *mux.Router) *R
 	router.Methods(http.MethodGet).Path("/{id}").HandlerFunc(reportsHandler.GetSingle)
 	router.Methods(http.MethodPost).Path("/scheduled").HandlerFunc(reportsHandler.PostScheduled)
 	router.Methods(http.MethodGet).HandlerFunc(reportsHandler.GetAll)
-	router.Methods(http.MethodPost).HandlerFunc(reportsHandler.Post)
+	// router.Methods(http.MethodPost).HandlerFunc(reportsHandler.Post)
 
 	return &ReportsRouter{
 		mux: rootRouter,
@@ -184,72 +184,72 @@ func (h *ReportsHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	w.Write(encodedReports)
 }
 
-func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
-
-	defer r.Body.Close()
-	var params reportsPostParams
-	ctx := context.Background()
-
-	err := json.NewDecoder(r.Body).Decode(&params)
-	if err != nil {
-		h.logger.Error("Failed to parse POST /reports params", zap.Error(err))
-		routing.WriteHttpError(w, "Failed to parse POST /reports params")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if params.SinceMs == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		routing.WriteHttpError(w, "Missing sinceMs parameter")
-		return
-	}
-
-	if params.ToMs == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		routing.WriteHttpError(w, "Missing toMs parameter")
-		return
-	}
-
-	if params.ClusterId == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		routing.WriteHttpError(w, "Missing clusterId parameter")
-		return
-	}
-
-	if params.CorrelationId == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		routing.WriteHttpError(w, "Missing correlationId parameter")
-		return
-	}
-
-	report, err := h.reportsService.GenerateAndSaveReport(ctx,
-		services.ReportGenerationFilters{
-			ClusterId:                *params.ClusterId,
-			CorrelationId:            *params.CorrelationId,
-			SinceMs:                  *params.SinceMs,
-			ToMs:                     *params.ToMs,
-			ApplicationConfiguration: params.ApplicationConfiguration,
-			NodeConfiguration:        params.NodeConfiguration,
-		})
-
-	if err != nil {
-		h.logger.Error("Failed to generate report", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	reportJson, err := json.Marshal(report)
-	if err != nil {
-		h.logger.Error("Failed encode report into json", zap.Error(err))
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	w.Write(reportJson)
-}
-
+// func (h *ReportsHandler) Post(w http.ResponseWriter, r *http.Request) {
+//
+//		defer r.Body.Close()
+//		var params reportsPostParams
+//		ctx := context.Background()
+//
+//		err := json.NewDecoder(r.Body).Decode(&params)
+//		if err != nil {
+//			h.logger.Error("Failed to parse POST /reports params", zap.Error(err))
+//			routing.WriteHttpError(w, "Failed to parse POST /reports params")
+//			w.WriteHeader(http.StatusBadRequest)
+//			return
+//		}
+//
+//		if params.SinceMs == nil {
+//			w.WriteHeader(http.StatusBadRequest)
+//			routing.WriteHttpError(w, "Missing sinceMs parameter")
+//			return
+//		}
+//
+//		if params.ToMs == nil {
+//			w.WriteHeader(http.StatusBadRequest)
+//			routing.WriteHttpError(w, "Missing toMs parameter")
+//			return
+//		}
+//
+//		if params.ClusterId == nil {
+//			w.WriteHeader(http.StatusBadRequest)
+//			routing.WriteHttpError(w, "Missing clusterId parameter")
+//			return
+//		}
+//
+//		if params.CorrelationId == nil {
+//			w.WriteHeader(http.StatusBadRequest)
+//			routing.WriteHttpError(w, "Missing correlationId parameter")
+//			return
+//		}
+//
+//		report, err := h.reportsService.GenerateAndSaveReport(ctx,
+//			services.ReportGenerationFilters{
+//				ClusterId:                *params.ClusterId,
+//				CorrelationId:            *params.CorrelationId,
+//				SinceMs:                  *params.SinceMs,
+//				ToMs:                     *params.ToMs,
+//				ApplicationConfiguration: params.ApplicationConfiguration,
+//				NodeConfiguration:        params.NodeConfiguration,
+//			})
+//
+//		if err != nil {
+//			h.logger.Error("Failed to generate report", zap.Error(err))
+//			w.WriteHeader(http.StatusInternalServerError)
+//			return
+//		}
+//
+//		reportJson, err := json.Marshal(report)
+//		if err != nil {
+//			h.logger.Error("Failed encode report into json", zap.Error(err))
+//			w.WriteHeader(http.StatusInternalServerError)
+//			return
+//		}
+//
+//		w.Header().Add("Content-Type", "application/json")
+//		w.WriteHeader(http.StatusCreated)
+//		w.Write(reportJson)
+//	}
+//
 // TODO: Remove once the system is migrated to microservices
 func (h *ReportsHandler) PostScheduled(w http.ResponseWriter, r *http.Request) {
 
@@ -399,13 +399,16 @@ func (h *ReportsHandler) PollReports() {
 	reportsChannel := make(chan *repositories.Report)
 
 	go h.reportsService.PollReports(context.Background(), reportsChannel, errChannel)
+	go h.reportsService.PollReportsPendingIncidentMerge(context.Background(), reportsChannel, errChannel)
 
 	for {
 		select {
 		case report := <-reportsChannel:
-			h.reportGeneratedBroker.Publish(report.CorrelationId, brokers.NewReportGenerated(
-				report,
-			))
+			if report.Status == repositories.ReportState_Generated {
+				h.reportGeneratedBroker.Publish(report.CorrelationId, brokers.NewReportGenerated(
+					report,
+				))
+			}
 
 		case err := <-errChannel:
 			h.reportRequestFailedBroker.Publish(err.Report.CorrelationId, *brokers.NewReportRequestFailedInternalError(

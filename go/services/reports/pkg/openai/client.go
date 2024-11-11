@@ -6,6 +6,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
+	"go.uber.org/zap"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -13,12 +16,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
-
-	"github.com/IBM/fp-go/array"
-	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
-	"github.com/Magpie-Monitor/magpie-monitor/pkg/jsonl"
-	"go.uber.org/zap"
 )
 
 const (
@@ -384,7 +381,7 @@ func (c *Client) createBatch(batchParams CreateBatchRequest) (*Batch, error) {
 	return &decodedResponse, nil
 }
 
-func (c *Client) UploadAndCreateBatches(completionRequests []*CompletionRequest) ([]*Batch, error) {
+func (c *Client) UploadAndCreateBatches(completionRequests map[string]*CompletionRequest) ([]*Batch, error) {
 
 	// Split requests to batches of size not greater than OpenAi's maximum batch size (~100MB)
 	requestsByBatch, err := c.SplitCompletionReqestsByBatchSize(completionRequests)
@@ -393,7 +390,7 @@ func (c *Client) UploadAndCreateBatches(completionRequests []*CompletionRequest)
 		return nil, err
 	}
 
-	batches, batchErrors := parallelRequest(requestsByBatch, func(requests []*CompletionRequest) (*Batch, error) {
+	batches, batchErrors := parallelRequest(requestsByBatch, func(requests map[string]*CompletionRequest) (*Batch, error) {
 
 		batch, err := c.UploadAndCreateBatch(requests)
 		if err != nil {
@@ -413,17 +410,17 @@ func (c *Client) UploadAndCreateBatches(completionRequests []*CompletionRequest)
 	return batches, nil
 }
 
-func (c *Client) SplitCompletionReqestsByBatchSize(completionRequests []*CompletionRequest) ([][]*CompletionRequest, error) {
+func (c *Client) SplitCompletionReqestsByBatchSize(completionRequests map[string]*CompletionRequest) ([]map[string]*CompletionRequest, error) {
 
-	var requestPackets [][]*CompletionRequest
-	var lastPacket []*CompletionRequest
+	requestPackets := make([]map[string]*CompletionRequest, 0)
+	lastPacket := make(map[string]*CompletionRequest, 0)
 	var lastPacketSize = 0
 
 	if len(completionRequests) == 0 {
 		return requestPackets, nil
 	}
 
-	for _, request := range completionRequests {
+	for customId, request := range completionRequests {
 
 		encodedPacket, err := json.Marshal(request)
 
@@ -436,11 +433,11 @@ func (c *Client) SplitCompletionReqestsByBatchSize(completionRequests []*Complet
 		c.logger.Debug("Current size", zap.Any("len", len(encodedPacket)))
 		if lastPacketSize+len(encodedPacket) > c.BatchSizeBytes {
 			requestPackets = append(requestPackets, lastPacket)
-			lastPacket = []*CompletionRequest{request}
+			lastPacket = map[string]*CompletionRequest{customId: request}
 			lastPacketSize = len(encodedPacket)
 
 		} else {
-			lastPacket = append(lastPacket, request)
+			lastPacket[customId] = request
 			lastPacketSize += len(encodedPacket)
 		}
 
@@ -490,7 +487,6 @@ func (c *Client) UploadAndCreateBatch(completionRequests map[string]*CompletionR
 
 func NewBatchEntryFromCompletionRequest(completionRequest *CompletionRequest, customId string) *BatchFileCompletionRequestEntry {
 	return &BatchFileCompletionRequestEntry{
-		// CustomId: fmt.Sprintf("report-%s", time.Now().String()),
 		CustomId: customId,
 		Method:   "POST",
 		Url:      COMPLETION_PATH,
@@ -625,6 +621,37 @@ func (c *Client) CompletionResponseEntriesFromBatch(batch *Batch) ([]*BatchFileC
 	}
 
 	return responses, nil
+}
+
+func (c *Client) CompletionResponseEntriesFromBatchById(batchId string) ([]*BatchFileCompletionResponseEntry, error) {
+	batch, err := c.Batch(batchId)
+	if err != nil {
+		c.logger.Error("Failed to get batch by id", zap.Error(err))
+		return nil, err
+	}
+
+	return c.CompletionResponseEntriesFromBatch(batch)
+}
+
+func (c *Client) OutputFileFromBatch(batchId string) ([]byte, error) {
+	batch, err := c.Batch(batchId)
+	if err != nil {
+		c.logger.Error("Failed to fetch a batch by id", zap.Error(err), zap.Any("id", batchId))
+		return nil, err
+	}
+
+	if batch.OutputFileId == "" {
+		c.logger.Error("No output file from batch", zap.Any("batch", batch))
+		return nil, errors.New("No output file from batch")
+	}
+
+	outputFile, err := c.File(batch.OutputFileId)
+	if err != nil {
+		c.logger.Error("Failed get output batch file", zap.Error(err), zap.Any("id", batchId))
+		return nil, err
+	}
+
+	return outputFile, nil
 }
 
 func (c *Client) CompletionResponseEntriesFromBatches(batches []*Batch) ([]*BatchFileCompletionResponseEntry, error) {

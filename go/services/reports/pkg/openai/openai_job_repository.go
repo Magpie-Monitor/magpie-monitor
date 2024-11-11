@@ -20,11 +20,11 @@ const (
 )
 
 type OpenAiJob struct {
-	Id                 string               `bson:"_id,omitempty" json:"id"`
-	ScheduledAt        int64                `bson:"scheduledAt" json:"scheduledAt"`
-	CompletionRequests []*CompletionRequest `bson:"completionRequests" json:"completionRequests"`
-	Status             OpenAiJobStatus      `bson:"status" json:"status"`
-	BatchId            *string              `bson:"batchId" json:"batchId"`
+	Id                 string                        `bson:"_id,omitempty" json:"id"`
+	ScheduledAt        int64                         `bson:"scheduledAt" json:"scheduledAt"`
+	CompletionRequests map[string]*CompletionRequest `bson:"completionRequests" json:"completionRequests"`
+	Status             OpenAiJobStatus               `bson:"status" json:"status"`
+	BatchId            *string                       `bson:"batchId" json:"batchId"`
 }
 
 func (j *OpenAiJob) IsEqueued() bool {
@@ -51,7 +51,7 @@ func (j *OpenAiJob) SetId(id string) {
 	j.Id = id
 }
 
-func NewOpenAiJob(completionRequests []*CompletionRequest) *OpenAiJob {
+func NewOpenAiJob(completionRequests map[string]*CompletionRequest) *OpenAiJob {
 	return &OpenAiJob{
 		ScheduledAt:        time.Now().UnixMilli(),
 		Status:             OpenAiJobStatus__Enqueued,
