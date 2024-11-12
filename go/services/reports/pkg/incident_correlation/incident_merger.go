@@ -5,14 +5,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/IBM/fp-go/array"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/splitting"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
 	scheduledjobs "github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/scheduled_jobs"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"time"
 )
 
 type IncidentMergeCriteria struct {
@@ -125,43 +128,66 @@ type incidentMergerResponseDto struct {
 func (m *OpenAiIncidentMerger) ScheduleIncidentsMerge(incidentGroups map[string][]repositories.Incident) ([]*repositories.ScheduledIncidentMergerJob, error) {
 
 	completionRequests := make(map[string]*openai.CompletionRequest, len(incidentGroups))
-	m.logger.Info("Groups", zap.Any("groups", incidentGroups))
 	if len(incidentGroups) == 0 {
 		return make([]*repositories.ScheduledIncidentMergerJob, 0), nil
 	}
 
 	for groupId, report := range incidentGroups {
 		criterias := array.Map(m.getIncidentMergeCriteria)(report)
-		encodedSummaries, err := m.encodeMergeCriteria(criterias)
+		encodedCriterias, err := m.encodeMergeCriteria(criterias)
+
+		encodedCriteriasPerPacket := splitting.SplitStringsIntoPackets(encodedCriterias, m.client.ContextSizeBytes)
+
 		if err != nil {
 			return nil, err
 		}
+		for idx, packet := range encodedCriteriasPerPacket {
+			messages := m.createSummaryRequestMessage(packet)
 
-		messages := m.createSummaryRequestMessage(encodedSummaries)
-		completionRequests[groupId] = &openai.CompletionRequest{
-			Messages:       messages,
-			Temperature:    m.client.Temperature,
-			ResponseFormat: openai.CreateJsonReponseFormat("incidentMerger", incidentMergerResponseDto{}),
-			Model:          m.client.Model(),
+			completionRequests[getGroupPacketId(groupId, idx)] = &openai.CompletionRequest{
+				Messages:       messages,
+				Temperature:    m.client.Temperature,
+				ResponseFormat: openai.CreateJsonReponseFormat("incidentMerger", incidentMergerResponseDto{}),
+				Model:          m.client.Model(),
+			}
 		}
 	}
 
-	jobId, err := m.scheduledJobsRepository.InsertScheduledJob(context.Background(), &openai.OpenAiJob{
-		ScheduledAt:        time.Now().UnixMilli(),
-		CompletionRequests: completionRequests,
-		Status:             openai.OpenAiJobStatus__Enqueued,
-	})
+	completionReuqestsPerBatch, err := m.client.SplitCompletionReqestsByBatchSize(completionRequests)
 	if err != nil {
-		m.logger.Error("Failed to insert scheduled jobs", zap.Error(err))
+		m.logger.Error("Failed to split merger requests by batch", zap.Error(err))
 		return nil, err
 	}
 
-	return []*repositories.ScheduledIncidentMergerJob{
-		{
+	jobs := make([]*repositories.ScheduledIncidentMergerJob, 0, len(completionReuqestsPerBatch))
+	for _, batch := range completionReuqestsPerBatch {
 
+		jobId, err := m.scheduledJobsRepository.InsertScheduledJob(context.Background(), &openai.OpenAiJob{
+			ScheduledAt:        time.Now().UnixMilli(),
+			CompletionRequests: batch,
+			Status:             openai.OpenAiJobStatus__Enqueued,
+		})
+
+		if err != nil {
+			m.logger.Error("Failed to insert scheduled jobs", zap.Error(err))
+			return nil, err
+		}
+
+		jobs = append(jobs, &repositories.ScheduledIncidentMergerJob{
 			Id: jobId,
-		},
-	}, nil
+		})
+
+	}
+
+	return jobs, nil
+}
+
+func getGroupPacketId(groupId string, packetId int) string {
+	return fmt.Sprintf("%s-%d", groupId, packetId)
+}
+
+func getGroupFromEncodedGroupPacketId(groupPacketId string) string {
+	return strings.Split(groupPacketId, "-")[0]
 }
 
 func (m *OpenAiIncidentMerger) TryGettingIncidentMergerJobIfFinished(job *repositories.ScheduledIncidentMergerJob) (map[string][]IncidentMergeGroup, error) {
@@ -196,7 +222,9 @@ func (m *OpenAiIncidentMerger) TryGettingIncidentMergerJobIfFinished(job *reposi
 			return nil, err
 		}
 
-		incidentMergeGroups[completionEntry.CustomId] = responseDto.IncidentMergeGroups
+		group := getGroupFromEncodedGroupPacketId(completionEntry.CustomId)
+
+		incidentMergeGroups[group] = append(incidentMergeGroups[group], responseDto.IncidentMergeGroups...)
 	}
 
 	return incidentMergeGroups, nil

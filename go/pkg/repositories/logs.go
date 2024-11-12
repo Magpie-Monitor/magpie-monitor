@@ -30,3 +30,4 @@ func SplitLogsIntoPackets[T Log](logs []T, maxPacketSize int) [][]T {
 
 	return logsPackets
 }
+
