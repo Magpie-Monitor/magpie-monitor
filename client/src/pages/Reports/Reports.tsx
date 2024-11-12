@@ -81,7 +81,12 @@ const Reports = () => {
         {loading ? (
           <Spinner />
         ) : rows.length === 0 ? (
-          <p>No reports. Generate new report (TBA: link)</p>
+          <>
+            <p>No reports. &nbsp;</p>
+            <LinkComponent to="/clusters">
+              Generate new report
+            </LinkComponent> 
+          </>
         ) : (
           <Table columns={columns} rows={rows} />
         )}
