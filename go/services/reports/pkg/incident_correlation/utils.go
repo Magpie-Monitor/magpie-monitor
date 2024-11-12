@@ -21,6 +21,10 @@ func mergeApplicationIncidents(group IncidentMergeGroup, applicationIncidents *r
 	var sourcesToBeMerged []repositories.ApplicationIncidentSource
 	var filteredIncidents []*repositories.ApplicationIncident
 
+	if len(applicationIncidents.Incidents) == 0 {
+		panic("Empty list of incidents from a application report was passed to an incident merger")
+	}
+
 	for _, incident := range applicationIncidents.Incidents {
 		if !slices.Contains(group.IncidentIds, incident.Id) {
 			filteredIncidents = append(filteredIncidents, incident)
@@ -61,6 +65,10 @@ func MergeApplicationIncidentsByGroups(groups []IncidentMergeGroup, applicationI
 func mergeNodeIncidents(group IncidentMergeGroup, nodeIncidents *repositories.NodeReport) *repositories.NodeIncident {
 	var sourcesToBeMerged []repositories.NodeIncidentSource
 	var filteredIncidents []*repositories.NodeIncident
+
+	if len(nodeIncidents.Incidents) == 0 {
+		panic("Empty list of incidents from a node report was passed to an incident merger")
+	}
 
 	for _, incident := range nodeIncidents.Incidents {
 		if !slices.Contains(group.IncidentIds, incident.Id) {
