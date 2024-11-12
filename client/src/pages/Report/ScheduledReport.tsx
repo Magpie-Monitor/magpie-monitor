@@ -19,11 +19,19 @@ const ScheduledReport = () => {
     const [applications, setApplications] = useState<ApplicationDataRow[]>([]);
     const [nodes, setNodes] = useState<NodeDataRow[]>([]);
     const [accuracy, setAccuracy] = useState<AccuracyLevel>('HIGH');
+    const [startDateMs, setStartDateMs] = useState<number>(Date.now());
+    const [endDateMs, setEndDateMs] = useState<number>(Date.now());
 
+    const handleDateRangeChange = (startMs: number, endMs: number) => {
+        setStartDateMs(startMs);
+        setEndDateMs(endMs);
+    };
     const handleGenerateReport = () => {
         console.log('Notification Channels:', notificationChannels);
         console.log('Applications:', applications);
         console.log('Nodes:', nodes);
+        console.log('startDateMs:', startDateMs);
+        console.log('endDateMs:', endDateMs);
     };
 
     return (
@@ -34,7 +42,7 @@ const ScheduledReport = () => {
                         <StateSection/>
                         <AccuracySection setParentAccuracy={setAccuracy} />
                     </div>
-                    <DateRangeSection/>
+                    <DateRangeSection onDateChange={handleDateRangeChange} />
                 </div>
                 <NotificationSection setNotificationChannels={setNotificationChannels}/>
                 <ApplicationSection setApplications={setApplications}

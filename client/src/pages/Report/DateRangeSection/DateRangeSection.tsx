@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
+import './DateRangeSection.scss';
+import {getDateFromTimestamps} from 'lib/date.ts';
 
 interface DateRangeSectionProps {
     onDateChange: (startMs: number, endMs: number) => void;
@@ -24,12 +26,12 @@ const DateRangeSection = ({ onDateChange }: DateRangeSectionProps) => {
 
     return (
         <SectionComponent icon={<SVGIcon iconName='date-range-icon' />} title={'Date Range'}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div className="date-range-container">
                 <label>
                     Start Date:
                     <input
                         type="date"
-                        value={new Date(startDate).toISOString().split('T')[0]}
+                        value={getDateFromTimestamps(startDate)}
                         onChange={handleStartDateChange}
                     />
                 </label>
@@ -37,7 +39,7 @@ const DateRangeSection = ({ onDateChange }: DateRangeSectionProps) => {
                     End Date:
                     <input
                         type="date"
-                        value={new Date(endDate).toISOString().split('T')[0]}
+                        value={getDateFromTimestamps(endDate)}
                         onChange={handleEndDateChange}
                     />
                 </label>

@@ -2,15 +2,16 @@
 
 .report-generated-info-popup {
   text-align: center;
-  padding: 20px;
   border-radius: 8px;
   width: 300px;
-  h2 {
+
+  &__title {
     font-size: 20px;
-    margin-bottom: 10px;
+    margin: 10px;
     color: $green;
   }
-  p {
+
+  &__description {
     font-size: 16px;
     margin-bottom: 20px;
   }

@@ -26,7 +26,8 @@
       "@hooks/*": ["hooks/*"],
       "@api/*": ["api/*"],
       "@lib/*": ["lib/*"],
-      "@assets/*": ["assets/*"]
+      "@assets/*": ["assets/*"],
+      "@messages/*": ["messages/*"],
     }
   },
   "include": ["src"],

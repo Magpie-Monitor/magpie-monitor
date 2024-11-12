@@ -16,6 +16,7 @@ export default defineConfig({
       providers: '/src/providers',
       global: '/src/global',
       types: '/src/types',
+      messages: '/src/messages',
     },
   },
 });

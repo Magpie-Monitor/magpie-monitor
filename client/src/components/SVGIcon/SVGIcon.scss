@@ -154,6 +154,12 @@
   mask: url('/src/assets/notification-icon.svg') no-repeat center;
 }
 
+.task_done_icon {
+  @extend .svg-icon;
+  background-color: $green;
+  mask: url('/src/assets/task_done_icon.svg') no-repeat center;
+}
+
 .eye-icon {
   @extend .svg-icon;
   mask: url('/src/assets/eye-icon.svg') no-repeat center;
