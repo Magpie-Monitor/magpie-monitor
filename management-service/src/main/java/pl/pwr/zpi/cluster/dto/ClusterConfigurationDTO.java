@@ -1,9 +1,7 @@
 package pl.pwr.zpi.cluster.dto;
 
 import lombok.Builder;
-import pl.pwr.zpi.cluster.entity.ApplicationConfiguration;
 import pl.pwr.zpi.cluster.entity.ClusterConfiguration;
-import pl.pwr.zpi.cluster.entity.NodeConfiguration;
 import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
@@ -21,8 +19,8 @@ public record ClusterConfigurationDTO(
         List<SlackReceiver> slackReceivers,
         List<DiscordReceiver> discordReceivers,
         List<EmailReceiver> emailReceivers,
-        List<ApplicationConfiguration> applicationConfigurations,
-        List<NodeConfiguration> nodeConfigurations
+        List<ApplicationConfigurationDTO> applicationConfigurations,
+        List<NodeConfigurationDTO> nodeConfigurations
 ) {
 
     public static ClusterConfigurationDTO ofCluster(ClusterConfiguration clusterConfiguration, boolean running) {
@@ -35,8 +33,18 @@ public record ClusterConfigurationDTO(
                 .slackReceivers(clusterConfiguration.getSlackReceivers())
                 .discordReceivers(clusterConfiguration.getDiscordReceivers())
                 .emailReceivers(clusterConfiguration.getEmailReceivers())
-                .applicationConfigurations(clusterConfiguration.getApplicationConfigurations())
-                .nodeConfigurations(clusterConfiguration.getNodeConfigurations())
+                .applicationConfigurations(
+                        clusterConfiguration.getApplicationConfigurations()
+                                .stream()
+                                .map(ApplicationConfigurationDTO::ofApplicationConfiguration)
+                                .toList()
+                )
+                .nodeConfigurations(
+                        clusterConfiguration.getNodeConfigurations()
+                                .stream()
+                                .map(NodeConfigurationDTO::ofNodeConfiguration)
+                                .toList()
+                )
                 .build();
     }
 }
