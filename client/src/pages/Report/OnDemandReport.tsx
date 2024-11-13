@@ -12,8 +12,7 @@ import { useState } from 'react';
 import { NotificationChannel } from './NotificationSection/NotificationSection';
 import { ApplicationDataRow } from './ApplicationSection/ApplicationSection';
 import { NodeDataRow } from './NodesSection/NodesSection';
-// import {AccuracyLevel, ManagmentServiceApiInstance, ReportPost} from 'api/managment-service.ts';
-import {AccuracyLevel, ReportPost} from 'api/managment-service.ts';
+import {AccuracyLevel, ManagmentServiceApiInstance, ReportPost} from 'api/managment-service.ts';
 import GeneratedInfoPopup from './GeneratedInfoPopup/GeneratedInfoPopup.tsx';
 
 const OnDemandReport = () => {
@@ -85,8 +84,7 @@ const OnDemandReport = () => {
                 customPrompt: node.customPrompt,
             })),
         };
-        console.log(report);
-        // ManagmentServiceApiInstance.generateOnDemandReport(report);
+        ManagmentServiceApiInstance.generateOnDemandReport(report);
         setShowInfoPopup(true);
     };
 
