@@ -1,6 +1,7 @@
 package pl.pwr.zpi.notifications.discord;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.notifications.ReportNotifier;
 import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder;
@@ -15,7 +16,9 @@ public class DiscordNotificationService implements ReportNotifier {
 
     private final String TEST_MESSAGE_PATH = "discord/test-message.txt";
     private final String NEW_REPORT_MESSAGE_PATH = "discord/new-report-message.txt";
-    private final String MAGPIE_MONITOR_CLIENT_BASE_URL = "https://magpie-monitor.rolo-labs.xyz/reports";
+
+    @Value("${magpie.monitor.client.base.url}")
+    private String MAGPIE_MONITOR_CLIENT_BASE_URL;
 
     private final DiscordMessagingService discordMessagingService;
     private final DiscordReceiverService discordReceiverService;
