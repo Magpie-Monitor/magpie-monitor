@@ -1,6 +1,7 @@
 package main
 
 import (
+	// "github.com/Magpie-Monitor/magpie-monitor/pkg/tests"
 	"github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/config"
 	"go.uber.org/fx"
 )
