@@ -11,17 +11,13 @@
   100% {
     transform: rotate(180deg) scale(1);
   }
-
 }
 
 .hourglass {
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: flip 2.5s infinite ease-in-out;
+  animation: flip 2s infinite ease-in-out;
   transform-origin: center;
-}
-
-.hourglass svg {
   transition: transform 0.5s;
 }
