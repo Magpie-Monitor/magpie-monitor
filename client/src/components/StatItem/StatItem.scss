@@ -6,7 +6,6 @@
   border-radius: 8px;
   text-align: left;
   color: $font-color;
-  width: 180px;
   height: 75px;
   border: 1px solid $component-border-color;
   flex-grow: 1;
@@ -33,7 +32,6 @@
   }
 
   @media (max-width: $sm) {
-    width: 90px;
     padding: 8px 8px 8px 12px;
 
     &__title {
