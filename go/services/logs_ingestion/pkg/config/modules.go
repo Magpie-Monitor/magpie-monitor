@@ -2,21 +2,15 @@ package config
 
 import (
 	"context"
-	"os"
-
+	"fmt"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/tests"
 	logsstream "github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/logs_stream"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
-)
-
-var AppModule fx.Option
-
-const (
-	PRODUCTION_ENVIRONMENT = "prod"
-	TEST_ENVIRONMENT       = "test"
+	"os"
 )
 
 type LogsStreamListener struct {
@@ -50,9 +44,13 @@ func NewLogsStreamListener(
 	return &listener
 }
 
+var AppModule fx.Option
+
 func init() {
 	env := os.Getenv("APP_ENV")
-	if env == TEST_ENVIRONMENT {
+	fmt.Println("Starting the app in %s environment", env)
+
+	if env == tests.TEST_ENVIRONMENT {
 		AppModule = fx.Options(
 			fx.WithLogger(func(log *zap.Logger) fxevent.Logger {
 				return &fxevent.ZapLogger{Logger: log}
@@ -77,6 +75,15 @@ func init() {
 				repositories.ProvideAsNodeLogsRepository(
 					repositories.NewElasticSearchNodeLogsRepository,
 				),
+
+				//Directly providing implementation for tests
+				logsstream.NewKafkaApplicationLogsStreamReader,
+
+				//Directly providing implementation for tests
+				logsstream.NewKafkaNodeLogsStreamReader,
+
+				// Mock logs writer used for tests
+				tests.NewKafkaLogsStreamWriter,
 
 				zap.NewExample),
 		)
