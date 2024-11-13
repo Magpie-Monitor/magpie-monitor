@@ -1,11 +1,10 @@
 import React from 'react';
 import './Hourglass.scss';
+import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 
 const Hourglass: React.FC = () => (
     <div className="hourglass">
-        <div className="hourglass__sand-top"></div>
-        <div className="hourglass__sand-bottom"></div>
-        <div className="hourglass__frame"></div>
+        <SVGIcon iconName="hourglass"/>
     </div>
 );
 

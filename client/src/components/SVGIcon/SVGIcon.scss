@@ -160,6 +160,19 @@
   mask: url('/src/assets/task_done_icon.svg') no-repeat center;
 }
 
+.hourglass {
+  @extend .svg-icon;
+  transform: rotate(180deg);
+  background-color: $green;
+  mask: url('/src/assets/hourglass.svg') no-repeat center;
+  width: 30px;
+  height: 30px;
+  .svg-icon {
+    width: 30px;
+    height: 30px;
+  }
+}
+
 .eye-icon {
   @extend .svg-icon;
   mask: url('/src/assets/eye-icon.svg') no-repeat center;

@@ -58,6 +58,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> =
                     (row.name === selectedApp.name ? { ...row, customPrompt: newPrompt } : row))
             );
             setShowCustomPromptPopup(false);
+            setSelectedApp(null);
         }
     };
 

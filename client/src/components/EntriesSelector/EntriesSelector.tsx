@@ -109,6 +109,7 @@ const EntriesSelector = <T extends TableRow>({
                         key: getKey(item),
                     }))}
                     maxHeight="65svh"
+                    alignLeft={true}
                 />
             )}
             <div className="entries-selector__buttons">

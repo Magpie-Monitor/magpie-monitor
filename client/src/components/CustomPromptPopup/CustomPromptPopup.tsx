@@ -25,7 +25,7 @@ const CustomPromptPopup: React.FC<CustomPromptPopupProps> =
     return (
         <OverlayComponent isDisplayed={isDisplayed} onClose={onClose}>
             <div className="custom-prompt-popup">
-                <h3>Edit Custom Prompt</h3>
+                <h3 className="custom-prompt-popup__title">Edit Custom Prompt</h3>
                 <textarea
                     className="custom-prompt-popup__textarea"
                     value={customPrompt}
@@ -33,14 +33,14 @@ const CustomPromptPopup: React.FC<CustomPromptPopupProps> =
                     placeholder="Enter your custom prompt here..."
                 />
                 <div className="custom-prompt-popup__actions">
-                    <ActionButton onClick={onClose}
-                                  description="Cancel" color={ActionButtonColor.RED} />
                     <ActionButton onClick={handleSave}
-                                  description="Save" color={ActionButtonColor.GREEN} />
+                                  description="Save" color={ActionButtonColor.GREEN}/>
+                    <ActionButton onClick={onClose}
+                                  description="Cancel" color={ActionButtonColor.RED}/>
                 </div>
             </div>
         </OverlayComponent>
     );
-};
+    };
 
 export default CustomPromptPopup;

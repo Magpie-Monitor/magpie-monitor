@@ -1,10 +1,10 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import './GeneratedInfoPopup.scss';
-import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionButton.tsx';
+import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
 import Hourglass from 'components/Hourglass/Hourglass.tsx';
-import { REPORT_IN_PROGRESS_TITLE, REPORT_IN_PROGRESS_DESCRIPTION }
+import {REPORT_IN_PROGRESS_TITLE, REPORT_IN_PROGRESS_DESCRIPTION}
     from 'messages/info-messages.tsx';
 
 interface GeneratedInfoPopupProps {
@@ -12,7 +12,7 @@ interface GeneratedInfoPopupProps {
     onClose: () => void;
 }
 
-const GeneratedInfoPopup: React.FC<GeneratedInfoPopupProps> = ({ isDisplayed, onClose }) => {
+const GeneratedInfoPopup: React.FC<GeneratedInfoPopupProps> = ({isDisplayed, onClose}) => {
     const navigate = useNavigate();
 
     const handleClose = () => {
@@ -23,8 +23,10 @@ const GeneratedInfoPopup: React.FC<GeneratedInfoPopupProps> = ({ isDisplayed, on
     return (
         <OverlayComponent isDisplayed={isDisplayed} onClose={handleClose}>
             <div className="report-generated-info-popup">
-                <h2 className="report-generated-info-popup__title">{REPORT_IN_PROGRESS_TITLE}</h2>
-                <Hourglass/>
+                <div className="report-generated-info-popup__header">
+                    <h2 className="report-generated-info-popup__title">{REPORT_IN_PROGRESS_TITLE}</h2>
+                    <Hourglass/>
+                </div>
                 <p className="report-generated-info-popup__description">
                     {REPORT_IN_PROGRESS_DESCRIPTION}
                 </p>
