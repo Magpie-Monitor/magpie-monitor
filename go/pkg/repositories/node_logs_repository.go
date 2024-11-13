@@ -27,6 +27,7 @@ type NodeLogsDocument = NodeLogs
 
 type NodeLogsRepository interface {
 	CreateIndex(ctx context.Context, indexName string) error
+	RemoveIndex(ctx context.Context, indexName string) error
 	GetLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) ([]*NodeLogsDocument, error)
 	InsertLogs(ctx context.Context, logs *NodeLogs) error
 }
@@ -109,6 +110,23 @@ func (r *ElasticSearchNodeLogsRepository) CreateIndex(ctx context.Context, index
 
 	if err != nil {
 		r.logger.Error("Failed to create an index for logsdb", zap.Error(err))
+		return err
+	}
+
+	err = r.updateIndices()
+	if err != nil {
+		r.logger.Error("Failed to update logsdb indices list", zap.Error(err))
+	}
+
+	return nil
+}
+
+func (r *ElasticSearchNodeLogsRepository) RemoveIndex(ctx context.Context, indexName string) error {
+
+	_, err := r.esClient.Indices.Delete(indexName).Do(ctx)
+
+	if err != nil {
+		r.logger.Error("Failed to remove index of logsdb", zap.Error(err))
 		return err
 	}
 

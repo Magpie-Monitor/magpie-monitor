@@ -76,6 +76,7 @@ type ApplicationLogsRepository interface {
 	CreateIndex(ctx context.Context, indexName string) error
 	GetLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) ([]*ApplicationLogsDocument, error)
 	InsertLogs(ctx context.Context, logs *ApplicationLogs) error
+	RemoveIndex(ctx context.Context, indexName string) error
 }
 
 func ProvideAsApplicationLogsRepository(f any) any {
@@ -155,6 +156,23 @@ func (r *ElasticSearchApplicationLogsRepository) CreateIndex(ctx context.Context
 
 	if err != nil {
 		r.logger.Error("Failed to create an applicationLogs index", zap.Error(err))
+		return err
+	}
+
+	err = r.updateIndices()
+	if err != nil {
+		r.logger.Error("Failed to update indices list", zap.Error(err))
+	}
+
+	return nil
+}
+
+func (r *ElasticSearchApplicationLogsRepository) RemoveIndex(ctx context.Context, indexName string) error {
+
+	_, err := r.esClient.Indices.Delete(indexName).Do(ctx)
+
+	if err != nil {
+		r.logger.Error("Failed to delete an applicationLogs index", zap.Error(err))
 		return err
 	}
 
