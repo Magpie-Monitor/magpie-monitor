@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder;
-import pl.pwr.zpi.notifications.discord.DiscordNotificationService;
-import pl.pwr.zpi.notifications.discord.repository.DiscordRepository;
 import pl.pwr.zpi.notifications.discord.dto.DiscordReceiverDTO;
 import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
+import pl.pwr.zpi.notifications.discord.repository.DiscordRepository;
 
 import java.util.List;
 
@@ -16,15 +15,8 @@ import java.util.List;
 @Slf4j
 public class DiscordReceiverService {
 
-    private final DiscordNotificationService discordNotificationService;
     private final DiscordRepository discordRepository;
     private final ConfidentialTextEncoder confidentialTextEncoder;
-
-    public void sendTestMessage(Long receiverDiscordId) throws Exception {
-        var receiver = getDiscordReceiver(receiverDiscordId);
-        String decodedWebhookUrl = confidentialTextEncoder.decrypt(receiver.getWebhookUrl());
-        discordNotificationService.sendTestMessage(decodedWebhookUrl);
-    }
 
     public List<DiscordReceiver> getAllDiscordIntegrations() {
         return discordRepository.findAll();

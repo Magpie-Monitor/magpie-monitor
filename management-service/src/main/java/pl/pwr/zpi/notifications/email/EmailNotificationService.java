@@ -2,6 +2,7 @@ package pl.pwr.zpi.notifications.email;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.notifications.ReportNotifier;
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
@@ -21,7 +22,8 @@ public class EmailNotificationService implements ReportNotifier {
     private final EmailUtils emailUtils;
     private final EmailReceiverService emailReceiverService;
 
-    private final String MAGPIE_MONITOR_CLIENT_BASE_URL = "https://magpie-monitor.rolo-labs.xyz/reports";
+    @Value("${magpie.monitor.client.base.url}")
+    private String MAGPIE_MONITOR_CLIENT_BASE_URL;
 
     public void sendTestEmail(Long receiverEmailId) {
         var receiver = emailReceiverService.getEmailReceiver(receiverEmailId);

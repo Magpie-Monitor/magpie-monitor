@@ -62,9 +62,9 @@ public class ReportsService {
 
         return ReportPaginatedIncidentsDTO.<ApplicationIncidentDTO>builder()
                 .data(
-                    applicationIncidentRepository.findByReportId(reportId, PageRequest.of(pageNumber, pageSize)).stream()
-                            .map(ApplicationIncidentDTO::fromApplicationIncident)
-                            .toList()
+                        applicationIncidentRepository.findByReportId(reportId, PageRequest.of(pageNumber, pageSize)).stream()
+                                .map(ApplicationIncidentDTO::fromApplicationIncident)
+                                .toList()
                 )
                 .totalEntries(applicationIncidentRepository.countByReportId(reportId))
                 .build();
