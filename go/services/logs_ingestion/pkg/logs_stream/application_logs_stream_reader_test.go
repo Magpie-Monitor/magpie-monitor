@@ -4,9 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"testing"
-	"time"
-
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/tests"
 	"github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/config"
@@ -15,6 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"testing"
+	"time"
 )
 
 const LOGS_INGESTION_TEST_INDEX = "ingestion-test"
@@ -39,9 +38,6 @@ func TestApplicationLogsStreamReader(t *testing.T) {
 		ctx := context.Background()
 
 		dependencies.ApplicationLogsRepository.RemoveIndex(ctx, fmt.Sprintf("%s-applications-1970-1", LOGS_INGESTION_TEST_INDEX))
-
-		// err = dependencies.ApplicationLogsRepository.RemoveIndex(ctx, "test-cluster-nodes-1970-1")
-		// assert.NoError(t, err, "Failed to remove application logs index")
 
 		testNodeLog := repositories.NodeLogs{
 			Id:            "log-1",

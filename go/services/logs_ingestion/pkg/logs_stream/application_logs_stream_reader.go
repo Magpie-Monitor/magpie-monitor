@@ -13,7 +13,7 @@ var APPLICATION_LOGS_QUQUE_HOST_KEY = "LOGS_INGESTION_QUEUE_HOST"
 var APPLICATION_LOGS_QUEUE_PORT_KEY = "LOGS_INGESTION_QUEUE_PORT"
 var APPLICATION_LOGS_QUEUE_USERNAME_KEY = "LOGS_INGESTION_QUEUE_USERNAME"
 var APPLICATION_LOGS_QUEUE_PASSWORD_KEY = "LOGS_INGESTION_QUEUE_PASSWORD"
-var APPLICATION_LOGS_TOPIC = "applications"
+var APPLICATION_LOGS_TOPIC_KEY = "LOGS_INGESTION_APPLICATION_LOGS_TOPIC"
 
 type ApplicationLogsStreamReader interface {
 	Handle(ctx context.Context, nodeLogs *repositories.ApplicationLogs) error
@@ -39,17 +39,20 @@ func NewKafkaApplicationLogsStreamReader(params ApplicationLogsStreamReaderParam
 		[]string{APPLICATION_LOGS_QUQUE_HOST_KEY,
 			APPLICATION_LOGS_QUEUE_PORT_KEY,
 			APPLICATION_LOGS_QUEUE_PASSWORD_KEY,
-			APPLICATION_LOGS_QUEUE_USERNAME_KEY})
+			APPLICATION_LOGS_QUEUE_USERNAME_KEY,
+			APPLICATION_LOGS_TOPIC_KEY,
+		})
 
 	kafkaHost := os.Getenv(APPLICATION_LOGS_QUQUE_HOST_KEY)
 	kafkaPort := os.Getenv(APPLICATION_LOGS_QUEUE_PORT_KEY)
 	kafkaUsername := os.Getenv(APPLICATION_LOGS_QUEUE_USERNAME_KEY)
 	kafkaPassword := os.Getenv(APPLICATION_LOGS_QUEUE_PASSWORD_KEY)
+	kafkaTopic := os.Getenv(APPLICATION_LOGS_TOPIC_KEY)
 
 	kafkaReader := NewKafkaLogsStream[*repositories.ApplicationLogs](&KafkaLogsStreamParams{
 		Host:     kafkaHost,
 		Port:     kafkaPort,
-		Topic:    APPLICATION_LOGS_TOPIC,
+		Topic:    kafkaTopic,
 		Username: kafkaUsername,
 		Password: kafkaPassword,
 		Logger:   params.Logger,
