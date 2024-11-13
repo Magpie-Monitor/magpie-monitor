@@ -1,0 +1,26 @@
+@import '@/variables';
+
+.brand-tag {
+  background-color: $component-secondary-background;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 10px;
+  border-color: $component-border-color;
+  display: flex;
+  flex-direction: row;
+  font-size: 1rem;
+  padding: 5px;
+  transition: 0.1s;
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(1.2);
+  }
+
+  &__logo {
+    padding-right: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}

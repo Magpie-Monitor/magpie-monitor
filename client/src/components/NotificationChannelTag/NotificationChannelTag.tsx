@@ -1,4 +1,4 @@
-import CustomTag from 'components/BrandTag/CustomTag.tsx';
+import BrandTag from 'components/BrandTag/BrandTag.tsx';
 
 interface NotificationChannelTagProps {
   name: string;
@@ -10,7 +10,7 @@ const NotificationChannelTag = ({
   logoImgSrc,
 }: NotificationChannelTagProps) => {
   return (
-    <CustomTag
+    <BrandTag
       name={name}
       logo={<img src={logoImgSrc} width="20px" height="20px" />}
     />

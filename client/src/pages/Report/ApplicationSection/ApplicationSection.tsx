@@ -10,7 +10,7 @@ import CustomPromptPopup from 'components/CustomPromptPopup/CustomPromptPopup.ts
 import { AccuracyLevel } from 'api/managment-service';
 import ApplicationsEntriesSelector
     from 'components/EntriesSelector/ApplicationsEntriesSelector/ApplicationsEntriesSelector.tsx';
-import CustomTag from 'components/BrandTag/CustomTag.tsx';
+import CustomTag from 'components/CustomTag/CustomTag.tsx';
 
 export interface ApplicationDataRow {
     name: string;

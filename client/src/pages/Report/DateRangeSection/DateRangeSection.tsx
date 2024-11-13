@@ -26,7 +26,7 @@ const DateRangeSection = ({ onDateChange }: DateRangeSectionProps) => {
 
     return (
         <SectionComponent icon={<SVGIcon iconName='date-range-icon' />} title={'Date Range'}>
-            <div className="date-range-container">
+            <div className="date-range">
                 <label>
                     Start Date:
                     <input

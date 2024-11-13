@@ -9,7 +9,7 @@ import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import {AccuracyLevel} from 'api/managment-service';
 import NodesEntriesSelector
     from 'components/EntriesSelector/NodesEntriesSelector/NodesEntriesSelector.tsx';
-import CustomTag from 'components/BrandTag/CustomTag.tsx';
+import CustomTag from 'components/CustomTag/CustomTag.tsx';
 import CustomPromptPopup from 'components/CustomPromptPopup/CustomPromptPopup.tsx';
 
 export interface NodeDataRow {
