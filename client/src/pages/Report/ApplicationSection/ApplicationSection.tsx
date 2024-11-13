@@ -88,7 +88,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> =
                 <TagButton
                     listItems={['HIGH', 'MEDIUM', 'LOW']}
                     chosenItem={row.accuracy}
-                    onSelect={(item) => handleAccuracyChange(row.name, item as AccuracyLevel)}
+                    onSelect={(item) => handleAccuracyChange(row.name, item)}
                 />
             ),
         },

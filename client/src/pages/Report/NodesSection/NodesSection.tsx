@@ -93,7 +93,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId, default
                     listItems={['HIGH', 'MEDIUM', 'LOW']}
                     chosenItem={row.accuracy}
                     onSelect={(item) =>
-                        handleAccuracyChange(row.name, item as AccuracyLevel)
+                        handleAccuracyChange(row.name, item)
                     }
                 />
             ),
