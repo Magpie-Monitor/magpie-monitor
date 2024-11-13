@@ -13,7 +13,7 @@ var NODE_LOGS_QUEUE_HOST_KEY = "LOGS_INGESTION_QUEUE_HOST"
 var NODE_LOGS_QUEUE_PORT_KEY = "LOGS_INGESTION_QUEUE_PORT"
 var NODE_LOGS_QUEUE_USERNAME_KEY = "LOGS_INGESTION_QUEUE_USERNAME"
 var NODE_LOGS_QUEUE_PASSWORD_KEY = "LOGS_INGESTION_QUEUE_PASSWORD"
-var NODE_LOGS_TOPIC = "nodes"
+var NODE_LOGS_TOPIC_KEY = "LOGS_INGESTION_NODE_LOGS_TOPIC"
 
 type NodeLogsStreamReader interface {
 	Handle(ctx context.Context, nodeLogs *repositories.NodeLogs) error
@@ -39,12 +39,14 @@ func NewKafkaNodeLogsStreamReader(params NodeLogsStreamReaderParams) *KafkaNodeL
 		[]string{NODE_LOGS_QUEUE_HOST_KEY,
 			NODE_LOGS_QUEUE_PORT_KEY,
 			NODE_LOGS_QUEUE_USERNAME_KEY,
-			NODE_LOGS_QUEUE_PASSWORD_KEY})
+			NODE_LOGS_QUEUE_PASSWORD_KEY,
+			NODE_LOGS_TOPIC_KEY})
 
 	kafkaHost := os.Getenv(NODE_LOGS_QUEUE_HOST_KEY)
 	kafkaPort := os.Getenv(NODE_LOGS_QUEUE_PORT_KEY)
 	kafkaUsername := os.Getenv(NODE_LOGS_QUEUE_USERNAME_KEY)
 	kafkaPassword := os.Getenv(NODE_LOGS_QUEUE_PASSWORD_KEY)
+	kafkaTopic := os.Getenv(NODE_LOGS_TOPIC_KEY)
 
 	kafkaReader := NewKafkaLogsStream[*repositories.NodeLogs](
 		&KafkaLogsStreamParams{
@@ -52,7 +54,7 @@ func NewKafkaNodeLogsStreamReader(params NodeLogsStreamReaderParams) *KafkaNodeL
 			Port:     kafkaPort,
 			Username: kafkaUsername,
 			Password: kafkaPassword,
-			Topic:    NODE_LOGS_TOPIC,
+			Topic:    kafkaTopic,
 			Logger:   params.Logger,
 		})
 

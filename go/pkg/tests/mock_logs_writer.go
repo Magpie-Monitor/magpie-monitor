@@ -16,11 +16,11 @@ var LOGS_QUEUE_PASSWORD_KEY = "LOGS_INGESTION_QUEUE_PASSWORD"
 
 var APPLICATION_LOGS_QUQUE_HOST_KEY = "LOGS_INGESTION_QUEUE_HOST"
 var APPLICATION_LOGS_QUEUE_PORT_KEY = "LOGS_INGESTION_QUEUE_PORT"
-var APPLICATION_LOGS_TOPIC = "applications"
+var APPLICATION_LOGS_TOPIC_KEY = "LOGS_INGESTION_APPLICATION_LOGS_TOPIC"
 
 var NODE_LOGS_QUQUE_HOST_KEY = "LOGS_INGESTION_QUEUE_HOST"
 var NODE_LOGS_QUEUE_PORT_KEY = "LOGS_INGESTION_QUEUE_PORT"
-var NODE_LOGS_TOPIC = "nodes"
+var NODE_LOGS_TOPIC_KEY = "LOGS_INGESTION_NODE_LOGS_TOPIC"
 
 type KafkaLogsStreamWriter struct {
 	nodeLogsWriter        *kafka.Writer
@@ -39,17 +39,21 @@ func NewKafkaLogsStreamWriter(lc fx.Lifecycle, logger *zap.Logger) *KafkaLogsStr
 			NODE_LOGS_QUQUE_HOST_KEY,
 			LOGS_QUEUE_USERNAME_KEY,
 			LOGS_QUEUE_PASSWORD_KEY,
+			APPLICATION_LOGS_TOPIC_KEY,
+			NODE_LOGS_TOPIC_KEY,
 		},
 	)
 
 	username := os.Getenv(LOGS_QUEUE_USERNAME_KEY)
 	password := os.Getenv(LOGS_QUEUE_PASSWORD_KEY)
+	nodeTopic := os.Getenv(NODE_LOGS_TOPIC_KEY)
+	applicationTopic := os.Getenv(APPLICATION_LOGS_TOPIC_KEY)
 
 	nodeLogsWriter := &kafka.Writer{
 		Addr: kafka.TCP(fmt.Sprintf("%s:%s",
 			os.Getenv(NODE_LOGS_QUQUE_HOST_KEY),
 			os.Getenv(NODE_LOGS_QUEUE_PORT_KEY))),
-		Topic:                  NODE_LOGS_TOPIC,
+		Topic:                  nodeTopic,
 		AllowAutoTopicCreation: true,
 		Transport:              &kafka.Transport{SASL: plain.Mechanism{Username: username, Password: password}},
 	}
@@ -60,7 +64,7 @@ func NewKafkaLogsStreamWriter(lc fx.Lifecycle, logger *zap.Logger) *KafkaLogsStr
 				os.Getenv(APPLICATION_LOGS_QUQUE_HOST_KEY),
 				os.Getenv(APPLICATION_LOGS_QUEUE_PORT_KEY)),
 		)),
-		Topic:                  APPLICATION_LOGS_TOPIC,
+		Topic:                  applicationTopic,
 		AllowAutoTopicCreation: true,
 		Transport:              &kafka.Transport{SASL: plain.Mechanism{Username: username, Password: password}},
 	}
