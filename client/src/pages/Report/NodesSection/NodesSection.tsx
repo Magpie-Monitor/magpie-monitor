@@ -32,7 +32,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId, default
     const [showModal, setShowModal] = useState(false);
     const [selectedNodes, setSelectedNodes] = useState<NodeDataRow[]>([]);
     const [showCustomPromptPopup, setShowCustomPromptPopup] = useState(false);
-    const [selectedApp, setSelectedApp] = useState<NodeDataRow | null>(null);
+    const [selectedNode, setSelectedNode] = useState<NodeDataRow | null>(null);
 
     useEffect(() => {
         setNodes(rows);
@@ -57,17 +57,18 @@ const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId, default
     };
 
     const handleCustomPromptSave = (newPrompt: string) => {
-        if (selectedApp) {
+        if (selectedNode) {
             setRows((prevRows) =>
                 prevRows.map((row) =>
-                    (row.name === selectedApp.name ? { ...row, customPrompt: newPrompt } : row))
+                    (row.name === selectedNode.name ? { ...row, customPrompt: newPrompt } : row))
             );
             setShowCustomPromptPopup(false);
         }
+        setSelectedNode(null);
     };
 
     const handleCustomPromptClick = (row: NodeDataRow) => {
-        setSelectedApp(row);
+        setSelectedNode(row);
         setShowCustomPromptPopup(true);
     };
 
@@ -146,9 +147,9 @@ const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId, default
                 <Table columns={columns} rows={rows}/>
             )}
 
-            {selectedApp && (
+            {selectedNode && (
                 <CustomPromptPopup
-                    initialValue={selectedApp.customPrompt}
+                    initialValue={selectedNode.customPrompt}
                     isDisplayed={showCustomPromptPopup}
                     onSave={handleCustomPromptSave}
                     onClose={() => setShowCustomPromptPopup(false)}
