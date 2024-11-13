@@ -1,17 +1,16 @@
+import React, { useEffect, useState } from 'react';
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
-import Table, {TableColumn} from 'components/Table/Table.tsx';
-import {useEffect, useState} from 'react';
+import Table, { TableColumn } from 'components/Table/Table.tsx';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
-import ActionButton, {
-    ActionButtonColor,
-} from 'components/ActionButton/ActionButton.tsx';
+import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionButton.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
-import CustomPrompt from 'components/CustomPrompt/CustomPrompt.tsx';
-import {AccuracyLevel} from 'api/managment-service';
+import CustomPromptPopup from 'components/CustomPromptPopup/CustomPromptPopup.tsx';
+import { AccuracyLevel } from 'api/managment-service';
 import ApplicationsEntriesSelector
     from 'components/EntriesSelector/ApplicationsEntriesSelector/ApplicationsEntriesSelector.tsx';
+import CustomTag from 'components/CustomTag/CustomTag.tsx';
 
 export interface ApplicationDataRow {
     name: string;
@@ -19,7 +18,6 @@ export interface ApplicationDataRow {
     accuracy: AccuracyLevel;
     customPrompt: string;
     kind: string;
-
     [key: string]: string | boolean | AccuracyLevel;
 }
 
@@ -29,9 +27,12 @@ interface ApplicationSectionProps {
     defaultAccuracy: AccuracyLevel;
 }
 
-const ApplicationSection: React.FC<ApplicationSectionProps> = ({setApplications, clusterId, defaultAccuracy}) => {
+const ApplicationSection: React.FC<ApplicationSectionProps> =
+    ({ setApplications, clusterId, defaultAccuracy }) => {
     const [rows, setRows] = useState<ApplicationDataRow[]>([]);
     const [showModal, setShowModal] = useState(false);
+    const [showCustomPromptPopup, setShowCustomPromptPopup] = useState(false);
+    const [selectedApp, setSelectedApp] = useState<ApplicationDataRow | null>(null);
     const [selectedApplications, setSelectedApplications] = useState<ApplicationDataRow[]>([]);
 
     useEffect(() => {
@@ -46,20 +47,24 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({setApplications,
 
     const handleAccuracyChange = (name: string, accuracy: AccuracyLevel) => {
         setRows((prevRows) =>
-            prevRows.map((row) => (row.name === name ? {...row, accuracy} : row)),
+            prevRows.map((row) => (row.name === name ? { ...row, accuracy } : row))
         );
     };
 
-    const handleCustomPromptChange = (name: string, customPrompt: string) => {
-        setRows((prevRows) =>
-            prevRows.map((row) =>
-                row.name === name ? {...row, customPrompt} : row,
-            ),
-        );
+    const handleCustomPromptSave = (newPrompt: string) => {
+        if (selectedApp) {
+            setRows((prevRows) =>
+                prevRows.map((row) =>
+                    (row.name === selectedApp.name ? { ...row, customPrompt: newPrompt } : row))
+            );
+            setShowCustomPromptPopup(false);
+            setSelectedApp(null);
+        }
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
+    const handleCustomPromptClick = (row: ApplicationDataRow) => {
+        setSelectedApp(row);
+        setShowCustomPromptPopup(true);
     };
 
     const handleDelete = (name: string) => {
@@ -83,9 +88,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({setApplications,
                 <TagButton
                     listItems={['HIGH', 'MEDIUM', 'LOW']}
                     chosenItem={row.accuracy}
-                    onSelect={(item) =>
-                        handleAccuracyChange(row.name, item as AccuracyLevel)
-                    }
+                    onSelect={(item) => handleAccuracyChange(row.name, item)}
                 />
             ),
         },
@@ -93,10 +96,9 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({setApplications,
             header: 'Custom prompt',
             columnKey: 'customPrompt',
             customComponent: (row: ApplicationDataRow) => (
-                <CustomPrompt
-                    value={row.customPrompt}
-                    onChange={(value) => handleCustomPromptChange(row.name, value)}
-                    className="application-section__input"
+                <CustomTag
+                    name={row.customPrompt || 'Enter custom prompt...'}
+                    onClick={() => handleCustomPromptClick(row)}
                 />
             ),
         },
@@ -116,31 +118,38 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({setApplications,
 
     return (
         <SectionComponent
-            icon={<SVGIcon iconName="application-icon"/>}
-            title={'Applications'}
-            callback={() => setShowModal(true)}>
-            <OverlayComponent
-                isDisplayed={showModal}
-                onClose={handleCloseModal}
-            >
+            icon={<SVGIcon iconName="application-icon" />}
+            title="Applications"
+            callback={() => setShowModal(true)}
+        >
+            <OverlayComponent isDisplayed={showModal} onClose={() => setShowModal(false)}>
                 <ApplicationsEntriesSelector
                     selectedApplications={selectedApplications}
                     setSelectedApplications={setSelectedApplications}
                     applicationsToExclude={rows}
                     onAdd={handleAddApplications}
-                    onClose={handleCloseModal}
+                    onClose={() => setShowModal(false)}
                     clusterId={clusterId}
                     defaultAccuracy={defaultAccuracy}
                 />
             </OverlayComponent>
+
             {rows.length === 0 ? (
                 <p>No Applications selected, please add new</p>
             ) : (
-                <Table columns={columns} rows={rows}/>
+                <Table columns={columns} rows={rows} />
+            )}
+
+            {selectedApp && (
+                <CustomPromptPopup
+                    initialValue={selectedApp.customPrompt}
+                    isDisplayed={showCustomPromptPopup}
+                    onSave={handleCustomPromptSave}
+                    onClose={() => setShowCustomPromptPopup(false)}
+                />
             )}
         </SectionComponent>
     );
 };
 
 export default ApplicationSection;
-

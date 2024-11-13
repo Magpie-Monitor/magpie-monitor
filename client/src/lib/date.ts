@@ -17,3 +17,7 @@ export const getFirstAndLastDateFromTimestamps = (
 
   return [startDate, endDate];
 };
+
+export const getDateFromTimestamps = (startDate: number): string => {
+  return new Date(startDate).toISOString().split('T')[0];
+};

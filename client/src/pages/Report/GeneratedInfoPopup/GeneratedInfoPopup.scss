@@ -1,0 +1,30 @@
+@import '@/variables';
+
+.report-generated-info-popup {
+  text-align: center;
+  border-radius: 8px;
+  width: 300px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  &__title {
+    font-size: 20px;
+    margin: 10px;
+    color: $green;
+  }
+
+  &__description {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  &__button {
+    display: flex;
+    justify-content: flex-end;
+  }
+}

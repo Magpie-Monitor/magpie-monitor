@@ -64,6 +64,7 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
             getKey={getUniqueKey}
             entityLabel="node"
             noEntriesMessage={<p>There is no node to add.</p>}
+            title="Select Nodes"
         />
     );
 };

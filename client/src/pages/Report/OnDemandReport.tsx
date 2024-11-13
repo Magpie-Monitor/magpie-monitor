@@ -13,6 +13,7 @@ import { NotificationChannel } from './NotificationSection/NotificationSection';
 import { ApplicationDataRow } from './ApplicationSection/ApplicationSection';
 import { NodeDataRow } from './NodesSection/NodesSection';
 import {AccuracyLevel, ManagmentServiceApiInstance, ReportPost} from 'api/managment-service.ts';
+import GeneratedInfoPopup from './GeneratedInfoPopup/GeneratedInfoPopup.tsx';
 
 const OnDemandReport = () => {
     const { id } = useParams<{ id: string }>();
@@ -21,19 +22,57 @@ const OnDemandReport = () => {
     const [nodes, setNodes] = useState<NodeDataRow[]>([]);
     const [accuracy, setAccuracy] = useState<AccuracyLevel>('HIGH');
     const navigate = useNavigate();
+    const [startDateMs, setStartDateMs] = useState<number>(Date.now());
+    const [endDateMs, setEndDateMs] = useState<number>(Date.now());
+    const [showInfoPopup, setShowInfoPopup] = useState(false);
+
+    const handleDateRangeChange = (startMs: number, endMs: number) => {
+        setStartDateMs(startMs);
+        setEndDateMs(endMs);
+    };
+
+    const filterNotificationChannels = (channels: NotificationChannel[]) => {
+        const slackReceiverIds: number[] = [];
+        const discordReceiverIds: number[] = [];
+        const mailReceiverIds: number[] = [];
+
+        channels.forEach((channel) => {
+            const channelId = parseInt(channel.id, 10);
+            if (!isNaN(channelId)) {
+                switch (channel.service) {
+                    case 'SLACK':
+                        slackReceiverIds.push(channelId);
+                        break;
+                    case 'DISCORD':
+                        discordReceiverIds.push(channelId);
+                        break;
+                    case 'EMAIL':
+                        mailReceiverIds.push(channelId);
+                        break;
+                    default:
+                        console.warn(`Unknown service: ${channel.service}`);
+                }
+            } else {
+                console.warn(`Invalid channel id: ${channel.id}`);
+            }
+        });
+
+        return { slackReceiverIds, discordReceiverIds, mailReceiverIds };
+    };
+
 
     const handleGenerateReport = () => {
-        console.log('Notification Channels:', notificationChannels);
-        console.log('Applications:', applications);
-        console.log('Nodes:', nodes);
+        const { slackReceiverIds, discordReceiverIds, mailReceiverIds } =
+            filterNotificationChannels(notificationChannels);
+
         const report: ReportPost = {
             clusterId: id ?? '',
             accuracy: 'HIGH',
-            sinceMs: 0,
-            toMs: 1731087021005,
-            slackReceiverIds: [],
-            discordReceiverIds: [],
-            mailReceiverIds: [],
+            sinceMs: startDateMs,
+            toMs: endDateMs,
+            slackReceiverIds: slackReceiverIds,
+            discordReceiverIds: discordReceiverIds,
+            mailReceiverIds: mailReceiverIds,
             applicationConfigurations: applications.map((app) => ({
                 applicationName: app.name,
                 accuracy: app.accuracy,
@@ -46,6 +85,7 @@ const OnDemandReport = () => {
             })),
         };
         ManagmentServiceApiInstance.generateOnDemandReport(report);
+        setShowInfoPopup(true);
     };
 
     const handleCancelReport = () => {
@@ -58,7 +98,7 @@ const OnDemandReport = () => {
             <div className="on-demand-report__wrapper">
                 <div className="on-demand-report__row">
                     <AccuracySection setParentAccuracy={setAccuracy} />
-                    <DateRangeSection/>
+                    <DateRangeSection onDateChange={handleDateRangeChange} />
                 </div>
             </div>
                 <NotificationSection setNotificationChannels={setNotificationChannels}/>
@@ -73,6 +113,10 @@ const OnDemandReport = () => {
                 <ActionButton onClick={handleCancelReport}
                               description="Cancel" color={ActionButtonColor.RED}/>
             </div>
+        <GeneratedInfoPopup
+            isDisplayed={showInfoPopup}
+            onClose={() => setShowInfoPopup(false)}
+        />
     </PageTemplate>
     );
 };

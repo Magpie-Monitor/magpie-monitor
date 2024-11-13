@@ -1,4 +1,4 @@
-import BrandTag from 'components/BrandTag/BrandTag';
+import BrandTag from 'components/BrandTag/BrandTag.tsx';
 
 interface NotificationChannelTagProps {
   name: string;

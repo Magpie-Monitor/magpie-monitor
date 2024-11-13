@@ -9,7 +9,7 @@ import NotificationsEntriesSelector
 export interface NotificationChannel {
     id: string;
     name: string;
-    service: string;
+    service: 'SLACK' | 'DISCORD' | 'EMAIL';
     details: string;
     updated: string;
     added: string;

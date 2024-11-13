@@ -60,7 +60,7 @@ export interface ClusterSummary {
 export interface NotificationChannel {
   id: string;
   name: string;
-  service: string;
+  service: 'SLACK' | 'DISCORD' | 'EMAIL';
   details: string;
   updated: number;
   added: number;

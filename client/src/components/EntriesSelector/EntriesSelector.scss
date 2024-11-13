@@ -1,7 +1,19 @@
+@import '/src/variables.scss';
+
 .entries-selector {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  min-width: 500px;
+
+  @media (max-width: $sm) {
+    min-width: 80vw;
+  }
+
+  &__title {
+    margin: 0;
+    text-align: center;
+  }
 
   &__buttons {
     display: flex;

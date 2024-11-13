@@ -1,0 +1,23 @@
+@keyframes flip {
+  0%, 50% {
+    transform: rotate(0deg) scale(1);
+  }
+  15% {
+    transform: rotate(10deg) scale(1.05);
+  }
+  30% {
+    transform: rotate(-10deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(180deg) scale(1);
+  }
+}
+
+.hourglass {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: flip 2s infinite ease-in-out;
+  transform-origin: center;
+  transition: transform 0.5s;
+}

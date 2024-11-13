@@ -61,6 +61,7 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
             getKey={getUniqueKey}
             entityLabel="application"
             noEntriesMessage={<p>There is no application to add.</p>}
+            title="Select Applications"
         />
     );
 };
