@@ -1,5 +1,5 @@
 import { ManagmentServiceApiInstance } from 'api/managment-service';
-import Popup from 'components/Popup/Popup';
+import OverlayComponent from 'components/OverlayComponent/OverlayComponent';
 import { useState } from 'react';
 import { Form } from 'react-router-dom';
 import { AddNewChannelPopupProps } from 'pages/Notification/AddNewChannelPopup/AddNewChannelPopup';
@@ -27,9 +27,10 @@ const AddSlackChannelPopup = ({
   const [slackChannel, setSlackChannel] =
     useState<SlackChannel>(defaultSlackChannel);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const name = event.target.name;
-    const value = event.target.value;
+  const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
+    const name = (event.target as HTMLInputElement).name;
+    const value = (event.target as HTMLInputElement).value;
+    console.log(`name, value [${name}]: ${value}`);
     setSlackChannel((inputSlackChannel) => ({
       ...inputSlackChannel,
       [name]: value,
@@ -37,9 +38,8 @@ const AddSlackChannelPopup = ({
   };
 
   const postSlackChannel = async () => {
-    console.log('working');
     if (slackChannel === defaultSlackChannel) return;
-    return;
+
     try {
       await ManagmentServiceApiInstance.postSlackChannel(slackChannel);
     } catch (error) {
@@ -55,7 +55,12 @@ const AddSlackChannelPopup = ({
   };
 
   return (
-    <Popup isDisplayed={isDisplayed} setIsDisplayed={setIsDisplayed}>
+    <OverlayComponent
+      isDisplayed={isDisplayed}
+      onClose={() => {
+        setIsDisplayed(false);
+      }}
+    >
       <div className="add-slack-channel-popup">
         <HeaderWithIcon
           icon={<img src={slackIcon} />}
@@ -72,7 +77,8 @@ const AddSlackChannelPopup = ({
           <label className="add-slack-channel-popup__form__row">
             Name
             <input
-              type="text"
+              type="name"
+              name="name"
               value={slackChannel.name}
               onChange={handleChange}
             />
@@ -80,21 +86,20 @@ const AddSlackChannelPopup = ({
           <label className="add-slack-channel-popup__form__row">
             Webhook url
             <input
-              type="text"
+              type="webhookUrl"
+              name="webhookUrl"
               value={slackChannel.webhookUrl}
               onChange={handleChange}
             />
           </label>
-          <button form="add-slack-channel-form" type="submit">
-            <ActionButton
-              onClick={() => {}}
-              description="SUBMIT"
-              color={ActionButtonColor.GREEN}
-            />
-          </button>
         </Form>
+        <ActionButton
+          onClick={()=>{}}
+          description="Submit" 
+          color={ActionButtonColor.GREEN}
+        ></ActionButton>
       </div>
-    </Popup>
+    </OverlayComponent>
   );
 };
 
