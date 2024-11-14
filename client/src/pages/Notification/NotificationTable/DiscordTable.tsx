@@ -8,6 +8,7 @@ import { NotificationTableRowProps } from './NotificationTable';
 import { useEffect, useState } from 'react';
 import { ManagmentServiceApiInstance } from 'api/managment-service';
 import LoadingTable from './LoadingTable';
+import { useNotification } from '../NotificationContext';
 
 export interface DiscordTableRowProps extends NotificationTableRowProps {
   webhookUrl: string;
@@ -59,6 +60,10 @@ const discordColumns: Array<TableColumn<DiscordTableRowProps>> = [
 const DiscordTable = () => {
   const [rows, setRows] = useState<DiscordTableRowProps[]>([]);
   const [isLoading, setLoading] = useState<boolean>(true);
+  const {
+    hidePopup,
+    createNewChannel,
+  }: NotificationContextProps = useNotification();
 
   const fetchDiscordChannels = async () => {
     try {
@@ -76,7 +81,18 @@ const DiscordTable = () => {
   }, []);
 
   return (
-    <SectionComponent icon={<img src={discordIcon} />} title="Discord">
+    <SectionComponent
+      icon={<img src={discordIcon} />}
+      title="Discord"
+      callback={() => {
+        createNewChannel(
+          <AddSlackChannelPopup
+            isDisplayed={true}
+            setIsDisplayed={hidePopup}
+          />,
+        );
+      }}
+    >
       <LoadingTable isLoading={isLoading}>
         {rows.length > 0 ? (
           <Table columns={discordColumns} rows={rows} alignLeft={false} />

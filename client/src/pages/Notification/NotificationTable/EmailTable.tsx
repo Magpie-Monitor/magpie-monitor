@@ -2,12 +2,13 @@ import Table, { TableColumn } from 'components/Table/Table';
 import NotificationButtons from 'pages/Notification/NotificationButtons/NotificationButtons';
 import NotificationNameLink from 'pages/Notification/NotificationNameLink/NotificationNameLink';
 import SectionComponent from 'components/SectionComponent/SectionComponent';
-import emailIcon from 'assets/mail-icon.png';
+import emailIcon from 'assets/mail-icon.svg';
 import { NotificationTableRowProps } from './NotificationTable';
 import { useEffect, useState } from 'react';
 import { ManagmentServiceApiInstance } from 'api/managment-service';
 import LoadingTable from './LoadingTable';
 import EmailColumn from 'pages/Notification/EmailCell/EmailCell';
+import { NotificationContextProps, useNotification } from '../NotificationContext';
 
 export interface EmailTableRowProps extends NotificationTableRowProps {
   email: string;
@@ -59,6 +60,10 @@ const emailColumns: Array<TableColumn<EmailTableRowProps>> = [
 const EmailTable = () => {
   const [rows, setRows] = useState<EmailTableRowProps[]>([]);
   const [isLoading, setLoading] = useState<boolean>(true);
+  const {
+    hidePopup,
+    createNewChannel,
+  }: NotificationContextProps = useNotification();
 
   const fetchEmailChannels = async () => {
     try {
@@ -76,7 +81,18 @@ const EmailTable = () => {
   }, []);
 
   return (
-    <SectionComponent icon={<img src={emailIcon} />} title="Email">
+    <SectionComponent
+      icon={<img src={emailIcon} />}
+      title="Email"
+      callback={() => {
+        createNewChannel(
+          <AddSlackChannelPopup
+            isDisplayed={true}
+            setIsDisplayed={hidePopup}
+          />,
+        );
+      }}
+    >
       <LoadingTable isLoading={isLoading}>
         {rows.length > 0 ? (
           <Table columns={emailColumns} rows={rows} alignLeft={false} />

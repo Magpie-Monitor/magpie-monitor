@@ -643,7 +643,7 @@ class ManagmentServiceApi {
     await this.refreshTokenIfExpired();
     await this.axiosInstance.post(
       '/api/v1/notification-channels/slack',
-      slackChannel,
+      slackChannel 
     );
   }
 }
