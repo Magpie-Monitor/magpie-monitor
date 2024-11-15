@@ -1,7 +1,6 @@
 package config
 
 import (
-	"context"
 	"fmt"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
@@ -13,42 +12,11 @@ import (
 	"os"
 )
 
-type LogsStreamListener struct {
-	applicationLogsReader logsstream.ApplicationLogsStreamReader
-	nodeLogsReader        logsstream.NodeLogsStreamReader
-	logger                *zap.Logger
-}
-
-func NewLogsStreamListener(
-	lc fx.Lifecycle,
-	logger *zap.Logger,
-	applicationLogsReader logsstream.ApplicationLogsStreamReader,
-	nodeLogsReader logsstream.NodeLogsStreamReader,
-) *LogsStreamListener {
-
-	listener := LogsStreamListener{
-		logger:                logger,
-		applicationLogsReader: applicationLogsReader,
-		nodeLogsReader:        nodeLogsReader,
-	}
-
-	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-
-			go listener.nodeLogsReader.Listen()
-			go listener.applicationLogsReader.Listen()
-			return nil
-		},
-	})
-
-	return &listener
-}
-
 var AppModule fx.Option
 
 func init() {
 	env := os.Getenv("APP_ENV")
-	fmt.Println("Starting the app in %s environment", env)
+	fmt.Printf("Starting the app in %s environment", env)
 
 	if env == tests.TEST_ENVIRONMENT {
 		AppModule = fx.Options(
@@ -56,7 +24,7 @@ func init() {
 				return &fxevent.ZapLogger{Logger: log}
 			}),
 			fx.Provide(
-				NewLogsStreamListener,
+				logsstream.NewLogsStreamListener,
 				fx.Annotate(
 					logsstream.NewKafkaApplicationLogsStreamReader,
 					fx.As(new(logsstream.ApplicationLogsStreamReader)),
@@ -93,7 +61,7 @@ func init() {
 				return &fxevent.ZapLogger{Logger: log}
 			}),
 			fx.Provide(
-				NewLogsStreamListener,
+				logsstream.NewLogsStreamListener,
 				fx.Annotate(
 					logsstream.NewKafkaApplicationLogsStreamReader,
 					fx.As(new(logsstream.ApplicationLogsStreamReader)),

@@ -98,6 +98,7 @@ services:
       - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
       - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
       - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
+      - KAFKA_BROKER_GROUP_ID=${KAFKA_BROKER_GROUP_ID}
       - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
       - LOGS_INGESTION_QUEUE_USERNAME=${KAFKA_CLIENT_USERNAME}
       - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
@@ -248,7 +249,7 @@ services:
       - LETSENCRYPT_HOST=${MANAGEMENT_PGADMIN_PRODUCTION_HOST}
     volumes:
       - management-pgadmin-data:/var/lib/pgadmin
-      
+
   metadata-mongodb:
     container_name: cluster-metadata-service-mongodb
     image: mongo

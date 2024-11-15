@@ -4,6 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"testing"
+	"time"
+
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/tests"
 	"github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/config"
@@ -12,8 +16,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"testing"
-	"time"
 )
 
 func TestNodeLogsStreamReader(t *testing.T) {
@@ -26,6 +28,8 @@ func TestNodeLogsStreamReader(t *testing.T) {
 		NodeLogsRepository repositories.NodeLogsRepository
 	}
 
+	integrationTestWaitModifier := envs.ConvertToInt(tests.INTEGRATION_TEST_WAIT_MODIFIER_KEY)
+
 	test := func(dependencies TestDependencies) {
 		if dependencies.Reader == nil {
 			t.Fatal("Failed to load reader")
@@ -36,7 +40,15 @@ func TestNodeLogsStreamReader(t *testing.T) {
 		dependencies.NodeLogsRepository.RemoveIndex(ctx, fmt.Sprintf("%s-nodes-1970-1", LOGS_INGESTION_TEST_INDEX))
 
 		testNodeLog := repositories.NodeLogs{
-			Id:            "log-1",
+			ClusterId:     LOGS_INGESTION_TEST_INDEX,
+			Kind:          "Node",
+			CollectedAtMs: 10,
+			Name:          "test-node",
+			Filename:      "/etc/var/journalctl",
+			Content:       "Test content",
+		}
+
+		expectedLogDocument := repositories.NodeLogsDocument{
 			ClusterId:     LOGS_INGESTION_TEST_INDEX,
 			Kind:          "Node",
 			CollectedAtMs: 10,
@@ -52,17 +64,10 @@ func TestNodeLogsStreamReader(t *testing.T) {
 
 		dependencies.Writer.WriteNodeLogs(ctx, "testkey-1", string(encodedNodeLog))
 
-		// encodedApplicationLog, err := json.Marshal(testApplicationLog)
-		// if err != nil {
-		// 	t.Fatal("Failed to encode node logs")
-		// }
-
-		// dependencies.Writer.WriteApplicationLogs(ctx, "testkey-1", string(encodedApplicationLog))
-
 		go dependencies.Reader.Listen()
 
-		// Wait 5 seconds for entries to be fetched from Kafka and inserted into Elastic
-		time.Sleep(time.Second * 5)
+		// Wait 10 seconds for entries to be fetched from Kafka and inserted into Elastic
+		time.Sleep(time.Second * 20 * time.Duration(integrationTestWaitModifier))
 
 		nodeLogs, err := dependencies.NodeLogsRepository.GetLogs(
 			ctx,
@@ -71,14 +76,16 @@ func TestNodeLogsStreamReader(t *testing.T) {
 			time.UnixMilli(20),
 		)
 		if err != nil {
-			t.Fatal("Failed to fetch application logs")
+			t.Fatal("Failed to fetch node logs")
 		}
 
 		// Check if an element is returned
-		assert.Len(t, applicationLogs, 1)
+		assert.Len(t, nodeLogs, 1)
 
-		// Check if the name matches
-		assert.Equal(t, "test-node", applicationLogs[0].Name)
+		// Unset assigned Id to check only predefined values
+		nodeLogs[0].Id = ""
+
+		assert.Equal(t, expectedLogDocument, *nodeLogs[0], "Expected log does not match the actual node log")
 	}
 
 	tests.RunTest(test, t, config.AppModule)

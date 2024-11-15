@@ -1,5 +1,5 @@
 services:
-  logs-ingestion-service:
+  logs-ingestion-service-test:
     user: "0"
     container_name: magpie-monitor-test-logs-ingestion-service
     build:
@@ -19,6 +19,8 @@ services:
       - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
       - LOGS_INGESTION_NODE_LOGS_TOPIC=${LOGS_INGESTION_NODE_LOGS_TOPIC}
       - LOGS_INGESTION_APPLICATION_LOGS_TOPIC=${LOGS_INGESTION_APPLICATION_LOGS_TOPIC}
+      - KAFKA_BROKER_GROUP_ID=${KAFKA_BROKER_GROUP_ID}
+      - INTEGRATION_TEST_WAIT_MODIFIER=${INTEGRATION_TEST_WAIT_MODIFIER}
 
     volumes:
       - es-certs:/usr/local/share
