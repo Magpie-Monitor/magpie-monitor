@@ -12,11 +12,12 @@ import {useState, useEffect} from 'react';
 import {NotificationChannel} from './NotificationSection/NotificationSection';
 import {ApplicationDataRow} from './ApplicationSection/ApplicationSection';
 import {NodeDataRow} from './NodesSection/NodesSection';
-import {AccuracyLevel, ManagmentServiceApiInstance, ReportPost, ReportType}
+import {AccuracyLevel, ClusterUpdateData, ManagmentServiceApiInstance, ReportPost, ReportType}
     from 'api/managment-service.ts';
 import GeneratedInfoPopup from './GeneratedInfoPopup/GeneratedInfoPopup.tsx';
 import ReportGenerationType from './StateSection/ReportGenerationType.tsx';
 import {dateFromTimestampMs} from 'lib/date.ts';
+import SchedulePeriod, {periodToMilliseconds, schedulePeriodOptions} from './SchedulePeriod/SchedulePeriod.tsx';
 
 const CreateReport = () => {
     const {id} = useParams<{ id: string }>();
@@ -25,6 +26,7 @@ const CreateReport = () => {
     const [nodes, setNodes] = useState<NodeDataRow[]>([]);
     const [accuracy, setAccuracy] = useState<AccuracyLevel>('HIGH');
     const [generationType, setGenerationType] = useState<ReportType>('ON DEMAND');
+    const [generationPeriod, setGenerationPeriod] = useState<string>(schedulePeriodOptions.periods[2]);
     const navigate = useNavigate();
     const [startDateMs, setStartDateMs] = useState<number>(Date.now());
     const [endDateMs, setEndDateMs] = useState<number>(Date.now());
@@ -36,7 +38,11 @@ const CreateReport = () => {
     };
 
     useEffect(() => {
-        if (generationType === 'SCHEDULED' && id) {
+        if (generationType === 'ON DEMAND') {
+            setNotificationChannels([]);
+            setApplications([]);
+            setNodes([]);
+        } else if (generationType === 'SCHEDULED' && id) {
             const fetchClusterDetails = async () => {
                 try {
                     const clusterDetails = await ManagmentServiceApiInstance.getClusterDetails(id);
@@ -85,7 +91,6 @@ const CreateReport = () => {
                     }));
                     setNodes(mappedNodes);
 
-                    setAccuracy(clusterDetails.accuracy);
                 } catch (error) {
                     console.error('Failed to fetch cluster details:', error);
                 }
@@ -129,27 +134,57 @@ const CreateReport = () => {
         const {slackReceiverIds, discordReceiverIds, mailReceiverIds} =
             filterNotificationChannels(notificationChannels);
 
-        const report: ReportPost = {
-            clusterId: id ?? '',
-            accuracy: 'HIGH',
-            sinceMs: startDateMs,
-            toMs: endDateMs,
-            slackReceiverIds: slackReceiverIds,
-            discordReceiverIds: discordReceiverIds,
-            mailReceiverIds: mailReceiverIds,
-            applicationConfigurations: applications.map((app) => ({
-                applicationName: app.name,
-                accuracy: app.accuracy,
-                customPrompt: app.customPrompt,
-            })),
-            nodeConfigurations: nodes.map((node) => ({
-                nodeName: node.name,
-                accuracy: node.accuracy,
-                customPrompt: node.customPrompt,
-            })),
-        };
-        // ManagmentServiceApiInstance.generateOnDemandReport(report);
-        console.log(report);
+        const schedulePeriodMs = periodToMilliseconds[generationPeriod] || 0;
+        console.log(schedulePeriodMs);
+
+        if (generationType === 'ON DEMAND') {
+            const report: ReportPost = {
+                clusterId: id ?? '',
+                accuracy: 'HIGH',
+                sinceMs: startDateMs,
+                toMs: endDateMs,
+                slackReceiverIds: slackReceiverIds,
+                discordReceiverIds: discordReceiverIds,
+                mailReceiverIds: mailReceiverIds,
+                applicationConfigurations: applications.map((app) => ({
+                    applicationName: app.name,
+                    accuracy: app.accuracy,
+                    customPrompt: app.customPrompt,
+                })),
+                nodeConfigurations: nodes.map((node) => ({
+                    nodeName: node.name,
+                    accuracy: node.accuracy,
+                    customPrompt: node.customPrompt,
+                })),
+            };
+            ManagmentServiceApiInstance.generateOnDemandReport(report);
+
+        } else if (generationType === 'SCHEDULED' && id) {
+            const clusterUpdateData: ClusterUpdateData = {
+                id: id ?? '',
+                accuracy: accuracy,
+                isEnabled: true,
+                generatedEveryMillis: schedulePeriodMs,
+                slackReceiverIds: slackReceiverIds,
+                discordReceiverIds: discordReceiverIds,
+                emailReceiverIds: mailReceiverIds,
+                applicationConfigurations: applications.map((app) => ({
+                    name: app.name,
+                    kind: app.kind,
+                    accuracy: app.accuracy,
+                    customPrompt: app.customPrompt,
+                })),
+                nodeConfigurations: nodes.map((node) => ({
+                    name: node.name,
+                    accuracy: node.accuracy,
+                    customPrompt: node.customPrompt,
+                })),
+            };
+            console.log(clusterUpdateData);
+
+            ManagmentServiceApiInstance.updateCluster(clusterUpdateData);
+        }
+
         setShowInfoPopup(true);
     };
 
@@ -166,7 +201,11 @@ const CreateReport = () => {
                             <AccuracySection setParentAccuracy={setAccuracy}/>
                             <ReportGenerationType setParentGenerationType={setGenerationType}/>
                         </div>
-                        <DateRangeSection onDateChange={handleDateRangeChange}/>
+                        {generationType === 'ON DEMAND' ? (
+                            <DateRangeSection onDateChange={handleDateRangeChange} />
+                        ) : (
+                            <SchedulePeriod setGenerationPeriod={setGenerationPeriod} />
+                        )}
                     </div>
                 </div>
                 <NotificationSection notificationChannels={notificationChannels}
