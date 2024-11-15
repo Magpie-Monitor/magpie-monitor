@@ -5,11 +5,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"time"
 
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl/scram"
 	"go.uber.org/zap"
 )
+
+const KAFKA_BROKER_GROUP_ID_KEY = "KAFKA_BROKER_GROUP_ID"
 
 type KafkaLogsStreamParams struct {
 	Host     string
@@ -22,7 +27,12 @@ type KafkaLogsStreamParams struct {
 
 func NewKafkaLogsStream[T any](params *KafkaLogsStreamParams) KafkaLogsStreamReader[T] {
 
+	envs.ValidateEnvs("Missing kafka groupId for logs ingestion stream",
+		[]string{KAFKA_BROKER_GROUP_ID_KEY})
+
 	brokers := []string{fmt.Sprintf("%s:%s", params.Host, params.Port)}
+
+	kafkaBrokerGroupId := os.Getenv(KAFKA_BROKER_GROUP_ID_KEY)
 
 	mechanism, err := scram.Mechanism(scram.SHA512, params.Username, params.Password)
 	if err != nil {
@@ -35,11 +45,12 @@ func NewKafkaLogsStream[T any](params *KafkaLogsStreamParams) KafkaLogsStreamRea
 
 	reader := kafka.NewReader(
 		kafka.ReaderConfig{
-			Brokers:   brokers,
-			Topic:     params.Topic,
-			Partition: 0,
-			MaxBytes:  10e8,
-			Dialer:    dialer,
+			Brokers:        brokers,
+			Topic:          params.Topic,
+			Dialer:         dialer,
+			MaxBytes:       10e8,
+			GroupID:        kafkaBrokerGroupId,
+			CommitInterval: time.Second,
 		},
 	)
 

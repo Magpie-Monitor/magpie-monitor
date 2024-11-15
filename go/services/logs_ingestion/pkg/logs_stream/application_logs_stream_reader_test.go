@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/tests"
 	"github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/config"
@@ -28,6 +29,8 @@ func TestApplicationLogsStreamReader(t *testing.T) {
 		ApplicationLogsRepository repositories.ApplicationLogsRepository
 	}
 
+	integrationTestWaitModifier := envs.ConvertToInt(tests.INTEGRATION_TEST_WAIT_MODIFIER_KEY)
+
 	test := func(dependencies TestDependencies) {
 		if dependencies.Reader == nil {
 			t.Fatal("Failed to load reader")
@@ -39,23 +42,6 @@ func TestApplicationLogsStreamReader(t *testing.T) {
 
 		dependencies.ApplicationLogsRepository.RemoveIndex(ctx, fmt.Sprintf("%s-applications-1970-1", LOGS_INGESTION_TEST_INDEX))
 
-		testNodeLog := repositories.NodeLogs{
-			Id:            "log-1",
-			ClusterId:     LOGS_INGESTION_TEST_INDEX,
-			Kind:          "Node",
-			CollectedAtMs: 10,
-			Name:          "test-node",
-			Filename:      "/etc/var/journalctl",
-			Content:       "Test content",
-		}
-
-		encodedNodeLog, err := json.Marshal(testNodeLog)
-		if err != nil {
-			t.Fatal("Failed to encode node logs")
-		}
-
-		dependencies.Writer.WriteNodeLogs(ctx, "testkey-1", string(encodedNodeLog))
-
 		testApplicationLog := repositories.ApplicationLogs{
 			ClusterId:     LOGS_INGESTION_TEST_INDEX,
 			Kind:          "Node",
@@ -63,6 +49,7 @@ func TestApplicationLogsStreamReader(t *testing.T) {
 			Namespace:     "test-node",
 			Pods: []*repositories.PodLogs{
 				&repositories.PodLogs{
+					Name: "test-pod",
 					Containers: []*repositories.ContainerLogs{
 						&repositories.ContainerLogs{
 							Name:    "test-container",
@@ -74,6 +61,17 @@ func TestApplicationLogsStreamReader(t *testing.T) {
 			},
 		}
 
+		expectedLogDocument := repositories.ApplicationLogsDocument{
+			ClusterId:     LOGS_INGESTION_TEST_INDEX,
+			Kind:          "Node",
+			CollectedAtMs: 10,
+			Namespace:     "test-node",
+			PodName:       "test-pod",
+			ContainerName: "test-container",
+			Content:       "Test application content",
+			Image:         "test-image",
+		}
+
 		encodedApplicationLog, err := json.Marshal(testApplicationLog)
 		if err != nil {
 			t.Fatal("Failed to encode node logs")
@@ -83,8 +81,8 @@ func TestApplicationLogsStreamReader(t *testing.T) {
 
 		go dependencies.Reader.Listen()
 
-		// Wait 5 seconds for entries to be fetched from Kafka and inserted into Elastic
-		time.Sleep(time.Second * 5)
+		// Wait 10 seconds for entries to be fetched from Kafka and inserted into Elastic
+		time.Sleep(time.Second * 20 * time.Duration(integrationTestWaitModifier))
 
 		applicationLogs, err := dependencies.ApplicationLogsRepository.GetLogs(
 			ctx,
@@ -99,8 +97,11 @@ func TestApplicationLogsStreamReader(t *testing.T) {
 		// Check if an element is returned
 		assert.Len(t, applicationLogs, 1)
 
-		// Check if the name matches
-		assert.Equal(t, "test-node", applicationLogs[0].Namespace)
+		// Unset id to check only predefined values
+		applicationLogs[0].Id = ""
+
+		// Check if the log is correctly fetched and transformed
+		assert.Equal(t, expectedLogDocument, *applicationLogs[0], "Expected log does not match the actual application log")
 	}
 
 	tests.RunTest(test, t, config.AppModule)
