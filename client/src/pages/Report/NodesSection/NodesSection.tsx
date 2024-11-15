@@ -11,7 +11,6 @@ import NodesEntriesSelector
     from 'components/EntriesSelector/NodesEntriesSelector/NodesEntriesSelector.tsx';
 import CustomTag from 'components/CustomTag/CustomTag.tsx';
 import CustomPromptPopup from 'components/CustomPromptPopup/CustomPromptPopup.tsx';
-import KindTag from 'components/KindTag/KindTag.tsx';
 
 export interface NodeDataRow {
     name: string;
@@ -108,13 +107,6 @@ const NodesSection: React.FC<NodesSectionProps> = ({
             ),
         },
         {
-            header: '',
-            columnKey: '',
-            customComponent: () => (
-                <KindTag/>
-            ),
-        },
-        {
             header: 'Actions',
             columnKey: 'actions',
             customComponent: (node: NodeDataRow) => (
@@ -148,7 +140,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({
             {nodes.length === 0 ? (
                 <p>No Nodes selected, please add new</p>
             ) : (
-                <Table columns={columns} rows={nodes}/>
+                <Table columns={columns} rows={nodes} />
             )}
 
             {selectedNode && (

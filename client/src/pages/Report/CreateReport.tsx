@@ -12,12 +12,11 @@ import {useState, useEffect} from 'react';
 import {NotificationChannel} from './NotificationSection/NotificationSection';
 import {ApplicationDataRow} from './ApplicationSection/ApplicationSection';
 import {NodeDataRow} from './NodesSection/NodesSection';
-import {AccuracyLevel, ClusterUpdateData, ManagmentServiceApiInstance, ReportPost, ReportType, NotificationChannelKind}
+import {AccuracyLevel, ManagmentServiceApiInstance, ReportPost, ReportType}
     from 'api/managment-service.ts';
 import GeneratedInfoPopup from './GeneratedInfoPopup/GeneratedInfoPopup.tsx';
 import ReportGenerationType from './StateSection/ReportGenerationType.tsx';
 import {dateFromTimestampMs} from 'lib/date.ts';
-import SchedulePeriod, {periodToMilliseconds, schedulePeriodOptions} from './SchedulePeriod/SchedulePeriod.tsx';
 
 const CreateReport = () => {
     const {id} = useParams<{ id: string }>();
@@ -26,7 +25,6 @@ const CreateReport = () => {
     const [nodes, setNodes] = useState<NodeDataRow[]>([]);
     const [accuracy, setAccuracy] = useState<AccuracyLevel>('HIGH');
     const [generationType, setGenerationType] = useState<ReportType>('ON DEMAND');
-    const [generationPeriod, setGenerationPeriod] = useState<string>(schedulePeriodOptions.periods[2]);
     const navigate = useNavigate();
     const [startDateMs, setStartDateMs] = useState<number>(Date.now());
     const [endDateMs, setEndDateMs] = useState<number>(Date.now());
@@ -38,62 +36,63 @@ const CreateReport = () => {
     };
 
     useEffect(() => {
-        const fetchClusterDetails = async () => {
-            try {
-                const clusterDetails = await ManagmentServiceApiInstance.getClusterDetails(id || '');
-                const mappedNotificationChannels = [
-                    ...clusterDetails.slackReceivers.map(receiver => ({
-                        id: receiver.id.toString(),
-                        name: receiver.receiverName,
-                        details: receiver.webhookUrl,
-                        service: 'SLACK' as NotificationChannelKind,
-                        added: dateFromTimestampMs(receiver.createdAt),
-                        updated: dateFromTimestampMs(receiver.updatedAt),
+        if (generationType === 'SCHEDULED' && id) {
+            const fetchClusterDetails = async () => {
+                try {
+                    const clusterDetails = await ManagmentServiceApiInstance.getClusterDetails(id);
+                    const mappedNotificationChannels = [
+                        ...clusterDetails.slackReceivers.map(receiver => ({
+                            id: receiver.id.toString(),
+                            name: receiver.receiverName,
+                            details: receiver.webhookUrl,
+                            service: 'SLACK',
+                            added: dateFromTimestampMs(receiver.createdAt),
+                            updated: dateFromTimestampMs(receiver.updatedAt),
 
-                    })),
-                    ...clusterDetails.discordReceivers.map(receiver => ({
-                        id: receiver.id.toString(),
-                        name: receiver.receiverName,
-                        details: receiver.webhookUrl,
-                        service: 'DISCORD' as NotificationChannelKind,
-                        added: dateFromTimestampMs(receiver.createdAt),
-                        updated: dateFromTimestampMs(receiver.updatedAt),
-                    })),
-                    ...clusterDetails.emailReceivers.map(receiver => ({
-                        id: receiver.id.toString(),
-                        name: receiver.receiverName,
-                        details: receiver.receiverEmail,
-                        service: 'EMAIL' as NotificationChannelKind,
-                        added: dateFromTimestampMs(receiver.createdAt),
-                        updated: dateFromTimestampMs(receiver.updatedAt),
-                    })),
-                ];
-                setNotificationChannels(mappedNotificationChannels);
+                        })),
+                        ...clusterDetails.discordReceivers.map(receiver => ({
+                            id: receiver.id.toString(),
+                            name: receiver.receiverName,
+                            details: receiver.webhookUrl,
+                            service: 'DISCORD',
+                            added: dateFromTimestampMs(receiver.createdAt),
+                            updated: dateFromTimestampMs(receiver.updatedAt),
+                        })),
+                        ...clusterDetails.emailReceivers.map(receiver => ({
+                            id: receiver.id.toString(),
+                            name: receiver.receiverName,
+                            details: receiver.receiverEmail,
+                            service: 'EMAIL',
+                            added: dateFromTimestampMs(receiver.createdAt),
+                            updated: dateFromTimestampMs(receiver.updatedAt),
+                        })),
+                    ];
+                    setNotificationChannels(mappedNotificationChannels);
 
-                const mappedApplications =
-                    clusterDetails.applicationConfigurations.map(config => ({
+                    const mappedApplications = 
+                        clusterDetails.applicationConfigurations.map(config => ({
                         name: config.name,
                         kind: config.kind,
-                        accuracy: config.accuracy as AccuracyLevel,
+                        accuracy: config.accuracy,
                         customPrompt: config.customPrompt,
-                        running: true, //TODO
                     }));
-                setApplications(mappedApplications);
+                    setApplications(mappedApplications);
 
-                const mappedNodes = clusterDetails.nodeConfigurations.map(config => ({
-                    name: config.name,
-                    accuracy: config.accuracy,
-                    customPrompt: config.customPrompt,
-                    running: true, //TODO
-                }));
-                setNodes(mappedNodes);
+                    const mappedNodes = clusterDetails.nodeConfigurations.map(config => ({
+                        name: config.name,
+                        accuracy: config.accuracy,
+                        customPrompt: config.customPrompt,
+                    }));
+                    setNodes(mappedNodes);
 
-            } catch (error) {
-                console.error('Failed to fetch cluster details:', error);
-            }
-        };
+                    setAccuracy(clusterDetails.accuracy);
+                } catch (error) {
+                    console.error('Failed to fetch cluster details:', error);
+                }
+            };
 
-        fetchClusterDetails();
+            fetchClusterDetails();
+        }
     }, [generationType, id]);
 
     const filterNotificationChannels = (channels: NotificationChannel[]) => {
@@ -130,56 +129,27 @@ const CreateReport = () => {
         const {slackReceiverIds, discordReceiverIds, mailReceiverIds} =
             filterNotificationChannels(notificationChannels);
 
-        const schedulePeriodMs = periodToMilliseconds[generationPeriod] || 0;
-
-        if (generationType === 'ON DEMAND') {
-            const report: ReportPost = {
-                clusterId: id ?? '',
-                accuracy: 'HIGH',
-                sinceMs: startDateMs,
-                toMs: endDateMs,
-                slackReceiverIds: slackReceiverIds,
-                discordReceiverIds: discordReceiverIds,
-                mailReceiverIds: mailReceiverIds,
-                applicationConfigurations: applications.map((app) => ({
-                    applicationName: app.name,
-                    accuracy: app.accuracy,
-                    customPrompt: app.customPrompt,
-                })),
-                nodeConfigurations: nodes.map((node) => ({
-                    nodeName: node.name,
-                    accuracy: node.accuracy,
-                    customPrompt: node.customPrompt,
-                })),
-            };
-            ManagmentServiceApiInstance.generateOnDemandReport(report);
-
-        } else if (generationType === 'SCHEDULED' && id) {
-            const clusterUpdateData: ClusterUpdateData = {
-                id: id ?? '',
-                accuracy: accuracy,
-                isEnabled: true,
-                generatedEveryMillis: schedulePeriodMs,
-                slackReceiverIds: slackReceiverIds,
-                discordReceiverIds: discordReceiverIds,
-                emailReceiverIds: mailReceiverIds,
-                applicationConfigurations: applications.map((app) => ({
-                    name: app.name,
-                    kind: app.kind,
-                    accuracy: app.accuracy,
-                    customPrompt: app.customPrompt,
-                })),
-                nodeConfigurations: nodes.map((node) => ({
-                    name: node.name,
-                    accuracy: node.accuracy,
-                    customPrompt: node.customPrompt,
-                })),
-            };
-            console.log(clusterUpdateData);
-
-            ManagmentServiceApiInstance.updateCluster(clusterUpdateData);
-        }
-
+        const report: ReportPost = {
+            clusterId: id ?? '',
+            accuracy: 'HIGH',
+            sinceMs: startDateMs,
+            toMs: endDateMs,
+            slackReceiverIds: slackReceiverIds,
+            discordReceiverIds: discordReceiverIds,
+            mailReceiverIds: mailReceiverIds,
+            applicationConfigurations: applications.map((app) => ({
+                applicationName: app.name,
+                accuracy: app.accuracy,
+                customPrompt: app.customPrompt,
+            })),
+            nodeConfigurations: nodes.map((node) => ({
+                nodeName: node.name,
+                accuracy: node.accuracy,
+                customPrompt: node.customPrompt,
+            })),
+        };
+        // ManagmentServiceApiInstance.generateOnDemandReport(report);
+        console.log(report);
         setShowInfoPopup(true);
     };
 
@@ -196,15 +166,11 @@ const CreateReport = () => {
                             <AccuracySection setParentAccuracy={setAccuracy}/>
                             <ReportGenerationType setParentGenerationType={setGenerationType}/>
                         </div>
-                        {generationType === 'ON DEMAND' ? (
-                            <DateRangeSection onDateChange={handleDateRangeChange}/>
-                        ) : (
-                            <SchedulePeriod setGenerationPeriod={setGenerationPeriod}/>
-                        )}
+                        <DateRangeSection onDateChange={handleDateRangeChange}/>
                     </div>
                 </div>
                 <NotificationSection notificationChannels={notificationChannels}
-                                     setNotificationChannels={setNotificationChannels}/>
+                    setNotificationChannels={setNotificationChannels}/>
                 <ApplicationSection applications={applications} setApplications={setApplications}
                                     clusterId={id ?? ''} defaultAccuracy={accuracy}/>
                 <NodesSection nodes={nodes} setNodes={setNodes}

@@ -58,12 +58,10 @@ export interface ClusterSummary {
   }[];
 }
 
-export type NotificationChannelKind = 'SLACK' | 'DISCORD' | 'EMAIL';
-
 export interface NotificationChannel {
   id: string;
   name: string;
-  service: NotificationChannelKind;
+  service: 'SLACK' | 'DISCORD' | 'EMAIL';
   details: string;
   updated: number;
   added: number;
@@ -177,27 +175,6 @@ export interface ReportPost {
         customPrompt: string;
         accuracy: AccuracyLevel;
     }[];
-}
-
-export interface ClusterUpdateData {
-  id: string;
-  accuracy: AccuracyLevel;
-  isEnabled: boolean;
-  generatedEveryMillis: number;
-  slackReceiverIds: number[];
-  discordReceiverIds: number[];
-  emailReceiverIds: number[];
-  applicationConfigurations: {
-    name: string;
-    kind: string;
-    accuracy: AccuracyLevel;
-    customPrompt: string;
-  }[];
-  nodeConfigurations: {
-    name: string;
-    accuracy: AccuracyLevel;
-    customPrompt: string;
-  }[];
 }
 
 export interface ApplicationConfiguration {
@@ -592,10 +569,6 @@ class ManagmentServiceApi {
     };
   }
 
-  public async updateCluster(clusterData: ClusterUpdateData): Promise<void> {
-    await this.refreshTokenIfExpired();
-    await this.axiosInstance.put('/api/v1/clusters', clusterData);
-  }
 }
 
 export const ManagmentServiceApiInstance = new ManagmentServiceApi();

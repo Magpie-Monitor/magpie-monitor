@@ -11,7 +11,6 @@ import {AccuracyLevel} from 'api/managment-service';
 import ApplicationsEntriesSelector
     from 'components/EntriesSelector/ApplicationsEntriesSelector/ApplicationsEntriesSelector.tsx';
 import CustomTag from 'components/CustomTag/CustomTag.tsx';
-import KindTag from 'components/KindTag/KindTag.tsx';
 
 export interface ApplicationDataRow {
     name: string;
@@ -109,16 +108,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
                 />
             ),
         },
-        {
-            header: 'Kind',
-            columnKey: 'kind',
-            customComponent: (app: ApplicationDataRow) => (
-                <KindTag
-                    name={app.kind || 'unknown'}
-                />
-            ),
-
-        },
+        { header: 'Kind', columnKey: 'kind' },
         {
             header: 'Actions',
             columnKey: 'actions',
