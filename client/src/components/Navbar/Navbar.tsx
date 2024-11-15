@@ -14,7 +14,7 @@ const Navbar = () => {
   };
 
   const handleHomeNavigation = () => {
-    navigate('/dashboard');
+    navigate('/');
   };
 
   return (
@@ -35,7 +35,7 @@ const Navbar = () => {
         <div className="navbar__links">
           <NavbarTab
             label={'Dashboard'}
-            destination={'/dashboard'}
+            destination={'/'}
             iconName={'dashboard-icon'}
           />
           <NavbarTab

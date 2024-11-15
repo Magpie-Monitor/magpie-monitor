@@ -33,7 +33,6 @@ const router = createBrowserRouter(
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<ProtectedLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Home />} />
         <Route path="/clusters" element={<Clusters />} />
         <Route path="/node-incidents/:id" element={<NodeIncidentPage />} />
         <Route
