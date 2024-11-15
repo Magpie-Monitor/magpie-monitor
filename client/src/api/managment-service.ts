@@ -177,6 +177,27 @@ export interface ReportPost {
     }[];
 }
 
+export interface ClusterUpdateData {
+  id: string;
+  accuracy: AccuracyLevel;
+  isEnabled: boolean;
+  generatedEveryMillis: number;
+  slackReceiverIds: number[];
+  discordReceiverIds: number[];
+  emailReceiverIds: number[];
+  applicationConfigurations: {
+    name: string;
+    kind: string;
+    accuracy: AccuracyLevel;
+    customPrompt: string;
+  }[];
+  nodeConfigurations: {
+    name: string;
+    accuracy: AccuracyLevel;
+    customPrompt: string;
+  }[];
+}
+
 export interface ApplicationConfiguration {
   name: string;
   kind: string;
@@ -569,6 +590,10 @@ class ManagmentServiceApi {
     };
   }
 
+  public async updateCluster(clusterData: ClusterUpdateData): Promise<void> {
+    await this.refreshTokenIfExpired();
+    await this.axiosInstance.put('/api/v1/clusters', clusterData);
+  }
 }
 
 export const ManagmentServiceApiInstance = new ManagmentServiceApi();
