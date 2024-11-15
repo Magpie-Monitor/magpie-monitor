@@ -1,12 +1,12 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
-import Table, {TableColumn} from 'components/Table/Table.tsx';
-import React, {useEffect, useState} from 'react';
+import Table, { TableColumn } from 'components/Table/Table.tsx';
+import React, { useState } from 'react';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
-import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
+import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionButton.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
-import {AccuracyLevel} from 'api/managment-service';
+import { AccuracyLevel } from 'api/managment-service';
 import NodesEntriesSelector
     from 'components/EntriesSelector/NodesEntriesSelector/NodesEntriesSelector.tsx';
 import CustomTag from 'components/CustomTag/CustomTag.tsx';
@@ -17,104 +17,101 @@ export interface NodeDataRow {
     running: boolean;
     accuracy: AccuracyLevel;
     customPrompt: string;
-
     [key: string]: string | boolean | AccuracyLevel;
 }
 
 interface NodesSectionProps {
+    nodes: NodeDataRow[];
     setNodes: (nodes: NodeDataRow[]) => void;
     clusterId: string;
     defaultAccuracy: AccuracyLevel;
 }
 
-const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId, defaultAccuracy}) => {
-    const [rows, setRows] = useState<NodeDataRow[]>([]);
+const NodesSection: React.FC<NodesSectionProps> = ({
+                                                       setNodes,
+                                                       clusterId,
+                                                       defaultAccuracy,
+                                                       nodes,
+                                                   }) => {
     const [showModal, setShowModal] = useState(false);
     const [selectedNodes, setSelectedNodes] = useState<NodeDataRow[]>([]);
     const [showCustomPromptPopup, setShowCustomPromptPopup] = useState(false);
     const [selectedNode, setSelectedNode] = useState<NodeDataRow | null>(null);
 
-    useEffect(() => {
-        setNodes(rows);
-    }, [rows, setNodes]);
-
     const handleAddNodes = () => {
-        setRows([...rows, ...selectedNodes]);
+        setNodes([...nodes, ...selectedNodes]);
         setSelectedNodes([]);
         setShowModal(false);
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
-    };
-
     const handleAccuracyChange = (name: string, accuracy: AccuracyLevel) => {
-        setRows((prevRows) =>
-            prevRows.map((row) =>
-                row.name === name ? {...row, accuracy} : row
+        setNodes(
+            nodes.map((node) =>
+                node.name === name ? { ...node, accuracy } : node
             )
         );
     };
 
     const handleCustomPromptSave = (newPrompt: string) => {
         if (selectedNode) {
-            setRows((prevRows) =>
-                prevRows.map((row) =>
-                    (row.name === selectedNode.name ? { ...row, customPrompt: newPrompt } : row))
+            setNodes(
+                nodes.map((node) =>
+                    node.name === selectedNode.name
+                        ? { ...node, customPrompt: newPrompt }
+                        : node
+                )
             );
             setShowCustomPromptPopup(false);
+            setSelectedNode(null);
         }
-        setSelectedNode(null);
     };
 
-    const handleCustomPromptClick = (row: NodeDataRow) => {
-        setSelectedNode(row);
+    const handleCustomPromptClick = (node: NodeDataRow) => {
+        setSelectedNode(node);
         setShowCustomPromptPopup(true);
     };
 
     const handleDelete = (name: string) => {
-        setRows((prevRows) => prevRows.filter((row) => row.name !== name));
+        setNodes(nodes.filter((node) => node.name !== name));
     };
 
     const columns: Array<TableColumn<NodeDataRow>> = [
         {
             header: 'Name',
             columnKey: 'name',
-            customComponent: (row: NodeDataRow) => (
-                <LinkComponent to="" isRunning={row.running}>
-                    {row.name}
+            customComponent: (node: NodeDataRow) => (
+                <LinkComponent to="" isRunning={node.running}>
+                    {node.name}
                 </LinkComponent>
             ),
         },
         {
             header: 'Accuracy',
             columnKey: 'accuracy',
-            customComponent: (row: NodeDataRow) => (
+            customComponent: (node: NodeDataRow) => (
                 <TagButton
                     listItems={['HIGH', 'MEDIUM', 'LOW']}
-                    chosenItem={row.accuracy}
-                    onSelect={(item) =>
-                        handleAccuracyChange(row.name, item)
-                    }
+                    chosenItem={node.accuracy}
+                    onSelect={(item) => handleAccuracyChange(node.name, item)}
                 />
             ),
         },
         {
             header: 'Custom prompt',
             columnKey: 'customPrompt',
-            customComponent: (row: NodeDataRow) => (
+            customComponent: (node: NodeDataRow) => (
                 <CustomTag
-                    name={row.customPrompt || 'Enter custom prompt...'}
-                    onClick={() => handleCustomPromptClick(row)}
+                    name={node.customPrompt || 'Enter custom prompt...'}
+                    onClick={() => handleCustomPromptClick(node)}
                 />
             ),
         },
         {
             header: 'Actions',
             columnKey: 'actions',
-            customComponent: (row: NodeDataRow) => (
+            customComponent: (node: NodeDataRow) => (
                 <ActionButton
-                    onClick={() => handleDelete(row.name)}
+                    onClick={() => handleDelete(node.name)}
                     description="Delete"
                     color={ActionButtonColor.RED}
                 />
@@ -124,27 +121,26 @@ const NodesSection: React.FC<NodesSectionProps> = ({setNodes, clusterId, default
 
     return (
         <SectionComponent
-            icon={<SVGIcon iconName="application-icon"/>}
+            icon={<SVGIcon iconName="application-icon" />}
             title={'Nodes'}
-            callback={() => setShowModal(true)}>
-            <OverlayComponent
-                isDisplayed={showModal}
-                onClose={handleCloseModal}
-            >
+            callback={() => setShowModal(true)}
+        >
+            <OverlayComponent isDisplayed={showModal} onClose={() => setShowModal(false)}>
                 <NodesEntriesSelector
                     selectedNodes={selectedNodes}
                     setSelectedNodes={setSelectedNodes}
-                    nodesToExclude={rows}
+                    nodesToExclude={nodes}
                     onAdd={handleAddNodes}
-                    onClose={handleCloseModal}
+                    onClose={() => setShowModal(false)}
                     clusterId={clusterId}
                     defaultAccuracy={defaultAccuracy}
                 />
             </OverlayComponent>
-            {rows.length === 0 ? (
+
+            {nodes.length === 0 ? (
                 <p>No Nodes selected, please add new</p>
             ) : (
-                <Table columns={columns} rows={rows}/>
+                <Table columns={columns} rows={nodes} />
             )}
 
             {selectedNode && (

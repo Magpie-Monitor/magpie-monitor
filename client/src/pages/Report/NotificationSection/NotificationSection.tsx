@@ -1,6 +1,6 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
-import {useEffect, useState} from 'react';
+import React, { useState } from 'react';
 import NotificationChannelTable from './NotificationChannelTable';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import NotificationsEntriesSelector
@@ -18,17 +18,16 @@ export interface NotificationChannel {
 }
 
 interface NotificationSectionProps {
+    notificationChannels: NotificationChannel[];
     setNotificationChannels: (channels: NotificationChannel[]) => void;
 }
 
-const NotificationSection: React.FC<NotificationSectionProps> = ({setNotificationChannels}) => {
-    const [rows, setRows] = useState<NotificationChannel[]>([]);
+const NotificationSection: React.FC<NotificationSectionProps> = ({
+                                                                     setNotificationChannels,
+                                                                     notificationChannels,
+                                                                 }) => {
     const [selectedChannels, setSelectedChannels] = useState<NotificationChannel[]>([]);
     const [showModal, setShowModal] = useState(false);
-
-    useEffect(() => {
-        setNotificationChannels(rows);
-    }, [rows, setNotificationChannels]);
 
     const handleAddClick = () => {
         setShowModal(true);
@@ -39,19 +38,19 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({setNotificatio
     };
 
     const handleDelete = (id: string, service: string) => {
-        setRows((prevRows) => {
-            return prevRows.filter((row) => !(row.id === id && row.service === service));
-        });
+        setNotificationChannels(notificationChannels.filter(
+            (channel) => !(channel.id === id && channel.service === service)
+        ));
     };
 
     const handleAddSelected = () => {
-        setRows((prevRows) => {
+        setNotificationChannels(prevChannels => {
             const newChannels = selectedChannels.filter(
-                (channel) => !prevRows.some(
+                (channel) => !prevChannels.some(
                     (row) => row.id === channel.id && row.service === channel.service
                 )
             );
-            return [...prevRows, ...newChannels];
+            return [...prevChannels, ...newChannels];
         });
         setShowModal(false);
         setSelectedChannels([]);
@@ -59,26 +58,23 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({setNotificatio
 
     return (
         <SectionComponent
-            icon={<SVGIcon iconName="notification-icon"/>}
+            icon={<SVGIcon iconName="notification-icon" />}
             title="Notification channels"
             callback={handleAddClick}
         >
-            <OverlayComponent
-                isDisplayed={showModal}
-                onClose={handleCloseModal}
-            >
+            <OverlayComponent isDisplayed={showModal} onClose={handleCloseModal}>
                 <NotificationsEntriesSelector
                     selectedChannels={selectedChannels}
                     setSelectedChannels={setSelectedChannels}
-                    channelsToExclude={rows}
+                    channelsToExclude={notificationChannels}
                     onAdd={handleAddSelected}
                     onClose={handleCloseModal}
                 />
             </OverlayComponent>
-            {rows.length === 0 ? (
+            {notificationChannels.length === 0 ? (
                 <p>No notification channels selected, please add new.</p>
             ) : (
-                <NotificationChannelTable rows={rows} onDelete={handleDelete}/>
+                <NotificationChannelTable rows={notificationChannels} onDelete={handleDelete} />
             )}
         </SectionComponent>
     );
