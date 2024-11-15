@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, {AxiosInstance} from 'axios';
 
 interface UserInfo {
   nickname: string;
@@ -11,6 +11,7 @@ interface TokenInfo {
 
 export type AccuracyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 export type UrgencyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
+export type ReportType = 'ON DEMAND' | 'SCHEDULED';
 
 export interface ReportSummary {
   id: string;
@@ -81,24 +82,24 @@ export interface Slack {
   id: string;
   receiverName: string;
   webhookUrl: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: number;
+  updatedAt: number;
 }
 
 export interface Discord {
   id: string;
   receiverName: string;
   webhookUrl: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: number;
+  updatedAt: number;
 }
 
 export interface Email {
   id: string;
   receiverName: string;
   receiverEmail: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: number;
+  updatedAt: number;
 }
 
 const MANAGMENT_SERVICE_URL = import.meta.env.VITE_BACKEND_URL;
@@ -174,7 +175,32 @@ export interface ReportPost {
         customPrompt: string;
         accuracy: AccuracyLevel;
     }[];
+}
 
+export interface ApplicationConfiguration {
+  name: string;
+  kind: string;
+  accuracy: AccuracyLevel;
+  customPrompt: string;
+}
+
+export interface NodeConfiguration {
+  name: string;
+  accuracy: AccuracyLevel;
+  customPrompt: string;
+}
+
+export interface ClusterDetails {
+  id: string;
+  accuracy: AccuracyLevel;
+  isEnabled: boolean;
+  running: boolean;
+  generatedEveryMillis: number;
+  slackReceivers: Slack[];
+  discordReceivers: Discord[];
+  emailReceivers: Email[];
+  applicationConfigurations: ApplicationConfiguration[];
+  nodeConfigurations: NodeConfiguration[];
 }
 
 class ManagmentServiceApi {
@@ -368,8 +394,8 @@ class ManagmentServiceApi {
       slackChannels: [],
       discordChannels: [],
       mailChannels: [],
-      }
-    })
+      };
+    });
   }
 
   public async getNotificationChannels(): Promise<NotificationChannel[]> {
@@ -494,6 +520,55 @@ class ManagmentServiceApi {
     await this.refreshTokenIfExpired();
     await this.axiosInstance.post('/api/v1/reports', reportData);
   }
+
+  public async getClusterDetails(clusterId: string): Promise<ClusterDetails> {
+    await this.refreshTokenIfExpired();
+    const response = await this.axiosInstance.get(`/api/v1/clusters/${clusterId}`);
+
+    const clusterData = response.data;
+
+    return {
+      id: clusterData.id,
+      accuracy: clusterData.accuracy,
+      isEnabled: clusterData.isEnabled,
+      running: clusterData.running,
+      generatedEveryMillis: clusterData.generatedEveryMillis,
+      slackReceivers: clusterData.slackReceivers.map((receiver: Slack) => ({
+        id: receiver.id,
+        receiverName: receiver.receiverName,
+        webhookUrl: receiver.webhookUrl,
+        createdAt: receiver.createdAt,
+        updatedAt: receiver.updatedAt,
+      })),
+      discordReceivers: clusterData.discordReceivers.map((receiver: Discord) => ({
+        id: receiver.id,
+        receiverName: receiver.receiverName,
+        webhookUrl: receiver.webhookUrl,
+        createdAt: receiver.createdAt,
+        updatedAt: receiver.updatedAt,
+      })),
+      emailReceivers: clusterData.emailReceivers.map((receiver: Email) => ({
+        id: receiver.id,
+        receiverName: receiver.receiverName,
+        receiverEmail: receiver.receiverEmail,
+        createdAt: receiver.createdAt,
+        updatedAt: receiver.updatedAt,
+      })),
+      applicationConfigurations:
+          clusterData.applicationConfigurations.map((config: ApplicationConfiguration) => ({
+            name: config.name,
+            kind: config.kind,
+            accuracy: config.accuracy,
+            customPrompt: config.customPrompt,
+          })),
+      nodeConfigurations: clusterData.nodeConfigurations.map((config: NodeConfiguration) => ({
+        name: config.name,
+        accuracy: config.accuracy,
+        customPrompt: config.customPrompt,
+      })),
+    };
+  }
+
 }
 
 export const ManagmentServiceApiInstance = new ManagmentServiceApi();
