@@ -9,7 +9,7 @@ import Hourglass from 'components/Hourglass/Hourglass.tsx';
 import {
     REPORT_IN_PROGRESS_TITLE,
     REPORT_IN_PROGRESS_DESCRIPTION,
-} from 'messages/info-messages.tsx';
+} from 'messages/info-messages';
 
 interface GeneratedInfoPopupProps {
     isDisplayed: boolean;
