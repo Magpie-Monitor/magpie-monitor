@@ -3,8 +3,9 @@
 .login-panel {
   background-color: $component-background;
   margin: auto;
-  width: 450px;
-  height: 70svh;
+  width: 400px;
+  height: 85svh;
+  max-height: 600px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -14,10 +15,6 @@
   border-style: solid;
   border-color: $component-border-color;
   box-shadow: 0 5px 5px $secondary;
-
-  @media (max-width: $md) {
-    width: 300px;
-  }
 
   @media (max-width: $sm) {
     width: 270px;
