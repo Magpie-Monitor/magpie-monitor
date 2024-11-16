@@ -29,6 +29,7 @@ func (a *AgentWrapper) Start() {
 	defer a.channels.Close()
 
 	mode := a.config.Global.Mode
+
 	if mode == "nodes" {
 		log.Println("Watched files: ", a.config.WatchedFiles)
 		if len(a.config.WatchedFiles) == 0 {

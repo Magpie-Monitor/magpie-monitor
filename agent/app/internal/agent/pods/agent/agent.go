@@ -34,6 +34,8 @@ type Agent struct {
 	results                           chan<- data.Chunk
 	metadata                          chan<- data.ClusterState
 	runningMode                       string
+	maxPodPacketSizeBytes             int
+	containerPacketSizeBytes          int
 }
 
 func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<- data.ClusterState) *Agent {
@@ -47,6 +49,8 @@ func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<
 		results:                           logsChan,
 		metadata:                          metadataChan,
 		runningMode:                       cfg.Global.RunningMode,
+		maxPodPacketSizeBytes:             1000,
+		containerPacketSizeBytes:          250,
 	}
 }
 
@@ -121,7 +125,7 @@ func (a *Agent) gatherLogs() {
 }
 
 func (a *Agent) fetchLogsForNamespace(namespace string) {
-	log.Println("Fetching logs for namespace: ", namespace)
+	// log.Println("Fetching logs for namespace: ", namespace)
 
 	deployments, err := a.client.AppsV1().
 		Deployments(namespace).
@@ -151,58 +155,137 @@ func (a *Agent) fetchLogsForNamespace(namespace string) {
 }
 
 func (a *Agent) fetchDeploymentLogsSinceTime(namespace string, deployments []v2.Deployment) {
+	log.Println("Fetching logs from Deployments")
+
 	for _, deployment := range deployments {
 		selectors := deployment.Spec.Selector
-		logs := a.fetchPodLogsSinceTime(selectors, namespace)
-		a.sendResult(data.Deployment, deployment.Name, namespace, logs)
+		logPackets, _ := a.fetchPodLogsSinceTime(selectors, namespace)
+
+		for _, packet := range logPackets {
+			a.sendResult(data.Deployment, deployment.Name, namespace, packet)
+		}
 	}
 }
 
 func (a *Agent) fetchStatefulSetLogsSinceTime(namespace string, statefulSets []v2.StatefulSet) {
 	log.Println("Fetching logs from StatefulSets")
+
 	for _, statefulSet := range statefulSets {
 		selectors := statefulSet.Spec.Selector
-		logs := a.fetchPodLogsSinceTime(selectors, namespace)
-		a.sendResult(data.StatefulSet, statefulSet.Name, namespace, logs)
+		logPackets, _ := a.fetchPodLogsSinceTime(selectors, namespace)
+
+		for _, packet := range logPackets {
+			a.sendResult(data.StatefulSet, statefulSet.Name, namespace, packet)
+		}
 	}
 }
 
 func (a *Agent) fetchDaemonSetLogsSinceTime(namespace string, daemonSets []v2.DaemonSet) {
 	log.Println("Fetching logs from DaemonSets")
+
 	for _, daemonSet := range daemonSets {
 		selectors := daemonSet.Spec.Selector
-		logs := a.fetchPodLogsSinceTime(selectors, namespace)
-		a.sendResult(data.DaemonSet, daemonSet.Name, namespace, logs)
+		logPackets, _ := a.fetchPodLogsSinceTime(selectors, namespace)
+
+		for _, packet := range logPackets {
+			a.sendResult(data.DaemonSet, daemonSet.Name, namespace, packet)
+		}
 	}
 }
 
-func (a *Agent) fetchPodLogsSinceTime(selector *metav1.LabelSelector, namespace string) []data.Pod {
-	res := make([]data.Pod, 0)
-
-	// TODO - error handling, abstraction over K8S API
-	pods, _ := a.client.CoreV1().
+func (a *Agent) fetchPodLogsSinceTime(selector *metav1.LabelSelector, namespace string) ([][]data.Pod, error) {
+	// TODO - abstraction over K8S API
+	pods, err := a.client.CoreV1().
 		Pods(namespace).
 		List(
 			context.TODO(),
 			metav1.ListOptions{LabelSelector: labels.Set(selector.MatchLabels).String()},
 		)
-	for _, pod := range pods.Items {
-		log.Println("Fetching logs for pod: ", pod.Name)
 
-		containers := make([]data.Container, 0, len(pod.Spec.Containers))
-		for _, container := range pod.Spec.Containers {
-			log.Println("Fetching logs for container: ", container.Name)
-			c := a.fetchContainerLogsSinceTime(&container, pod.Name, namespace)
-			containers = append(containers, c)
-		}
-
-		res = append(res, data.Pod{Name: pod.Name, Containers: containers})
+	if err != nil {
+		log.Printf("Error fetching logs for namespace=%s, err=%s", namespace, err.Error())
+		return nil, err
 	}
 
-	return res
+	return a.getPodLogsPackets(pods.Items), nil
 }
 
-func (a *Agent) fetchContainerLogsSinceTime(container *v1.Container, podName, namespace string) data.Container {
+func (a *Agent) getPodLogsPackets(pods []v1.Pod) [][]data.Pod {
+	podPackets := make([][]data.Pod, 0)
+
+	for _, pod := range pods {
+		log.Println("Fetching logs for pod: ", pod.Name)
+
+		containers := a.fetchContainerLogsForPod(pod)
+		podPacket := a.splitPodContainerLogsIntoPackets(pod.Name, containers)
+		podPackets = append(podPackets, podPacket)
+	}
+
+	return podPackets
+}
+
+func (a *Agent) splitPodContainerLogsIntoPackets(podName string, containers []data.Container) []data.Pod {
+	var (
+		podPacket                []data.Pod
+		currentPacketLen         = 0
+		containerPacketsTotalLen = len(containers) * a.containerPacketSizeBytes
+		currentPacketFreeBytes   = a.maxPodPacketSizeBytes
+	)
+
+	// Pod fits into the packet.
+	if currentPacketFreeBytes >= containerPacketsTotalLen {
+		currentPacketLen += containerPacketsTotalLen
+		podPacket = append(podPacket, data.Pod{Name: podName, Containers: containers})
+		return podPacket
+	}
+
+	containerPackets := a.splitContainerIntoPackets(containers)
+
+	for _, packet := range containerPackets {
+		podPacket = append(podPacket, data.Pod{Name: podName, Containers: packet})
+	}
+
+	return podPacket
+}
+
+func (a *Agent) splitContainerIntoPackets(containers []data.Container) [][]data.Container {
+	var (
+		containerPackets       [][]data.Container
+		containerPacket        []data.Container
+		currentPacketFreeBytes = a.maxPodPacketSizeBytes
+		currentPacketLen       = 0
+		containerPacketLen     = a.containerPacketSizeBytes
+	)
+
+	for _, container := range containers {
+		if currentPacketLen+containerPacketLen > currentPacketFreeBytes {
+			containerPackets = append(containerPackets, containerPacket)
+			containerPacket = make([]data.Container, 0)
+			containerPacket = append(containerPacket, container)
+			currentPacketLen = containerPacketLen
+			continue
+		}
+
+		containerPacket = append(containerPacket, container)
+		currentPacketLen += containerPacketLen
+	}
+
+	return append(containerPackets, containerPacket)
+}
+
+func (a *Agent) fetchContainerLogsForPod(pod v1.Pod) []data.Container {
+	containers := make([]data.Container, 0, len(pod.Spec.Containers))
+
+	for _, container := range pod.Spec.Containers {
+		log.Println("Fetching logs for container: ", container.Name)
+		c := a.fetchContainerLogsSinceTime(&container, pod.Name, pod.Namespace)
+		containers = append(containers, c...)
+	}
+
+	return containers
+}
+
+func (a *Agent) fetchContainerLogsSinceTime(container *v1.Container, podName, namespace string) []data.Container {
 	sinceTime := a.getReadTimestamp(podName, container.Name)
 
 	// Sleep till all the logs from current second arrive.
@@ -228,7 +311,7 @@ func (a *Agent) fetchContainerLogsSinceTime(container *v1.Container, podName, na
 
 	if logs.Error() != nil {
 		log.Println("Error fetching logs for Pod: ", podName, " container: ", container.Name)
-		return data.Container{}
+		return nil
 	}
 
 	// Subtract request time from the next fetch time,
@@ -239,16 +322,51 @@ func (a *Agent) fetchContainerLogsSinceTime(container *v1.Container, podName, na
 	rawLogs, err := logs.Raw()
 	if err != nil {
 		log.Println("Failed to fetch raw logs for container: ", container.Name)
-		return data.Container{}
+		return nil
 	}
 
 	deduplicatedLogs, err := a.deduplicate(string(rawLogs))
 	if err != nil {
 		log.Println("Failed to fetch container: ", container.Name, " logs")
-		return data.Container{}
+		return nil
 	}
 
-	return data.Container{Name: container.Name, Image: container.Image, Content: deduplicatedLogs}
+	return a.splitLogsIntoContainerPackets(container.Name, container.Image, deduplicatedLogs)
+}
+
+func (a *Agent) splitLogsIntoContainerPackets(containerName, containerImage, logs string) []data.Container {
+	if len(logs) == 0 {
+		return []data.Container{{Name: containerName, Image: containerImage, Content: logs}}
+	}
+
+	var (
+		logPackets         []string
+		currentPacket      string
+		maxPacketSizeBytes = a.containerPacketSizeBytes
+		currentPacketLen   = 0
+	)
+
+	logLines := strings.Split(logs, "\n")
+	for _, line := range logLines {
+		if currentPacketLen < maxPacketSizeBytes {
+			currentPacket += "\n" + line
+			currentPacketLen += len(line)
+			continue
+		}
+
+		logPackets = append(logPackets, currentPacket)
+		currentPacket = line
+		currentPacketLen = len(line)
+	}
+
+	logPackets = append(logPackets, currentPacket)
+
+	var containers []data.Container
+	for _, packet := range logPackets {
+		containers = append(containers, data.Container{Name: containerName, Image: containerImage, Content: packet})
+	}
+
+	return containers
 }
 
 func (a *Agent) setReadTimestamp(podName, containerName string, timestampUnixMicro int64) {

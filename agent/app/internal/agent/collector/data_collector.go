@@ -30,8 +30,7 @@ func (d *DataCollector) CollectCluster() {
 	for {
 		select {
 		case chunk := <-d.applicationLogsChannel:
-			log.Println("Cluster logs collected: ", chunk)
-			d.writer.WriteClusterLogs(chunk)
+			d.writer.WriteApplicationLogs(chunk)
 		case chunk := <-d.applicationMetadataChannel:
 			log.Println("Cluster metadata collected: ", chunk)
 			d.writer.WriteClusterMetadata(chunk)
@@ -43,7 +42,6 @@ func (d *DataCollector) CollectNodes() {
 	for {
 		select {
 		case chunk := <-d.nodeLogsChannel:
-			log.Println("Node logs collected: ", chunk)
 			d.writer.WriteNodeLogs(chunk)
 		case chunk := <-d.nodeMetadataChannel:
 			log.Println("Node metadata collected: ", chunk)
