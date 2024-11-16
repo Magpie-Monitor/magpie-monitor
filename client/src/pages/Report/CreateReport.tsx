@@ -38,68 +38,62 @@ const CreateReport = () => {
     };
 
     useEffect(() => {
-        if (generationType === 'ON DEMAND') {
-            setNotificationChannels([]);
-            setApplications([]);
-            setNodes([]);
-        } else if (generationType === 'SCHEDULED' && id) {
-            const fetchClusterDetails = async () => {
-                try {
-                    const clusterDetails = await ManagmentServiceApiInstance.getClusterDetails(id);
-                    const mappedNotificationChannels = [
-                        ...clusterDetails.slackReceivers.map(receiver => ({
-                            id: receiver.id.toString(),
-                            name: receiver.receiverName,
-                            details: receiver.webhookUrl,
-                            service: 'SLACK' as NotificationChannelKind,
-                            added: dateFromTimestampMs(receiver.createdAt),
-                            updated: dateFromTimestampMs(receiver.updatedAt),
+        const fetchClusterDetails = async () => {
+            try {
+                const clusterDetails = await ManagmentServiceApiInstance.getClusterDetails(id || '');
+                const mappedNotificationChannels = [
+                    ...clusterDetails.slackReceivers.map(receiver => ({
+                        id: receiver.id.toString(),
+                        name: receiver.receiverName,
+                        details: receiver.webhookUrl,
+                        service: 'SLACK' as NotificationChannelKind,
+                        added: dateFromTimestampMs(receiver.createdAt),
+                        updated: dateFromTimestampMs(receiver.updatedAt),
 
-                        })),
-                        ...clusterDetails.discordReceivers.map(receiver => ({
-                            id: receiver.id.toString(),
-                            name: receiver.receiverName,
-                            details: receiver.webhookUrl,
-                            service: 'DISCORD' as NotificationChannelKind,
-                            added: dateFromTimestampMs(receiver.createdAt),
-                            updated: dateFromTimestampMs(receiver.updatedAt),
-                        })),
-                        ...clusterDetails.emailReceivers.map(receiver => ({
-                            id: receiver.id.toString(),
-                            name: receiver.receiverName,
-                            details: receiver.receiverEmail,
-                            service: 'EMAIL' as NotificationChannelKind,
-                            added: dateFromTimestampMs(receiver.createdAt),
-                            updated: dateFromTimestampMs(receiver.updatedAt),
-                        })),
-                    ];
-                    setNotificationChannels(mappedNotificationChannels);
+                    })),
+                    ...clusterDetails.discordReceivers.map(receiver => ({
+                        id: receiver.id.toString(),
+                        name: receiver.receiverName,
+                        details: receiver.webhookUrl,
+                        service: 'DISCORD' as NotificationChannelKind,
+                        added: dateFromTimestampMs(receiver.createdAt),
+                        updated: dateFromTimestampMs(receiver.updatedAt),
+                    })),
+                    ...clusterDetails.emailReceivers.map(receiver => ({
+                        id: receiver.id.toString(),
+                        name: receiver.receiverName,
+                        details: receiver.receiverEmail,
+                        service: 'EMAIL' as NotificationChannelKind,
+                        added: dateFromTimestampMs(receiver.createdAt),
+                        updated: dateFromTimestampMs(receiver.updatedAt),
+                    })),
+                ];
+                setNotificationChannels(mappedNotificationChannels);
 
-                    const mappedApplications = 
-                        clusterDetails.applicationConfigurations.map(config => ({
+                const mappedApplications =
+                    clusterDetails.applicationConfigurations.map(config => ({
                         name: config.name,
                         kind: config.kind,
                         accuracy: config.accuracy as AccuracyLevel,
                         customPrompt: config.customPrompt,
                         running: true, //TODO
                     }));
-                    setApplications(mappedApplications);
+                setApplications(mappedApplications);
 
-                    const mappedNodes = clusterDetails.nodeConfigurations.map(config => ({
-                        name: config.name,
-                        accuracy: config.accuracy,
-                        customPrompt: config.customPrompt,
-                        running: true, //TODO
-                    }));
-                    setNodes(mappedNodes);
+                const mappedNodes = clusterDetails.nodeConfigurations.map(config => ({
+                    name: config.name,
+                    accuracy: config.accuracy,
+                    customPrompt: config.customPrompt,
+                    running: true, //TODO
+                }));
+                setNodes(mappedNodes);
 
-                } catch (error) {
-                    console.error('Failed to fetch cluster details:', error);
-                }
-            };
+            } catch (error) {
+                console.error('Failed to fetch cluster details:', error);
+            }
+        };
 
-            fetchClusterDetails();
-        }
+        fetchClusterDetails();
     }, [generationType, id]);
 
     const filterNotificationChannels = (channels: NotificationChannel[]) => {
@@ -203,14 +197,14 @@ const CreateReport = () => {
                             <ReportGenerationType setParentGenerationType={setGenerationType}/>
                         </div>
                         {generationType === 'ON DEMAND' ? (
-                            <DateRangeSection onDateChange={handleDateRangeChange} />
+                            <DateRangeSection onDateChange={handleDateRangeChange}/>
                         ) : (
-                            <SchedulePeriod setGenerationPeriod={setGenerationPeriod} />
+                            <SchedulePeriod setGenerationPeriod={setGenerationPeriod}/>
                         )}
                     </div>
                 </div>
                 <NotificationSection notificationChannels={notificationChannels}
-                    setNotificationChannels={setNotificationChannels}/>
+                                     setNotificationChannels={setNotificationChannels}/>
                 <ApplicationSection applications={applications} setApplications={setApplications}
                                     clusterId={id ?? ''} defaultAccuracy={accuracy}/>
                 <NodesSection nodes={nodes} setNodes={setNodes}
