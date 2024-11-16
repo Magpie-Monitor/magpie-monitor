@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/core/mget"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/core/scroll"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 )
@@ -47,7 +49,47 @@ func SearchIndices(ctx context.Context, esClient *elasticsearch.TypedClient, ind
 			Query: query,
 
 			Size: &size,
-		}).Do(ctx)
+		}).
+		Do(ctx)
+}
+
+func GetDocumentsByIds(ctx context.Context, esClient *elasticsearch.TypedClient, indicies []string, ids []string) (*mget.Response, error) {
+	return esClient.
+		Mget().
+		Index(strings.Join(indicies, ",")).
+		Request(
+			&mget.Request{
+				Ids: ids,
+			},
+		).Do(ctx)
+}
+
+func RequestSearchScroll(ctx context.Context, esClient *elasticsearch.TypedClient, indices []string, query *types.Query) (*search.Response, error) {
+	size := 10000
+	return esClient.Search().
+		Index(strings.Join(indices, ",")).
+		Request(&search.Request{
+			Query: query,
+			Size:  &size,
+		}).
+		Scroll("1d").
+		Do(ctx)
+}
+
+func GetSearchQuery(ctx context.Context, esClient *elasticsearch.TypedClient, indices []string, query *types.Query, pageSize int) *search.Search {
+	return esClient.Search().
+		Index(strings.Join(indices, ",")).
+		Request(&search.Request{
+			Query: query,
+			Size:  &pageSize,
+		})
+}
+
+func GetNextScrollPage(ctx context.Context, esClient *elasticsearch.TypedClient, scrollId string) (*scroll.Response, error) {
+	return esClient.Scroll().
+		Scroll("1d").
+		ScrollId(scrollId).
+		Do(ctx)
 }
 
 func getYYYYMM(date time.Time) string {
