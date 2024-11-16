@@ -1,6 +1,5 @@
 package pl.pwr.zpi.reports.api;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,7 @@ public class ReportsController {
     private final ReportGenerationService reportGenerationService;
 
     @PostMapping
-    public ResponseEntity<Void> createReport(@Valid @RequestBody CreateReportRequest reportRequest) {
+    public ResponseEntity<Void> createReport(@RequestBody CreateReportRequest reportRequest) {
         reportGenerationService.createReport(reportRequest);
         return ResponseEntity.ok().build();
     }
@@ -75,8 +74,7 @@ public class ReportsController {
     }
 
     @GetMapping("/application-incidents/{id}")
-    public ResponseEntity<ApplicationIncidentDTO> getApplicationIncidentById(
-            @PathVariable String id) {
+    public ResponseEntity<ApplicationIncidentDTO> getApplicationIncidentById(@PathVariable String id) {
         return ResponseEntity.of(reportsService.getApplicationIncidentById(id));
     }
 
