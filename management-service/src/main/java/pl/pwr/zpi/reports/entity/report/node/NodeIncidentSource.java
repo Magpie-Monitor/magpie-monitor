@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NodeIncidentSource {
+    private String incidentId;
     private Long timestamp;
     private String content;
     private String filename;

@@ -1,4 +1,4 @@
-package pl.pwr.zpi.utils;
+package pl.pwr.zpi.utils.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -19,6 +19,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessageDTO> handleGeneralException(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessageDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(JsonMappingException.class)
+    public ResponseEntity<ErrorMessageDTO> handleJsonMappingException(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorMessageDTO(e.getMessage()));
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<ErrorMessageDTO> handleNullPointerException(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorMessageDTO(e.getMessage()));
     }
 
