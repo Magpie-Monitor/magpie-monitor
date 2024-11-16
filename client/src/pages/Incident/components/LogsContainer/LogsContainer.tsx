@@ -1,11 +1,23 @@
 import './LogsContainer.scss';
+import { useState } from 'react';
 
 interface LogsBoxParams {
   logs: string;
 }
 
 const LogsBox = ({ logs }: LogsBoxParams) => {
-  return <div className="logs-box">{logs}</div>;
+  const [isLogBoxExpanded, setIsLogBoxExpanded] = useState(false);
+
+  return (
+    <>
+      <div
+        className={isLogBoxExpanded ? 'logs-box--expanded' : 'logs-box'}
+        onClick={() => setIsLogBoxExpanded((prev) => !prev)}
+      >
+        {logs}
+      </div>
+    </>
+  );
 };
 
 export default LogsBox;

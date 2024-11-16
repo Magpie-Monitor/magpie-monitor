@@ -54,6 +54,8 @@ services:
       - "local-docker"
       - "--scrape"
       - "pods"
+      - "--remoteWriteApplicationTopic"
+      - "applications"
       - "--logScrapeIntervalSeconds"
       - ${POD_AGENT_LOG_SCRAPE_INTERVAL_SECONDS}
       - "--metadataScrapeIntervalSeconds"
@@ -98,6 +100,8 @@ services:
       - ${NODE_AGENT_METADATA_SCRAPE_INTERVAL_SECONDS}
       - "--redisUrl"
       - "magpie-monitor-redis:6379"
+      - "--remoteWriteNodeTopic"
+      - "nodes"
       - "--redisPassword"
       - ${REDIS_PASSWORD}
       - "--file"
