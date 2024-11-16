@@ -38,12 +38,13 @@ const CreateReport = () => {
     };
 
     useEffect(() => {
-        fetchClusterData(
-            id || '',
-            setNotificationChannels,
-            setApplications,
-            setNodes
-        );
+        const fetchData = async () => {
+            const {notificationChannels, applications, nodes} = await fetchClusterData(id || '');
+            setNotificationChannels(notificationChannels);
+            setApplications(applications);
+            setNodes(nodes);
+        };
+        fetchData();
     }, [generationType, id]);
 
     const handleGenerateReport = () => {
@@ -57,8 +58,8 @@ const CreateReport = () => {
             generationPeriod,
             startDateMs,
             endDateMs,
-            setShowInfoPopup,
         });
+        setShowInfoPopup(true);
     };
 
     const handleCancelReport = () => {

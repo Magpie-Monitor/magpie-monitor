@@ -13,17 +13,18 @@ import {periodToMilliseconds} from './SchedulePeriod/SchedulePeriod.tsx';
 import {dateFromTimestampMs} from 'lib/date.ts';
 
 export const fetchClusterData = async (
-    clusterId: string,
-    setNotificationChannels: (channels: NotificationChannel[]) => void,
-    setApplications: (apps: ApplicationDataRow[]) => void,
-    setNodes: (nodes: NodeDataRow[]) => void
-) => {
+    clusterId: string
+): Promise<{
+    notificationChannels: NotificationChannel[];
+    applications: ApplicationDataRow[];
+    nodes: NodeDataRow[];
+}> => {
     try {
         const [clusterDetails, runningApplications, runningNodes] = await Promise.all([
             ManagmentServiceApiInstance.getClusterDetails(clusterId),
             ManagmentServiceApiInstance.getApplications(clusterId),
             ManagmentServiceApiInstance.getNodes(clusterId),
-        ]); //TODO: fetch this data independently
+        ]);
 
         const runningApplicationsMap = runningApplications.reduce((acc, app) => {
             acc[`${app.name}-${app.kind}`] = app.running;
@@ -35,7 +36,7 @@ export const fetchClusterData = async (
             return acc;
         }, {} as Record<string, boolean>);
 
-        const mappedNotificationChannels = [
+        const notificationChannels = [
             ...clusterDetails.slackReceivers.map(receiver => ({
                 id: receiver.id.toString(),
                 name: receiver.receiverName,
@@ -61,24 +62,26 @@ export const fetchClusterData = async (
                 updated: dateFromTimestampMs(receiver.updatedAt),
             })),
         ];
-        setNotificationChannels(mappedNotificationChannels);
 
-        setApplications(clusterDetails.applicationConfigurations.map(config => ({
+        const applications = clusterDetails.applicationConfigurations.map(config => ({
             name: config.name,
             kind: config.kind,
             accuracy: config.accuracy as AccuracyLevel,
             customPrompt: config.customPrompt,
             running: runningApplicationsMap[`${config.name}-${config.kind}`] ?? false,
-        })));
+        }));
 
-        setNodes(clusterDetails.nodeConfigurations.map(config => ({
+        const nodes = clusterDetails.nodeConfigurations.map(config => ({
             name: config.name,
             accuracy: config.accuracy,
             customPrompt: config.customPrompt,
             running: runningNodesMap[config.name] ?? false,
-        })));
+        }));
+
+        return {notificationChannels, applications, nodes};
     } catch (error) {
         console.error('Failed to fetch cluster data:', error);
+        return {notificationChannels: [], applications: [], nodes: []};
     }
 };
 
@@ -122,7 +125,6 @@ export const generateReport = ({
                                    generationPeriod,
                                    startDateMs,
                                    endDateMs,
-                                   setShowInfoPopup,
                                }: {
     id: string | undefined;
     notificationChannels: NotificationChannel[];
@@ -133,7 +135,6 @@ export const generateReport = ({
     generationPeriod: string;
     startDateMs: number;
     endDateMs: number;
-    setShowInfoPopup: (show: boolean) => void;
 }) => {
     const {slackReceiverIds, discordReceiverIds, mailReceiverIds} =
         filterNotificationChannels(notificationChannels);
@@ -184,6 +185,4 @@ export const generateReport = ({
         };
         ManagmentServiceApiInstance.updateCluster(clusterUpdateData);
     }
-
-    setShowInfoPopup(true);
 };
