@@ -23,7 +23,7 @@ export const fetchClusterData = async (
             ManagmentServiceApiInstance.getClusterDetails(clusterId),
             ManagmentServiceApiInstance.getApplications(clusterId),
             ManagmentServiceApiInstance.getNodes(clusterId),
-        ]);
+        ]); //TODO: fetch this data independently
 
         const runningApplicationsMap = runningApplications.reduce((acc, app) => {
             acc[`${app.name}-${app.kind}`] = app.running;
@@ -82,6 +82,36 @@ export const fetchClusterData = async (
     }
 };
 
+export const filterNotificationChannels = (channels: NotificationChannel[]) => {
+    const slackReceiverIds: number[] = [];
+    const discordReceiverIds: number[] = [];
+    const mailReceiverIds: number[] = [];
+
+    channels.forEach(channel => {
+        const channelId = parseInt(channel.id, 10);
+        if (!isNaN(channelId)) {
+            switch (channel.service) {
+                case 'SLACK':
+                    slackReceiverIds.push(channelId);
+                    break;
+                case 'DISCORD':
+                    discordReceiverIds.push(channelId);
+                    break;
+                case 'EMAIL':
+                    mailReceiverIds.push(channelId);
+                    break;
+                default:
+                    console.warn(`Unknown service: ${channel.service}`);
+            }
+        } else {
+            console.warn(`Invalid channel id: ${channel.id}`);
+        }
+    });
+
+    return {slackReceiverIds, discordReceiverIds, mailReceiverIds};
+};
+
+
 export const generateReport = ({
                                    id,
                                    notificationChannels,
@@ -105,7 +135,8 @@ export const generateReport = ({
     endDateMs: number;
     setShowInfoPopup: (show: boolean) => void;
 }) => {
-    const {slackReceiverIds, discordReceiverIds, mailReceiverIds} = filterNotificationChannels(notificationChannels);
+    const {slackReceiverIds, discordReceiverIds, mailReceiverIds} =
+        filterNotificationChannels(notificationChannels);
 
     const schedulePeriodMs = periodToMilliseconds[generationPeriod] || 0;
 
@@ -155,33 +186,4 @@ export const generateReport = ({
     }
 
     setShowInfoPopup(true);
-};
-
-export const filterNotificationChannels = (channels: NotificationChannel[]) => {
-    const slackReceiverIds: number[] = [];
-    const discordReceiverIds: number[] = [];
-    const mailReceiverIds: number[] = [];
-
-    channels.forEach(channel => {
-        const channelId = parseInt(channel.id, 10);
-        if (!isNaN(channelId)) {
-            switch (channel.service) {
-                case 'SLACK':
-                    slackReceiverIds.push(channelId);
-                    break;
-                case 'DISCORD':
-                    discordReceiverIds.push(channelId);
-                    break;
-                case 'EMAIL':
-                    mailReceiverIds.push(channelId);
-                    break;
-                default:
-                    console.warn(`Unknown service: ${channel.service}`);
-            }
-        } else {
-            console.warn(`Invalid channel id: ${channel.id}`);
-        }
-    });
-
-    return {slackReceiverIds, discordReceiverIds, mailReceiverIds};
 };

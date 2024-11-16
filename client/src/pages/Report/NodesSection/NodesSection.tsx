@@ -3,7 +3,6 @@ import Table, { TableColumn } from 'components/Table/Table.tsx';
 import React, { useState } from 'react';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
-import ActionButton, { ActionButtonColor } from 'components/ActionButton/ActionButton.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import { AccuracyLevel } from 'api/managment-service';
@@ -12,6 +11,7 @@ import NodesEntriesSelector
 import CustomTag from 'components/CustomTag/CustomTag.tsx';
 import CustomPromptPopup from 'components/CustomPromptPopup/CustomPromptPopup.tsx';
 import KindTag from 'components/KindTag/KindTag.tsx';
+import DeleteIconButton from 'components/DeleteIconButton/DeleteIconButton.tsx';
 
 export interface NodeDataRow {
     name: string;
@@ -118,11 +118,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({
             header: 'Actions',
             columnKey: 'actions',
             customComponent: (node: NodeDataRow) => (
-                <ActionButton
-                    onClick={() => handleDelete(node.name)}
-                    description="Delete"
-                    color={ActionButtonColor.RED}
-                />
+                <DeleteIconButton onClick={() => handleDelete(node.name)} />
             ),
         },
     ];

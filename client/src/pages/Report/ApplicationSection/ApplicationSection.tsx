@@ -3,7 +3,6 @@ import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
 import Table, {TableColumn} from 'components/Table/Table.tsx';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
-import ActionButton, {ActionButtonColor} from 'components/ActionButton/ActionButton.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPromptPopup from 'components/CustomPromptPopup/CustomPromptPopup.tsx';
@@ -12,6 +11,7 @@ import ApplicationsEntriesSelector
     from 'components/EntriesSelector/ApplicationsEntriesSelector/ApplicationsEntriesSelector.tsx';
 import CustomTag from 'components/CustomTag/CustomTag.tsx';
 import KindTag from 'components/KindTag/KindTag.tsx';
+import DeleteIconButton from 'components/DeleteIconButton/DeleteIconButton.tsx';
 
 export interface ApplicationDataRow {
     name: string;
@@ -122,11 +122,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
             header: 'Actions',
             columnKey: 'actions',
             customComponent: (app: ApplicationDataRow) => (
-                <ActionButton
-                    onClick={() => handleDelete(app.name)}
-                    description="Delete"
-                    color={ActionButtonColor.RED}
-                />
+                <DeleteIconButton onClick={() => handleDelete(app.name)} />
             ),
         },
     ];

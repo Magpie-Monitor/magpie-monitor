@@ -25,7 +25,8 @@ const CreateReport = () => {
     const [nodes, setNodes] = useState<NodeDataRow[]>([]);
     const [accuracy, setAccuracy] = useState<AccuracyLevel>('HIGH');
     const [generationType, setGenerationType] = useState<ReportType>('ON DEMAND');
-    const [generationPeriod, setGenerationPeriod] = useState<string>(schedulePeriodOptions.periods[2]);
+    const [generationPeriod, setGenerationPeriod] =
+        useState<string>(schedulePeriodOptions.periods[2]);
     const navigate = useNavigate();
     const [startDateMs, setStartDateMs] = useState<number>(Date.now());
     const [endDateMs, setEndDateMs] = useState<number>(Date.now());
