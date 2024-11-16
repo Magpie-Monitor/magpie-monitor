@@ -28,4 +28,8 @@ public class NodeIncident {
     private String recommendation;
     private Urgency urgency;
     private List<NodeIncidentSource> sources;
+
+    public void extendSourcesWithIncidentId() {
+        sources.forEach(source -> source.setIncidentId(this.id));
+    }
 }

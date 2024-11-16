@@ -10,12 +10,12 @@ import pl.pwr.zpi.reports.dto.event.ReportRequestFailed;
 import pl.pwr.zpi.reports.dto.event.ReportRequested;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
 import pl.pwr.zpi.reports.entity.report.Report;
+import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
 import pl.pwr.zpi.reports.entity.report.request.ReportGenerationRequestMetadata;
 import pl.pwr.zpi.reports.enums.ReportGenerationStatus;
-import pl.pwr.zpi.reports.repository.ApplicationIncidentRepository;
-import pl.pwr.zpi.reports.repository.NodeIncidentRepository;
-import pl.pwr.zpi.reports.repository.ReportGenerationRequestMetadataRepository;
-import pl.pwr.zpi.reports.repository.ReportRepository;
+import pl.pwr.zpi.reports.repository.*;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -27,7 +27,9 @@ public class ReportGenerationService {
 
     private final ReportRepository reportRepository;
     private final NodeIncidentRepository nodeIncidentRepository;
+    private final NodeIncidentSourcesRepository nodeIncidentSourcesRepository;
     private final ApplicationIncidentRepository applicationIncidentRepository;
+    private final ApplicationIncidentSourcesRepository applicationIncidentSourcesRepository;
 
     private final ReportGenerationRequestMetadataRepository reportGenerationRequestMetadataRepository;
 
@@ -101,11 +103,24 @@ public class ReportGenerationService {
 
         nodeIncidentRepository.saveAll(report.getNodeIncidents());
         applicationIncidentRepository.saveAll(report.getApplicationIncidents());
+
+        applicationIncidentSourcesRepository.saveAll(report.getApplicationIncidentSources());
+        nodeIncidentSourcesRepository.saveAll(report.getNodeIncidentSources());
     }
 
     private void extendIncidentsWithReportId(Report report) {
-        report.getNodeIncidents().forEach(nodeIncident -> nodeIncident.setReportId(report.getId()));
-        report.getApplicationIncidents().forEach(applicationIncident -> applicationIncident.setReportId(report.getId()));
+        report.getNodeIncidents().forEach(
+                nodeIncident -> {
+                    nodeIncident.setReportId(report.getId());
+                    nodeIncident.extendSourcesWithIncidentId();
+                }
+        );
+        report.getApplicationIncidents().forEach(
+                applicationIncident -> {
+                    applicationIncident.setReportId(report.getId());
+                    applicationIncident.extendSourcesWithIncidentId();
+                }
+        );
     }
 
     public void notifyReportGenerated(ReportGenerationRequestMetadata requestMetadata, String reportId) {

@@ -1,6 +1,8 @@
 package pl.pwr.zpi.reports.api;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.pwr.zpi.reports.dto.report.ReportDetailedSummaryDTO;
@@ -10,6 +12,8 @@ import pl.pwr.zpi.reports.dto.report.ReportSummaryDTO;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
+import pl.pwr.zpi.reports.entity.report.application.ApplicationIncidentSource;
+import pl.pwr.zpi.reports.entity.report.node.NodeIncidentSource;
 import pl.pwr.zpi.reports.entity.report.request.ReportGenerationRequestMetadata;
 import pl.pwr.zpi.reports.service.ReportGenerationService;
 import pl.pwr.zpi.reports.service.ReportsService;
@@ -25,7 +29,7 @@ public class ReportsController {
     private final ReportGenerationService reportGenerationService;
 
     @PostMapping
-    public ResponseEntity<Void> createReport(@RequestBody CreateReportRequest reportRequest) {
+    public ResponseEntity<Void> createReport(@Valid @RequestBody CreateReportRequest reportRequest) {
         reportGenerationService.createReport(reportRequest);
         return ResponseEntity.ok().build();
     }
@@ -58,29 +62,38 @@ public class ReportsController {
 
     @GetMapping("/{id}/application-incidents")
     public ResponseEntity<ReportPaginatedIncidentsDTO<ApplicationIncidentDTO>> getApplicationIncidentsForReport(
-            @PathVariable String id,
-            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize
+            @PathVariable String id, Pageable pageable
     ) {
-        return ResponseEntity.ok(reportsService.getReportApplicationIncidents(id, pageNumber, pageSize));
+        return ResponseEntity.ok(reportsService.getReportApplicationIncidents(id, pageable));
     }
 
     @GetMapping("/{id}/node-incidents")
     public ResponseEntity<ReportPaginatedIncidentsDTO<NodeIncidentDTO>> getNodeIncidentsForReport(
-            @PathVariable String id,
-            @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = "10") int pageSize
+            @PathVariable String id, Pageable pageable
     ) {
-        return ResponseEntity.ok(reportsService.getReportNodeIncidents(id, pageNumber, pageSize));
+        return ResponseEntity.ok(reportsService.getReportNodeIncidents(id, pageable));
     }
 
     @GetMapping("/application-incidents/{id}")
-    public ResponseEntity<ApplicationIncidentDTO> getApplicationIncidentById(@PathVariable String id) {
+    public ResponseEntity<ApplicationIncidentDTO> getApplicationIncidentById(
+            @PathVariable String id) {
         return ResponseEntity.of(reportsService.getApplicationIncidentById(id));
+    }
+
+    @GetMapping("/application-incidents/{id}/sources")
+    public ResponseEntity<ReportPaginatedIncidentsDTO<ApplicationIncidentSource>> getApplicationIncidentSourcesByIncidentId(
+            @PathVariable String id, Pageable pageable) {
+        return ResponseEntity.ok(reportsService.getApplicationIncidentSourcesByIncidentId(id, pageable));
     }
 
     @GetMapping("/node-incidents/{id}")
     public ResponseEntity<NodeIncidentDTO> getNodeIncidentById(@PathVariable String id) {
         return ResponseEntity.of(reportsService.getNodeIncidentById(id));
+    }
+
+    @GetMapping("/node-incidents/{id}/sources")
+    public ResponseEntity<ReportPaginatedIncidentsDTO<NodeIncidentSource>> getNodeIncidentSourcesByIncidentId(
+            @PathVariable String id, Pageable pageable) {
+        return ResponseEntity.ok(reportsService.getNodeIncidentSourcesByIncidentId(id, pageable));
     }
 }

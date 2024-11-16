@@ -3,6 +3,7 @@ package pl.pwr.zpi.reports.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.reports.dto.report.ReportDetailedSummaryDTO;
 import pl.pwr.zpi.reports.dto.report.ReportIncidentsDTO;
@@ -11,13 +12,12 @@ import pl.pwr.zpi.reports.dto.report.ReportSummaryDTO;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncident;
+import pl.pwr.zpi.reports.entity.report.application.ApplicationIncidentSource;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
+import pl.pwr.zpi.reports.entity.report.node.NodeIncidentSource;
 import pl.pwr.zpi.reports.entity.report.request.ReportGenerationRequestMetadata;
 import pl.pwr.zpi.reports.enums.ReportGenerationStatus;
-import pl.pwr.zpi.reports.repository.ApplicationIncidentRepository;
-import pl.pwr.zpi.reports.repository.NodeIncidentRepository;
-import pl.pwr.zpi.reports.repository.ReportGenerationRequestMetadataRepository;
-import pl.pwr.zpi.reports.repository.ReportRepository;
+import pl.pwr.zpi.reports.repository.*;
 import pl.pwr.zpi.reports.repository.projection.ReportIncidentsProjection;
 
 import java.util.List;
@@ -31,6 +31,8 @@ public class ReportsService {
     private final ReportRepository reportRepository;
     private final NodeIncidentRepository nodeIncidentRepository;
     private final ApplicationIncidentRepository applicationIncidentRepository;
+    private final ApplicationIncidentSourcesRepository applicationIncidentSourcesRepository;
+    private final NodeIncidentSourcesRepository nonNodeIncidentSourcesRepository;
     private final ReportGenerationRequestMetadataRepository reportGenerationRequestMetadataRepository;
 
     public List<ReportGenerationRequestMetadata> getFailedReportGenerationRequests() {
@@ -58,11 +60,11 @@ public class ReportsService {
     }
 
     public ReportPaginatedIncidentsDTO<ApplicationIncidentDTO> getReportApplicationIncidents(
-            String reportId, int pageNumber, int pageSize) {
+            String reportId, Pageable pageable) {
 
         return ReportPaginatedIncidentsDTO.<ApplicationIncidentDTO>builder()
                 .data(
-                        applicationIncidentRepository.findByReportId(reportId, PageRequest.of(pageNumber, pageSize)).stream()
+                        applicationIncidentRepository.findByReportId(reportId, pageable).stream()
                                 .map(ApplicationIncidentDTO::fromApplicationIncident)
                                 .toList()
                 )
@@ -71,11 +73,11 @@ public class ReportsService {
     }
 
     public ReportPaginatedIncidentsDTO<NodeIncidentDTO> getReportNodeIncidents(
-            String reportId, int pageNumber, int pageSize) {
+            String reportId, Pageable pageable) {
 
         return ReportPaginatedIncidentsDTO.<NodeIncidentDTO>builder()
                 .data(
-                        nodeIncidentRepository.findByReportId(reportId, PageRequest.of(pageNumber, pageSize)).stream()
+                        nodeIncidentRepository.findByReportId(reportId, pageable).stream()
                                 .map(NodeIncidentDTO::fromNodeIncident)
                                 .toList()
                 )
@@ -95,6 +97,23 @@ public class ReportsService {
                 .map(ReportIncidentsProjection.NodeReportProjection::getIncidents)
                 .flatMap(List::stream)
                 .toList();
+    }
+
+    public ReportPaginatedIncidentsDTO<ApplicationIncidentSource> getApplicationIncidentSourcesByIncidentId(
+            String incidentId, Pageable pageable) {
+        return ReportPaginatedIncidentsDTO.<ApplicationIncidentSource>builder()
+                .data(applicationIncidentSourcesRepository.findByIncidentId(incidentId, pageable))
+                .totalEntries(applicationIncidentSourcesRepository.countByIncidentId(incidentId))
+                .build();
+    }
+
+    public ReportPaginatedIncidentsDTO<NodeIncidentSource> getNodeIncidentSourcesByIncidentId(
+            String incidentId, Pageable pageable) {
+        return ReportPaginatedIncidentsDTO.<NodeIncidentSource>builder()
+                .data(nonNodeIncidentSourcesRepository.findByIncidentId(incidentId, pageable))
+                .totalEntries(nonNodeIncidentSourcesRepository.countByIncidentId(incidentId))
+                .build();
+
     }
 
     public Optional<ApplicationIncidentDTO> getApplicationIncidentById(String incidentId) {

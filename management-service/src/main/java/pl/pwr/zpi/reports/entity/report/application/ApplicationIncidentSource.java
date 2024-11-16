@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApplicationIncidentSource {
+    private String incidentId;
     private Long timestamp;
     private String podName;
     private String containerName;

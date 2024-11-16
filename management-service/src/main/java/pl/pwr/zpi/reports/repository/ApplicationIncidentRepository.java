@@ -10,4 +10,5 @@ public interface ApplicationIncidentRepository extends MongoRepository<Applicati
     List<ApplicationIncident> findByReportId(String reportId, Pageable pageable);
 
     Long countByReportId(String reportId);
+
 }

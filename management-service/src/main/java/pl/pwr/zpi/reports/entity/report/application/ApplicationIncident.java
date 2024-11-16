@@ -28,4 +28,8 @@ public class ApplicationIncident {
     private String recommendation;
     private Urgency urgency;
     private List<ApplicationIncidentSource> sources;
+
+    public void extendSourcesWithIncidentId() {
+        sources.forEach(source -> source.setIncidentId(this.id));
+    }
 }

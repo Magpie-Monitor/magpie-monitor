@@ -10,6 +10,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.stereotype.Component;
+import pl.pwr.zpi.utils.exception.JsonMappingException;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,7 +37,7 @@ public class Client implements HttpClient {
             return objectMapper.readValue(responseBody, clazz);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new JsonMappingException(e.getMessage());
         }
     }
 
@@ -47,7 +48,7 @@ public class Client implements HttpClient {
             return objectMapper.readValue(responseBody, clazz);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new JsonMappingException(e.getMessage());
         }
     }
 
