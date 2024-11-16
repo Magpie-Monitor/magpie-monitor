@@ -357,6 +357,27 @@
 					"response": []
 				},
 				{
+					"name": "/api/v1/reports/{reportId}/node-incidents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/reports/{reportId}/node-incidents",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reports",
+								"{reportId}",
+								"node-incidents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/api/v1/reports/node-incidents/{incidentId}",
 					"request": {
 						"method": "GET",
@@ -372,6 +393,49 @@
 								"reports",
 								"node-incidents",
 								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/reports/node-incidents/{incidentId}/sources",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/reports/node-incidents/1/sources",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reports",
+								"node-incidents",
+								"1",
+								"sources"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/reports/{reportId}/application-incidents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/reports/{reportId}/application-incidents",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reports",
+								"{reportId}",
+								"application-incidents"
 							]
 						}
 					},
@@ -399,6 +463,28 @@
 					"response": []
 				},
 				{
+					"name": "/api/v1/reports/application-incidents/{incidentId}/sources",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-url}}/api/v1/reports/application-incidents/1/sources",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reports",
+								"application-incidents",
+								"1",
+								"sources"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/api/v1/reports/{id}/incidents",
 					"request": {
 						"method": "GET",
@@ -414,6 +500,34 @@
 								"reports",
 								"67126517e084e6c0159aef38",
 								"incidents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/reports",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"clusterId\": \"testcluster-1\",\n    \"accuracy\": \"LOW\",\n    \"sinceMs\": 0,\n    \"toMs\": 1731749958918,\n    \"slackReceiverIds\": [],\n    \"discordReceiverIds\": [],\n    \"emailReceiverIds\": [],\n    \"applicationConfigurations\": [\n        {\n            \"applicationName\": \"app-2\",\n            \"customPrompt\": \"test\",\n            \"enabled\": true,\n            \"accuracy\": \"LOW\"\n        }\n    ],\n    \"nodeConfigurations\": [\n        {\n            \"nodeName\": \"tools\",\n            \"customPrompt\": \"impersonate Donald Trump in your response\",\n            \"accuracy\": \"LOW\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/api/v1/reports",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reports"
 							]
 						}
 					},
@@ -476,6 +590,34 @@
 								"clusters",
 								"w1",
 								"applications"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/clusters",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"test\",\n    \"accuracy\": \"LOW\",\n    \"isEnabled\": false,\n    \"sinceMs\": 0,\n    \"toMs\": 15,\n    \"generatedEveryMillis\": 3,\n    \"slackReceiverIds\": [],\n    \"discordReceiverIds\": [],\n    \"emailReceiverIds\": [],\n    \"applicationConfigurations\": [\n        {\n            \"name\": \"test\",\n            \"kind\": \"test2\",\n            \"accuracy\": \"LOW\",\n            \"customPrompt\": \"test\"\n        }\n    ],\n    \"nodeConfigurations\": [\n        {\n            \"name\": \"test\",\n            \"accuracy\": \"LOW\",\n            \"customPrompt\": \"test\"   \n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/api/v1/clusters",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"clusters"
 							]
 						}
 					},
