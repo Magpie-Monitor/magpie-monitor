@@ -12,8 +12,10 @@ import {useState, useEffect} from 'react';
 import {NotificationChannel} from './NotificationSection/NotificationSection';
 import {ApplicationDataRow} from './ApplicationSection/ApplicationSection';
 import {NodeDataRow} from './NodesSection/NodesSection';
-import {AccuracyLevel, ClusterUpdateData, ManagmentServiceApiInstance, ReportPost, ReportType, NotificationChannelKind}
-    from 'api/managment-service.ts';
+import {
+    AccuracyLevel, ClusterUpdateData, ManagmentServiceApiInstance,
+    ReportPost, ReportType, NotificationChannelKind
+} from 'api/managment-service.ts';
 import GeneratedInfoPopup from './GeneratedInfoPopup/GeneratedInfoPopup.tsx';
 import ReportGenerationType from './StateSection/ReportGenerationType.tsx';
 import {dateFromTimestampMs} from 'lib/date.ts';
@@ -40,7 +42,22 @@ const CreateReport = () => {
     useEffect(() => {
         const fetchClusterDetails = async () => {
             try {
-                const clusterDetails = await ManagmentServiceApiInstance.getClusterDetails(id || '');
+                const [clusterDetails, runningApplications, runningNodes] = await Promise.all([
+                    ManagmentServiceApiInstance.getClusterDetails(id || ''),
+                    ManagmentServiceApiInstance.getApplications(id || ''),
+                    ManagmentServiceApiInstance.getNodes(id || ''),
+                ]);
+
+                const runningApplicationsMap = runningApplications.reduce((acc, app) => {
+                    acc[`${app.name}-${app.kind}`] = app.running;
+                    return acc;
+                }, {} as Record<string, boolean>);
+
+                const runningNodesMap = runningNodes.reduce((acc, node) => {
+                    acc[node.name] = node.running;
+                    return acc;
+                }, {} as Record<string, boolean>);
+
                 const mappedNotificationChannels = [
                     ...clusterDetails.slackReceivers.map(receiver => ({
                         id: receiver.id.toString(),
@@ -76,7 +93,7 @@ const CreateReport = () => {
                         kind: config.kind,
                         accuracy: config.accuracy as AccuracyLevel,
                         customPrompt: config.customPrompt,
-                        running: true, //TODO
+                        running: runningApplicationsMap[`${config.name}-${config.kind}`] ?? false,
                     }));
                 setApplications(mappedApplications);
 
@@ -84,7 +101,7 @@ const CreateReport = () => {
                     name: config.name,
                     accuracy: config.accuracy,
                     customPrompt: config.customPrompt,
-                    running: true, //TODO
+                    running: runningNodesMap[config.name] ?? false,
                 }));
                 setNodes(mappedNodes);
 
