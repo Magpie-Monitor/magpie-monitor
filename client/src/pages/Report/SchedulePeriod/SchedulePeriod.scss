@@ -1,0 +1,18 @@
+.schedule-period {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-direction: row;
+  width: 100%;
+
+  &__text {
+    display: flex;
+    width: 100%;
+  }
+
+  &__next-report {
+    margin: 0;
+    font-size: 14px;
+    width: 100%;
+  }
+}
