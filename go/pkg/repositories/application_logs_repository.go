@@ -283,6 +283,13 @@ func (r *ElasticSearchApplicationLogsRepository) InsertLogs(ctx context.Context,
 	bulk := r.esClient.Bulk().Index(index)
 
 	for _, log := range logs.Flatten() {
+
+		if log.Content == "" {
+
+			//Skip inserting logs without content
+			continue
+		}
+
 		jsonLog, err := json.Marshal(log)
 		r.logger.Sugar().Infof("%s", jsonLog)
 		if err != nil {

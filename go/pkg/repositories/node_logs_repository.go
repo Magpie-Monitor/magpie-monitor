@@ -188,6 +188,12 @@ func (r *ElasticSearchNodeLogsRepository) RemoveIndex(ctx context.Context, index
 
 func (r *ElasticSearchNodeLogsRepository) InsertLogs(ctx context.Context, logs *NodeLogs) error {
 
+	if logs.Content == "" {
+
+		//Skip inserting logs without content
+		return nil
+	}
+
 	index := getNodeLogsIndexName(logs)
 
 	if !r.doesIndexExists(index) {
