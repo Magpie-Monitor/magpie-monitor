@@ -58,7 +58,7 @@ const SchedulePeriod: React.FC<SchedulePeriodProps> = ({ setGenerationPeriod }) 
                 />
                 <div className="schedule-period__text">
                     <p className="schedule-period__next-report">
-                        *Next report would generate: {nextReportDate}
+                        *Next report (generation may take up to 24h): {nextReportDate}
                     </p>
                 </div>
             </div>
