@@ -2,10 +2,9 @@ package remote_write
 
 import (
 	"context"
-	"log"
-
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl/plain"
+	"log"
 )
 
 type RemoteWriter interface {

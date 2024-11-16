@@ -1,4 +1,4 @@
-import axios, {AxiosInstance} from 'axios';
+import axios, { AxiosInstance } from 'axios';
 
 interface UserInfo {
   nickname: string;
@@ -160,7 +160,16 @@ export interface NodeIncidentSource {
 }
 
 export interface ReportPost {
-    clusterId: string;
+  clusterId: string;
+  accuracy: AccuracyLevel;
+  sinceMs: number;
+  toMs: number;
+  slackReceiverIds: number[];
+  discordReceiverIds: number[];
+  emailReceiverIds: number[];
+  applicationConfigurations: {
+    applicationName: string;
+    customPrompt: string;
     accuracy: AccuracyLevel;
     sinceMs: number;
     toMs: number;
@@ -168,15 +177,16 @@ export interface ReportPost {
     discordReceiverIds: number[];
     mailReceiverIds: number[];
     applicationConfigurations: {
-        applicationName: string;
-        customPrompt: string;
-        accuracy: AccuracyLevel;
+      applicationName: string;
+      customPrompt: string;
+      accuracy: AccuracyLevel;
     }[];
     nodeConfigurations: {
-        nodeName: string;
-        customPrompt: string;
-        accuracy: AccuracyLevel;
+      nodeName: string;
+      customPrompt: string;
+      accuracy: AccuracyLevel;
     }[];
+  };
 }
 
 export interface ClusterUpdateData {
@@ -404,19 +414,18 @@ class ManagmentServiceApi {
   }
 
   public async getClusters(): Promise<ClusterSummary[]> {
-
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get('api/v1/clusters');
     const clusters = response.data;
 
-    return clusters.map((cluster:ClusterSummary)=>{
+    return clusters.map((cluster: ClusterSummary) => {
       return {
-      ...cluster,
-      updatedAt: 0,
-      accuracy: 'LOW',
-      slackChannels: [],
-      discordChannels: [],
-      mailChannels: [],
+        ...cluster,
+        updatedAt: 0,
+        accuracy: 'LOW',
+        slackChannels: [],
+        discordChannels: [],
+        mailChannels: [],
       };
     });
   }
@@ -546,7 +555,9 @@ class ManagmentServiceApi {
 
   public async getClusterDetails(clusterId: string): Promise<ClusterDetails> {
     await this.refreshTokenIfExpired();
-    const response = await this.axiosInstance.get(`/api/v1/clusters/${clusterId}`);
+    const response = await this.axiosInstance.get(
+      `/api/v1/clusters/${clusterId}`,
+    );
 
     const clusterData = response.data;
 
@@ -563,13 +574,15 @@ class ManagmentServiceApi {
         createdAt: receiver.createdAt,
         updatedAt: receiver.updatedAt,
       })),
-      discordReceivers: clusterData.discordReceivers.map((receiver: Discord) => ({
-        id: receiver.id,
-        receiverName: receiver.receiverName,
-        webhookUrl: receiver.webhookUrl,
-        createdAt: receiver.createdAt,
-        updatedAt: receiver.updatedAt,
-      })),
+      discordReceivers: clusterData.discordReceivers.map(
+        (receiver: Discord) => ({
+          id: receiver.id,
+          receiverName: receiver.receiverName,
+          webhookUrl: receiver.webhookUrl,
+          createdAt: receiver.createdAt,
+          updatedAt: receiver.updatedAt,
+        }),
+      ),
       emailReceivers: clusterData.emailReceivers.map((receiver: Email) => ({
         id: receiver.id,
         receiverName: receiver.receiverName,
@@ -577,18 +590,21 @@ class ManagmentServiceApi {
         createdAt: receiver.createdAt,
         updatedAt: receiver.updatedAt,
       })),
-      applicationConfigurations:
-          clusterData.applicationConfigurations.map((config: ApplicationConfiguration) => ({
-            name: config.name,
-            kind: config.kind,
-            accuracy: config.accuracy,
-            customPrompt: config.customPrompt,
-          })),
-      nodeConfigurations: clusterData.nodeConfigurations.map((config: NodeConfiguration) => ({
-        name: config.name,
-        accuracy: config.accuracy,
-        customPrompt: config.customPrompt,
-      })),
+      applicationConfigurations: clusterData.applicationConfigurations.map(
+        (config: ApplicationConfiguration) => ({
+          name: config.name,
+          kind: config.kind,
+          accuracy: config.accuracy,
+          customPrompt: config.customPrompt,
+        }),
+      ),
+      nodeConfigurations: clusterData.nodeConfigurations.map(
+        (config: NodeConfiguration) => ({
+          name: config.name,
+          accuracy: config.accuracy,
+          customPrompt: config.customPrompt,
+        }),
+      ),
     };
   }
 
