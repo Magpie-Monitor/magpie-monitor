@@ -9,27 +9,16 @@ interface ReportActionsCellProps {
 const ReportActionsCell: React.FC<ReportActionsCellProps> = ({ clusterId }) => {
     const navigate = useNavigate();
 
-    const handleNewReportOnDemand = () => {
-        navigate(`/reports/${clusterId}/on-demand`);
-    };
-
-    const handleScheduledReport = () => {
-        navigate(`/reports/${clusterId}/scheduled`);
+    const handleReportConfiguration = () => {
+        navigate(`/clusters/${clusterId}/report`);
     };
 
     return (
-        <div className='clusters--button'>
-            <ActionButton
-                onClick={handleScheduledReport}
-                description="Scheduled"
-                color={ActionButtonColor.GREEN}
-            />
-            <ActionButton
-                onClick={handleNewReportOnDemand}
-                description="On Demand"
-                color={ActionButtonColor.GREEN}
-            />
-        </div>
+        <ActionButton
+            onClick={handleReportConfiguration}
+            description="Report configuration"
+            color={ActionButtonColor.GREEN}
+        />
     );
 };
 

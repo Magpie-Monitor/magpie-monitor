@@ -1,9 +1,8 @@
 import { createContext, useContext } from 'react';
-
-export type NotificationsChannel = 'SLACK' | 'DISCORD' | 'EMAIL';
+import {NotificationChannelKind} from 'api/managment-service.ts';
 
 export type NotificationContextProps = (
-    channel: NotificationsChannel,
+    channel: NotificationChannelKind,
     adress: string,
     linkName: string,
     destination: string,

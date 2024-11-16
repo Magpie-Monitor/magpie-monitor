@@ -9,6 +9,7 @@ import {
   ClusterSummary,
   ManagmentServiceApiInstance,
   AccuracyLevel,
+  NotificationChannelKind,
 } from 'api/managment-service';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
@@ -24,8 +25,6 @@ interface ClusterDataRow {
   updatedAt: string;
   [key: string]: string | NotificationChannelColumn[];
 }
-
-type NotificationChannelKind = 'SLACK' | 'DISCORD' | 'EMAIL';
 
 export interface NotificationChannelColumn {
   kind: NotificationChannelKind;
@@ -72,7 +71,7 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
     columnKey: 'name',
     customComponent: (row: ClusterDataRow) => (
       <LinkComponent
-        to={`/reports/${row.name}/scheduled`}
+        to={`/clusters/${row.name}/report`}
         isRunning={row.state === 'ONLINE'}
       >
         {row.name}

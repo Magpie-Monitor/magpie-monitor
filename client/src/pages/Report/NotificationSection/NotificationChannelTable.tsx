@@ -1,15 +1,13 @@
 import React from 'react';
 import Table, { TableColumn } from 'components/Table/Table';
 import Channels from './NotificationChannelsColumn/NotificationChannelColumn';
-import ActionButton, {
-    ActionButtonColor,
-} from 'components/ActionButton/ActionButton';
 import { NotificationChannel } from './NotificationSection.tsx';
 import {
     transformNotificationChannelToServiceColumn,
     transformNotificationChannelToDetailsColumn,
 } from './NotificationUtils.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
+import DeleteIconButton from 'components/DeleteIconButton/DeleteIconButton.tsx';
 
 interface NotificationChannelTableProps {
     rows: NotificationChannel[];
@@ -47,12 +45,8 @@ const NotificationChannelTable: React.FC<NotificationChannelTableProps> = ({
         {
             header: 'Actions',
             columnKey: 'actions',
-            customComponent: (row: NotificationChannel) => (
-                <ActionButton
-                    onClick={() => onDelete(row.id, row.service)}
-                    description="Delete"
-                    color={ActionButtonColor.RED}
-                />
+            customComponent: (row) => (
+                <DeleteIconButton onClick={() => onDelete(row.id, row.service)} />
             ),
         },
     ];

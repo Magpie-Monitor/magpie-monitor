@@ -2,10 +2,11 @@ import ActionButton, {
   ActionButtonColor,
 } from 'components/ActionButton/ActionButton';
 import './NotificationButtons.scss';
-import { NotificationsChannel, useNotification } from 'pages/Notification/NotificationContext';
+import { useNotification } from 'pages/Notification/NotificationContext';
+import {NotificationChannelKind} from 'api/managment-service';
 
 export interface NotificationButtonsProps {
-  channel: NotificationsChannel;
+  channel: NotificationChannelKind;
   adress: string;
   linkName: string;
   destination: string;
