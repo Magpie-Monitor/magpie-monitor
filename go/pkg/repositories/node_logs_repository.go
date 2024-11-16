@@ -6,6 +6,7 @@ import (
 	"github.com/IBM/fp-go/array"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	es "github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
@@ -30,6 +31,8 @@ type NodeLogsRepository interface {
 	RemoveIndex(ctx context.Context, indexName string) error
 	GetLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) ([]*NodeLogsDocument, error)
 	InsertLogs(ctx context.Context, logs *NodeLogs) error
+	GetBatchedLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) (NodeLogsBatchRetriever, error)
+	GetLogsByIds(ctx context.Context, clusterId string, startDate time.Time, endDate time.Time, ids []string) ([]*NodeLogsDocument, error)
 }
 
 func ProvideAsNodeLogsRepository(f any) any {
@@ -98,7 +101,52 @@ func (r *ElasticSearchNodeLogsRepository) GetLogs(ctx context.Context, cluster s
 		if log.Content != "" {
 			nodeLogs = append(nodeLogs, &log)
 		}
+	}
 
+	return nodeLogs, nil
+}
+
+func (r *ElasticSearchNodeLogsRepository) GetLogsByIds(
+	ctx context.Context,
+	clusterId string,
+	from time.Time,
+	to time.Time,
+	ids []string) ([]*NodeLogsDocument, error) {
+
+	indices := r.getIndiciesWithClusterAndDateRange(clusterId, from, to)
+
+	logsByIdsQuery, err := elasticsearch.GetDocumentsByIds(ctx,
+		r.esClient,
+		indices,
+		ids)
+	if err != nil {
+		r.logger.Error("Failed to get logs by query", zap.Error(err), zap.Any("ids", ids), zap.Any("clusterId", clusterId))
+		return nil, err
+	}
+
+	var nodeLogs []*NodeLogsDocument
+	for _, value := range logsByIdsQuery.Docs {
+		var log NodeLogsDocument
+
+		result, ok := value.(*types.GetResult)
+		if !ok || result.Source_ == nil {
+			r.logger.Error("Failed to get document from id", zap.Any("document", value))
+
+			// Skipping in case of made up id
+			continue
+		}
+
+		err := json.Unmarshal(result.Source_, &log)
+		if err != nil {
+			r.logger.Error("Failed to decode node logs", zap.Error(err), zap.Any("logs", result.Source_))
+			return nil, err
+		}
+
+		log.Id = result.Id_
+
+		if log.Content != "" {
+			nodeLogs = append(nodeLogs, &log)
+		}
 	}
 
 	return nodeLogs, nil
@@ -186,6 +234,28 @@ func (r *ElasticSearchNodeLogsRepository) updateIndices() error {
 	r.indices = indices
 	r.logger.Info("Fetched logsdb indices: ", zap.Any("indices", indices))
 	return nil
+}
+
+func (r *ElasticSearchNodeLogsRepository) GetBatchedLogs(
+	ctx context.Context,
+	cluster string,
+	startDate time.Time,
+	endDate time.Time) (NodeLogsBatchRetriever, error) {
+
+	indices := r.getIndiciesWithClusterAndDateRange(cluster, startDate, endDate)
+	query := elasticsearch.GetQueryByTimestamps(startDate, endDate)
+
+	elasticDocumentRetriever, err := NewElasticBatchedDocumentsRetriever(
+		r.esClient,
+		elasticsearch.GetSearchQuery(ctx, r.esClient, indices, query, 10000),
+	)
+	if err != nil {
+		r.logger.Error("Failed to get application logs", zap.Error(err))
+		return nil, err
+	}
+	return &ElasticNodeBatchedLogsRetriever{
+		documentRetriever: elasticDocumentRetriever,
+	}, nil
 }
 
 // Compile-time check if ElasticSearchNodeLogsRepository implements

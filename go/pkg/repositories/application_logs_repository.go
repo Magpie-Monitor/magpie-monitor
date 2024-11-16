@@ -77,6 +77,8 @@ type ApplicationLogsRepository interface {
 	GetLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) ([]*ApplicationLogsDocument, error)
 	InsertLogs(ctx context.Context, logs *ApplicationLogs) error
 	RemoveIndex(ctx context.Context, indexName string) error
+	GetBatchedLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) (ApplicationLogsBatchRetriever, error)
+	GetLogsByIds(ctx context.Context, clusterId string, startDate time.Time, endDate time.Time, ids []string) ([]*ApplicationLogsDocument, error)
 }
 
 func ProvideAsApplicationLogsRepository(f any) any {
@@ -84,6 +86,7 @@ func ProvideAsApplicationLogsRepository(f any) any {
 		f,
 		fx.As(new(ApplicationLogsRepository)),
 	)
+
 }
 
 type ElasticSearchApplicationLogsRepository struct {
@@ -94,6 +97,49 @@ type ElasticSearchApplicationLogsRepository struct {
 
 func (r *ElasticSearchApplicationLogsRepository) doesIndexExists(index string) bool {
 	return r.indices[index]
+}
+
+func (r *ElasticSearchApplicationLogsRepository) GetLogsByIds(
+	ctx context.Context,
+	clusterId string,
+	startDate time.Time,
+	endDate time.Time,
+	ids []string,
+) ([]*ApplicationLogsDocument, error) {
+
+	indices := r.getIndiciesWithClusterAndDateRange(clusterId, startDate, endDate)
+
+	logsByIdsQuery, err := elasticsearch.GetDocumentsByIds(ctx,
+		r.esClient,
+		indices,
+		ids)
+	if err != nil {
+		r.logger.Error("Failed to get logs by query", zap.Error(err), zap.Any("ids", ids), zap.Any("clusterId", clusterId))
+		return nil, err
+	}
+
+	var applicationLogs []*ApplicationLogsDocument
+	for _, value := range logsByIdsQuery.Docs {
+		var log ApplicationLogsDocument
+		result, ok := value.(*types.GetResult)
+		if !ok || result.Source_ == nil {
+			r.logger.Error("Failed to get document from id", zap.Any("document", value))
+			continue
+		}
+		err := json.Unmarshal(result.Source_, &log)
+		if err != nil {
+			r.logger.Error("Failed to decode application logs", zap.Error(err), zap.Any("logs", result.Source_))
+			return nil, err
+		}
+
+		log.Id = result.Id_
+
+		if log.Content != "" {
+			applicationLogs = append(applicationLogs, &log)
+		}
+	}
+
+	return applicationLogs, nil
 }
 
 func getApplicationLogsIndexName(applicationLogs *ApplicationLogs) string {
@@ -123,31 +169,73 @@ func (r *ElasticSearchApplicationLogsRepository) GetLogs(ctx context.Context, cl
 		return []*ApplicationLogsDocument{}, nil
 	}
 
-	res, err := elasticsearch.SearchIndices(ctx, r.esClient, indices, query)
+	scroll, err := elasticsearch.RequestSearchScroll(ctx, r.esClient, indices, query)
+	r.logger.Info("Fetched scroll", zap.Any("scrollId", scroll.ScrollId_), zap.Any("hits", len(scroll.Hits.Hits)))
 
 	if err != nil {
 		r.logger.Error("Failed to get application logs", zap.Error(err))
 		return nil, err
 	}
 
+	hitsInBatch := scroll.Hits.Hits
+
 	var applicationLogs []*ApplicationLogsDocument
-	for _, value := range res.Hits.Hits {
-		var log ApplicationLogsDocument
-		err := json.Unmarshal(value.Source_, &log)
+	for {
+		for _, value := range hitsInBatch {
+			var log ApplicationLogsDocument
+			err := json.Unmarshal(value.Source_, &log)
+			if err != nil {
+				r.logger.Error("Failed to decode application logs", zap.Error(err))
+				return nil, err
+			}
+
+			log.Id = *value.Id_
+
+			if log.Content != "" {
+				applicationLogs = append(applicationLogs, &log)
+			}
+		}
+
+		// If no hits are returned, then all of the documents have been returned
+		if len(hitsInBatch) == 0 {
+			break
+		}
+
+		nextScroll, err := elasticsearch.GetNextScrollPage(ctx, r.esClient, *scroll.ScrollId_)
 		if err != nil {
-			r.logger.Error("Failed to decode application logs", zap.Error(err))
-			return nil, err
+			r.logger.Error("Failed to fetch next batch from scroll", zap.Error(err), zap.Any("scrollId", scroll.ScrollId_))
 		}
 
-		log.Id = *value.Id_
+		hitsInBatch = nextScroll.Hits.Hits
 
-		if log.Content != "" {
-			applicationLogs = append(applicationLogs, &log)
-		}
+		r.logger.Info("Fetched scroll", zap.Any("scrollId", nextScroll.ScrollId_), zap.Any("hits", len(nextScroll.Hits.Hits)))
 
 	}
 
 	return applicationLogs, nil
+}
+
+func (r *ElasticSearchApplicationLogsRepository) GetBatchedLogs(
+	ctx context.Context,
+	cluster string,
+	startDate time.Time,
+	endDate time.Time) (ApplicationLogsBatchRetriever, error) {
+
+	indices := r.getIndiciesWithClusterAndDateRange(cluster, startDate, endDate)
+	query := elasticsearch.GetQueryByTimestamps(startDate, endDate)
+
+	elasticDocumentRetriever, err := NewElasticBatchedDocumentsRetriever(
+		r.esClient,
+		elasticsearch.GetSearchQuery(ctx, r.esClient, indices, query, 10000),
+	)
+	if err != nil {
+		r.logger.Error("Failed to get application logs", zap.Error(err))
+		return nil, err
+	}
+
+	return &ElasticApplicationBatchedLogsRetriever{
+		documentRetriever: elasticDocumentRetriever,
+	}, nil
 }
 
 func (r *ElasticSearchApplicationLogsRepository) CreateIndex(ctx context.Context, indexName string) error {
