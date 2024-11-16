@@ -111,7 +111,7 @@ type podLogsSplitParams struct {
 }
 
 func testPodContainerPacketSplit(params podLogsSplitParams, t *testing.T) {
-	agent := Agent{maxPodPacketSizeBytes: params.MaxPodPacketSizeBytes, containerPacketSizeBytes: params.ContainerPacketSizeBytes}
+	agent := Agent{maxPodPacketSizeBytes: params.MaxPodPacketSizeBytes, maxContainerPacketSizeBytes: params.ContainerPacketSizeBytes}
 
 	containers := agent.splitLogsIntoContainerPackets("test", "test", params.Logs)
 
@@ -176,7 +176,7 @@ type containerLogsSplitParams struct {
 }
 
 func testContainerLogsPacketSplit(params containerLogsSplitParams, t *testing.T) {
-	agent := Agent{containerPacketSizeBytes: params.ContainerPacketSizeBytes}
+	agent := Agent{maxContainerPacketSizeBytes: params.ContainerPacketSizeBytes}
 
 	containers := len(agent.splitLogsIntoContainerPackets("test", "test", params.Logs))
 	expectedContainers := params.ExpectedContainers

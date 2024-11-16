@@ -53,6 +53,8 @@ type GlobalConfig struct {
 	NodeMetadataRemoteWriteUrl         string
 	ClusterMetadataServiceClientSecret string
 	RunningMode                        string
+	MaxPodPacketSizeBytes              int
+	MaxContainerPacketSizeBytes        int
 }
 
 type RedisConfig struct {
@@ -106,6 +108,9 @@ func NewConfig() Config {
 
 	clusterMetadataServiceClientSecret := flag.String("clusterMetadataServiceClientSecret", "", "Client secret for metadata service remote write.")
 
+	maxPodPacketSizeBytes := flag.Int("maxPodPacketSizeBytes", 5_000, "Maximal size of a single pod packet sent to Kafka in bytes.")
+	maxContainerPacketSizeBytes := flag.Int("maxContainerPacketSizeBytes", 1_000, "Maximal size of a single container packet in bytes.")
+
 	var watchedFiles arrayFlags
 	flag.Var(&watchedFiles, "file", "Log files that are watched for log collector running in \"nodes\" mode.")
 
@@ -134,6 +139,8 @@ func NewConfig() Config {
 			NodeMetadataRemoteWriteUrl:         *nodeRemoteWriteMetadataUrl,
 			ClusterMetadataServiceClientSecret: *clusterMetadataServiceClientSecret,
 			RunningMode:                        *runningMode,
+			MaxPodPacketSizeBytes:              *maxPodPacketSizeBytes,
+			MaxContainerPacketSizeBytes:        *maxContainerPacketSizeBytes,
 		},
 		Redis: RedisConfig{
 			Url:      *redisUrl,
