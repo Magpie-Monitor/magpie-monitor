@@ -28,16 +28,16 @@ func NewDataWriter(config *config.Config) DataWriter {
 	}
 }
 
-func (d *DataWriter) WriteClusterLogs(chunk data.Chunk) {
+func (d *DataWriter) WriteApplicationLogs(chunk data.Chunk) {
 	d.writeChunk(chunk, d.podWriter)
-}
-
-func (d *DataWriter) WriteClusterMetadata(chunk data.ClusterState) {
-	d.writeChunk(chunk, d.podMetadataWriter)
 }
 
 func (d *DataWriter) WriteNodeLogs(chunk nodeData.Chunk) {
 	d.writeChunk(chunk, d.nodeWriter)
+}
+
+func (d *DataWriter) WriteClusterMetadata(chunk data.ClusterState) {
+	d.writeChunk(chunk, d.podMetadataWriter)
 }
 
 func (d *DataWriter) WriteNodeMetadata(chunk nodeData.NodeState) {
