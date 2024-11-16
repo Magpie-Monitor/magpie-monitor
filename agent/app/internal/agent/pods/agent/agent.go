@@ -35,7 +35,7 @@ type Agent struct {
 	metadata                          chan<- data.ClusterState
 	runningMode                       string
 	maxPodPacketSizeBytes             int
-	containerPacketSizeBytes          int
+	maxContainerPacketSizeBytes       int
 }
 
 func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<- data.ClusterState) *Agent {
@@ -49,8 +49,8 @@ func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<
 		results:                           logsChan,
 		metadata:                          metadataChan,
 		runningMode:                       cfg.Global.RunningMode,
-		maxPodPacketSizeBytes:             1000,
-		containerPacketSizeBytes:          250,
+		maxPodPacketSizeBytes:             cfg.Global.MaxPodPacketSizeBytes,
+		maxContainerPacketSizeBytes:       cfg.Global.MaxContainerPacketSizeBytes,
 	}
 }
 
@@ -228,7 +228,7 @@ func (a *Agent) splitPodContainerLogsIntoPackets(podName string, containers []da
 	var (
 		podPacket                []data.Pod
 		currentPacketLen         = 0
-		containerPacketsTotalLen = len(containers) * a.containerPacketSizeBytes
+		containerPacketsTotalLen = len(containers) * a.maxContainerPacketSizeBytes
 		currentPacketFreeBytes   = a.maxPodPacketSizeBytes
 	)
 
@@ -254,7 +254,7 @@ func (a *Agent) splitContainerIntoPackets(containers []data.Container) [][]data.
 		containerPacket        []data.Container
 		currentPacketFreeBytes = a.maxPodPacketSizeBytes
 		currentPacketLen       = 0
-		containerPacketLen     = a.containerPacketSizeBytes
+		containerPacketLen     = a.maxContainerPacketSizeBytes
 	)
 
 	for _, container := range containers {
@@ -342,7 +342,7 @@ func (a *Agent) splitLogsIntoContainerPackets(containerName, containerImage, log
 	var (
 		logPackets         []string
 		currentPacket      string
-		maxPacketSizeBytes = a.containerPacketSizeBytes
+		maxPacketSizeBytes = a.maxContainerPacketSizeBytes
 		currentPacketLen   = 0
 	)
 

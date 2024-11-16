@@ -39,6 +39,7 @@ services:
         - action: rebuild
           path: ./go/pkg
           target: /src
+          
   pod-agent:
     user: "0" # Elevated permission needed for bind mount
     container_name: magpie-monitor-pod-agent
@@ -72,6 +73,12 @@ services:
       - ${POD_AGENT_METADATA_REMOTE_WRITE_URL}
       - "--clusterMetadataServiceClientSecret"
       - ${CLUSTER_METADATA_SERVICE_CLIENT_SECRET}
+      - "--excludedNamespace"
+      - "mm"
+      - "--maxPodPacketSizeBytes"
+      - ${MAX_POD_PACKET_SIZE_BYTES}
+      - "--maxContainerPacketSizeBytes"
+      - ${MAX_CONTAINER_PACKET_SIZE_BYTES}
     develop:
       watch:
         - action: rebuild
@@ -79,6 +86,7 @@ services:
           target: /src
     volumes:
       - ${POD_AGENT_HOST_KUBECONFIG_PATH:-/.kube}:/root/.kube
+
   node-agent:
     user: "0" # Elevated permission needed for bind mount
     container_name: magpie-monitor-node-agent
@@ -127,6 +135,7 @@ services:
           target: /src
     volumes:
       - ${NODE_AGENT_HOST_WATCHED_FILE_PATH:-/log/file}:/var/log/file
+
   # Please ignore warning about vm.overcommit_memory, it requires host changes that aren't justified in a dev environment.
   redis:
     container_name: magpie-monitor-redis
