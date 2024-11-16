@@ -19,7 +19,7 @@ export interface NotificationChannel {
 
 interface NotificationSectionProps {
     notificationChannels: NotificationChannel[];
-    setNotificationChannels: (channels: NotificationChannel[]) => void;
+    setNotificationChannels: React.Dispatch<React.SetStateAction<NotificationChannel[]>>
 }
 
 const NotificationSection: React.FC<NotificationSectionProps> = ({

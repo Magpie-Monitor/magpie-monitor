@@ -108,7 +108,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
                 />
             ),
         },
-        { header: 'Kind', columnKey: 'kind' },
+        { header: 'Kind', columnKey: 'kind'},
         {
             header: 'Actions',
             columnKey: 'actions',

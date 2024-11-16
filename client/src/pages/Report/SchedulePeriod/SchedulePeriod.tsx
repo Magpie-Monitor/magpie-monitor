@@ -56,12 +56,9 @@ const SchedulePeriod: React.FC<SchedulePeriodProps> = ({ setGenerationPeriod }) 
                     chosenItem={period}
                     onSelect={handlePeriodChange}
                 />
-                <div className="schedule-period__text-container">
+                <div className="schedule-period__text">
                     <p className="schedule-period__next-report">
-                        *Next report would generate:
-                    </p>
-                    <p className="schedule-period__next-report">
-                        {nextReportDate}
+                        *Next report would generate: {nextReportDate}
                     </p>
                 </div>
             </div>

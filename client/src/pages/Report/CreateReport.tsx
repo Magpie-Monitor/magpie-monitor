@@ -12,7 +12,7 @@ import {useState, useEffect} from 'react';
 import {NotificationChannel} from './NotificationSection/NotificationSection';
 import {ApplicationDataRow} from './ApplicationSection/ApplicationSection';
 import {NodeDataRow} from './NodesSection/NodesSection';
-import {AccuracyLevel, ClusterUpdateData, ManagmentServiceApiInstance, ReportPost, ReportType}
+import {AccuracyLevel, ClusterUpdateData, ManagmentServiceApiInstance, ReportPost, ReportType, NotificationChannelKind}
     from 'api/managment-service.ts';
 import GeneratedInfoPopup from './GeneratedInfoPopup/GeneratedInfoPopup.tsx';
 import ReportGenerationType from './StateSection/ReportGenerationType.tsx';
@@ -51,7 +51,7 @@ const CreateReport = () => {
                             id: receiver.id.toString(),
                             name: receiver.receiverName,
                             details: receiver.webhookUrl,
-                            service: 'SLACK',
+                            service: 'SLACK' as NotificationChannelKind,
                             added: dateFromTimestampMs(receiver.createdAt),
                             updated: dateFromTimestampMs(receiver.updatedAt),
 
@@ -60,7 +60,7 @@ const CreateReport = () => {
                             id: receiver.id.toString(),
                             name: receiver.receiverName,
                             details: receiver.webhookUrl,
-                            service: 'DISCORD',
+                            service: 'DISCORD' as NotificationChannelKind,
                             added: dateFromTimestampMs(receiver.createdAt),
                             updated: dateFromTimestampMs(receiver.updatedAt),
                         })),
@@ -68,7 +68,7 @@ const CreateReport = () => {
                             id: receiver.id.toString(),
                             name: receiver.receiverName,
                             details: receiver.receiverEmail,
-                            service: 'EMAIL',
+                            service: 'EMAIL' as NotificationChannelKind,
                             added: dateFromTimestampMs(receiver.createdAt),
                             updated: dateFromTimestampMs(receiver.updatedAt),
                         })),
@@ -79,8 +79,9 @@ const CreateReport = () => {
                         clusterDetails.applicationConfigurations.map(config => ({
                         name: config.name,
                         kind: config.kind,
-                        accuracy: config.accuracy,
+                        accuracy: config.accuracy as AccuracyLevel,
                         customPrompt: config.customPrompt,
+                        running: true, //TODO
                     }));
                     setApplications(mappedApplications);
 
@@ -88,6 +89,7 @@ const CreateReport = () => {
                         name: config.name,
                         accuracy: config.accuracy,
                         customPrompt: config.customPrompt,
+                        running: true, //TODO
                     }));
                     setNodes(mappedNodes);
 
@@ -135,7 +137,6 @@ const CreateReport = () => {
             filterNotificationChannels(notificationChannels);
 
         const schedulePeriodMs = periodToMilliseconds[generationPeriod] || 0;
-        console.log(schedulePeriodMs);
 
         if (generationType === 'ON DEMAND') {
             const report: ReportPost = {
