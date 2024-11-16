@@ -10,8 +10,8 @@ import java.util.Set;
 
 public record ClusterHistory(
         String id,
-        Set<ApplicationMetadataDTO> applicationMetadataDTOS,
-        Set<NodeMetadataDTO> nodeMetadataDTOS) implements Serializable {
+        Set<ApplicationMetadataDTO> applications,
+        Set<NodeMetadataDTO> nodes) implements Serializable {
 
     public static ClusterHistory of(ClusterMetadata clusterMetadata) {
         return new ClusterHistory(clusterMetadata.clusterId(), new HashSet<>(), new HashSet<>());
