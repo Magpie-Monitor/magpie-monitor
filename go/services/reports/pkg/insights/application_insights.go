@@ -54,10 +54,6 @@ type ApplicationInsightsWithMetadata struct {
 }
 
 type ApplicationInsightsGenerator interface {
-	// OnDemandApplicationInsights(
-	// 	logs []*repositories.ApplicationLogsDocument,
-	// 	configuration []*ApplicationInsightConfiguration) ([]ApplicationInsightsWithMetadata, error)
-
 	ScheduleApplicationInsights(
 		logs []*repositories.ApplicationLogsDocument,
 		configuration []*ApplicationInsightConfiguration,
@@ -175,56 +171,6 @@ func (g *OpenAiInsightsGenerator) addMetadataToApplicationInsight(
 		Metadata: applicationInsightsMetadata,
 	}, nil
 }
-
-// func (g *OpenAiInsightsGenerator) OnDemandApplicationInsights(
-//
-//		logs []*repositories.ApplicationLogsDocument,
-//		configurations []*ApplicationInsightConfiguration) ([]ApplicationInsightsWithMetadata, error) {
-//		groupedLogs := GroupApplicationLogsByName(logs)
-//
-//		// Map report configuration for an app (accuracy/customPrompt) to a app name.
-//		configurationsByApplication := MapApplicationNameToConfiguration(configurations)
-//
-//		insightsChannel := make(chan []ApplicationInsightsWithMetadata, len(groupedLogs))
-//		allInsights := make([]ApplicationInsightsWithMetadata, 0, len(groupedLogs))
-//
-//		var wg sync.WaitGroup
-//
-//		// Generate insights for each application separately.
-//		for applicationName, logs := range groupedLogs {
-//			wg.Add(1)
-//			go func() {
-//				defer wg.Done()
-//
-//				insights, err := g.getInsightsForSingleApplication(
-//					logs,
-//					configurationsByApplication[applicationName],
-//				)
-//
-//				if err != nil {
-//					g.logger.Error("Failed to get insights for an application", zap.Error(err), zap.String("app", applicationName))
-//					return
-//				}
-//
-//				// Add metadata about insights (container/pod)
-//				mapper := array.Map(func(insights ApplicationLogsInsight) ApplicationInsightsWithMetadata {
-//					return g.addMetadataToApplicationInsight(insights, logs)
-//				})
-//
-//				insightsChannel <- mapper(insights)
-//			}()
-//		}
-//
-//		wg.Wait()
-//		close(insightsChannel)
-//
-//		for insights := range insightsChannel {
-//			allInsights = append(allInsights, insights...)
-//		}
-//
-//		return allInsights, nil
-//	}
-//
 
 // Get Application insights grouped by application name
 func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
