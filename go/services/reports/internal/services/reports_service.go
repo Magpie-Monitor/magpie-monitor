@@ -104,21 +104,63 @@ func (s *ReportsService) ScheduleReport(
 		return nil, err
 	}
 
-	applicationInsights, err := s.applicationInsightsGenerator.ScheduleApplicationInsights(
-		applicationLogs,
-		params.ApplicationConfiguration, time.Now(),
-		params.ClusterId,
-		params.SinceMs,
-		params.ToMs,
-	)
+	var aggregatedApplicationInsights = insights.ScheduledApplicationInsights{}
 
-	nodeInsights, err := s.nodeInsightsGenerator.ScheduleNodeInsights(
-		nodeLogs,
-		params.NodeConfiguration, time.Now(),
-		params.ClusterId,
-		params.SinceMs,
-		params.ToMs,
-	)
+	for {
+		if !applicationLogs.HasNextBatch() {
+			break
+		}
+
+		nextLogsBatch, err := applicationLogs.GetNextBatch()
+		if err != nil {
+			s.logger.Error("Failed to get next batch of logs")
+		}
+
+		applicationInsights, err := s.applicationInsightsGenerator.ScheduleApplicationInsights(
+			nextLogsBatch,
+			params.ApplicationConfiguration, time.Now(),
+			params.ClusterId,
+			params.SinceMs,
+			params.ToMs,
+		)
+
+		aggregatedApplicationInsights = insights.ScheduledApplicationInsights{
+			ScheduledJobIds:          append(aggregatedApplicationInsights.ScheduledJobIds, applicationInsights.ScheduledJobIds...),
+			SinceMs:                  applicationInsights.SinceMs,
+			ToMs:                     applicationInsights.ToMs,
+			ClusterId:                applicationInsights.ClusterId,
+			ApplicationConfiguration: applicationInsights.ApplicationConfiguration,
+		}
+	}
+
+	var aggregatedNodeInsights = insights.ScheduledNodeInsights{}
+
+	for {
+		if !applicationLogs.HasNextBatch() {
+			break
+		}
+
+		nextLogsBatch, err := nodeLogs.GetNextBatch()
+		if err != nil {
+			s.logger.Error("Failed to get next batch of logs")
+		}
+
+		nodeInsights, err := s.nodeInsightsGenerator.ScheduleNodeInsights(
+			nextLogsBatch,
+			params.NodeConfiguration, time.Now(),
+			params.ClusterId,
+			params.SinceMs,
+			params.ToMs,
+		)
+
+		aggregatedNodeInsights = insights.ScheduledNodeInsights{
+			ScheduledJobIds:   append(aggregatedNodeInsights.ScheduledJobIds, nodeInsights.ScheduledJobIds...),
+			SinceMs:           nodeInsights.SinceMs,
+			ToMs:              nodeInsights.ToMs,
+			ClusterId:         nodeInsights.ClusterId,
+			NodeConfiguration: nodeInsights.NodeConfiguration,
+		}
+	}
 
 	if err != nil {
 		s.logger.Error("Failed to fetch application logs", zap.Error(err))
@@ -126,18 +168,18 @@ func (s *ReportsService) ScheduleReport(
 	}
 
 	report, err := s.reportRepository.InsertReport(ctx, &repositories.Report{
-		ClusterId:                    params.ClusterId,
-		CorrelationId:                params.CorrelationId,
-		Title:                        s.getTitleForReport(params.ClusterId, sinceDate, toDate),
-		Status:                       repositories.ReportState_AwaitingGeneration,
-		RequestedAtMs:                time.Now().UnixMilli(),
-		ScheduledGenerationAtMs:      time.Now().UnixMilli() + time.Hour.Milliseconds(),
-		SinceMs:                      params.SinceMs,
-		ToMs:                         params.ToMs,
-		TotalNodeEntries:             len(nodeLogs),
-		TotalApplicationEntries:      len(applicationLogs),
-		ScheduledApplicationInsights: applicationInsights,
-		ScheduledNodeInsights:        nodeInsights,
+		ClusterId:               params.ClusterId,
+		CorrelationId:           params.CorrelationId,
+		Title:                   s.getTitleForReport(params.ClusterId, sinceDate, toDate),
+		Status:                  repositories.ReportState_AwaitingGeneration,
+		RequestedAtMs:           time.Now().UnixMilli(),
+		ScheduledGenerationAtMs: time.Now().UnixMilli() + time.Hour.Milliseconds(),
+		SinceMs:                 params.SinceMs,
+		ToMs:                    params.ToMs,
+		// TotalNodeEntries:             len(aggregatedNodeInsights),
+		// TotalApplicationEntries:      len(applicationLogs),
+		ScheduledApplicationInsights: &aggregatedApplicationInsights,
+		ScheduledNodeInsights:        &aggregatedNodeInsights,
 		NodeReports:                  []*repositories.NodeReport{},
 		ApplicationReports:           []*repositories.ApplicationReport{},
 	})
@@ -626,8 +668,8 @@ func (s *ReportsService) GetApplicationLogsByParams(
 	clusterId string,
 	sinceDate time.Time,
 	toDate time.Time,
-) ([]*sharedrepositories.ApplicationLogsDocument, error) {
-	applicationLogs, err := s.applicationLogsRepository.GetLogs(ctx,
+) (sharedrepositories.ApplicationLogsBatchRetriever, error) {
+	applicationLogs, err := s.applicationLogsRepository.GetBatchedLogs(ctx,
 		clusterId,
 		sinceDate,
 		toDate)
@@ -641,35 +683,35 @@ func (s *ReportsService) GetApplicationLogsByParams(
 
 }
 
-func (s *ReportsService) GenerateApplicationReports(
-	ctx context.Context,
-	applicationLogs []*sharedrepositories.ApplicationLogsDocument,
-	applicationConfiguration []*insights.ApplicationInsightConfiguration,
-) ([]*repositories.ApplicationReport, error) {
-
-	applicationInsights, err := s.applicationInsightsGenerator.OnDemandApplicationInsights(
-		applicationLogs,
-		applicationConfiguration,
-	)
-	if err != nil {
-		s.logger.Error("Failed to generate application insights", zap.Error(err))
-		return nil, err
-	}
-
-	return s.GetApplicationReportsFromInsights(
-		applicationInsights,
-		applicationConfiguration,
-	)
-}
+// func (s *ReportsService) GenerateApplicationReports(
+// 	ctx context.Context,
+// 	applicationLogs []*sharedrepositories.ApplicationLogsDocument,
+// 	applicationConfiguration []*insights.ApplicationInsightConfiguration,
+// ) ([]*repositories.ApplicationReport, error) {
+//
+// 	applicationInsights, err := s.applicationInsightsGenerator.OnDemandApplicationInsights(
+// 		applicationLogs,
+// 		applicationConfiguration,
+// 	)
+// 	if err != nil {
+// 		s.logger.Error("Failed to generate application insights", zap.Error(err))
+// 		return nil, err
+// 	}
+//
+// 	return s.GetApplicationReportsFromInsights(
+// 		applicationInsights,
+// 		applicationConfiguration,
+// 	)
+// }
 
 func (s *ReportsService) GetNodeLogsByParams(
 	ctx context.Context,
 	clusterId string,
 	fromDate time.Time,
 	toDate time.Time,
-) ([]*sharedrepositories.NodeLogsDocument, error) {
+) (sharedrepositories.NodeLogsBatchRetriever, error) {
 
-	nodeLogs, err := s.nodeLogsRepository.GetLogs(ctx,
+	nodeLogs, err := s.nodeLogsRepository.GetBatchedLogs(ctx,
 		clusterId,
 		fromDate,
 		toDate)
@@ -681,27 +723,28 @@ func (s *ReportsService) GetNodeLogsByParams(
 	return nodeLogs, nil
 }
 
-func (s *ReportsService) GenerateNodeReports(
-	ctx context.Context,
-	nodeLogs []*sharedrepositories.NodeLogsDocument,
-	nodeConfiguration []*insights.NodeInsightConfiguration,
-) ([]*repositories.NodeReport, error) {
-
-	nodeInsights, err := s.nodeInsightsGenerator.OnDemandNodeInsights(
-		nodeLogs,
-		nodeConfiguration,
-	)
-	if err != nil {
-		s.logger.Error("Failed to generate application insights", zap.Error(err))
-		return nil, err
-	}
-
-	return s.GetNodeReportsFromInsights(
-		nodeInsights,
-		nodeConfiguration,
-	)
-}
-
+// func (s *ReportsService) GenerateNodeReports(
+//
+//	ctx context.Context,
+//	nodeLogs []*sharedrepositories.NodeLogsDocument,
+//	nodeConfiguration []*insights.NodeInsightConfiguration,
+//
+// ) ([]*repositories.NodeReport, error) {
+//
+//		nodeInsights, err := s.nodeInsightsGenerator.OnDemandNodeInsights(
+//			nodeLogs,
+//			nodeConfiguration,
+//		)
+//		if err != nil {
+//			s.logger.Error("Failed to generate application insights", zap.Error(err))
+//			return nil, err
+//		}
+//
+//		return s.GetNodeReportsFromInsights(
+//			nodeInsights,
+//			nodeConfiguration,
+//		)
+//	}
 func (s *ReportsService) GetSingleReport(ctx context.Context, id string) (*repositories.Report, *repositories.ReportRepositoryError) {
 	return s.reportRepository.GetSingleReport(ctx, id)
 }
