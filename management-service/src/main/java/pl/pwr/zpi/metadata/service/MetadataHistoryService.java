@@ -27,13 +27,13 @@ public class MetadataHistoryService {
     public Set<NodeMetadataDTO> getNodeHistory(String clusterId) {
         ClusterHistory history = clusterHistoryRepository.findById(clusterId)
                 .orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
-        return history.nodeMetadataDTOS();
+        return history.nodes();
     }
 
     public Set<ApplicationMetadataDTO> getApplicationHistory(String clusterId) {
         ClusterHistory history = clusterHistoryRepository.findById(clusterId)
                 .orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
-        return history.applicationMetadataDTOS();
+        return history.applications();
     }
 
     public void updateClustersHistory(List<ClusterMetadata> metadata) {
@@ -46,7 +46,7 @@ public class MetadataHistoryService {
         ClusterHistory history = clusterHistoryRepository.findById(clusterId)
                 .orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
 
-        metadata.forEach(m -> history.nodeMetadataDTOS().add(new NodeMetadataDTO(m.name(), false)));
+        metadata.forEach(m -> history.nodes().add(new NodeMetadataDTO(m.name(), false)));
 
         clusterHistoryRepository.save(history);
     }
@@ -55,7 +55,7 @@ public class MetadataHistoryService {
         ClusterHistory history = clusterHistoryRepository.findById(clusterId)
                 .orElse(new ClusterHistory(clusterId, new HashSet<>(), new HashSet<>()));
 
-        metadata.forEach(m -> history.applicationMetadataDTOS().add(new ApplicationMetadataDTO(m.name(), m.kind(), false)));
+        metadata.forEach(m -> history.applications().add(new ApplicationMetadataDTO(m.name(), m.kind(), false)));
 
         clusterHistoryRepository.save(history);
     }
