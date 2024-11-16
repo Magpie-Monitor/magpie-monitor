@@ -3,6 +3,7 @@ import EntriesSelector from 'components/EntriesSelector/EntriesSelector';
 import { ApplicationDataRow } from 'pages/Report/ApplicationSection/ApplicationSection';
 import { ManagmentServiceApiInstance, AccuracyLevel } from 'api/managment-service';
 import LinkComponent from 'components/LinkComponent/LinkComponent';
+import KindTag from 'components/KindTag/KindTag.tsx';
 
 interface ApplicationsEntriesSelectorProps {
     selectedApplications: ApplicationDataRow[];
@@ -46,7 +47,15 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
                 </LinkComponent>
             ),
         },
-        { header: 'Kind', columnKey: 'kind' },
+        {
+            header: 'Kind',
+            columnKey: 'kind',
+            customComponent: (app: ApplicationDataRow) => (
+                <KindTag
+                    name={app.kind || 'unknown'}
+                />
+            ),
+        },
     ];
 
     return (

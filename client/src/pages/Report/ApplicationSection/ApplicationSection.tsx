@@ -117,7 +117,6 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
                     name={app.kind || 'unknown'}
                 />
             ),
-
         },
         {
             header: 'Actions',
