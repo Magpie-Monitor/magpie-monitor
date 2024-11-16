@@ -107,6 +107,10 @@ const NodesSection: React.FC<NodesSectionProps> = ({
             ),
         },
         {
+            header: '',
+            columnKey: '',
+        },
+        {
             header: 'Actions',
             columnKey: 'actions',
             customComponent: (node: NodeDataRow) => (
@@ -140,7 +144,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({
             {nodes.length === 0 ? (
                 <p>No Nodes selected, please add new</p>
             ) : (
-                <Table columns={columns} rows={nodes} />
+                <Table columns={columns} rows={nodes}/>
             )}
 
             {selectedNode && (

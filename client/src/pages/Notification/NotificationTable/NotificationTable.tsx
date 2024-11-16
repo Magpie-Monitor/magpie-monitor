@@ -4,8 +4,8 @@ import './NotificationTable.scss';
 import NotificationButtons from 'pages/Notification/NotificationButtons/NotificationButtons';
 import HiddenWebhook from 'pages/Notification/HiddenWebhook/HiddenWebhook';
 import NotificationNameLink from 'pages/Notification/NotificationNameLink/NotificationNameLink';
-import { NotificationsChannel } from 'pages/Notification/NotificationContext';
 import EmailColumn from 'pages/Notification/EmailCell/EmailCell';
+import {NotificationChannelKind} from 'api/managment-service.ts'
 
 interface NotificationTableRowProps {
   linkName: string;
@@ -42,10 +42,10 @@ interface NotificationTableProps {
   data: NotificationTableRowProps[];
   image: string;
   header: string;
-  channel: NotificationsChannel;
+  channel: NotificationChannelKind;
 }
 
-const getTableColumnsForWebhookNotificationChannel = (channel: NotificationsChannel): 
+const getTableColumnsForWebhookNotificationChannel = (channel: NotificationChannelKind):
 Array<TableColumn<NotificationTableRowProps>> => [
   {
     header: 'Name',
@@ -91,7 +91,7 @@ Array<TableColumn<NotificationTableRowProps>> => [
   },
 ];
 
-const getTableColumnsForEmailNotificationChannel = (channel: NotificationsChannel): Array<
+const getTableColumnsForEmailNotificationChannel = (channel: NotificationChannelKind): Array<
   TableColumn<NotificationTableRowProps>
 > => [
   {
@@ -139,7 +139,7 @@ const getTableColumnsForEmailNotificationChannel = (channel: NotificationsChanne
 ];
 
 const getTableColumns = (
-  channel: NotificationsChannel,
+  channel: NotificationChannelKind,
   notificationTableRowProps: NotificationTableRowProps[],
 ): Array<TableColumn<NotificationTableRowProps>> => {
   if (notificationTableRowProps.length < 1)
