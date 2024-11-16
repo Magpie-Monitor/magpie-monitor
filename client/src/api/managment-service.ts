@@ -58,10 +58,12 @@ export interface ClusterSummary {
   }[];
 }
 
+export type NotificationChannelKind = 'SLACK' | 'DISCORD' | 'EMAIL';
+
 export interface NotificationChannel {
   id: string;
   name: string;
-  service: 'SLACK' | 'DISCORD' | 'EMAIL';
+  service: NotificationChannelKind;
   details: string;
   updated: number;
   added: number;
