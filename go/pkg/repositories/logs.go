@@ -4,6 +4,11 @@ type Log interface {
 	GetContent() *string
 }
 
+type BatchedLogsRetriever[T Log] interface {
+	GetNextBatch() ([]T, error)
+	HasNextBatch() bool
+}
+
 // Split logs into subpackets of size not greater than maxPacketSize
 func SplitLogsIntoPackets[T Log](logs []T, maxPacketSize int) [][]T {
 
@@ -30,4 +35,3 @@ func SplitLogsIntoPackets[T Log](logs []T, maxPacketSize int) [][]T {
 
 	return logsPackets
 }
-
