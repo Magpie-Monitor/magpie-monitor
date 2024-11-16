@@ -52,10 +52,6 @@ type NodeInsightsWithMetadata struct {
 }
 
 type NodeInsightsGenerator interface {
-	// OnDemandNodeInsights(
-	// 	logs []*repositories.NodeLogsDocument,
-	// 	configuration []*NodeInsightConfiguration) ([]NodeInsightsWithMetadata, error)
-
 	ScheduleNodeInsights(
 		logs []*repositories.NodeLogsDocument,
 		configuration []*NodeInsightConfiguration,
@@ -117,49 +113,6 @@ func (g *OpenAiInsightsGenerator) getNodeLogById(logId string, logs []*repositor
 	return first, nil
 }
 
-// func (g *OpenAiInsightsGenerator) OnDemandNodeInsights(
-//
-//		logs []*repositories.NodeLogsDocument,
-//		configurations []*NodeInsightConfiguration) ([]NodeInsightsWithMetadata, error) {
-//
-//		groupedLogs := GroupNodeLogsByName(logs)
-//		configurationsByNode := MapNodeNameToConfiguration(configurations)
-//
-//		var wg sync.WaitGroup
-//
-//		allInsights := make([]NodeInsightsWithMetadata, 0, len(groupedLogs))
-//		insightsChannel := make(chan []NodeInsightsWithMetadata, len(groupedLogs))
-//
-//		for nodeName, logs := range groupedLogs {
-//			wg.Add(1)
-//			go func() {
-//
-//				defer wg.Done()
-//
-//				insights, err := g.getInsightsForSingleNode(logs, configurationsByNode[nodeName])
-//				if err != nil {
-//					g.logger.Error("Failed to get insights for an node", zap.Error(err), zap.String("node", nodeName))
-//					return
-//				}
-//
-//				mapper := array.Map(func(insight NodeLogsInsight) NodeInsightsWithMetadata {
-//					return g.addMetadataToNodeInsight(insight, logs)
-//				})
-//
-//				insightsChannel <- mapper(insights)
-//			}()
-//		}
-//
-//		wg.Wait()
-//
-//		close(insightsChannel)
-//
-//		for insights := range insightsChannel {
-//			allInsights = append(allInsights, insights...)
-//		}
-//
-//		return allInsights, nil
-//	}
 func (g *OpenAiInsightsGenerator) getInsightsForSingleNode(
 	logs []*repositories.NodeLogsDocument,
 	configuration *NodeInsightConfiguration) ([]NodeLogsInsight, error) {
@@ -322,16 +275,10 @@ func (g *OpenAiInsightsGenerator) GetScheduledNodeInsights(
 		return nil, err
 	}
 
-	// insightLogs, err := g.nodeLogsRepository.
-	// 	GetLogs(context.TODO(), scheduledInsights.ClusterId,
-	// 		time.UnixMilli(scheduledInsights.SinceMs),
-	// 		time.UnixMilli(scheduledInsights.ToMs))
-
 	if err != nil {
 		g.logger.Error("Failed to get application logs for scheduled insight")
 		return nil, err
 	}
-	// ScheduledNodeInsights.
 
 	insights, err := g.getNodeInsightsFromBatchEntries(completionResponses, scheduledInsights)
 	if err != nil {
