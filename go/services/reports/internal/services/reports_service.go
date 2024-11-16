@@ -6,6 +6,7 @@ import (
 	"github.com/IBM/fp-go/array"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
+	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/filter"
 	incidentcorrelation "github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/incident_correlation"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/repositories"
@@ -80,8 +81,108 @@ func (s *ReportsService) ScheduleReport(
 	params ReportGenerationFilters,
 ) (*repositories.Report, error) {
 
+	applicationInsights, totalApplicationEntries, err := s.ScheduleApplicationInsights(ctx, params)
+	if err != nil {
+		s.logger.Error("Failed to schedule application insights", zap.Error(err))
+		return nil, err
+	}
+
+	nodeInsights, totalNodeEntries, err := s.ScheduleNodeInsights(ctx, params)
+	if err != nil {
+		s.logger.Error("Failed to schedule node insights", zap.Error(err))
+		return nil, err
+	}
+
+	report, err := s.reportRepository.InsertReport(ctx, &repositories.Report{
+		ClusterId:                    params.ClusterId,
+		CorrelationId:                params.CorrelationId,
+		Title:                        s.getTitleForReport(params.ClusterId, time.UnixMilli(params.SinceMs), time.UnixMilli(params.ToMs)),
+		Status:                       repositories.ReportState_AwaitingGeneration,
+		RequestedAtMs:                time.Now().UnixMilli(),
+		ScheduledGenerationAtMs:      time.Now().UnixMilli() + time.Hour.Milliseconds(),
+		SinceMs:                      params.SinceMs,
+		ToMs:                         params.ToMs,
+		TotalNodeEntries:             totalNodeEntries,
+		TotalApplicationEntries:      totalApplicationEntries,
+		ScheduledApplicationInsights: applicationInsights,
+		ScheduledNodeInsights:        nodeInsights,
+		NodeReports:                  []*repositories.NodeReport{},
+		ApplicationReports:           []*repositories.ApplicationReport{},
+	})
+
+	return report, nil
+}
+
+func (s *ReportsService) ScheduleNodeInsights(
+	ctx context.Context,
+	params ReportGenerationFilters) (
+	*insights.ScheduledNodeInsights,
+	int, error) {
+
 	sinceDate := time.UnixMilli(params.SinceMs)
 	toDate := time.UnixMilli(params.ToMs)
+
+	nodeLogs, err := s.GetNodeLogsByParams(
+		ctx,
+		params.ClusterId,
+		sinceDate,
+		toDate)
+	if err != nil {
+		s.logger.Error("Failed to fetch application logs", zap.Error(err))
+		return nil, 0, err
+	}
+
+	var aggregatedNodeInsights = insights.ScheduledNodeInsights{}
+	analyzedNodeEntries := 0
+
+	for {
+		if !nodeLogs.HasNextBatch() {
+			break
+		}
+
+		nextLogsBatch, err := nodeLogs.GetNextBatch()
+		if err != nil {
+			s.logger.Error("Failed to get next batch of logs")
+		}
+
+		groupedLogs := sharedrepositories.GroupNodeLogsByName(nextLogsBatch)
+		configurationsByNode := insights.MapNodeNameToConfiguration(params.NodeConfiguration)
+
+		// In place filter based on node configuration
+		filter.FilterByNodesAccuracy(groupedLogs, configurationsByNode)
+
+		analyzedNodeEntries += filter.CountFilterResultEntries(groupedLogs)
+
+		nodeInsights, err := s.nodeInsightsGenerator.ScheduleNodeInsights(
+			groupedLogs,
+			configurationsByNode,
+			params.ClusterId,
+			params.SinceMs,
+			params.ToMs,
+		)
+
+		aggregatedNodeInsights = insights.ScheduledNodeInsights{
+			ScheduledJobIds:   append(aggregatedNodeInsights.ScheduledJobIds, nodeInsights.ScheduledJobIds...),
+			SinceMs:           nodeInsights.SinceMs,
+			ToMs:              nodeInsights.ToMs,
+			ClusterId:         nodeInsights.ClusterId,
+			NodeConfiguration: nodeInsights.NodeConfiguration,
+		}
+	}
+	return &aggregatedNodeInsights, analyzedNodeEntries, nil
+}
+
+func (s *ReportsService) ScheduleApplicationInsights(
+	ctx context.Context,
+	params ReportGenerationFilters) (
+	*insights.ScheduledApplicationInsights,
+	int, error) {
+
+	sinceDate := time.UnixMilli(params.SinceMs)
+	toDate := time.UnixMilli(params.ToMs)
+
+	var aggregatedApplicationInsights = insights.ScheduledApplicationInsights{}
+	var analyzedApplicationEntries = 0
 
 	applicationLogs, err := s.GetApplicationLogsByParams(
 		ctx,
@@ -91,20 +192,8 @@ func (s *ReportsService) ScheduleReport(
 	)
 	if err != nil {
 		s.logger.Error("Failed to fetch application logs", zap.Error(err))
-		return nil, err
+		return nil, 0, err
 	}
-
-	nodeLogs, err := s.GetNodeLogsByParams(
-		ctx,
-		params.ClusterId,
-		sinceDate,
-		toDate)
-	if err != nil {
-		s.logger.Error("Failed to fetch application logs", zap.Error(err))
-		return nil, err
-	}
-
-	var aggregatedApplicationInsights = insights.ScheduledApplicationInsights{}
 
 	for {
 		if !applicationLogs.HasNextBatch() {
@@ -116,9 +205,15 @@ func (s *ReportsService) ScheduleReport(
 			s.logger.Error("Failed to get next batch of logs")
 		}
 
+		groupedLogs := sharedrepositories.GroupApplicationLogsByName(nextLogsBatch)
+		configurationsByApplication := insights.MapApplicationNameToConfiguration(params.ApplicationConfiguration)
+		filter.FilterByApplicationsAccuracy(groupedLogs, configurationsByApplication)
+
+		analyzedApplicationEntries += filter.CountFilterResultEntries(groupedLogs)
+
 		applicationInsights, err := s.applicationInsightsGenerator.ScheduleApplicationInsights(
-			nextLogsBatch,
-			params.ApplicationConfiguration, time.Now(),
+			groupedLogs,
+			configurationsByApplication,
 			params.ClusterId,
 			params.SinceMs,
 			params.ToMs,
@@ -133,58 +228,7 @@ func (s *ReportsService) ScheduleReport(
 		}
 	}
 
-	var aggregatedNodeInsights = insights.ScheduledNodeInsights{}
-
-	for {
-		if !applicationLogs.HasNextBatch() {
-			break
-		}
-
-		nextLogsBatch, err := nodeLogs.GetNextBatch()
-		if err != nil {
-			s.logger.Error("Failed to get next batch of logs")
-		}
-
-		nodeInsights, err := s.nodeInsightsGenerator.ScheduleNodeInsights(
-			nextLogsBatch,
-			params.NodeConfiguration, time.Now(),
-			params.ClusterId,
-			params.SinceMs,
-			params.ToMs,
-		)
-
-		aggregatedNodeInsights = insights.ScheduledNodeInsights{
-			ScheduledJobIds:   append(aggregatedNodeInsights.ScheduledJobIds, nodeInsights.ScheduledJobIds...),
-			SinceMs:           nodeInsights.SinceMs,
-			ToMs:              nodeInsights.ToMs,
-			ClusterId:         nodeInsights.ClusterId,
-			NodeConfiguration: nodeInsights.NodeConfiguration,
-		}
-	}
-
-	if err != nil {
-		s.logger.Error("Failed to fetch application logs", zap.Error(err))
-		return nil, err
-	}
-
-	report, err := s.reportRepository.InsertReport(ctx, &repositories.Report{
-		ClusterId:               params.ClusterId,
-		CorrelationId:           params.CorrelationId,
-		Title:                   s.getTitleForReport(params.ClusterId, sinceDate, toDate),
-		Status:                  repositories.ReportState_AwaitingGeneration,
-		RequestedAtMs:           time.Now().UnixMilli(),
-		ScheduledGenerationAtMs: time.Now().UnixMilli() + time.Hour.Milliseconds(),
-		SinceMs:                 params.SinceMs,
-		ToMs:                    params.ToMs,
-		// TotalNodeEntries:             len(aggregatedNodeInsights),
-		// TotalApplicationEntries:      len(applicationLogs),
-		ScheduledApplicationInsights: &aggregatedApplicationInsights,
-		ScheduledNodeInsights:        &aggregatedNodeInsights,
-		NodeReports:                  []*repositories.NodeReport{},
-		ApplicationReports:           []*repositories.ApplicationReport{},
-	})
-
-	return report, nil
+	return &aggregatedApplicationInsights, analyzedApplicationEntries, nil
 }
 
 type ReportGenerationError struct {
@@ -595,20 +639,18 @@ func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsight
 
 func (s *ReportsService) GetApplicationReportsFromInsights(
 	applicationInsights []insights.ApplicationInsightsWithMetadata,
-	applicationConfiguration []*insights.ApplicationInsightConfiguration,
+	applicationConfiguration map[string]*insights.ApplicationInsightConfiguration,
 ) ([]*repositories.ApplicationReport, error) {
 
 	insightsByApplication := insights.GroupInsightsByApplication(applicationInsights)
 
 	reports := make([]*repositories.ApplicationReport, 0, len(insightsByApplication))
-	configByApp := insights.MapApplicationNameToConfiguration(applicationConfiguration)
 
 	for applicationName, insightsForApplication := range insightsByApplication {
 
 		incidentsFromInsights := array.Map(func(insight insights.ApplicationInsightsWithMetadata) *repositories.ApplicationIncident {
 
-			s.logger.Info("config", zap.Any("app", insight.Insight.ApplicationName))
-			return s.getApplicationIncidentFromInsight(insight, configByApp[insight.Insight.ApplicationName])
+			return s.getApplicationIncidentFromInsight(insight, applicationConfiguration[insight.Insight.ApplicationName])
 		})
 
 		incidents := incidentsFromInsights(insightsForApplication)
@@ -617,7 +659,7 @@ func (s *ReportsService) GetApplicationReportsFromInsights(
 			Incidents:       incidents,
 		}
 
-		config, ok := configByApp[applicationName]
+		config, ok := applicationConfiguration[applicationName]
 		if ok {
 			report.Accuracy = config.Accuracy
 			report.CustomPrompt = config.CustomPrompt
@@ -631,17 +673,16 @@ func (s *ReportsService) GetApplicationReportsFromInsights(
 
 func (s *ReportsService) GetNodeReportsFromInsights(
 	nodeInsights []insights.NodeInsightsWithMetadata,
-	nodesConfiguration []*insights.NodeInsightConfiguration,
+	configurationByNode map[string]*insights.NodeInsightConfiguration,
 ) ([]*repositories.NodeReport, error) {
 	insightsByNode := insights.GroupInsightsByNode(nodeInsights)
 
 	reports := make([]*repositories.NodeReport, 0, len(insightsByNode))
-	configByNode := insights.MapNodeNameToConfiguration(nodesConfiguration)
 
 	for nodeName, insightsForNode := range insightsByNode {
 
 		nodeIncidentsFromInsights := array.Map(func(insight insights.NodeInsightsWithMetadata) *repositories.NodeIncident {
-			return s.getNodeIncidentFromInsight(insight, configByNode[insight.Insight.NodeName])
+			return s.getNodeIncidentFromInsight(insight, configurationByNode[insight.Insight.NodeName])
 		})
 
 		incidents := nodeIncidentsFromInsights(insightsForNode)
@@ -651,7 +692,7 @@ func (s *ReportsService) GetNodeReportsFromInsights(
 			Incidents: incidents,
 		}
 
-		config, ok := configByNode[nodeName]
+		config, ok := configurationByNode[nodeName]
 		if ok {
 			report.Accuracy = config.Accuracy
 			report.CustomPrompt = config.CustomPrompt
@@ -683,27 +724,6 @@ func (s *ReportsService) GetApplicationLogsByParams(
 
 }
 
-// func (s *ReportsService) GenerateApplicationReports(
-// 	ctx context.Context,
-// 	applicationLogs []*sharedrepositories.ApplicationLogsDocument,
-// 	applicationConfiguration []*insights.ApplicationInsightConfiguration,
-// ) ([]*repositories.ApplicationReport, error) {
-//
-// 	applicationInsights, err := s.applicationInsightsGenerator.OnDemandApplicationInsights(
-// 		applicationLogs,
-// 		applicationConfiguration,
-// 	)
-// 	if err != nil {
-// 		s.logger.Error("Failed to generate application insights", zap.Error(err))
-// 		return nil, err
-// 	}
-//
-// 	return s.GetApplicationReportsFromInsights(
-// 		applicationInsights,
-// 		applicationConfiguration,
-// 	)
-// }
-
 func (s *ReportsService) GetNodeLogsByParams(
 	ctx context.Context,
 	clusterId string,
@@ -723,28 +743,6 @@ func (s *ReportsService) GetNodeLogsByParams(
 	return nodeLogs, nil
 }
 
-// func (s *ReportsService) GenerateNodeReports(
-//
-//	ctx context.Context,
-//	nodeLogs []*sharedrepositories.NodeLogsDocument,
-//	nodeConfiguration []*insights.NodeInsightConfiguration,
-//
-// ) ([]*repositories.NodeReport, error) {
-//
-//		nodeInsights, err := s.nodeInsightsGenerator.OnDemandNodeInsights(
-//			nodeLogs,
-//			nodeConfiguration,
-//		)
-//		if err != nil {
-//			s.logger.Error("Failed to generate application insights", zap.Error(err))
-//			return nil, err
-//		}
-//
-//		return s.GetNodeReportsFromInsights(
-//			nodeInsights,
-//			nodeConfiguration,
-//		)
-//	}
 func (s *ReportsService) GetSingleReport(ctx context.Context, id string) (*repositories.Report, *repositories.ReportRepositoryError) {
 	return s.reportRepository.GetSingleReport(ctx, id)
 }

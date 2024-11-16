@@ -306,6 +306,15 @@ func (r *ElasticSearchApplicationLogsRepository) InsertLogs(ctx context.Context,
 	return nil
 }
 
+func GroupApplicationLogsByName(logs []*ApplicationLogsDocument) map[string][]*ApplicationLogsDocument {
+	groupedLogs := make(map[string][]*ApplicationLogsDocument)
+	for _, log := range logs {
+		groupedLogs[log.ApplicationName] = append(groupedLogs[log.ApplicationName], log)
+	}
+
+	return groupedLogs
+}
+
 type ApplicationLogsParams struct {
 	fx.In
 	ElasticSearchClient *es.TypedClient
