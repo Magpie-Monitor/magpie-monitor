@@ -19,37 +19,37 @@ import ApplicationIncidentPage from './Incident/ApplicationIncident.tsx';
 import CreateReport from './Report/CreateReport.tsx';
 
 const router = createBrowserRouter(
-    createRoutesFromElements(
+  createRoutesFromElements(
+    <Route
+      element={<AuthLayout />}
+      loader={() => {
+        return defer({
+          authData: getAuthInfo(),
+        });
+      }}
+      errorElement={<NotFoundError />}
+    >
+      <Route path="/login" element={<Login />} />
+      <Route path="/" element={<ProtectedLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/dashboard" element={<Home />} />
+        <Route path="/clusters">
+          <Route path="" element={<Clusters />} />
+          <Route path=":id/report" element={<CreateReport />} />
+        </Route>
+        <Route path="/node-incidents/:id" element={<NodeIncidentPage />} />
         <Route
-            element={<AuthLayout />}
-            loader={() => {
-              return defer({
-                authData: getAuthInfo(),
-              });
-            }}
-            errorElement={<NotFoundError />}
-        >
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<ProtectedLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<Home />} />
-            <Route path="/clusters">
-              <Route path="" element={<Clusters />} />
-              <Route path=":id/report" element={<CreateReport />} />
-            </Route>
-            <Route path="/node-incidents/:id" element={<NodeIncidentPage />} />
-            <Route
-                path="/application-incidents/:id"
-                element={<ApplicationIncidentPage />}
-            />
-            <Route path="/reports">
-              <Route path="" element={<Reports />} />
-              <Route path=":id" element={<ReportDetails />} />
-            </Route>
-            <Route path="/settings" element={<Notification />} />
-          </Route>
-        </Route>,
-    ),
+          path="/application-incidents/:id"
+          element={<ApplicationIncidentPage />}
+        />
+        <Route path="/reports">
+          <Route path="" element={<Reports />} />
+          <Route path=":id" element={<ReportDetails />} />
+        </Route>
+        <Route path="/settings" element={<Notification />} />
+      </Route>
+    </Route>,
+  ),
 );
 
 export default router;
