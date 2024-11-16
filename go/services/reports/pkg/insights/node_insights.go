@@ -31,11 +31,11 @@ type NodeInsightConfiguration struct {
 }
 
 type ScheduledNodeInsights struct {
-	ScheduledJobIds   []string                    `bson:"scheduledJobIds" json:"scheduledJobIds"`
-	SinceMs           int64                       `bson:"sinceMs" json:"sinceMs"`
-	ToMs              int64                       `bson:"toMs" json:"toMs"`
-	ClusterId         string                      `bson:"clusterId" json:"clusterId"`
-	NodeConfiguration []*NodeInsightConfiguration `bson:"nodeConfiguration" json:"nodeConfiguration"`
+	ScheduledJobIds   []string                             `bson:"scheduledJobIds" json:"scheduledJobIds"`
+	SinceMs           int64                                `bson:"sinceMs" json:"sinceMs"`
+	ToMs              int64                                `bson:"toMs" json:"toMs"`
+	ClusterId         string                               `bson:"clusterId" json:"clusterId"`
+	NodeConfiguration map[string]*NodeInsightConfiguration `bson:"nodeConfiguration" json:"nodeConfiguration"`
 }
 
 type NodeInsightMetadata struct {
@@ -53,9 +53,8 @@ type NodeInsightsWithMetadata struct {
 
 type NodeInsightsGenerator interface {
 	ScheduleNodeInsights(
-		logs []*repositories.NodeLogsDocument,
-		configuration []*NodeInsightConfiguration,
-		scheduledTime time.Time,
+		groupedLogs map[string][]*repositories.NodeLogsDocument,
+		configurationByNode map[string]*NodeInsightConfiguration,
 		cluster string,
 		fromDate int64,
 		toDate int64,
@@ -81,21 +80,6 @@ func MapNodeNameToConfiguration(configurations []*NodeInsightConfiguration) map[
 	}
 
 	return groupedConfigurations
-}
-
-func FilterByNodesAccuracy(logsByNode map[string][]*repositories.NodeLogsDocument, configurationByNode map[string]*NodeInsightConfiguration) {
-	for node, logs := range logsByNode {
-		config, ok := configurationByNode[node]
-		var accuracy Accuracy
-		if !ok {
-			// By default the node is not included
-			delete(logsByNode, node)
-		} else {
-			accuracy = config.Accuracy
-			filter := NewAccuracyFilter[*repositories.NodeLogsDocument](accuracy)
-			logsByNode[node] = filter.Filter(logs)
-		}
-	}
 }
 
 func (g *OpenAiInsightsGenerator) getNodeLogById(logId string, logs []*repositories.NodeLogsDocument) (*repositories.NodeLogsDocument, error) {
@@ -148,20 +132,14 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleNode(
 }
 
 func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
-	logs []*repositories.NodeLogsDocument,
-	configuration []*NodeInsightConfiguration,
-	scheduledTime time.Time,
+	groupedLogs map[string][]*repositories.NodeLogsDocument,
+	configurationByNode map[string]*NodeInsightConfiguration,
 	clusterId string,
 	sinceMs int64,
 	toMs int64,
 ) (*ScheduledNodeInsights, error) {
 
-	groupedLogs := GroupNodeLogsByName(logs)
-	configurationsByNode := MapNodeNameToConfiguration(configuration)
 	completionRequests := make(map[string]*openai.CompletionRequest, len(groupedLogs))
-
-	// In place filter based on node configuration
-	FilterByNodesAccuracy(groupedLogs, configurationsByNode)
 
 	// Generate insights for each application separately.
 	for nodeName, logs := range groupedLogs {
@@ -172,7 +150,7 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 		for idx, logPacket := range logPackets {
 			messages, err := g.createMessagesFromNodeLogs(
 				logPacket,
-				configurationsByNode[nodeName],
+				configurationByNode[nodeName],
 			)
 			if err != nil {
 				g.logger.Error("Failed to messages from logs", zap.Error(err), zap.String("node", nodeName))
@@ -185,9 +163,7 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 				ResponseFormat: openai.CreateJsonReponseFormat("insights", nodeInsightsResponseDto{}),
 				Model:          g.client.Model(),
 			}
-
 		}
-
 	}
 
 	completionRequestsPerJob, err := g.client.SplitCompletionReqestsByBatchSize(completionRequests)
@@ -209,7 +185,7 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 		ClusterId:         clusterId,
 		SinceMs:           sinceMs,
 		ToMs:              toMs,
-		NodeConfiguration: configuration,
+		NodeConfiguration: configurationByNode,
 	}, nil
 }
 
@@ -421,15 +397,6 @@ func GroupInsightsByNode(nodeInsights []NodeInsightsWithMetadata) map[string][]N
 		}
 	}
 	return insightsByNode
-}
-
-func GroupNodeLogsByName(logs []*repositories.NodeLogsDocument) map[string][]*repositories.NodeLogsDocument {
-	groupedLogs := make(map[string][]*repositories.NodeLogsDocument)
-	for _, log := range logs {
-		groupedLogs[log.Name] = append(groupedLogs[log.Name], log)
-	}
-
-	return groupedLogs
 }
 
 var _ NodeInsightsGenerator = &OpenAiInsightsGenerator{}

@@ -21,11 +21,11 @@ type ApplicationInsightConfiguration struct {
 }
 
 type ScheduledApplicationInsights struct {
-	ScheduledJobIds          []string                           `bson:"scheduledJobIds" json:"scheduledJobIds"`
-	SinceMs                  int64                              `bson:"sinceMs" json:"sinceMs"`
-	ToMs                     int64                              `bson:"toMs" json:"toMs"`
-	ClusterId                string                             `bson:"clusterId" json:"clusterId"`
-	ApplicationConfiguration []*ApplicationInsightConfiguration `bson:"applicationConfiguration" json:"applicationConfiguration"`
+	ScheduledJobIds          []string                                    `bson:"scheduledJobIds" json:"scheduledJobIds"`
+	SinceMs                  int64                                       `bson:"sinceMs" json:"sinceMs"`
+	ToMs                     int64                                       `bson:"toMs" json:"toMs"`
+	ClusterId                string                                      `bson:"clusterId" json:"clusterId"`
+	ApplicationConfiguration map[string]*ApplicationInsightConfiguration `bson:"applicationConfiguration" json:"applicationConfiguration"`
 }
 
 type ApplicationLogsInsight struct {
@@ -55,9 +55,9 @@ type ApplicationInsightsWithMetadata struct {
 
 type ApplicationInsightsGenerator interface {
 	ScheduleApplicationInsights(
-		logs []*repositories.ApplicationLogsDocument,
-		configuration []*ApplicationInsightConfiguration,
-		scheduledTime time.Time,
+		logsByApplication map[string][]*repositories.ApplicationLogsDocument,
+		configurationByApplication map[string]*ApplicationInsightConfiguration,
+		// scheduledTime time.Time,
 		cluster string,
 		fromDate int64,
 		toDate int64,
@@ -84,23 +84,6 @@ func GroupInsightsByApplication(applicationInsights []ApplicationInsightsWithMet
 		insightsByApplication[applicationName] = append(insightsByApplication[applicationName], insight)
 	}
 	return insightsByApplication
-}
-
-func FilterByApplicationsAccuracy(logsByApplication map[string][]*repositories.ApplicationLogsDocument, configurationByApplication map[string]*ApplicationInsightConfiguration) {
-	for application, logs := range logsByApplication {
-		// Check if application configuration is in params
-		config, ok := configurationByApplication[application]
-		var accuracy Accuracy
-		if !ok {
-			// By default the app is not included
-			delete(logsByApplication, application)
-		} else {
-			accuracy = config.Accuracy
-			filter := NewAccuracyFilter[*repositories.ApplicationLogsDocument](accuracy)
-			logsByApplication[application] = filter.Filter(logs)
-		}
-
-	}
 }
 
 func (g *OpenAiInsightsGenerator) getApplicationLogById(logId string, logs []*repositories.ApplicationLogsDocument) (*repositories.ApplicationLogsDocument, error) {
@@ -293,20 +276,14 @@ func (g *OpenAiInsightsGenerator) getApplicationInsightsFromBatchEntries(
 }
 
 func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
-	logs []*repositories.ApplicationLogsDocument,
-	configuration []*ApplicationInsightConfiguration,
-	scheduledTime time.Time,
+	groupedLogs map[string][]*repositories.ApplicationLogsDocument,
+	configurationByApplication map[string]*ApplicationInsightConfiguration,
 	clusterId string,
 	sinceMs int64,
 	toMs int64,
 ) (*ScheduledApplicationInsights, error) {
 
-	groupedLogs := GroupApplicationLogsByName(logs)
-	configurationsByApplication := MapApplicationNameToConfiguration(configuration)
 	completionRequests := make(map[string]*openai.CompletionRequest, len(groupedLogs))
-
-	// In place filtering based on configured accuracy
-	FilterByApplicationsAccuracy(groupedLogs, configurationsByApplication)
 
 	// Generate insights for each application separately.
 	for applicationName, logs := range groupedLogs {
@@ -316,7 +293,7 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 		for idx, logPacket := range logPackets {
 			messages, err := g.createMessagesFromApplicationLogs(
 				logPacket,
-				configurationsByApplication[applicationName],
+				configurationByApplication[applicationName],
 			)
 			if err != nil {
 				g.logger.Error("Failed to create messages from application logs", zap.Error(err), zap.String("app", applicationName))
@@ -354,7 +331,7 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 		ClusterId:                clusterId,
 		SinceMs:                  sinceMs,
 		ToMs:                     toMs,
-		ApplicationConfiguration: configuration,
+		ApplicationConfiguration: configurationByApplication,
 	}, nil
 }
 
@@ -437,15 +414,6 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleApplication(
 
 	return insights.Insights, nil
 
-}
-
-func GroupApplicationLogsByName(logs []*repositories.ApplicationLogsDocument) map[string][]*repositories.ApplicationLogsDocument {
-	groupedLogs := make(map[string][]*repositories.ApplicationLogsDocument)
-	for _, log := range logs {
-		groupedLogs[log.ApplicationName] = append(groupedLogs[log.ApplicationName], log)
-	}
-
-	return groupedLogs
 }
 
 var _ ApplicationInsightsGenerator = &OpenAiInsightsGenerator{}

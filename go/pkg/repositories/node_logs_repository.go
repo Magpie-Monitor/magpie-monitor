@@ -264,6 +264,15 @@ func (r *ElasticSearchNodeLogsRepository) GetBatchedLogs(
 	}, nil
 }
 
+func GroupNodeLogsByName(logs []*NodeLogsDocument) map[string][]*NodeLogsDocument {
+	groupedLogs := make(map[string][]*NodeLogsDocument)
+	for _, log := range logs {
+		groupedLogs[log.Name] = append(groupedLogs[log.Name], log)
+	}
+
+	return groupedLogs
+}
+
 // Compile-time check if ElasticSearchNodeLogsRepository implements
 // the NodeLogsRepository interface
 var _ NodeLogsRepository = &ElasticSearchNodeLogsRepository{}
