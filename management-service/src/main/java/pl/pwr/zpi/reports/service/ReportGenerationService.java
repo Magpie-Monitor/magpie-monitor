@@ -30,8 +30,6 @@ public class ReportGenerationService {
     private final ApplicationIncidentRepository applicationIncidentRepository;
     private final ApplicationIncidentSourcesRepository applicationIncidentSourcesRepository;
     private final ReportGenerationRequestMetadataRepository reportGenerationRequestMetadataRepository;
-    private final ReportScheduleRepository reportScheduleRepository;
-    private final ClusterRepository clusterRepository;
 
     public void retryFailedReportGenerationRequest(String correlationId) {
         reportGenerationRequestMetadataRepository.findByCorrelationId(correlationId).ifPresent(metadata -> {
@@ -43,18 +41,6 @@ public class ReportGenerationService {
         ReportRequested reportRequested = ReportRequested.of(reportRequest);
         persistReportGenerationRequestMetadata(reportRequested.correlationId(), reportRequest);
         reportPublisher.publishReportRequestedEvent(reportRequested, this::handleReportGenerationError);
-    }
-
-    public void scheduleReport(CreateReportScheduleRequest scheduleRequest) {
-        validateClusterId(scheduleRequest.clusterId());
-        reportScheduleRepository.save(ReportSchedule.fromCreateScheduleRequest(scheduleRequest));
-        log.info("Report generation scheduled for cluster: {} with period: {}", scheduleRequest.clusterId(), scheduleRequest.periodMs());
-    }
-
-    private void validateClusterId(String clusterId) {
-        if (!clusterRepository.existsById(clusterId)) {
-            throw new IllegalArgumentException("Cluster with id: " + clusterId + " does not exist.");
-        }
     }
 
     public void persistReportGenerationRequestMetadata(String correlationId, CreateReportRequest reportRequest) {
