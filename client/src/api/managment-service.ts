@@ -168,25 +168,15 @@ export interface ReportPost {
   discordReceiverIds: number[];
   emailReceiverIds: number[];
   applicationConfigurations: {
-    applicationName: string;
-    customPrompt: string;
-    accuracy: AccuracyLevel;
-    sinceMs: number;
-    toMs: number;
-    slackReceiverIds: number[];
-    discordReceiverIds: number[];
-    emailReceiverIds: number[];
-    applicationConfigurations: {
       applicationName: string;
       customPrompt: string;
       accuracy: AccuracyLevel;
     }[];
-    nodeConfigurations: {
+  nodeConfigurations: {
       nodeName: string;
       customPrompt: string;
       accuracy: AccuracyLevel;
     }[];
-  };
 }
 
 export interface ClusterUpdateData {
