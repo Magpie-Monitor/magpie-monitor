@@ -76,6 +76,9 @@ func main() {
 			services.NewMetadataService,
 			services.NewMetadataEventPublisher,
 
+			services.NewApplicationMetadataBroker,
+			services.NewNodeMetadataBroker,
+
 			repositories.NewApplicationMetadataCollection,
 			repositories.NewNodeMetadataCollection,
 			repositories.NewApplicationAggregatedMetadataCollection,

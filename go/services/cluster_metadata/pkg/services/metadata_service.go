@@ -3,10 +3,12 @@ package services
 import (
 	"context"
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
+	messagebroker "github.com/Magpie-Monitor/magpie-monitor/pkg/message-broker"
 	sharedrepo "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
 	"go.mongodb.org/mongo-driver/bson"
@@ -21,7 +23,35 @@ const (
 	NODE_ACTIVITY_WINDOW_MILLIS_ENV_NAME                = "NODE_ACTIVITY_WINDOW_MILLIS"
 	APPLICATION_ACTIVITY_WINDOW_MILLIS_ENV_NAME         = "APPLICATION_ACTIVITY_WINDOW_MILLIS"
 	CLUSTER_ACTIVITY_WINDOW_MILLIS_ENV_NAME             = "CLUSTER_ACTIVITY_WINDOW_MILLIS"
+	POD_AGENT_APPLICATION_METADATA_TOPIC_ENV_NAME       = "POD_AGENT_APPLICATION_METADATA_TOPIC"
+	NODE_AGENT_METADATA_TOPIC_ENV_NAME                  = "NODE_AGENT_NODE_METADATA_TOPIC"
 )
+
+func NewApplicationMetadataBroker(logger *zap.Logger, creds *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[repositories.ApplicationState] {
+	envs.ValidateEnvs("%s env variable not set", []string{
+		POD_AGENT_APPLICATION_METADATA_TOPIC_ENV_NAME,
+	})
+	return messagebroker.NewKafkaJsonMessageBroker[repositories.ApplicationState](
+		logger,
+		creds.Address,
+		os.Getenv(POD_AGENT_APPLICATION_METADATA_TOPIC_ENV_NAME),
+		creds.Username,
+		creds.Password,
+	)
+}
+
+func NewNodeMetadataBroker(logger *zap.Logger, creds *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[repositories.NodeState] {
+	envs.ValidateEnvs("%s env variable not set", []string{
+		NODE_AGENT_METADATA_TOPIC_ENV_NAME,
+	})
+	return messagebroker.NewKafkaJsonMessageBroker[repositories.NodeState](
+		logger,
+		creds.Address,
+		os.Getenv(NODE_AGENT_METADATA_TOPIC_ENV_NAME),
+		creds.Username,
+		creds.Password,
+	)
+}
 
 type MetadataServiceParams struct {
 	fx.In
@@ -33,6 +63,8 @@ type MetadataServiceParams struct {
 	NodeAggregatedRepo        *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
 	ClusterAggregatedRepo     *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
 	EventEmitter              *MetadataEventPublisher
+	ApplicationMetadataBroker *messagebroker.KafkaJsonMessageBroker[repositories.ApplicationState]
+	NodeMetadataBroker        *messagebroker.KafkaJsonMessageBroker[repositories.NodeState]
 }
 
 func NewMetadataService(params MetadataServiceParams) *MetadataService {
@@ -44,12 +76,14 @@ func NewMetadataService(params MetadataServiceParams) *MetadataService {
 		nodeAggregatedRepo:         params.NodeAggregatedRepo,
 		clusterStateAggregatedRepo: params.ClusterAggregatedRepo,
 		eventEmitter:               params.EventEmitter,
-		clusterAggregatedStateChangePollIntervalSeconds:  envs.ConvertToInt(CLUSTER_AGGREGATED_STATE_POLL_INTERVAL_ENV_NAME),
-		nodeAggregatedStateChangePollIntervalSeconds:     envs.ConvertToInt(NODE_AGGREGATED_STATE_POLL_INTERVAL_ENV_NAME),
-		applicationnodetedStateChangePollIntervalSeconds: envs.ConvertToInt(APPLICATION_AGGREGATED_STATE_POLL_INTERVAL_ENV_NAME),
-		nodeActivityWindowMillis:                         envs.ConvertToInt64(NODE_ACTIVITY_WINDOW_MILLIS_ENV_NAME),
-		applicationActivityWindowMillis:                  envs.ConvertToInt64(APPLICATION_ACTIVITY_WINDOW_MILLIS_ENV_NAME),
-		clusterActivityWindowMillis:                      envs.ConvertToInt64(CLUSTER_ACTIVITY_WINDOW_MILLIS_ENV_NAME),
+		applicationMetadataBroker:  params.ApplicationMetadataBroker,
+		nodeMetadataBroker:         params.NodeMetadataBroker,
+		clusterAggregatedStateChangePollIntervalSeconds:     envs.ConvertToInt(CLUSTER_AGGREGATED_STATE_POLL_INTERVAL_ENV_NAME),
+		nodeAggregatedStateChangePollIntervalSeconds:        envs.ConvertToInt(NODE_AGGREGATED_STATE_POLL_INTERVAL_ENV_NAME),
+		applicationAggregatedStateChangePollIntervalSeconds: envs.ConvertToInt(APPLICATION_AGGREGATED_STATE_POLL_INTERVAL_ENV_NAME),
+		nodeActivityWindowMillis:                            envs.ConvertToInt64(NODE_ACTIVITY_WINDOW_MILLIS_ENV_NAME),
+		applicationActivityWindowMillis:                     envs.ConvertToInt64(APPLICATION_ACTIVITY_WINDOW_MILLIS_ENV_NAME),
+		clusterActivityWindowMillis:                         envs.ConvertToInt64(CLUSTER_ACTIVITY_WINDOW_MILLIS_ENV_NAME),
 	}
 
 	params.Lc.Append(fx.Hook{
@@ -57,6 +91,8 @@ func NewMetadataService(params MetadataServiceParams) *MetadataService {
 			go metadataService.pollForClusterStateChange()
 			go metadataService.pollForApplicationStateChange()
 			go metadataService.pollForNodeStateChange()
+			go metadataService.consumeApplicationMetadata()
+			go metadataService.consumeNodeMetadata()
 			return nil
 		},
 	})
@@ -65,38 +101,58 @@ func NewMetadataService(params MetadataServiceParams) *MetadataService {
 }
 
 type MetadataService struct {
-	Lc                                               fx.Lifecycle
-	log                                              *zap.Logger
-	clusterRepo                                      *sharedrepo.MongoDbCollection[repositories.ApplicationState]
-	nodeRepo                                         *sharedrepo.MongoDbCollection[repositories.NodeState]
-	applicationAggregatedRepo                        *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
-	nodeAggregatedRepo                               *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
-	clusterStateAggregatedRepo                       *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
-	eventEmitter                                     *MetadataEventPublisher
-	applicationActivityWindowMillis                  int64 // application is considered as running if it has reported in this period
-	nodeActivityWindowMillis                         int64 // cluster node is considered as running if it has reported in this period
-	clusterActivityWindowMillis                      int64 // cluster is considered as running if it has reported in this period
-	clusterAggregatedStateChangePollIntervalSeconds  int
-	nodeAggregatedStateChangePollIntervalSeconds     int
-	applicationnodetedStateChangePollIntervalSeconds int
+	Lc                                                  fx.Lifecycle
+	log                                                 *zap.Logger
+	clusterRepo                                         *sharedrepo.MongoDbCollection[repositories.ApplicationState]
+	nodeRepo                                            *sharedrepo.MongoDbCollection[repositories.NodeState]
+	applicationAggregatedRepo                           *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
+	nodeAggregatedRepo                                  *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
+	clusterStateAggregatedRepo                          *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
+	eventEmitter                                        *MetadataEventPublisher
+	applicationActivityWindowMillis                     int64 // application is considered as running if it has reported in this period
+	nodeActivityWindowMillis                            int64 // cluster node is considered as running if it has reported in this period
+	clusterActivityWindowMillis                         int64 // cluster is considered as running if it has reported in this period
+	clusterAggregatedStateChangePollIntervalSeconds     int
+	nodeAggregatedStateChangePollIntervalSeconds        int
+	applicationAggregatedStateChangePollIntervalSeconds int
+	applicationMetadataBroker                           *messagebroker.KafkaJsonMessageBroker[repositories.ApplicationState]
+	nodeMetadataBroker                                  *messagebroker.KafkaJsonMessageBroker[repositories.NodeState]
 }
 
-func (m *MetadataService) InsertNodeMetadata(metadata repositories.NodeState) error {
-	_, err := m.nodeRepo.InsertDocuments([]interface{}{metadata})
-	if err != nil {
-		m.log.Error("Failed to insert node metadata", zap.Error(err))
-		return err
+func (m *MetadataService) consumeApplicationMetadata() {
+	var (
+		msg = make(chan repositories.ApplicationState)
+		err = make(chan error)
+	)
+
+	go m.applicationMetadataBroker.Subscribe(msg, err)
+
+	for {
+		select {
+		case metadata := <-msg:
+			m.clusterRepo.InsertDocuments([]interface{}{metadata})
+		case error := <-err:
+			m.log.Error("Error consuming application metadata", zap.Error(error))
+		}
 	}
-	return nil
 }
 
-func (m *MetadataService) InsertApplicationMetadata(metadata repositories.ApplicationState) error {
-	_, err := m.clusterRepo.InsertDocuments([]interface{}{metadata})
-	if err != nil {
-		m.log.Error("Failed to insert cluster metadata", zap.Error(err))
-		return err
+func (m *MetadataService) consumeNodeMetadata() {
+	var (
+		msg = make(chan repositories.NodeState)
+		err = make(chan error)
+	)
+
+	go m.nodeMetadataBroker.Subscribe(msg, err)
+
+	for {
+		select {
+		case metadata := <-msg:
+			m.nodeRepo.InsertDocuments([]interface{}{metadata})
+		case error := <-err:
+			m.log.Error("Error consuming application metadata", zap.Error(error))
+		}
 	}
-	return nil
 }
 
 func (m *MetadataService) pollForNodeStateChange() {
@@ -123,7 +179,7 @@ func (m *MetadataService) pollForNodeStateChange() {
 
 func (m *MetadataService) pollForApplicationStateChange() {
 	for {
-		time.Sleep(time.Duration(m.applicationnodetedStateChangePollIntervalSeconds) * time.Second)
+		time.Sleep(time.Duration(m.applicationAggregatedStateChangePollIntervalSeconds) * time.Second)
 
 		var wg sync.WaitGroup
 
