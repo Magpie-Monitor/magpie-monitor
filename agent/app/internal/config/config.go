@@ -55,6 +55,7 @@ type GlobalConfig struct {
 	RunningMode                        string
 	MaxPodPacketSizeBytes              int
 	MaxContainerPacketSizeBytes        int
+	NodePacketSizeBytes                int
 }
 
 type RedisConfig struct {
@@ -111,6 +112,8 @@ func NewConfig() Config {
 	maxPodPacketSizeBytes := flag.Int("maxPodPacketSizeBytes", 5_000, "Maximal size of a single pod packet sent to Kafka in bytes.")
 	maxContainerPacketSizeBytes := flag.Int("maxContainerPacketSizeBytes", 1_000, "Maximal size of a single container packet in bytes.")
 
+	nodePacketSizeBytes := flag.Int("nodePacketSizeBytes", 1_000, "Size of the log packet for node logs in bytes.")
+
 	var watchedFiles arrayFlags
 	flag.Var(&watchedFiles, "file", "Log files that are watched for log collector running in \"nodes\" mode.")
 
@@ -141,6 +144,7 @@ func NewConfig() Config {
 			RunningMode:                        *runningMode,
 			MaxPodPacketSizeBytes:              *maxPodPacketSizeBytes,
 			MaxContainerPacketSizeBytes:        *maxContainerPacketSizeBytes,
+			NodePacketSizeBytes:                *nodePacketSizeBytes,
 		},
 		Redis: RedisConfig{
 			Url:      *redisUrl,

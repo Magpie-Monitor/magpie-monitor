@@ -21,6 +21,7 @@ type IncrementalReader struct {
 	results                       chan<- data.Chunk
 	metadata                      chan<- data.NodeState
 	redis                         database.Redis
+	packetSizeBytes               int
 }
 
 func NewReader(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<- data.NodeState) IncrementalReader {
@@ -33,6 +34,7 @@ func NewReader(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan
 		results:                       logsChan,
 		metadata:                      metadataChan,
 		redis:                         database.NewRedis(cfg.Redis.Url, cfg.Redis.Password, cfg.Redis.Database),
+		packetSizeBytes:               cfg.Global.NodePacketSizeBytes,
 	}
 }
 
@@ -81,14 +83,14 @@ func (r *IncrementalReader) prepareFile(dir string) (*os.File, int64) {
 	return f, currentSize
 }
 
-func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results chan<- data.Chunk) {
-	f, currentSize := r.prepareFile(dir)
+func (r *IncrementalReader) watchFile(fileName string, cooldownSeconds int, results chan<- data.Chunk) {
+	f, currentSize := r.prepareFile(fileName)
 	defer f.Close()
 
 	for {
 		fi, err := f.Stat()
 		if err != nil {
-			log.Println("Error reading stat for file: ", dir)
+			log.Println("Error reading stat for file: ", fileName)
 			panic(err)
 		}
 
@@ -100,36 +102,55 @@ func (r *IncrementalReader) watchFile(dir string, cooldownSeconds int, results c
 			// Move reader cursor for byteDiff bytes (being the size increase since last read) from the end of file.
 			_, err = f.Seek(-byteDiff, io.SeekEnd)
 			if err != nil {
-				log.Println("Error seeking diff for file: ", dir)
+				log.Println("Error seeking diff for file: ", fileName)
 				panic(err)
 			}
 
 			_, err = f.Read(buf)
 			if err != nil {
-				log.Println("Error reading buffer for file: ", dir)
+				log.Println("Error reading buffer for file: ", fileName)
 				panic(err)
 			}
 
-			log.Println("READ = ", string(buf))
-			log.Println("BYTE DIFF = ", byteDiff)
+			log.Printf("Read %d bytes from file %s", byteDiff, fileName)
 
 			currentSize = size
-			err = r.redis.Set(dir, strconv.FormatInt(currentSize, 10), -1)
+			err = r.redis.Set(fileName, strconv.FormatInt(currentSize, 10), -1)
 			if err != nil {
-				log.Println("Error persisting read progress for: ", dir)
+				log.Println("Error persisting read progress for: ", fileName)
 			}
 
-			results <- data.Chunk{
-				ClusterId:     r.clusterId,
-				Kind:          "Node",
-				Name:          r.nodeName,
-				CollectedAtMs: time.Now().UnixMilli(),
-				Filename:      dir,
-				Content:       string(buf),
-			}
+			packets := r.splitLogsIntoPackets(r.clusterId, r.nodeName, fileName, string(buf))
+			r.sendPackets(results, packets)
 		}
 
-		time.Sleep(time.Duration(cooldownSeconds * 1000))
+		time.Sleep(time.Duration(cooldownSeconds) * time.Second)
+	}
+}
+
+func (r *IncrementalReader) splitLogsIntoPackets(clusterId, nodeName, fileName, logs string) []data.Chunk {
+	var packets []data.Chunk
+
+	if len(logs) < r.packetSizeBytes {
+		return append(packets, data.NewChunk(clusterId, nodeName, fileName, logs))
+	}
+
+	for len(logs) > 0 {
+		packet := logs[0:r.packetSizeBytes]
+		packets = append(packets, data.NewChunk(clusterId, nodeName, fileName, packet))
+
+		logs = logs[r.packetSizeBytes:]
+		if r.packetSizeBytes >= len(logs) {
+			return append(packets, data.NewChunk(clusterId, nodeName, fileName, logs))
+		}
+	}
+
+	return packets
+}
+
+func (r *IncrementalReader) sendPackets(results chan<- data.Chunk, packets []data.Chunk) {
+	for _, packet := range packets {
+		results <- packet
 	}
 }
 

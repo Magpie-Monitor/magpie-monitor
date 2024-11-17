@@ -126,6 +126,8 @@ services:
       - ${NODE_AGENT_METADATA_REMOTE_WRITE_URL}
       - "--clusterMetadataServiceClientSecret"
       - ${CLUSTER_METADATA_SERVICE_CLIENT_SECRET}
+      - "--nodePacketSizeBytes"
+      - ${NODE_PACKET_SIZE_BYTES}
     environment:
       NODE_NAME: "mock-node-name"
     develop:
