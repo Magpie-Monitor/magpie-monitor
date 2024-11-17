@@ -1,12 +1,11 @@
 import {
+  EditSlackChannelForm,
   ManagmentServiceApiInstance,
-  SlackChannelForm,
 } from 'api/managment-service';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent';
 import { useState } from 'react';
 import { Form } from 'react-router-dom';
-import { NewChannelPopupProps } from 'pages/Notification/NewChannelPopup/NewChannelPopup';
-import './NewChannelPopup.scss';
+import './EditChannelPopup.scss';
 import slackIcon from 'assets/slack-icon.png';
 import ActionButton, {
   ActionButtonColor,
@@ -15,37 +14,54 @@ import LabelInput, {
   nonEmptyFieldValidation,
 } from 'components/LabelInput/LabelInput';
 import NewChannelPopupHeader from 'pages/Notification/NewChannelPopupHeader/NewChannelPopupHeader';
+import { EditChannelPopupProps } from './EditChannelPopup';
 import { slackWebhookValidation } from 'lib/validators';
 
-const defaultSlackChannel: SlackChannelForm = {
-  name: '',
-  webhookUrl: '',
-};
+interface EditSlackChannelPopupProps extends EditChannelPopupProps {
+  id: string;
+  name: string;
+  webhookUrl: string;
+}
 
-const NewSlackChannelPopup = ({
+const EditSlackChannelPopup = ({
+  id,
+  name,
+  webhookUrl,
   isDisplayed,
   setIsDisplayed,
   onSubmit,
-}: NewChannelPopupProps) => {
-  const [slackChannel, setSlackChannel] =
-    useState<SlackChannelForm>(defaultSlackChannel);
+}: EditSlackChannelPopupProps) => {
+  const [slackChannel, setSlackChannel] = useState<EditSlackChannelForm>({
+    id,
+    name,
+    webhookUrl: '',
+  });
 
-  const createSlackChannel = async () => {
-    if (slackChannel === defaultSlackChannel) return;
+  const editSlackChannel = async () => {
+    if (slackChannel.name === name && slackChannel.webhookUrl === webhookUrl)
+      return;
 
     try {
-      await ManagmentServiceApiInstance.postSlackChannel(slackChannel);
+      await ManagmentServiceApiInstance.editSlackChannel(slackChannel);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error posting slack channels: ', error);
     } finally {
-      setIsDisplayed(false);
       onSubmit();
+      setIsDisplayed(false);
     }
   };
 
   const handleSubmit = () => {
-    createSlackChannel();
+    editSlackChannel();
+  };
+
+  const validateNonEmptySlackWebhook = (value: string) => {
+    if (value === '') {
+      return null;
+    }
+
+    return slackWebhookValidation(value);
   };
 
   const isFormValid = () => {
@@ -62,54 +78,56 @@ const NewSlackChannelPopup = ({
         setIsDisplayed(false);
       }}
     >
-      <div className="new-channel-popup">
+      <div className="edit-channel-popup">
         <NewChannelPopupHeader
           icon={<img src={slackIcon} />}
-          title="Add new Slack channel"
+          title="Edit Slack channel"
         />
         <Form
-          id="new-channel-form"
+          id="edit-channel-form"
           onSubmit={handleSubmit}
-          className="new-channel-popup__form"
+          className="edit-channel-popup__form"
         >
-          <label className="new-channel-popup__form__header">
-            Assign human-readable name and webhook for slack channel
-            configuration
+          <label className="edit-channel-popup__form__header">
+            Update channel with new name or new webhook url.
           </label>
           <LabelInput
-            value={slackChannel.name}
             label="Name"
-            placeholder={'My slack channel'}
+            value={slackChannel.name}
             validationMessage={nonEmptyFieldValidation}
-            onChange={(name) => setSlackChannel((data) => ({ ...data, name }))}
+            onChange={(newName) =>
+              setSlackChannel((data) => ({ ...data, name: newName }))
+            }
           />
-
           <LabelInput
-            value={slackChannel.webhookUrl}
             label="Webhook Url"
-            placeholder={'https://hooks.slack.com/services/xxx'}
-            validationMessage={slackWebhookValidation}
-            onChange={(webhookUrl) =>
-              setSlackChannel((data) => ({ ...data, webhookUrl }))
+            value={slackChannel.webhookUrl}
+            placeholder={webhookUrl}
+            validationMessage={validateNonEmptySlackWebhook}
+            onChange={(newSlack) =>
+              setSlackChannel((data) => ({
+                ...data,
+                slack: newSlack,
+              }))
             }
           />
         </Form>
-        <div className="new-channel-popup__buttons">
+        <div className="edit-channel-popup__buttons">
           <ActionButton
-            onClick={handleSubmit}
-            description="Submit"
             disabled={!isFormValid()}
+            onClick={handleSubmit}
+            description="Save"
             color={ActionButtonColor.GREEN}
-          />
+          ></ActionButton>
           <ActionButton
             onClick={() => setIsDisplayed(false)}
             description="Cancel"
             color={ActionButtonColor.RED}
-          />
+          ></ActionButton>
         </div>
       </div>
     </OverlayComponent>
   );
 };
 
-export default NewSlackChannelPopup;
+export default EditSlackChannelPopup;
