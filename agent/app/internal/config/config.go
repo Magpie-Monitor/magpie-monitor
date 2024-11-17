@@ -22,7 +22,7 @@ func (i *arrayFlags) Set(value string) error {
 
 type Channels struct {
 	ApplicationLogsChannel     chan data.Chunk
-	ApplicationMetadataChannel chan data.ClusterState
+	ApplicationMetadataChannel chan data.ApplicationState
 	NodeLogsChannel            chan nodeData.Chunk
 	NodeMetadataChannel        chan nodeData.NodeState
 }
@@ -30,7 +30,7 @@ type Channels struct {
 func NewChannels() *Channels {
 	return &Channels{
 		ApplicationLogsChannel:     make(chan data.Chunk, 10),
-		ApplicationMetadataChannel: make(chan data.ClusterState, 10),
+		ApplicationMetadataChannel: make(chan data.ApplicationState, 10),
 		NodeLogsChannel:            make(chan nodeData.Chunk, 10),
 		NodeMetadataChannel:        make(chan nodeData.NodeState, 10),
 	}
@@ -65,12 +65,14 @@ type RedisConfig struct {
 }
 
 type BrokerConfig struct {
-	Url       string
-	Username  string
-	Password  string
-	PodTopic  string
-	NodeTopic string
-	BatchSize int
+	Url                      string
+	Username                 string
+	Password                 string
+	ApplicationTopic         string
+	NodeTopic                string
+	ApplicationMetadataTopic string
+	NodeMetadataTopic        string
+	BatchSize                int
 }
 
 type Config struct {
@@ -97,8 +99,13 @@ func NewConfig() Config {
 	redisDatabase := flag.Int("redisDatabase", 0, "Database number for Redis instance.")
 
 	remoteWriteBrokerUrl := flag.String("remoteWriteBrokerUrl", "localhost:9094", "URL of remote write broker.")
+
 	remoteWriteApplicationTopic := flag.String("remoteWriteApplicationTopic", "pods", "Broker topic to which pod logs will be sent.")
 	remoteWriteNodeTopic := flag.String("remoteWriteNodeTopic", "nodes", "Broker topic to which node logs will be sent.")
+
+	remoteWriteApplicationMetadataTopic := flag.String("remoteWriteApplicationMetadataTopic", "application_metadata", "Broker topic to which pod logs will be sent.")
+	remoteWriteNodeMetadataTopic := flag.String("remoteWriteNodeMetadataTopic", "node_metadata", "Broker topic to which node logs will be sent.")
+
 	remoteWriteBatchSize := flag.Int("remoteWriteBatchSize", 0, "Number of messages that are buffered and sent to broker in a single batch.")
 
 	remoteWriteBrokerUsername := flag.String("remoteWriteBrokerUsername", "username", "SASL authentication broker username.")
@@ -152,12 +159,14 @@ func NewConfig() Config {
 			Database: *redisDatabase,
 		},
 		Broker: BrokerConfig{
-			Url:       *remoteWriteBrokerUrl,
-			Username:  *remoteWriteBrokerUsername,
-			Password:  *remoteWriteBrokerPassword,
-			PodTopic:  *remoteWriteApplicationTopic,
-			NodeTopic: *remoteWriteNodeTopic,
-			BatchSize: *remoteWriteBatchSize,
+			Url:                      *remoteWriteBrokerUrl,
+			Username:                 *remoteWriteBrokerUsername,
+			Password:                 *remoteWriteBrokerPassword,
+			ApplicationTopic:         *remoteWriteApplicationTopic,
+			NodeTopic:                *remoteWriteNodeTopic,
+			ApplicationMetadataTopic: *remoteWriteApplicationMetadataTopic,
+			NodeMetadataTopic:        *remoteWriteNodeMetadataTopic,
+			BatchSize:                *remoteWriteBatchSize,
 		},
 		WatchedFiles:       watchedFiles,
 		ExcludedNamespaces: excludedNamespaces,
