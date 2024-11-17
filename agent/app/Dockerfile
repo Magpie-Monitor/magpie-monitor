@@ -12,7 +12,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 COPY . .
 
 RUN --mount=type=cache,target=/go/pkg/mod/ \
-    go build -o /bin/server ./app/cmd
+    go build -o /bin/server ./cmd/agent
 
 FROM debian:latest AS final
 
