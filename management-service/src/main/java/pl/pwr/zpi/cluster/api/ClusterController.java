@@ -29,22 +29,12 @@ public class ClusterController {
 
     @GetMapping("/{id}/nodes")
     public ResponseEntity<List<NodeMetadataDTO>> getClusterNodes(@PathVariable String id) {
-//        return ResponseEntity.ok(metadataService.getClusterNodes(id));
-        return ResponseEntity.ok(List.of(new NodeMetadataDTO("node1", true),
-                new NodeMetadataDTO("node2", true),
-                new NodeMetadataDTO("node3", false),
-                new NodeMetadataDTO("node4", true),
-                new NodeMetadataDTO("node5", false)));
+        return ResponseEntity.ok(metadataService.getClusterNodes(id));
     }
 
     @GetMapping("/{id}/applications")
     public ResponseEntity<List<ApplicationMetadataDTO>> getClusterApplications(@PathVariable String id) {
-//        return ResponseEntity.ok(metadataService.getClusterApplications(id));
-        return ResponseEntity.ok(List.of(new ApplicationMetadataDTO("app1", "Deployment", true),
-                new ApplicationMetadataDTO("app2", "Deployment", true),
-                new ApplicationMetadataDTO("app3", "StatefulSet", true),
-                new ApplicationMetadataDTO("app4", "DaemonSet", true),
-                new ApplicationMetadataDTO("app5", "DaemonSet", true)));
+        return ResponseEntity.ok(metadataService.getClusterApplications(id));
     }
 
     @GetMapping("/{id}")
