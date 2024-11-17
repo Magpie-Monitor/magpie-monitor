@@ -39,10 +39,13 @@ const CreateReport = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const {notificationChannels, applications, nodes} = await fetchClusterData(id || '');
-            setNotificationChannels(notificationChannels);
-            setApplications(applications);
-            setNodes(nodes);
+            const {notificationChannels: fetchedNotificationChannels,
+                applications: fetchedApplications,
+                nodes: fetchedNodes} = await fetchClusterData(id || '');
+
+            setNotificationChannels(fetchedNotificationChannels);
+            setApplications(fetchedApplications);
+            setNodes(fetchedNodes);
         };
         fetchData();
     }, [generationType, id]);
