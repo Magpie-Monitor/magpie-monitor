@@ -12,7 +12,7 @@ import pl.pwr.zpi.reports.dto.report.ReportSummaryDTO;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
-import pl.pwr.zpi.reports.dto.request.CreateScheduleRequest;
+import pl.pwr.zpi.reports.dto.request.CreateReportScheduleRequest;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncidentSource;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncidentSource;
 import pl.pwr.zpi.reports.entity.report.request.ReportGenerationRequestMetadata;
@@ -36,7 +36,7 @@ public class ReportsController {
     }
 
     @PostMapping("/schedule")
-    public ResponseEntity<Void> scheduleReport(@RequestBody @Valid CreateScheduleRequest reportRequest) {
+    public ResponseEntity<Void> scheduleReport(@RequestBody @Valid CreateReportScheduleRequest reportRequest) {
         reportGenerationService.scheduleReport(reportRequest);
         return ResponseEntity.ok().build();
     }

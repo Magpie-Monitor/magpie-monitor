@@ -149,7 +149,7 @@ export const generateReport = ({
             toMs: endDateMs,
             slackReceiverIds,
             discordReceiverIds,
-            mailReceiverIds,
+            emailReceiverIds: mailReceiverIds,
             applicationConfigurations: applications.map(app => ({
                 applicationName: app.name,
                 accuracy: app.accuracy,
@@ -184,5 +184,7 @@ export const generateReport = ({
             })),
         };
         ManagmentServiceApiInstance.updateCluster(clusterUpdateData);
+        ManagmentServiceApiInstance.scheduleReport(clusterUpdateData.id,
+            clusterUpdateData.generatedEveryMillis);
     }
 };
