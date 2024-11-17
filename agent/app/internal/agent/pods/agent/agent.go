@@ -32,13 +32,13 @@ type Agent struct {
 	readTimestamps                    map[string]int64
 	readTimes                         map[string]time.Time
 	results                           chan<- data.Chunk
-	metadata                          chan<- data.ClusterState
+	metadata                          chan<- data.ApplicationState
 	runningMode                       string
 	maxPodPacketSizeBytes             int
 	maxContainerPacketSizeBytes       int
 }
 
-func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<- data.ClusterState) *Agent {
+func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<- data.ApplicationState) *Agent {
 	return &Agent{
 		clusterId:                         cfg.Global.ClusterId,
 		excludedNamespaces:                cfg.ExcludedNamespaces,

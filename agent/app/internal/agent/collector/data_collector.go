@@ -10,7 +10,7 @@ import (
 
 type DataCollector struct {
 	applicationLogsChannel     chan data.Chunk
-	applicationMetadataChannel chan data.ClusterState
+	applicationMetadataChannel chan data.ApplicationState
 	nodeLogsChannel            chan nodeData.Chunk
 	nodeMetadataChannel        chan nodeData.NodeState
 	writer                     DataWriter

@@ -6,49 +6,51 @@ import (
 
 	nodeData "github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node/data"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/pods/data"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/broker"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/config"
-	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/remote_write"
 )
 
 type DataWriter struct {
-	podWriter          remote_write.RemoteWriter
-	nodeWriter         remote_write.RemoteWriter
-	podMetadataWriter  remote_write.RemoteWriter
-	nodeMetadataWriter remote_write.RemoteWriter
+	applicationWriter         broker.Broker
+	nodeWriter                broker.Broker
+	applicationMetadataWriter broker.Broker
+	nodeMetadataWriter        broker.Broker
 }
 
 func NewDataWriter(config *config.Config) DataWriter {
 	return DataWriter{
-		podWriter: remote_write.NewStreamWriter(config.Broker.Url, config.Broker.PodTopic, config.Broker.Username,
+		applicationWriter: broker.NewStreamWriter(config.Broker.Url, config.Broker.ApplicationTopic, config.Broker.Username,
 			config.Broker.Password, config.Broker.BatchSize),
-		nodeWriter: remote_write.NewStreamWriter(config.Broker.Url, config.Broker.NodeTopic, config.Broker.Username,
+		nodeWriter: broker.NewStreamWriter(config.Broker.Url, config.Broker.NodeTopic, config.Broker.Username,
 			config.Broker.Password, config.Broker.BatchSize),
-		podMetadataWriter:  remote_write.NewMetadataWriter(config.Global.PodMetadataRemoteWriteUrl, config.Global.ClusterMetadataServiceClientSecret),
-		nodeMetadataWriter: remote_write.NewMetadataWriter(config.Global.NodeMetadataRemoteWriteUrl, config.Global.ClusterMetadataServiceClientSecret),
+		applicationMetadataWriter: broker.NewStreamWriter(config.Broker.Url, config.Broker.ApplicationMetadataTopic, config.Broker.Username,
+			config.Broker.Password, config.Broker.BatchSize),
+		nodeMetadataWriter: broker.NewStreamWriter(config.Broker.Url, config.Broker.NodeMetadataTopic, config.Broker.Username,
+			config.Broker.Password, config.Broker.BatchSize),
 	}
 }
 
 func (d *DataWriter) WriteApplicationLogs(chunk data.Chunk) {
-	d.writeChunk(chunk, d.podWriter)
+	d.writeChunk(chunk, d.applicationWriter)
 }
 
 func (d *DataWriter) WriteNodeLogs(chunk nodeData.Chunk) {
 	d.writeChunk(chunk, d.nodeWriter)
 }
 
-func (d *DataWriter) WriteClusterMetadata(chunk data.ClusterState) {
-	d.writeChunk(chunk, d.podMetadataWriter)
+func (d *DataWriter) WriteClusterMetadata(chunk data.ApplicationState) {
+	d.writeChunk(chunk, d.applicationMetadataWriter)
 }
 
 func (d *DataWriter) WriteNodeMetadata(chunk nodeData.NodeState) {
 	d.writeChunk(chunk, d.nodeMetadataWriter)
 }
 
-func (d *DataWriter) writeChunk(chunk interface{}, writer remote_write.RemoteWriter) {
+func (d *DataWriter) writeChunk(chunk interface{}, writer broker.Broker) {
 	jsonChunk, err := json.Marshal(chunk)
 	if err != nil {
 		log.Println("Error converting chunk to JSON: ", err)
 	} else {
-		writer.Write(string(jsonChunk))
+		writer.Publish(string(jsonChunk))
 	}
 }

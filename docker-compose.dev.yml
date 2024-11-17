@@ -71,6 +71,8 @@ services:
       - ${KAFKA_CLIENT_BATCH_SIZE}
       - "--podRemoteWriteMetadataUrl"
       - ${POD_AGENT_METADATA_REMOTE_WRITE_URL}
+      - "--remoteWriteApplicationMetadataTopic"
+      - ${POD_AGENT_APPLICATION_METADATA_TOPIC}
       - "--clusterMetadataServiceClientSecret"
       - ${CLUSTER_METADATA_SERVICE_CLIENT_SECRET}
       - "--excludedNamespace"
@@ -122,8 +124,10 @@ services:
       - ${KAFKA_CLIENT_PASSWORD}
       - "--remoteWriteBatchSize"
       - ${KAFKA_CLIENT_BATCH_SIZE}
-      - "--nodeRemoteWriteMetadataUrl"
+      - "--nodeRemoteWriteMetadataUrl
       - ${NODE_AGENT_METADATA_REMOTE_WRITE_URL}
+      - "--remoteWriteNodeMetadataTopic"
+      - ${NODE_AGENT_NODE_METADATA_TOPIC}
       - "--clusterMetadataServiceClientSecret"
       - ${CLUSTER_METADATA_SERVICE_CLIENT_SECRET}
       - "--nodePacketSizeBytes"
