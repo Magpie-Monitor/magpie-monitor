@@ -1,12 +1,8 @@
 package agent
 
 import (
-	"context"
-	"flag"
 	"fmt"
 	"log"
-	"path/filepath"
-	"slices"
 	"strings"
 	"time"
 
@@ -15,11 +11,8 @@ import (
 	v2 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
+
+	kube "github.com/Magpie-Monitor/magpie-monitor/agent/pkg/kubernetes"
 )
 
 type Agent struct {
@@ -28,7 +21,6 @@ type Agent struct {
 	includedNamespaces                []string
 	logCollectionIntervalSeconds      int
 	metadataCollectionIntervalSeconds int
-	client                            *kubernetes.Clientset
 	readTimestamps                    map[string]int64
 	readTimes                         map[string]time.Time
 	results                           chan<- data.Chunk
@@ -36,6 +28,7 @@ type Agent struct {
 	runningMode                       string
 	maxPodPacketSizeBytes             int
 	maxContainerPacketSizeBytes       int
+	kubernetesClient                  kube.KubernetesApiClient
 }
 
 func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<- data.ApplicationState) *Agent {
@@ -51,115 +44,95 @@ func NewAgent(cfg *config.Config, logsChan chan<- data.Chunk, metadataChan chan<
 		runningMode:                       cfg.Global.RunningMode,
 		maxPodPacketSizeBytes:             cfg.Global.MaxPodPacketSizeBytes,
 		maxContainerPacketSizeBytes:       cfg.Global.MaxContainerPacketSizeBytes,
+		kubernetesClient:                  kube.NewKubernetesApiClient(cfg.Global.RunningMode),
 	}
 }
 
 func (a *Agent) Start() {
-	a.authenticate()
 	a.fetchNamespaces()
 	go a.gatherLogs()
 	go a.gatherClusterMetadata()
 }
 
-func (a *Agent) authenticate() {
-	var config *rest.Config
-
-	if a.runningMode == "local" {
-		var kubeconfig *string
-
-		if home := homedir.HomeDir(); home != "" {
-			kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-		} else {
-			kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-		}
-
-		c, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-		if err != nil {
-			log.Println("Failed to create kubernetes API client from kubeconfig")
-			panic(err.Error())
-		}
-		config = c
-	} else {
-		c, err := rest.InClusterConfig()
-		if err != nil {
-			log.Println("Failed to create kubernetes API client from ServiceAccount token")
-			panic(err.Error())
-		}
-		config = c
-	}
-
-	client, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	a.client = client
-}
-
 func (a *Agent) fetchNamespaces() {
-	a.includedNamespaces = make([]string, 0)
+	namespaces, err := a.kubernetesClient.GetNamespaces(a.excludedNamespaces)
 
-	namespaces, err := a.client.CoreV1().
-		Namespaces().
-		List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(fmt.Sprintf("Error fetching namespaces: %s", err.Error()))
 	}
 
-	for _, namespace := range namespaces.Items {
-		if !slices.Contains(a.excludedNamespaces, namespace.Name) {
-			a.includedNamespaces = append(a.includedNamespaces, namespace.Name)
-		}
-	}
+	a.includedNamespaces = namespaces
 }
 
 func (a *Agent) gatherLogs() {
 	for {
 		for _, namespace := range a.includedNamespaces {
+			log.Printf("Fetching logs for namespace %s", namespace)
 			a.fetchLogsForNamespace(namespace)
 		}
 
-		log.Println("Sleeping for: ", a.logCollectionIntervalSeconds, " seconds")
+		log.Printf("Logs gathered, sleeping for %d seconds", a.logCollectionIntervalSeconds)
 		time.Sleep(time.Duration(a.logCollectionIntervalSeconds) * time.Second)
 	}
 }
 
 func (a *Agent) fetchLogsForNamespace(namespace string) {
-	// log.Println("Fetching logs for namespace: ", namespace)
-
-	deployments, err := a.client.AppsV1().
-		Deployments(namespace).
-		List(context.TODO(), metav1.ListOptions{})
+	err := a.fetchLogsForDeployments(namespace)
 	if err != nil {
-		log.Println("Error fetching Deployments: ", err)
-		log.Println("Skipping iteration")
-	} else {
-		a.fetchDeploymentLogsSinceTime(namespace, deployments.Items)
+		log.Printf("Error fetching deployments, err=%s", err.Error())
 	}
 
-	statefulSets, err := a.client.AppsV1().StatefulSets(namespace).List(context.TODO(), metav1.ListOptions{})
+	err = a.fetchLogsForStatefulSets(namespace)
 	if err != nil {
-		log.Println("Error fetching StatefulSets: ", err)
-		log.Println("Skipping iteration")
-	} else {
-		a.fetchStatefulSetLogsSinceTime(namespace, statefulSets.Items)
+		log.Printf("Error fetching statefulSets, err=%s", err.Error())
 	}
 
-	daemonSets, err := a.client.AppsV1().DaemonSets(namespace).List(context.TODO(), metav1.ListOptions{})
+	err = a.fetchLogsForDaemonSets(namespace)
 	if err != nil {
-		log.Println("Error fetching DaemonSets: ", err)
-		log.Println("Skipping iteration")
-	} else {
-		a.fetchDaemonSetLogsSinceTime(namespace, daemonSets.Items)
+		log.Printf("Error fetching daemonSets, err=%s", err.Error())
 	}
 }
 
-func (a *Agent) fetchDeploymentLogsSinceTime(namespace string, deployments []v2.Deployment) {
-	log.Println("Fetching logs from Deployments")
+func (a *Agent) fetchLogsForDeployments(namespace string) error {
+	deployments, err := a.kubernetesClient.GetDeployments(namespace)
+	if err != nil {
+		return err
+	}
 
+	a.fetchDeploymentLogsSinceTime(namespace, deployments)
+
+	return nil
+}
+
+func (a *Agent) fetchLogsForDaemonSets(namespace string) error {
+	statefulSets, err := a.kubernetesClient.GetStatefulSets(namespace)
+	if err != nil {
+		return err
+	}
+
+	a.fetchStatefulSetLogsSinceTime(namespace, statefulSets)
+
+	return nil
+}
+
+func (a *Agent) fetchLogsForStatefulSets(namespace string) error {
+	daemonSets, err := a.kubernetesClient.GetDaemonSets(namespace)
+	if err != nil {
+		return err
+	}
+
+	a.fetchDaemonSetLogsSinceTime(namespace, daemonSets)
+
+	return nil
+}
+
+func (a *Agent) fetchDeploymentLogsSinceTime(namespace string, deployments []v2.Deployment) {
 	for _, deployment := range deployments {
-		selectors := deployment.Spec.Selector
-		logPackets, _ := a.fetchPodLogsSinceTime(selectors, namespace)
+		logPackets, err := a.fetchPodLogsSinceTime(deployment.Spec.Selector, namespace)
+		if err != nil {
+			log.Printf("Error fetching deployment logs for deployment=%s, namespace=%s err=%s", deployment.Name, namespace, err.Error())
+			continue
+		}
 
 		for _, packet := range logPackets {
 			a.sendResult(data.Deployment, deployment.Name, namespace, packet)
@@ -168,11 +141,12 @@ func (a *Agent) fetchDeploymentLogsSinceTime(namespace string, deployments []v2.
 }
 
 func (a *Agent) fetchStatefulSetLogsSinceTime(namespace string, statefulSets []v2.StatefulSet) {
-	log.Println("Fetching logs from StatefulSets")
-
 	for _, statefulSet := range statefulSets {
-		selectors := statefulSet.Spec.Selector
-		logPackets, _ := a.fetchPodLogsSinceTime(selectors, namespace)
+		logPackets, err := a.fetchPodLogsSinceTime(statefulSet.Spec.Selector, namespace)
+		if err != nil {
+			log.Printf("Error fetching statefulSet logs for statefulSet=%s, namespace=%s err=%s", statefulSet.Name, namespace, err.Error())
+			continue
+		}
 
 		for _, packet := range logPackets {
 			a.sendResult(data.StatefulSet, statefulSet.Name, namespace, packet)
@@ -181,11 +155,12 @@ func (a *Agent) fetchStatefulSetLogsSinceTime(namespace string, statefulSets []v
 }
 
 func (a *Agent) fetchDaemonSetLogsSinceTime(namespace string, daemonSets []v2.DaemonSet) {
-	log.Println("Fetching logs from DaemonSets")
-
 	for _, daemonSet := range daemonSets {
-		selectors := daemonSet.Spec.Selector
-		logPackets, _ := a.fetchPodLogsSinceTime(selectors, namespace)
+		logPackets, err := a.fetchPodLogsSinceTime(daemonSet.Spec.Selector, namespace)
+		if err != nil {
+			log.Printf("Error fetching daemonSet logs for daemonSet=%s, namespace=%s err=%s", daemonSet.Name, namespace, err.Error())
+			continue
+		}
 
 		for _, packet := range logPackets {
 			a.sendResult(data.DaemonSet, daemonSet.Name, namespace, packet)
@@ -194,28 +169,18 @@ func (a *Agent) fetchDaemonSetLogsSinceTime(namespace string, daemonSets []v2.Da
 }
 
 func (a *Agent) fetchPodLogsSinceTime(selector *metav1.LabelSelector, namespace string) ([][]data.Pod, error) {
-	// TODO - abstraction over K8S API
-	pods, err := a.client.CoreV1().
-		Pods(namespace).
-		List(
-			context.TODO(),
-			metav1.ListOptions{LabelSelector: labels.Set(selector.MatchLabels).String()},
-		)
-
+	pods, err := a.kubernetesClient.GetPods(selector, namespace)
 	if err != nil {
-		log.Printf("Error fetching logs for namespace=%s, err=%s", namespace, err.Error())
 		return nil, err
 	}
 
-	return a.getPodLogsPackets(pods.Items), nil
+	return a.getPodLogsPackets(pods), nil
 }
 
 func (a *Agent) getPodLogsPackets(pods []v1.Pod) [][]data.Pod {
 	podPackets := make([][]data.Pod, 0)
 
 	for _, pod := range pods {
-		log.Println("Fetching logs for pod: ", pod.Name)
-
 		containers := a.fetchContainerLogsForPod(pod)
 		podPacket := a.splitPodContainerLogsIntoPackets(pod.Name, containers)
 		podPackets = append(podPackets, podPacket)
@@ -277,7 +242,6 @@ func (a *Agent) fetchContainerLogsForPod(pod v1.Pod) []data.Container {
 	containers := make([]data.Container, 0, len(pod.Spec.Containers))
 
 	for _, container := range pod.Spec.Containers {
-		log.Println("Fetching logs for container: ", container.Name)
 		c := a.fetchContainerLogsSinceTime(&container, pod.Name, pod.Namespace)
 		containers = append(containers, c...)
 	}
@@ -297,19 +261,10 @@ func (a *Agent) fetchContainerLogsSinceTime(container *v1.Container, podName, na
 	time.Sleep(time.Duration(999999999 - sinceTime.Nanosecond()))
 
 	beforeTs := time.Now().UnixNano()
-	// TODO - abstraction over this part
-	logs := a.client.CoreV1().
-		Pods(namespace).
-		GetLogs(
-			podName,
-			&v1.PodLogOptions{
-				Container:  container.Name,
-				SinceTime:  &metav1.Time{Time: sinceTime},
-				Timestamps: true},
-		).Do(context.TODO())
+	logs, err := a.kubernetesClient.GetContainerLogsSinceTime(podName, container.Name, namespace, sinceTime, true)
 	afterTs := time.Now().UnixNano()
 
-	if logs.Error() != nil {
+	if err != nil {
 		log.Println("Error fetching logs for Pod: ", podName, " container: ", container.Name)
 		return nil
 	}
@@ -319,13 +274,7 @@ func (a *Agent) fetchContainerLogsSinceTime(container *v1.Container, podName, na
 	now := afterTs - (afterTs - beforeTs)
 	a.setReadTimestamp(podName, container.Name, now)
 
-	rawLogs, err := logs.Raw()
-	if err != nil {
-		log.Println("Failed to fetch raw logs for container: ", container.Name)
-		return nil
-	}
-
-	deduplicatedLogs, err := a.deduplicate(string(rawLogs))
+	deduplicatedLogs, err := a.deduplicate(logs)
 	if err != nil {
 		log.Println("Failed to fetch container: ", container.Name, " logs")
 		return nil
@@ -445,38 +394,70 @@ func (a *Agent) getSecondFromLogTimestamp(logLine string) (int, error) {
 }
 
 func (a *Agent) gatherClusterMetadata() {
-	// TODO - create kubernetes API client
 	for {
-		state := data.NewClusterState(a.clusterId)
+		applicationState := data.NewApplicationState(a.clusterId)
+
 		for _, namespace := range a.includedNamespaces {
-			deployments, err := a.client.AppsV1().
-				Deployments(namespace).
-				List(context.TODO(), metav1.ListOptions{})
-			if err != nil {
-				log.Println("Error fetching Deployments: ", err)
-			} else {
-				state.AppendDeployments(&deployments.Items)
-			}
-
-			statefulSets, err := a.client.AppsV1().StatefulSets(namespace).List(context.TODO(), metav1.ListOptions{})
-			if err != nil {
-				log.Println("Error fetching StatefulSets: ", err)
-			} else {
-				state.AppendStatefulSets(&statefulSets.Items)
-			}
-
-			daemonSets, err := a.client.AppsV1().DaemonSets(namespace).List(context.TODO(), metav1.ListOptions{})
-			if err != nil {
-				log.Println("Error fetching DaemonSets: ", err)
-			} else {
-				state.AppendDaemonSets(&daemonSets.Items)
-			}
-
-			state.SetTimestamp()
-
+			a.getApplicationStateForNamespace(namespace, applicationState)
 		}
 
-		a.metadata <- state
+		a.metadata <- applicationState
 		time.Sleep(time.Duration(a.metadataCollectionIntervalSeconds) * time.Second)
 	}
+}
+
+func (a *Agent) getApplicationStateForNamespace(namespace string, applicationState data.ApplicationState) {
+	err := a.appendDeploymentState(namespace, applicationState)
+	if err != nil {
+		log.Printf("Error fetching deployment state, err=%s", err.Error())
+	}
+
+	err = a.appendStatefulSetState(namespace, applicationState)
+	if err != nil {
+		log.Printf("Error fetching statefulSet state, err=%s", err.Error())
+	}
+
+	err = a.appendDaemonSetState(namespace, applicationState)
+	if err != nil {
+		log.Printf("Error fetching daemonSet state, err=%s", err.Error())
+	}
+
+	applicationState.SetTimestamp()
+}
+
+func (a *Agent) appendDeploymentState(namespace string, applicationState data.ApplicationState) error {
+	deployments, err := a.kubernetesClient.GetDeployments(namespace)
+
+	if err != nil {
+		return err
+	}
+
+	applicationState.AppendDeployments(&deployments)
+
+	return nil
+}
+
+func (a *Agent) appendStatefulSetState(namespace string, applicationState data.ApplicationState) error {
+	statefulSets, err := a.kubernetesClient.GetStatefulSets(namespace)
+
+	if err != nil {
+		return err
+	}
+
+	applicationState.AppendStatefulSets(&statefulSets)
+
+	return nil
+
+}
+
+func (a *Agent) appendDaemonSetState(namespace string, applicationState data.ApplicationState) error {
+	daemonSets, err := a.kubernetesClient.GetDaemonSets(namespace)
+
+	if err != nil {
+		return err
+	}
+
+	applicationState.AppendDaemonSets(&daemonSets)
+
+	return nil
 }

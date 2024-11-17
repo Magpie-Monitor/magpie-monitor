@@ -125,6 +125,9 @@ func (m *MetadataService) consumeApplicationMetadata() {
 		err = make(chan error)
 	)
 
+	defer close(msg)
+	defer close(err)
+
 	go m.applicationMetadataBroker.Subscribe(msg, err)
 
 	for {
@@ -143,6 +146,9 @@ func (m *MetadataService) consumeNodeMetadata() {
 		err = make(chan error)
 	)
 
+	defer close(msg)
+	defer close(err)
+
 	go m.nodeMetadataBroker.Subscribe(msg, err)
 
 	for {
@@ -150,7 +156,7 @@ func (m *MetadataService) consumeNodeMetadata() {
 		case metadata := <-msg:
 			m.nodeRepo.InsertDocuments([]interface{}{metadata})
 		case error := <-err:
-			m.log.Error("Error consuming application metadata", zap.Error(error))
+			m.log.Error("Error consuming node metadata", zap.Error(error))
 		}
 	}
 }
