@@ -76,7 +76,7 @@ const Reports = () => {
     >
       <SectionComponent
         icon={<SVGIcon iconName="chart-icon" />}
-        title={'Weekly reports'}
+        title={'Generated reports'}
       >
         {loading ? (
           <Spinner />

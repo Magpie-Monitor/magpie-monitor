@@ -3,19 +3,19 @@ package pl.pwr.zpi.reports.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import pl.pwr.zpi.cluster.repository.ClusterRepository;
 import pl.pwr.zpi.notifications.ReportNotificationService;
 import pl.pwr.zpi.reports.broker.ReportPublisher;
 import pl.pwr.zpi.reports.dto.event.ReportGenerated;
 import pl.pwr.zpi.reports.dto.event.ReportRequestFailed;
 import pl.pwr.zpi.reports.dto.event.ReportRequested;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
+import pl.pwr.zpi.reports.dto.request.CreateScheduleRequest;
+import pl.pwr.zpi.reports.dto.scheduler.ClusterSchedule;
 import pl.pwr.zpi.reports.entity.report.Report;
-import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
 import pl.pwr.zpi.reports.entity.report.request.ReportGenerationRequestMetadata;
 import pl.pwr.zpi.reports.enums.ReportGenerationStatus;
 import pl.pwr.zpi.reports.repository.*;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -24,14 +24,14 @@ public class ReportGenerationService {
 
     private final ReportPublisher reportPublisher;
     private final ReportNotificationService reportNotificationService;
-
     private final ReportRepository reportRepository;
     private final NodeIncidentRepository nodeIncidentRepository;
     private final NodeIncidentSourcesRepository nodeIncidentSourcesRepository;
     private final ApplicationIncidentRepository applicationIncidentRepository;
     private final ApplicationIncidentSourcesRepository applicationIncidentSourcesRepository;
-
     private final ReportGenerationRequestMetadataRepository reportGenerationRequestMetadataRepository;
+    private final SchedulerRepository schedulerRepository;
+    private final ClusterRepository clusterRepository;
 
     public void retryFailedReportGenerationRequest(String correlationId) {
         reportGenerationRequestMetadataRepository.findByCorrelationId(correlationId).ifPresent(metadata -> {
@@ -43,6 +43,18 @@ public class ReportGenerationService {
         ReportRequested reportRequested = ReportRequested.of(reportRequest);
         persistReportGenerationRequestMetadata(reportRequested.correlationId(), reportRequest);
         reportPublisher.publishReportRequestedEvent(reportRequested, this::handleReportGenerationError);
+    }
+
+    public void scheduleReport(CreateScheduleRequest scheduleRequest) {
+        validateClusterId(scheduleRequest.clusterId());
+        schedulerRepository.save(ClusterSchedule.fromCreateScheduleRequest(scheduleRequest));
+        log.info("Report generation scheduled for cluster: {} with period: {}", scheduleRequest.clusterId(), scheduleRequest.periodMs());
+    }
+
+    private void validateClusterId(String clusterId) {
+        if (!clusterRepository.existsById(clusterId)) {
+            throw new IllegalArgumentException("Cluster with id: " + clusterId + " does not exist.");
+        }
     }
 
     public void persistReportGenerationRequestMetadata(String correlationId, CreateReportRequest reportRequest) {
