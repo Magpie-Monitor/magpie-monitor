@@ -2,13 +2,14 @@ package pl.pwr.zpi.reports.scheduler;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.cluster.entity.ClusterConfiguration;
 import pl.pwr.zpi.cluster.repository.ClusterRepository;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
-import pl.pwr.zpi.reports.dto.scheduler.ClusterSchedule;
-import pl.pwr.zpi.reports.repository.SchedulerRepository;
+import pl.pwr.zpi.reports.dto.scheduler.ReportSchedule;
+import pl.pwr.zpi.reports.repository.ReportScheduleRepository;
 import pl.pwr.zpi.reports.service.ReportGenerationService;
 
 import java.util.List;
@@ -18,31 +19,19 @@ import java.util.concurrent.TimeUnit;
 @Service
 @AllArgsConstructor
 public class ReportScheduler {
-    private final SchedulerRepository schedulerRepository;
+    private final ReportScheduleRepository reportScheduleRepository;
     private final ClusterRepository clusterRepository;
     private final ReportGenerationService reportGenerationService;
 
-    private static final long TEN_MINUTES_IN_MILLIS = TimeUnit.MINUTES.toMillis(10);
-
-    @Scheduled(cron = "0 */10 * * * *")
+    @Scheduled(cron = "${report.scheduler.cron}")
     public void generateReports() {
-        long currentTime = System.currentTimeMillis();
-
-        List<ClusterSchedule> schedules = schedulerRepository.findAll();
-
-        schedules.forEach(schedule -> {
-            try {
-                processSchedule(schedule, currentTime);
-            } catch (Exception e) {
-                log.error("Error processing schedule for cluster {}: {}", schedule.getClusterId(), e.getMessage(), e);
-            }
-        });
+        reportScheduleRepository.findAll().forEach(this::processSchedule);
     }
 
-    private void processSchedule(ClusterSchedule schedule, long currentTime) {
-        long nextGenerationTime = schedule.getLastGenerationMs() + schedule.getPeriodMs();
+    private void processSchedule(ReportSchedule schedule) {
+        long nextGenerationTime = calculateNextGenerationTime(schedule);
 
-        if (nextGenerationTime > currentTime + TEN_MINUTES_IN_MILLIS) {
+        if (nextGenerationTime > System.currentTimeMillis()) {
             return;
         }
 
@@ -62,8 +51,12 @@ public class ReportScheduler {
         reportGenerationService.createReport(reportRequest);
 
         schedule.setLastGenerationMs(nextGenerationTime);
-        schedulerRepository.save(schedule);
+        reportScheduleRepository.save(schedule);
 
         log.info("Report generation completed and schedule updated for cluster {}.", schedule.getClusterId());
+    }
+
+    private long calculateNextGenerationTime(ReportSchedule schedule) {
+        return schedule.getLastGenerationMs() + schedule.getPeriodMs();
     }
 }

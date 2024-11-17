@@ -166,7 +166,7 @@ export interface ReportPost {
     toMs: number;
     slackReceiverIds: number[];
     discordReceiverIds: number[];
-    mailReceiverIds: number[];
+    emailReceiverIds: number[];
     applicationConfigurations: {
         applicationName: string;
         customPrompt: string;
@@ -595,6 +595,15 @@ class ManagmentServiceApi {
   public async updateCluster(clusterData: ClusterUpdateData): Promise<void> {
     await this.refreshTokenIfExpired();
     await this.axiosInstance.put('/api/v1/clusters', clusterData);
+  }
+
+  public async scheduleReport(clusterId: string, periodMs: number): Promise<void> {
+    await this.refreshTokenIfExpired();
+    const requestPayload = {
+      clusterId,
+      periodMs,
+    };
+    await this.axiosInstance.post('/api/v1/reports/schedule', requestPayload);
   }
 }
 

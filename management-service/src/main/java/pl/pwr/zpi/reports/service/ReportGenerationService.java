@@ -10,8 +10,8 @@ import pl.pwr.zpi.reports.dto.event.ReportGenerated;
 import pl.pwr.zpi.reports.dto.event.ReportRequestFailed;
 import pl.pwr.zpi.reports.dto.event.ReportRequested;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
-import pl.pwr.zpi.reports.dto.request.CreateScheduleRequest;
-import pl.pwr.zpi.reports.dto.scheduler.ClusterSchedule;
+import pl.pwr.zpi.reports.dto.request.CreateReportScheduleRequest;
+import pl.pwr.zpi.reports.dto.scheduler.ReportSchedule;
 import pl.pwr.zpi.reports.entity.report.Report;
 import pl.pwr.zpi.reports.entity.report.request.ReportGenerationRequestMetadata;
 import pl.pwr.zpi.reports.enums.ReportGenerationStatus;
@@ -30,7 +30,7 @@ public class ReportGenerationService {
     private final ApplicationIncidentRepository applicationIncidentRepository;
     private final ApplicationIncidentSourcesRepository applicationIncidentSourcesRepository;
     private final ReportGenerationRequestMetadataRepository reportGenerationRequestMetadataRepository;
-    private final SchedulerRepository schedulerRepository;
+    private final ReportScheduleRepository reportScheduleRepository;
     private final ClusterRepository clusterRepository;
 
     public void retryFailedReportGenerationRequest(String correlationId) {
@@ -45,9 +45,9 @@ public class ReportGenerationService {
         reportPublisher.publishReportRequestedEvent(reportRequested, this::handleReportGenerationError);
     }
 
-    public void scheduleReport(CreateScheduleRequest scheduleRequest) {
+    public void scheduleReport(CreateReportScheduleRequest scheduleRequest) {
         validateClusterId(scheduleRequest.clusterId());
-        schedulerRepository.save(ClusterSchedule.fromCreateScheduleRequest(scheduleRequest));
+        reportScheduleRepository.save(ReportSchedule.fromCreateScheduleRequest(scheduleRequest));
         log.info("Report generation scheduled for cluster: {} with period: {}", scheduleRequest.clusterId(), scheduleRequest.periodMs());
     }
 
