@@ -124,7 +124,7 @@ services:
       - ${KAFKA_CLIENT_PASSWORD}
       - "--remoteWriteBatchSize"
       - ${KAFKA_CLIENT_BATCH_SIZE}
-      - "--nodeRemoteWriteMetadataUrl
+      - "--nodeRemoteWriteMetadataUrl"
       - ${NODE_AGENT_METADATA_REMOTE_WRITE_URL}
       - "--remoteWriteNodeMetadataTopic"
       - ${NODE_AGENT_NODE_METADATA_TOPIC}
