@@ -2,7 +2,6 @@ package pl.pwr.zpi.reports.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.reports.dto.report.ReportDetailedSummaryDTO;
