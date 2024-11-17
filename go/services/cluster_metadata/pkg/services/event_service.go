@@ -19,13 +19,13 @@ const (
 func NewMetadataEventPublisher(log *zap.Logger, credentials *messagebroker.KafkaCredentials) *MetadataEventPublisher {
 	return &MetadataEventPublisher{
 		log:                       log,
-		applicationMetadataBroker: NewApplicationMetadataBroker(log, credentials),
-		nodeMetadataBroker:        NewNodeMetadataBroker(log, credentials),
-		clusterMetadataBroker:     NewClusterMetadataBroker(log, credentials),
+		applicationMetadataBroker: NewApplicationMetadataUpdatedBroker(log, credentials),
+		nodeMetadataBroker:        NewNodeMetadataUpdatedBroker(log, credentials),
+		clusterMetadataBroker:     NewClusterMetadataUpdatedBroker(log, credentials),
 	}
 }
 
-func NewApplicationMetadataBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ApplicationMetadataUpdated] {
+func NewApplicationMetadataUpdatedBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ApplicationMetadataUpdated] {
 	envs.ValidateEnvs("%s env variable not set", []string{
 		CLUSTER_METADATA_APPLICATION_TOPIC_ENV_NAME,
 	})
@@ -37,7 +37,7 @@ func NewApplicationMetadataBroker(logger *zap.Logger, credentials *messagebroker
 	)
 }
 
-func NewNodeMetadataBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[NodeMetadataUpdated] {
+func NewNodeMetadataUpdatedBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[NodeMetadataUpdated] {
 	envs.ValidateEnvs("%s env variable not set", []string{
 		CLUSTER_METADATA_NODE_TOPIC_ENV_NAME,
 	})
@@ -50,7 +50,7 @@ func NewNodeMetadataBroker(logger *zap.Logger, credentials *messagebroker.KafkaC
 	)
 }
 
-func NewClusterMetadataBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ClusterMetadataUpdated] {
+func NewClusterMetadataUpdatedBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ClusterMetadataUpdated] {
 	envs.ValidateEnvs("%s env variable not set", []string{
 		CLUSTER_METADATA_CLUSTER_TOPIC_ENV_NAME,
 	})

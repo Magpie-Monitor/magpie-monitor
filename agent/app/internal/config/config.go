@@ -44,18 +44,17 @@ func (c *Channels) Close() {
 }
 
 type GlobalConfig struct {
-	Mode                               string
-	NodeName                           string
-	ClusterId                          string
-	LogScrapeIntervalSeconds           int
-	MetadataScrapeIntervalSeconds      int
-	PodMetadataRemoteWriteUrl          string
-	NodeMetadataRemoteWriteUrl         string
-	ClusterMetadataServiceClientSecret string
-	RunningMode                        string
-	MaxPodPacketSizeBytes              int
-	MaxContainerPacketSizeBytes        int
-	NodePacketSizeBytes                int
+	Mode                          string
+	NodeName                      string
+	ClusterId                     string
+	LogScrapeIntervalSeconds      int
+	MetadataScrapeIntervalSeconds int
+	PodMetadataRemoteWriteUrl     string
+	NodeMetadataRemoteWriteUrl    string
+	RunningMode                   string
+	MaxPodPacketSizeBytes         int
+	MaxContainerPacketSizeBytes   int
+	NodePacketSizeBytes           int
 }
 
 type RedisConfig struct {
@@ -114,8 +113,6 @@ func NewConfig() Config {
 	podRemoteWriteMetadataUrl := flag.String("podRemoteWriteMetadataUrl", "", "URL for cluster metadata remote write.")
 	nodeRemoteWriteMetadataUrl := flag.String("nodeRemoteWriteMetadataUrl", "", "URL for node metadata remote write.")
 
-	clusterMetadataServiceClientSecret := flag.String("clusterMetadataServiceClientSecret", "", "Client secret for metadata service remote write.")
-
 	maxPodPacketSizeBytes := flag.Int("maxPodPacketSizeBytes", 5_000, "Maximal size of a single pod packet sent to Kafka in bytes.")
 	maxContainerPacketSizeBytes := flag.Int("maxContainerPacketSizeBytes", 1_000, "Maximal size of a single container packet in bytes.")
 
@@ -140,18 +137,17 @@ func NewConfig() Config {
 
 	return Config{
 		Global: GlobalConfig{
-			Mode:                               *mode,
-			NodeName:                           nodeName,
-			ClusterId:                          *clusterId,
-			LogScrapeIntervalSeconds:           *logScrapeIntervalSeconds,
-			MetadataScrapeIntervalSeconds:      *metadataScrapeIntervalSeconds,
-			PodMetadataRemoteWriteUrl:          *podRemoteWriteMetadataUrl,
-			NodeMetadataRemoteWriteUrl:         *nodeRemoteWriteMetadataUrl,
-			ClusterMetadataServiceClientSecret: *clusterMetadataServiceClientSecret,
-			RunningMode:                        *runningMode,
-			MaxPodPacketSizeBytes:              *maxPodPacketSizeBytes,
-			MaxContainerPacketSizeBytes:        *maxContainerPacketSizeBytes,
-			NodePacketSizeBytes:                *nodePacketSizeBytes,
+			Mode:                          *mode,
+			NodeName:                      nodeName,
+			ClusterId:                     *clusterId,
+			LogScrapeIntervalSeconds:      *logScrapeIntervalSeconds,
+			MetadataScrapeIntervalSeconds: *metadataScrapeIntervalSeconds,
+			PodMetadataRemoteWriteUrl:     *podRemoteWriteMetadataUrl,
+			NodeMetadataRemoteWriteUrl:    *nodeRemoteWriteMetadataUrl,
+			RunningMode:                   *runningMode,
+			MaxPodPacketSizeBytes:         *maxPodPacketSizeBytes,
+			MaxContainerPacketSizeBytes:   *maxContainerPacketSizeBytes,
+			NodePacketSizeBytes:           *nodePacketSizeBytes,
 		},
 		Redis: RedisConfig{
 			Url:      *redisUrl,
