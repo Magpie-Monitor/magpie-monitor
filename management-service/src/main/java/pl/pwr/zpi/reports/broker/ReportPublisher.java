@@ -38,23 +38,4 @@ public class ReportPublisher {
             }
         });
     }
-
-    public void publishReportRequestedEventOnFixedTime(ReportRequested reportRequested, Long timestamp, Consumer<ReportRequestFailed> onError) {
-        kafkaTemplate.send(
-                REPORT_REQUESTED_TOPIC,
-                reportRequested.correlationId(),
-                reportRequested
-        ).whenComplete((result, ex) -> {
-            if (ex != null) {
-                log.error("Error publishing report requested event: {}", ex.getMessage());
-                onError.accept(
-                        ReportRequestFailed.builder()
-                                .correlationId(reportRequested.correlationId())
-                                .errorType(ERROR_TYPE)
-                                .errorMessage(ex.getMessage())
-                                .build()
-                );
-            }
-        });
-    }
 }
