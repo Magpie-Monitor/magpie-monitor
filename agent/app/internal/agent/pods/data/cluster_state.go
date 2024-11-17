@@ -17,7 +17,7 @@ type Application struct {
 	Name string          `json:"name"`
 }
 
-func NewClusterState(clusterId string) ApplicationState {
+func NewApplicationState(clusterId string) ApplicationState {
 	return ApplicationState{ClusterId: clusterId, Applications: []Application{}}
 }
 
