@@ -1,12 +1,11 @@
 import {
-  EmailChannelForm,
+  EditEmailChannelForm,
   ManagmentServiceApiInstance,
 } from 'api/managment-service';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent';
 import { useState } from 'react';
 import { Form } from 'react-router-dom';
-import { NewChannelPopupProps } from 'pages/Notification/NewChannelPopup/NewChannelPopup';
-import './NewChannelPopup.scss';
+import './EditChannelPopup.scss';
 import emailIcon from 'assets/mail-icon.svg';
 import ActionButton, {
   ActionButtonColor,
@@ -15,33 +14,45 @@ import LabelInput, {
   nonEmptyFieldValidation,
 } from 'components/LabelInput/LabelInput';
 import NewChannelPopupHeader from 'pages/Notification/NewChannelPopupHeader/NewChannelPopupHeader';
+import { EditChannelPopupProps } from './EditChannelPopup';
 import { emailValidation } from 'lib/validators';
 
-const defaultEmailChannel: EmailChannelForm = {
-  name: '',
-  email: '',
-};
+interface EditEmailChannelPopupProps extends EditChannelPopupProps {
+  id: string;
+  name: string;
+  email: string;
+}
 
-const NewEmailChannelPopup = ({
+const EditEmailChannelPopup = ({
+  id,
+  name,
+  email,
   isDisplayed,
   setIsDisplayed,
   onSubmit,
-}: NewChannelPopupProps) => {
-  const [emailChannel, setEmailChannel] =
-    useState<EmailChannelForm>(defaultEmailChannel);
+}: EditEmailChannelPopupProps) => {
+  const [emailChannel, setEmailChannel] = useState<EditEmailChannelForm>({
+    id,
+    name,
+    email,
+  });
 
-  const createEmailChannel = async () => {
-    if (emailChannel === defaultEmailChannel) return;
+  const editEmailChannel = async () => {
+    if (emailChannel.name === name && emailChannel.email === email) return;
 
     try {
-      await ManagmentServiceApiInstance.postEmailChannel(emailChannel);
+      await ManagmentServiceApiInstance.editEmailChannel(emailChannel);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error posting slack channels: ', error);
     } finally {
-      setIsDisplayed(false);
       onSubmit();
+      setIsDisplayed(false);
     }
+  };
+
+  const handleSubmit = () => {
+    editEmailChannel();
   };
 
   const isFormValid = () => {
@@ -51,10 +62,6 @@ const NewEmailChannelPopup = ({
     );
   };
 
-  const handleSubmit = () => {
-    createEmailChannel();
-  };
-
   return (
     <OverlayComponent
       isDisplayed={isDisplayed}
@@ -62,54 +69,55 @@ const NewEmailChannelPopup = ({
         setIsDisplayed(false);
       }}
     >
-      <div className="new-channel-popup">
+      <div className="edit-channel-popup">
         <NewChannelPopupHeader
           icon={<img src={emailIcon} />}
-          title="Add new Email channel"
+          title="Edit Email channel"
         />
         <Form
-          id="new-channel-form"
+          id="edit-channel-form"
           onSubmit={handleSubmit}
-          className="new-channel-popup__form"
+          className="edit-channel-popup__form"
         >
-          <label className="new-channel-popup__form__header">
-            Assign human-readable name and webhook for slack channel
-            configuration
+          <label className="edit-channel-popup__form__header">
+            Update channel with new name or new receiver email.
           </label>
           <LabelInput
             label="Name"
-            value={emailChannel.name}
-            placeholder={'My email channel'}
             validationMessage={nonEmptyFieldValidation}
-            onChange={(name) => setEmailChannel((data) => ({ ...data, name }))}
+            value={emailChannel.name}
+            onChange={(newName) =>
+              setEmailChannel((data) => ({ ...data, name: newName }))
+            }
           />
-
           <LabelInput
-            value={emailChannel.email}
             label="Email"
-            placeholder={'contact@company.com'}
             validationMessage={emailValidation}
-            onChange={(email) =>
-              setEmailChannel((data) => ({ ...data, email }))
+            value={emailChannel.email}
+            onChange={(newEmail) =>
+              setEmailChannel((data) => ({
+                ...data,
+                email: newEmail,
+              }))
             }
           />
         </Form>
-        <div className="new-channel-popup__buttons">
+        <div className="edit-channel-popup__buttons">
           <ActionButton
             onClick={handleSubmit}
+            description="Save"
             disabled={!isFormValid()}
-            description="Submit"
             color={ActionButtonColor.GREEN}
-          />
+          ></ActionButton>
           <ActionButton
             onClick={() => setIsDisplayed(false)}
             description="Cancel"
             color={ActionButtonColor.RED}
-          />
+          ></ActionButton>
         </div>
       </div>
     </OverlayComponent>
   );
 };
 
-export default NewEmailChannelPopup;
+export default EditEmailChannelPopup;

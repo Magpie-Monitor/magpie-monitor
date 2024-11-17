@@ -9,6 +9,11 @@
   padding-bottom: 2rem;
   border: 1px solid $component-border-color;
 
+  &__icon {
+    width: 30px;
+    margin-right: 0.5rem;
+  }
+
   &__heading {
     display: flex;
     flex-direction: row;

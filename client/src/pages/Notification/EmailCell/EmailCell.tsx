@@ -1,11 +1,11 @@
 import './EmailCell.scss';
 
 interface EmailColumnProps {
-    email: string;
+  email: string;
 }
 
-const EmailColumn = ({email}: EmailColumnProps) => {
-    return <div className='email-cell'>{email}</div>;
+const EmailColumn = ({ email }: EmailColumnProps) => {
+  return <div className="email-cell">{email}</div>;
 };
 
 export default EmailColumn;
