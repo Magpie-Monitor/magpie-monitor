@@ -21,11 +21,14 @@ public class EmailReceiverService {
     }
 
     public void addNewEmail(EmailReceiverDTO emailReceiver) {
+        long now = System.currentTimeMillis();
+
         checkIfEmailExists(emailReceiver);
         EmailReceiver receiver = EmailReceiver.builder()
                 .receiverName(emailReceiver.getName())
                 .receiverEmail(emailReceiver.getEmail())
-                .createdAt(System.currentTimeMillis())
+                .createdAt(now)
+                .updatedAt(now)
                 .build();
         emailRepository.save(receiver);
     }
