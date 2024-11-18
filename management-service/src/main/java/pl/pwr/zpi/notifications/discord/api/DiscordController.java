@@ -40,11 +40,6 @@ public class DiscordController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{id}/webhook-url")
-    public ResponseEntity<DiscordReceiver> getWebhookUrl(@PathVariable Long id) throws Exception {
-        return ResponseEntity.ok().body(discordReceiverService.getEncodedWebhookUrl(id));
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDiscordReceiver(@PathVariable Long id) {
         discordReceiverService.deleteDiscordReceiver(id);

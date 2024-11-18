@@ -31,7 +31,7 @@ public class SlackController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<SlackReceiver> updateSlackIntegration(@PathVariable Long id, @Valid @RequestBody SlackReceiverDTO slackReceiver) throws Exception {
+    public ResponseEntity<SlackReceiver> updateSlackIntegration(@PathVariable Long id, @Valid @RequestBody SlackReceiverDTO slackReceiver) {
         return ResponseEntity.ok().body(slackReceiverService.updateSlackIntegration(id, slackReceiver));
     }
 
@@ -39,11 +39,6 @@ public class SlackController {
     public ResponseEntity<SlackReceiver> sendTestMessage(@PathVariable Long id) throws Exception {
         slackNotificationService.sendTestMessage(id);
         return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/{id}/webhook-url")
-    public ResponseEntity<SlackReceiver> getWebhookUrl(@PathVariable Long id) throws Exception {
-        return ResponseEntity.ok().body(slackReceiverService.getEncodedWebhookUrl(id));
     }
 
     @DeleteMapping("/{id}")
