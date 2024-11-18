@@ -41,4 +41,10 @@ public class EmailController {
         emailNotificationService.sendTestEmail(id);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteEmailReceiver(@PathVariable Long id) {
+        emailReceiverService.deleteEmailReceiver(id);
+        return ResponseEntity.ok().build();
+    }
 }

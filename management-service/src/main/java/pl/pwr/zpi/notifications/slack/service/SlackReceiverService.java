@@ -69,4 +69,8 @@ public class SlackReceiverService {
         receiver.setWebhookUrl(confidentialTextEncoder.decrypt(receiver.getWebhookUrl()));
         return receiver;
     }
+
+    public void deleteSlackReceiver(Long receiverId) {
+        slackRepository.deleteById(receiverId);
+    }
 }

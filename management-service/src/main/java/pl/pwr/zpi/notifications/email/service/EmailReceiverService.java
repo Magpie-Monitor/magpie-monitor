@@ -60,4 +60,8 @@ public class EmailReceiverService {
             throw new IllegalArgumentException("Email is already assigned to other entry");
         }
     }
+
+    public void deleteEmailReceiver(Long receiverId) {
+        emailRepository.deleteById(receiverId);
+    }
 }
