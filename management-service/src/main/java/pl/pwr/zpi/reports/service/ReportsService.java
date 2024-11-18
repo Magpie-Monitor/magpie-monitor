@@ -16,6 +16,7 @@ import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncidentSource;
 import pl.pwr.zpi.reports.entity.report.request.ReportGenerationRequestMetadata;
 import pl.pwr.zpi.reports.enums.ReportGenerationStatus;
+import pl.pwr.zpi.reports.enums.ReportType;
 import pl.pwr.zpi.reports.repository.*;
 import pl.pwr.zpi.reports.repository.projection.ReportIncidentsProjection;
 
@@ -38,8 +39,12 @@ public class ReportsService {
         return reportGenerationRequestMetadataRepository.findByStatus(ReportGenerationStatus.ERROR);
     }
 
-    public List<ReportSummaryDTO> getReportSummaries() {
-        return reportRepository.findAllProjectedBy().stream()
+    public List<ReportGenerationRequestMetadata> getGenerationReports() {
+        return reportGenerationRequestMetadataRepository.findByStatus(ReportGenerationStatus.GENERATING);
+    }
+
+    public List<ReportSummaryDTO> getReportSummaries(ReportType reportType) {
+        return reportRepository.findAllByReportType(reportType).stream()
                 .map(ReportSummaryDTO::ofReportSummaryProjection)
                 .toList();
     }
