@@ -24,8 +24,8 @@ public class DiscordController {
     }
 
     @PostMapping
-    public ResponseEntity<DiscordReceiver> addDiscordIntegration(@Valid @RequestBody DiscordReceiverDTO discordReceiver) throws Exception {
-        discordReceiverService.addNewDiscordIntegration(discordReceiver);
+    public ResponseEntity<DiscordReceiver> addDiscordReceiver(@Valid @RequestBody DiscordReceiverDTO discordReceiver) throws Exception {
+        discordReceiverService.createDiscordReceiver(discordReceiver);
         return ResponseEntity.ok().build();
     }
 
@@ -43,5 +43,11 @@ public class DiscordController {
     @GetMapping("/{id}/webhook-url")
     public ResponseEntity<DiscordReceiver> getWebhookUrl(@PathVariable Long id) throws Exception {
         return ResponseEntity.ok().body(discordReceiverService.getEncodedWebhookUrl(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDiscordReceiver(@PathVariable Long id) {
+        discordReceiverService.deleteDiscordReceiver(id);
+        return ResponseEntity.ok().build();
     }
 }

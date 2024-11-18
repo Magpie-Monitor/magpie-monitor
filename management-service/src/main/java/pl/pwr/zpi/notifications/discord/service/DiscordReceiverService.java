@@ -22,7 +22,11 @@ public class DiscordReceiverService {
         return discordRepository.findAll();
     }
 
-    public void addNewDiscordIntegration(DiscordReceiverDTO discordIntegration) throws Exception {
+    public void deleteDiscordReceiver(Long receiverId) {
+        discordRepository.deleteById(receiverId);
+    }
+
+    public void createDiscordReceiver(DiscordReceiverDTO discordIntegration) throws Exception {
         long now = System.currentTimeMillis();
 
         String encryptedWebhookUrl = confidentialTextEncoder.encrypt(discordIntegration.getWebhookUrl());

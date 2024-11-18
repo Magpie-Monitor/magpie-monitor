@@ -45,4 +45,10 @@ public class SlackController {
     public ResponseEntity<SlackReceiver> getWebhookUrl(@PathVariable Long id) throws Exception {
         return ResponseEntity.ok().body(slackReceiverService.getEncodedWebhookUrl(id));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSlackReceiver(@PathVariable Long id) {
+        slackReceiverService.deleteSlackReceiver(id);
+        return ResponseEntity.ok().build();
+    }
 }
