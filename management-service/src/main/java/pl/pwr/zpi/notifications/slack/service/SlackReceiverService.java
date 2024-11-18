@@ -9,6 +9,8 @@ import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
 import pl.pwr.zpi.notifications.slack.repository.SlackRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -36,15 +38,26 @@ public class SlackReceiverService {
         slackRepository.save(receiver);
     }
 
-    public SlackReceiver updateSlackIntegration(Long id, SlackReceiverDTO slackReceiver) throws Exception {
+    public SlackReceiver updateSlackIntegration(Long id, SlackReceiverDTO slackReceiver) {
         var receiver = getById(id);
-        String encryptedWebhookUrl = confidentialTextEncoder.encrypt(slackReceiver.getWebhookUrl());
-        checkIfUserCanUpdateWebhookUrl(encryptedWebhookUrl, id);
 
         receiver.setReceiverName(slackReceiver.getName());
-        receiver.setWebhookUrl(encryptedWebhookUrl);
+        receiver.setWebhookUrl(getAnonymizedWebhookUrl(slackReceiver.getWebhookUrl()));
         receiver.setUpdatedAt(System.currentTimeMillis());
+
         return slackRepository.save(receiver);
+    }
+
+    private String getAnonymizedWebhookUrl(String webhookUrl) {
+        String[] webhookParts = webhookUrl.split("/");
+        String authToken = webhookParts[webhookParts.length - 1];
+        return joinWebhookWithoutAuthToken(webhookParts) + authToken.replace(".", "*");
+    }
+
+    private String joinWebhookWithoutAuthToken(String[] webhookParts) {
+        return Stream.of(webhookParts)
+                .limit(webhookParts.length - 2)
+                .collect(Collectors.joining("/"));
     }
 
     public SlackReceiver getById(Long receiverId) {

@@ -9,6 +9,8 @@ import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.discord.repository.DiscordRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -52,8 +54,23 @@ public class DiscordReceiverService {
     }
 
     public DiscordReceiver getDiscordReceiver(Long receiverWebhookId) {
-        return discordRepository.findById(receiverWebhookId)
+        DiscordReceiver receiver = discordRepository.findById(receiverWebhookId)
                 .orElseThrow(() -> new IllegalArgumentException("Webhook with given Id not found"));
+
+        receiver.setWebhookUrl(getAnonymizedWebhookUrl(receiver.getWebhookUrl()));
+        return receiver;
+    }
+
+    private String getAnonymizedWebhookUrl(String webhookUrl) {
+        String[] webhookParts = webhookUrl.split("/");
+        String authToken = webhookParts[webhookParts.length - 1];
+        return joinWebhookWithoutAuthToken(webhookParts) + authToken.replace(".", "*");
+    }
+
+    private String joinWebhookWithoutAuthToken(String[] webhookParts) {
+        return Stream.of(webhookParts)
+                .limit(webhookParts.length - 2)
+                .collect(Collectors.joining("/"));
     }
 
     private void checkIfWebhookExists(String webhookUrl) {
@@ -66,11 +83,5 @@ public class DiscordReceiverService {
         if (discordRepository.existsByWebhookUrl(webhookUrl) && !discordRepository.findById(id).get().getWebhookUrl().equals(webhookUrl)) {
             throw new IllegalArgumentException("Webhook is already assigned to other entry");
         }
-    }
-
-    public DiscordReceiver getEncodedWebhookUrl(Long id) throws Exception {
-        var receiver = getDiscordReceiver(id);
-        receiver.setWebhookUrl(confidentialTextEncoder.decrypt(receiver.getWebhookUrl()));
-        return receiver;
     }
 }
