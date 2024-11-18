@@ -2,6 +2,7 @@ package pl.pwr.zpi.reports.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import pl.pwr.zpi.reports.entity.report.Report;
+import pl.pwr.zpi.reports.enums.ReportType;
 import pl.pwr.zpi.reports.repository.projection.ReportDetailedSummaryProjection;
 import pl.pwr.zpi.reports.repository.projection.ReportIncidentsProjection;
 import pl.pwr.zpi.reports.repository.projection.ReportRequestedAtMillisProjection;
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 public interface ReportRepository extends MongoRepository<Report, String> {
 
-    List<ReportSummaryProjection> findAllProjectedBy();
+    List<ReportSummaryProjection> findAllByReportType(ReportType reportType);
 
     Optional<ReportDetailedSummaryProjection> findProjectedDetailedById(String reportId);
 
