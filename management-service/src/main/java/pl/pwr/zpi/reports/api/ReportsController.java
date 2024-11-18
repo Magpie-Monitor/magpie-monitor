@@ -16,6 +16,7 @@ import pl.pwr.zpi.reports.dto.request.CreateReportScheduleRequest;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncidentSource;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncidentSource;
 import pl.pwr.zpi.reports.entity.report.request.ReportGenerationRequestMetadata;
+import pl.pwr.zpi.reports.enums.ReportType;
 import pl.pwr.zpi.reports.service.ReportGenerationService;
 import pl.pwr.zpi.reports.service.ReportScheduleService;
 import pl.pwr.zpi.reports.service.ReportsService;
@@ -33,7 +34,7 @@ public class ReportsController {
 
     @PostMapping
     public ResponseEntity<Void> createReport(@RequestBody CreateReportRequest reportRequest) {
-        reportGenerationService.createReport(reportRequest);
+        reportGenerationService.createReport(reportRequest, ReportType.ON_DEMAND);
         return ResponseEntity.ok().build();
     }
 
@@ -54,9 +55,19 @@ public class ReportsController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
-    public ResponseEntity<List<ReportSummaryDTO>> getReports() {
-        return ResponseEntity.ok().body(reportsService.getReportSummaries());
+    @GetMapping("/on-demand")
+    public ResponseEntity<List<ReportSummaryDTO>> getReportsOnDemand() {
+        return ResponseEntity.ok().body(reportsService.getReportSummaries(ReportType.ON_DEMAND));
+    }
+
+    @GetMapping("/scheduled")
+    public ResponseEntity<List<ReportSummaryDTO>> getReportsScheduled() {
+        return ResponseEntity.ok().body(reportsService.getReportSummaries(ReportType.SCHEDULED));
+    }
+
+    @GetMapping("/generating")
+    public ResponseEntity<List<ReportGenerationRequestMetadata>> getGenerationReports() {
+        return ResponseEntity.ok(reportsService.getGenerationReports());
     }
 
     @GetMapping("/{id}")
