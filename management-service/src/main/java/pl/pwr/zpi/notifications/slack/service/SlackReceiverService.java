@@ -15,25 +15,23 @@ import java.util.List;
 @Slf4j
 public class SlackReceiverService {
 
-    //    private final SlackNotificationService slackNotificationService;
     private final SlackRepository slackRepository;
     private final ConfidentialTextEncoder confidentialTextEncoder;
-
-    public boolean existsById(Long receiverId) {
-        return slackRepository.existsById(receiverId);
-    }
 
     public List<SlackReceiver> getAllSlackIntegrations() {
         return slackRepository.findAll();
     }
 
     public void addNewSlackIntegration(SlackReceiverDTO slackIntegration) throws Exception {
+        long now = System.currentTimeMillis();
+
         String encryptedWebhookUrl = confidentialTextEncoder.encrypt(slackIntegration.getWebhookUrl());
         checkIfWebhookExists(encryptedWebhookUrl);
         SlackReceiver receiver = SlackReceiver.builder()
                 .receiverName(slackIntegration.getName())
                 .webhookUrl(encryptedWebhookUrl)
-                .createdAt(System.currentTimeMillis())
+                .createdAt(now)
+                .updatedAt(now)
                 .build();
         slackRepository.save(receiver);
     }

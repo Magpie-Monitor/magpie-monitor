@@ -23,12 +23,15 @@ public class DiscordReceiverService {
     }
 
     public void addNewDiscordIntegration(DiscordReceiverDTO discordIntegration) throws Exception {
+        long now = System.currentTimeMillis();
+
         String encryptedWebhookUrl = confidentialTextEncoder.encrypt(discordIntegration.getWebhookUrl());
         checkIfWebhookExists(encryptedWebhookUrl);
         DiscordReceiver receiver = DiscordReceiver.builder()
                 .receiverName(discordIntegration.getName())
                 .webhookUrl(encryptedWebhookUrl)
-                .createdAt(System.currentTimeMillis())
+                .createdAt(now)
+                .updatedAt(now)
                 .build();
         discordRepository.save(receiver);
     }
