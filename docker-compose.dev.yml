@@ -104,6 +104,8 @@ services:
       - "local"
       - "--scrape"
       - "nodes"
+      - "--clusterFriendlyName"
+      - "local-docker"
       - "--logScrapeIntervalSeconds"
       - ${NODE_AGENT_LOG_SCRAPE_INTERVAL_SECONDS}
       - "--metadataScrapeIntervalSeconds"
