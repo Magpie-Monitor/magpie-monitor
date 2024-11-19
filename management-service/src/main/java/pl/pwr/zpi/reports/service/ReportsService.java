@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import pl.pwr.zpi.reports.dto.report.ReportDetailedSummaryDTO;
-import pl.pwr.zpi.reports.dto.report.ReportIncidentsDTO;
-import pl.pwr.zpi.reports.dto.report.ReportPaginatedIncidentsDTO;
-import pl.pwr.zpi.reports.dto.report.ReportSummaryDTO;
+import pl.pwr.zpi.reports.dto.report.*;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncident;
@@ -39,8 +36,12 @@ public class ReportsService {
         return reportGenerationRequestMetadataRepository.findByStatus(ReportGenerationStatus.ERROR);
     }
 
-    public List<ReportGenerationRequestMetadata> getGenerationReports() {
-        return reportGenerationRequestMetadataRepository.findByStatus(ReportGenerationStatus.GENERATING);
+    public List<ReportGeneratingDTO> getGenerationReports() {
+        return reportGenerationRequestMetadataRepository
+                .findByStatus(ReportGenerationStatus.GENERATING)
+                .stream()
+                .map(ReportGeneratingDTO::ofReportGenerationRequestMetadata)
+                .toList();
     }
 
     public List<ReportSummaryDTO> getReportSummaries(ReportType reportType) {
