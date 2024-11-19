@@ -1,4 +1,5 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, {AxiosInstance} from 'axios';
+
 export interface EmailChannelForm {
   name: string;
   email: string;
@@ -45,6 +46,14 @@ interface TokenInfo {
 export type AccuracyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 export type UrgencyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 export type ReportType = 'ON DEMAND' | 'SCHEDULED';
+
+export interface GeneratingReport {
+  clusterId: string;
+  reportType: ReportType;
+  sinceMs: number;
+  toMs: number;
+  [key: string]: string | number;
+}
 
 export interface ReportSummary {
   id: string;
@@ -418,9 +427,9 @@ class ManagmentServiceApi {
     // };
   }
 
-  public async getReports(): Promise<ReportSummary[]> {
+  public async getReportsOnDemand(): Promise<ReportSummary[]> {
     await this.refreshTokenIfExpired();
-    const response = await this.axiosInstance.get('/api/v1/reports');
+    const response = await this.axiosInstance.get('/api/v1/reports/on-demand');
     const reports: ReportSummary[] = response.data;
     reports.forEach((report) => {
       if (!VALID_URGENCY_VALUES.includes(report.urgency)) {
@@ -432,6 +441,28 @@ class ManagmentServiceApi {
     });
 
     return reports;
+  }
+
+  public async getReportsScheduled(): Promise<ReportSummary[]> {
+    await this.refreshTokenIfExpired();
+    const response = await this.axiosInstance.get('/api/v1/reports/scheduled');
+    const reports: ReportSummary[] = response.data;
+    reports.forEach((report) => {
+      if (!VALID_URGENCY_VALUES.includes(report.urgency)) {
+        throw new Error(
+            `Invalid urgency value "${report.urgency}" for report ID 
+            ${report.id}. Allowed values are: ${VALID_URGENCY_VALUES.join(', ')}`,
+        );
+      }
+    });
+
+    return reports;
+  }
+
+  public async getGeneratingReports(): Promise<GeneratingReport[]> {
+    await this.refreshTokenIfExpired();
+    const response = await this.axiosInstance.get('/api/v1/reports/generating');
+    return response.data;
   }
 
   public async getApplicationIncident(
