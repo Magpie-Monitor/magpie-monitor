@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.pwr.zpi.reports.dto.report.ReportDetailedSummaryDTO;
-import pl.pwr.zpi.reports.dto.report.ReportIncidentsDTO;
-import pl.pwr.zpi.reports.dto.report.ReportPaginatedIncidentsDTO;
-import pl.pwr.zpi.reports.dto.report.ReportSummaryDTO;
+import pl.pwr.zpi.reports.dto.report.*;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
@@ -66,7 +63,7 @@ public class ReportsController {
     }
 
     @GetMapping("/generating")
-    public ResponseEntity<List<ReportGenerationRequestMetadata>> getGenerationReports() {
+    public ResponseEntity<List<ReportGeneratingDTO>> getGenerationReports() {
         return ResponseEntity.ok(reportsService.getGenerationReports());
     }
 

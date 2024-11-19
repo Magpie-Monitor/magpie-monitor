@@ -50,7 +50,7 @@ public class EmailNotificationService implements ReportNotifier {
 
         emailService.sendMessage(emailReceiver.getReceiverEmail(),
                 title,
-                emailUtils.createNewReportEmailTemplate(String.format("%s/%s", MAGPIE_MONITOR_CLIENT_BASE_URL, reportId)),
+                emailUtils.createNewReportEmailTemplate(String.format("%s/reports/%s", MAGPIE_MONITOR_CLIENT_BASE_URL, reportId)),
                 true);
     }
 

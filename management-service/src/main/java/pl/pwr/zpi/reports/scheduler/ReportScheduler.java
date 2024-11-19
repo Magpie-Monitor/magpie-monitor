@@ -1,5 +1,6 @@
 package pl.pwr.zpi.reports.scheduler;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,7 +26,8 @@ public class ReportScheduler {
         reportScheduleRepository.findAll().forEach(this::processSchedule);
     }
 
-    private void processSchedule(ReportSchedule schedule) {
+    @Transactional
+    public void processSchedule(ReportSchedule schedule) {
         long nextGenerationTime = calculateNextGenerationTime(schedule);
 
         if (nextGenerationTime > System.currentTimeMillis()) {
