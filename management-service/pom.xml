@@ -164,6 +164,13 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/commons-validator/commons-validator -->
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.9.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.commonmark</groupId>
             <artifactId>commonmark</artifactId>
