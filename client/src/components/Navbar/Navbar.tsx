@@ -48,11 +48,6 @@ const Navbar = () => {
             destination={'/clusters'}
             iconName={'clusters-icon--white'}
           />
-          <NavbarTab
-            label={'Notifications'}
-            destination={'/notifications'}
-            iconName={'notification-icon--white'}
-          />
         </div>
       </div>
       <div className="navbar__sign-out ">
