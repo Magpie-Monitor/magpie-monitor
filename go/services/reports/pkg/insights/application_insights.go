@@ -10,7 +10,6 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
 	"go.uber.org/zap"
-	// "sync"
 	"time"
 )
 
@@ -57,7 +56,6 @@ type ApplicationInsightsGenerator interface {
 	ScheduleApplicationInsights(
 		logsByApplication map[string][]*repositories.ApplicationLogsDocument,
 		configurationByApplication map[string]*ApplicationInsightConfiguration,
-		// scheduledTime time.Time,
 		cluster string,
 		fromDate int64,
 		toDate int64,
@@ -132,7 +130,6 @@ func (g *OpenAiInsightsGenerator) addMetadataToApplicationInsight(
 		log, err := g.getApplicationLogById(sourceLogId, logs)
 		if err != nil {
 			g.logger.Error("Failed to source application insights", zap.Error(err))
-
 			// Skipping source in case of a fake id
 			continue
 		}
@@ -212,11 +209,6 @@ func (g *OpenAiInsightsGenerator) AwaitScheduledApplicationInsights(
 		g.logger.Error("Failed to get application completion responses from batches", zap.Error(err))
 		return nil, err
 	}
-
-	// insightLogs, err := g.applicationLogsRepository.
-	// 	GetLogs(context.TODO(), sheduledInsights.ClusterId,
-	// 		time.UnixMilli(sheduledInsights.SinceMs),
-	// 		time.UnixMilli(sheduledInsights.ToMs))
 
 	if err != nil {
 		g.logger.Error("Failed to get application logs for scheduled insight")
@@ -362,7 +354,8 @@ func (g *OpenAiInsightsGenerator) createMessagesFromApplicationLogs(
         - A recommended action to resolve the issue.
 
         Each insight should:
-        - Include the relevant unmodified source log entries in the sourceIds array, referencing logs across containers/pods if they indicate the same issue.
+        - Include the relevant unmodified source log entries in the sourceIds array, referencing logs across containers/pods if they indicate the same issue. 
+        Use _id field of provided log.
         - Avoid redundant insights; if a source is already used in an insight, do not generate another one for it.
         - Ignore logs that do not explicitly indicate issues or represent typical operational activities.
         - Exclude insights entirely if no errors or warnings are present.

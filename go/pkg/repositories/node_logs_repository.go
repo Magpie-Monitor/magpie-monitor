@@ -2,11 +2,9 @@ package repositories
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/IBM/fp-go/array"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	es "github.com/elastic/go-elasticsearch/v8"
-	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
@@ -74,79 +72,47 @@ func (r *ElasticSearchNodeLogsRepository) getIndiciesWithClusterAndDateRange(clu
 
 func (r *ElasticSearchNodeLogsRepository) GetLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) ([]*NodeLogsDocument, error) {
 
-	indices := r.getIndiciesWithClusterAndDateRange(cluster, startDate, endDate)
-	if len(indices) == 0 {
-		return []*NodeLogsDocument{}, nil
-	}
+	nodeLogs := make([]*NodeLogsDocument, 0)
 
-	query := elasticsearch.GetQueryByTimestamps(startDate, endDate)
-	res, err := elasticsearch.SearchIndices(ctx, r.esClient, indices, query)
-
+	batch, err := r.GetBatchedLogs(ctx, cluster, startDate, endDate)
 	if err != nil {
-		r.logger.Error("Failed to get node logs", zap.Error(err))
+		r.logger.Error("Failed to fetch node logs", zap.Error(err))
 		return nil, err
 	}
 
-	var nodeLogs []*NodeLogsDocument
-	for _, value := range res.Hits.Hits {
-		var log NodeLogsDocument
-		err := json.Unmarshal(value.Source_, &log)
-		if err != nil {
-			r.logger.Error("Failed to decode node logs", zap.Error(err))
-			return nil, err
-		}
+	for {
+		if !batch.HasNextBatch() {
+			nextBatch, err := batch.GetNextBatch()
+			if err != nil {
+				r.logger.Error("Failed to get next batch of node logs")
+				return nil, err
+			}
 
-		log.Id = *value.Id_
-
-		if log.Content != "" {
-			nodeLogs = append(nodeLogs, &log)
+			nodeLogs = append(nodeLogs, nextBatch...)
 		}
 	}
-
-	return nodeLogs, nil
 }
 
 func (r *ElasticSearchNodeLogsRepository) GetLogsByIds(
 	ctx context.Context,
 	clusterId string,
-	from time.Time,
-	to time.Time,
+	startDate time.Time,
+	endDate time.Time,
 	ids []string) ([]*NodeLogsDocument, error) {
+	indices := r.getIndiciesWithClusterAndDateRange(clusterId, startDate, endDate)
 
-	indices := r.getIndiciesWithClusterAndDateRange(clusterId, from, to)
+	nodeLogsById, err :=
+		elasticsearch.GetAndMapDocumentsByIds[*NodeLogsDocument](ctx, r.esClient, indices, ids, r.logger)
 
-	logsByIdsQuery, err := elasticsearch.GetDocumentsByIds(ctx,
-		r.esClient,
-		indices,
-		ids)
 	if err != nil {
-		r.logger.Error("Failed to get logs by query", zap.Error(err), zap.Any("ids", ids), zap.Any("clusterId", clusterId))
+		r.logger.Error("Failed to fetch and map document ids", zap.Error(err), zap.Any("ids", ids))
 		return nil, err
 	}
 
-	var nodeLogs []*NodeLogsDocument
-	for _, value := range logsByIdsQuery.Docs {
-		var log NodeLogsDocument
-
-		result, ok := value.(*types.GetResult)
-		if !ok || result.Source_ == nil {
-			r.logger.Error("Failed to get document from id", zap.Any("document", value))
-
-			// Skipping in case of made up id
-			continue
-		}
-
-		err := json.Unmarshal(result.Source_, &log)
-		if err != nil {
-			r.logger.Error("Failed to decode node logs", zap.Error(err), zap.Any("logs", result.Source_))
-			return nil, err
-		}
-
-		log.Id = result.Id_
-
-		if log.Content != "" {
-			nodeLogs = append(nodeLogs, &log)
-		}
+	nodeLogs := make([]*NodeLogsDocument, 0, len(nodeLogsById))
+	for id, log := range nodeLogsById {
+		log.Id = id
+		nodeLogs = append(nodeLogs, log)
 	}
 
 	return nodeLogs, nil
@@ -253,7 +219,13 @@ func (r *ElasticSearchNodeLogsRepository) GetBatchedLogs(
 
 	elasticDocumentRetriever, err := NewElasticBatchedDocumentsRetriever(
 		r.esClient,
-		elasticsearch.GetSearchQuery(ctx, r.esClient, indices, query, 10000),
+		elasticsearch.GetSearchQuery(
+			ctx,
+			r.esClient,
+			indices,
+			query,
+			elasticsearch.DEFAULT_ELASTIC_PAGE_SIZE,
+		),
 	)
 	if err != nil {
 		r.logger.Error("Failed to get application logs", zap.Error(err))

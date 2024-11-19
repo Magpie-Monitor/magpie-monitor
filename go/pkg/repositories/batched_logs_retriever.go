@@ -34,7 +34,7 @@ type NodeLogsBatchRetriever = BatchedDocumentsRetriever[*NodeLogsDocument]
 func NewElasticBatchedDocumentsRetriever(client *elasticsearch.TypedClient, scrollQuery *search.Search) (*ElasticBatchedDocumentsRetriever, error) {
 
 	initialScroll, err := scrollQuery.
-		Scroll("1d").
+		Scroll(elasticutils.DEFAULT_ELASTIC_SCROLL_EXPIRY_PERIOD).
 		Do(context.Background())
 
 	if err != nil {

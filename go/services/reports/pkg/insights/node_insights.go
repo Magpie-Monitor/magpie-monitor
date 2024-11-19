@@ -10,7 +10,6 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
 	"go.uber.org/zap"
-	// "sync"
 	"time"
 )
 
@@ -216,7 +215,8 @@ func (g *OpenAiInsightsGenerator) createMessagesFromNodeLogs(
         - A recommended action for resolution.
 
         Each insight should:
-        - Include relevant, unmodified source log entries in the sourceIds array, aggregating similar logs across nodes if they pertain to the same issue.
+        - Include relevant, unmodified source log entries in the sourceIds array, aggregating similar logs across nodes if they pertain to the same issue. 
+       	 	Use _id field of provided log as its id.
         - Avoid redundant insights; if a source has already been referenced, do not repeat it in another insight.
         - Ignore logs that do not clearly suggest an issue or represent routine node activities.
         - Exclude insights entirely if no errors or warnings are present.

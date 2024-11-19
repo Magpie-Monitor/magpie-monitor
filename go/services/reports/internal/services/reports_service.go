@@ -119,8 +119,12 @@ func (s *ReportsService) ScheduleNodeInsights(
 	*insights.ScheduledNodeInsights,
 	int, error) {
 
-	sinceDate := time.UnixMilli(params.SinceMs)
-	toDate := time.UnixMilli(params.ToMs)
+	var (
+		sinceDate              = time.UnixMilli(params.SinceMs)
+		toDate                 = time.UnixMilli(params.ToMs)
+		aggregatedNodeInsights = insights.ScheduledNodeInsights{}
+		analyzedNodeEntries    = 0
+	)
 
 	nodeLogs, err := s.GetNodeLogsByParams(
 		ctx,
@@ -131,9 +135,6 @@ func (s *ReportsService) ScheduleNodeInsights(
 		s.logger.Error("Failed to fetch application logs", zap.Error(err))
 		return nil, 0, err
 	}
-
-	var aggregatedNodeInsights = insights.ScheduledNodeInsights{}
-	analyzedNodeEntries := 0
 
 	for {
 		if !nodeLogs.HasNextBatch() {
@@ -178,11 +179,12 @@ func (s *ReportsService) ScheduleApplicationInsights(
 	*insights.ScheduledApplicationInsights,
 	int, error) {
 
-	sinceDate := time.UnixMilli(params.SinceMs)
-	toDate := time.UnixMilli(params.ToMs)
-
-	var aggregatedApplicationInsights = insights.ScheduledApplicationInsights{}
-	var analyzedApplicationEntries = 0
+	var (
+		aggregatedApplicationInsights = insights.ScheduledApplicationInsights{}
+		analyzedApplicationEntries    = 0
+		sinceDate                     = time.UnixMilli(params.SinceMs)
+		toDate                        = time.UnixMilli(params.ToMs)
+	)
 
 	applicationLogs, err := s.GetApplicationLogsByParams(
 		ctx,
@@ -380,6 +382,8 @@ func (s *ReportsService) PollReportsPendingGeneration(ctx context.Context, repor
 				)
 
 				applicationInsights, err := s.applicationInsightsGenerator.AwaitScheduledApplicationInsights(report.ScheduledApplicationInsights)
+				s.logger.Info("insights", zap.Any("apps", applicationInsights))
+
 				if err != nil {
 					s.logger.Error("Failed to await for application insights", zap.Error(err), zap.Any("insights", report.ScheduledApplicationInsights))
 					errChn <- &ReportGenerationError{
