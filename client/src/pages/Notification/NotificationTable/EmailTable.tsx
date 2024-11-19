@@ -5,51 +5,71 @@ import SectionComponent from 'components/SectionComponent/SectionComponent';
 import emailIcon from 'assets/mail-icon.svg';
 import { NotificationTableRowProps } from './NotificationTable';
 import { useEffect, useState } from 'react';
-import {
-  EmailNotificationChannel,
-  ManagmentServiceApiInstance,
-} from 'api/managment-service';
+import { ManagmentServiceApiInstance } from 'api/managment-service';
 import LoadingTable from './LoadingTable';
 import EmailColumn from 'pages/Notification/EmailCell/EmailCell';
-import NewEmailChannelPopup from 'pages/Notification/NewChannelPopup/NewEmailChannelPopup';
-import { dateFromTimestampMs } from 'lib/date';
-import EditEmailChannelPopup from 'pages/Notification/EditChannelPopup/EditEmailChannelPopup';
-import './NotificationTable.scss';
+import { NotificationContextProps, useNotification } from '../NotificationContext';
 
-interface EmailTableRowProps extends NotificationTableRowProps {
+export interface EmailTableRowProps extends NotificationTableRowProps {
   email: string;
 }
 
-const getEmailChannelTableRow = ({
-  id,
-  receiverName,
-  updatedAt,
-  createdAt,
-  receiverEmail,
-}: EmailNotificationChannel): EmailTableRowProps => ({
-  name: receiverName,
-  updatedAt: dateFromTimestampMs(updatedAt),
-  createdAt: dateFromTimestampMs(createdAt),
-  email: receiverEmail,
-  id,
-});
+const emailColumns: Array<TableColumn<EmailTableRowProps>> = [
+  {
+    header: 'Name',
+    columnKey: 'receiverName',
+    customComponent: ({ receiverName, destination }: EmailTableRowProps) => (
+      <NotificationNameLink linkName={receiverName} destination={destination} />
+    ),
+  },
+  {
+    header: 'Email',
+    columnKey: 'email',
+    customComponent: ({ email }: NotificationTableRowProps) => (
+      <EmailColumn email={email} />
+    ),
+  },
+  {
+    header: 'Created at',
+    columnKey: 'createdAt',
+  },
+  {
+    header: 'Update at',
+    columnKey: 'updateAt',
+  },
+  {
+    header: 'Actions',
+    columnKey: 'action',
+    customComponent: ({
+      webhookUrl,
+      linkName,
+      createdAt,
+      updateAt,
+    }: EmailTableRowProps) => (
+      <NotificationButtons
+        channel={'DISCORD'}
+        adress={webhookUrl}
+        linkName={linkName}
+        createdAt={createdAt}
+        updateAt={updateAt}
+      />
+    ),
+  },
+];
 
 const EmailTable = () => {
   const [rows, setRows] = useState<EmailTableRowProps[]>([]);
   const [isLoading, setLoading] = useState<boolean>(true);
-  const [isNewChannelPopupDisplayed, setIsNewChannelPopupDisplayed] =
-    useState<boolean>(false);
-  const [isEditChannelPopupDisplayed, setIsEditChannelPopupDisplayed] =
-    useState<boolean>(false);
-  const [editChannelPopupData, setEditChannelPopupData] =
-    useState<EmailTableRowProps | null>(null);
+  const {
+    hidePopup,
+    createNewChannel,
+  }: NotificationContextProps = useNotification();
 
   const fetchEmailChannels = async () => {
     try {
       const channels = await ManagmentServiceApiInstance.getEmailChannels();
-      setRows(channels.map(getEmailChannelTableRow));
+      setRows(channels);
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('Error fetching email channels: ', error);
     } finally {
       setLoading(false);
@@ -58,58 +78,19 @@ const EmailTable = () => {
 
   useEffect(() => {
     fetchEmailChannels();
-  }, [isLoading]);
-
-  const emailColumns: Array<TableColumn<EmailTableRowProps>> = [
-    {
-      header: 'Name',
-      columnKey: 'receiverName',
-      customComponent: ({ name }: EmailTableRowProps) => (
-        <NotificationNameLink linkName={name} />
-      ),
-    },
-    {
-      header: 'Email',
-      columnKey: 'receiverEmail',
-      customComponent: ({ email }: EmailTableRowProps) => (
-        <EmailColumn email={email} />
-      ),
-    },
-    {
-      header: 'Created at',
-      columnKey: 'createdAt',
-    },
-    {
-      header: 'Updated at',
-      columnKey: 'updatedAt',
-    },
-    {
-      header: 'Actions',
-      columnKey: 'action',
-      customComponent: (props) => (
-        <NotificationButtons
-          onUpdate={() => {
-            setIsEditChannelPopupDisplayed(true);
-            setEditChannelPopupData(props);
-          }}
-          onTest={() => {
-            ManagmentServiceApiInstance.testEmailChannel(props.id);
-          }}
-          onDelete={async () => {
-            await ManagmentServiceApiInstance.deleteEmailChannel(props.id);
-            setLoading(true);
-          }}
-        />
-      ),
-    },
-  ];
+  }, []);
 
   return (
     <SectionComponent
-      icon={<img src={emailIcon} className="notification-table__icon" />}
+      icon={<img src={emailIcon} />}
       title="Email"
       callback={() => {
-        setIsNewChannelPopupDisplayed(true);
+        createNewChannel(
+          <AddSlackChannelPopup
+            isDisplayed={true}
+            setIsDisplayed={hidePopup}
+          />,
+        );
       }}
     >
       <LoadingTable isLoading={isLoading}>
@@ -119,24 +100,6 @@ const EmailTable = () => {
           <p>No Email channels was yet configured</p>
         )}
       </LoadingTable>
-
-      {isEditChannelPopupDisplayed && editChannelPopupData && (
-        <EditEmailChannelPopup
-          id={editChannelPopupData.id}
-          name={editChannelPopupData.name}
-          email={editChannelPopupData.email}
-          isDisplayed={isEditChannelPopupDisplayed}
-          setIsDisplayed={setIsEditChannelPopupDisplayed}
-          onSubmit={() => setLoading(true)}
-        />
-      )}
-      {isNewChannelPopupDisplayed && (
-        <NewEmailChannelPopup
-          setIsDisplayed={setIsNewChannelPopupDisplayed}
-          isDisplayed={isNewChannelPopupDisplayed}
-          onSubmit={() => setLoading(true)}
-        />
-      )}
     </SectionComponent>
   );
 };

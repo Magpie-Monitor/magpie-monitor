@@ -15,7 +15,7 @@ import LabelInput, {
   nonEmptyFieldValidation,
 } from 'components/LabelInput/LabelInput';
 import NewChannelPopupHeader from 'pages/Notification/NewChannelPopupHeader/NewChannelPopupHeader';
-import { slackWebhookValidation } from 'lib/validators';
+import { slackWebhookValidation } from 'pages/Notification/NotificationTable/SlackTable';
 
 const defaultSlackChannel: SlackChannelForm = {
   name: '',

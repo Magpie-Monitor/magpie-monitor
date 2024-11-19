@@ -2,32 +2,40 @@ import ActionButton, {
   ActionButtonColor,
 } from 'components/ActionButton/ActionButton';
 import './NotificationButtons.scss';
+import { useNotification } from 'pages/Notification/NotificationContext';
+import {NotificationChannelKind} from 'api/managment-service';
 
 export interface NotificationButtonsProps {
-  onUpdate: () => void;
-  onTest: () => void;
-  onDelete: () => void;
+  channel: NotificationChannelKind;
+  adress: string;
+  linkName: string;
+  createdAt: string;
+  updateAt: string;
 }
 
 const NotificationButtons = ({
-  onTest,
-  onUpdate,
-  onDelete,
+  channel,
+  adress,
+  linkName,
+  createdAt,
+  updateAt,
 }: NotificationButtonsProps) => {
+  const updater = useNotification();
+
   return (
     <div className="notification-buttons">
       <ActionButton
-        onClick={onUpdate}
+        onClick={() => updater(channel, adress, linkName, createdAt, updateAt)}
         description="UPDATE"
         color={ActionButtonColor.GREEN}
       />
       <ActionButton
-        onClick={onTest}
+        onClick={() => {}}
         description="TEST"
         color={ActionButtonColor.OLIVE}
       />
       <ActionButton
-        onClick={onDelete}
+        onClick={() => {}}
         description="DELETE"
         color={ActionButtonColor.RED}
       />

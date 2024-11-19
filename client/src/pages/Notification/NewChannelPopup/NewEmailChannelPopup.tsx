@@ -15,7 +15,7 @@ import LabelInput, {
   nonEmptyFieldValidation,
 } from 'components/LabelInput/LabelInput';
 import NewChannelPopupHeader from 'pages/Notification/NewChannelPopupHeader/NewChannelPopupHeader';
-import { emailValidation } from 'lib/validators';
+import { emailValidation } from 'pages/Notification/NotificationTable/EmailTable';
 
 const defaultEmailChannel: EmailChannelForm = {
   name: '',

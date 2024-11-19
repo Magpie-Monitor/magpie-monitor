@@ -15,7 +15,7 @@ import LabelInput, {
   nonEmptyFieldValidation,
 } from 'components/LabelInput/LabelInput';
 import NewChannelPopupHeader from 'pages/Notification/NewChannelPopupHeader/NewChannelPopupHeader';
-import { discordWebhookValidation } from 'lib/validators';
+import { discordWebhookValidation } from 'pages/Notification/NotificationTable/DiscordTable';
 
 const defaultDiscordChannel: DiscordChannelForm = {
   name: '',
