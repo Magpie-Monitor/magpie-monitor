@@ -1,39 +1,5 @@
 import axios, {AxiosInstance} from 'axios';
 
-export interface EmailChannelForm {
-  name: string;
-  email: string;
-}
-
-export interface DiscordChannelForm {
-  name: string;
-  webhookUrl: string;
-}
-
-export interface SlackChannelForm {
-  name: string;
-  webhookUrl: string;
-}
-
-export interface NotificationChannel {
-  id: string;
-  receiverName: string;
-  createdAt: number;
-  updatedAt: number;
-}
-
-export interface SlackNotificationChannel extends NotificationChannel {
-  webhookUrl: string;
-}
-
-export interface EmailNotificationChannel extends NotificationChannel {
-  receiverEmail: string;
-}
-
-export interface DiscordNotificationChannel extends NotificationChannel {
-  webhookUrl: string;
-}
-
 interface UserInfo {
   nickname: string;
   email: string;
@@ -210,15 +176,15 @@ export interface ReportPost {
   discordReceiverIds: number[];
   emailReceiverIds: number[];
   applicationConfigurations: {
-    applicationName: string;
-    customPrompt: string;
-    accuracy: AccuracyLevel;
-  }[];
+      applicationName: string;
+      customPrompt: string;
+      accuracy: AccuracyLevel;
+    }[];
   nodeConfigurations: {
-    nodeName: string;
-    customPrompt: string;
-    accuracy: AccuracyLevel;
-  }[];
+      nodeName: string;
+      customPrompt: string;
+      accuracy: AccuracyLevel;
+    }[];
 }
 
 export interface ClusterUpdateData {
@@ -266,24 +232,6 @@ export interface ClusterDetails {
   emailReceivers: Email[];
   applicationConfigurations: ApplicationConfiguration[];
   nodeConfigurations: NodeConfiguration[];
-}
-
-export interface EditDiscordChannelForm {
-  id: string;
-  name: string;
-  webhookUrl: string;
-}
-
-export interface EditSlackChannelForm {
-  id: string;
-  name: string;
-  webhookUrl: string;
-}
-
-export interface EditEmailChannelForm {
-  id: string;
-  name: string;
-  email: string;
 }
 
 class ManagmentServiceApi {
@@ -695,131 +643,6 @@ class ManagmentServiceApi {
       periodMs,
     };
     await this.axiosInstance.post('/api/v1/reports/schedule', requestPayload);
-  }
-
-  public async getSlackChannels(): Promise<SlackNotificationChannel[]> {
-    await this.refreshTokenIfExpired();
-    const slackChannels = await this.axiosInstance.get(
-      '/api/v1/notification-channels/slack',
-    );
-    return slackChannels.data;
-  }
-
-  public async getDiscordChannels(): Promise<DiscordNotificationChannel[]> {
-    await this.refreshTokenIfExpired();
-    const discordChannels = await this.axiosInstance.get(
-      '/api/v1/notification-channels/discord',
-    );
-    return discordChannels.data;
-  }
-
-  public async getEmailChannels(): Promise<EmailNotificationChannel[]> {
-    await this.refreshTokenIfExpired();
-    const emailChannels = await this.axiosInstance.get(
-      '/api/v1/notification-channels/mails',
-    );
-    return emailChannels.data;
-  }
-
-  public async postSlackChannel(slackChannel: SlackChannelForm): Promise<void> {
-    await this.refreshTokenIfExpired();
-    await this.axiosInstance.post(
-      '/api/v1/notification-channels/slack',
-      slackChannel,
-    );
-  }
-
-  public async postDiscordChannel(
-    discordChannel: DiscordChannelForm,
-  ): Promise<void> {
-    await this.refreshTokenIfExpired();
-    await this.axiosInstance.post(
-      '/api/v1/notification-channels/discord',
-      discordChannel,
-    );
-  }
-
-  public async postEmailChannel(emailChannel: EmailChannelForm): Promise<void> {
-    await this.refreshTokenIfExpired();
-    await this.axiosInstance.post(
-      '/api/v1/notification-channels/mails',
-      emailChannel,
-    );
-  }
-
-  public async editDiscordChannel(data: EditDiscordChannelForm): Promise<void> {
-    await this.refreshTokenIfExpired();
-    await this.axiosInstance.patch(
-      `/api/v1/notification-channels/discord/${data.id}`,
-      {
-        name: data.name,
-        webhookUrl: data.webhookUrl === '' ? undefined : data.webhookUrl,
-      },
-    );
-  }
-
-  public async editSlackChannel(data: EditSlackChannelForm): Promise<void> {
-    await this.refreshTokenIfExpired();
-    await this.axiosInstance.patch(
-      `/api/v1/notification-channels/slack/${data.id}`,
-      {
-        name: data.name,
-        webhookUrl: data.webhookUrl === '' ? undefined : data.webhookUrl,
-      },
-    );
-  }
-
-  public async editEmailChannel(data: EditEmailChannelForm): Promise<void> {
-    await this.refreshTokenIfExpired();
-    await this.axiosInstance.patch(
-      `/api/v1/notification-channels/mails/${data.id}`,
-      {
-        name: data.name,
-        email: data.email,
-      },
-    );
-  }
-
-  public async testDiscordChannel(id: string): Promise<void> {
-    await this.refreshTokenIfExpired();
-    await this.axiosInstance.post(
-      `/api/v1/notification-channels/discord/${id}/test-notification`,
-    );
-  }
-
-  public async testSlackChannel(id: string): Promise<void> {
-    await this.refreshTokenIfExpired();
-    await this.axiosInstance.post(
-      `/api/v1/notification-channels/slack/${id}/test-notification`,
-    );
-  }
-
-  public async testEmailChannel(id: string): Promise<void> {
-    await this.refreshTokenIfExpired();
-    await this.axiosInstance.post(
-      `/api/v1/notification-channels/mails/${id}/test-notification`,
-    );
-  }
-
-  public async deleteDiscordChannel(id: string): Promise<void> {
-    await this.refreshTokenIfExpired();
-    await this.axiosInstance.delete(
-      `/api/v1/notification-channels/discord/${id}`,
-    );
-  }
-
-  public async deleteSlackChannel(id: string): Promise<void> {
-    await this.refreshTokenIfExpired();
-    await this.axiosInstance.delete(
-      `/api/v1/notification-channels/slack/${id}`,
-    );
-  }
-
-  public async deleteEmailChannel(id: string): Promise<void> {
-    await this.refreshTokenIfExpired();
-    await this.axiosInstance.delete(
-      `/api/v1/notification-channels/mails/${id}`,
-    );
   }
 }
 

@@ -9,6 +9,7 @@ export interface NotificationButtonsProps {
   channel: NotificationChannelKind;
   adress: string;
   linkName: string;
+  destination: string;
   createdAt: string;
   updateAt: string;
 }
@@ -17,6 +18,7 @@ const NotificationButtons = ({
   channel,
   adress,
   linkName,
+  destination,
   createdAt,
   updateAt,
 }: NotificationButtonsProps) => {
@@ -25,7 +27,7 @@ const NotificationButtons = ({
   return (
     <div className="notification-buttons">
       <ActionButton
-        onClick={() => updater(channel, adress, linkName, createdAt, updateAt)}
+        onClick={() => updater(channel, adress, linkName, destination, createdAt, updateAt)}
         description="UPDATE"
         color={ActionButtonColor.GREEN}
       />

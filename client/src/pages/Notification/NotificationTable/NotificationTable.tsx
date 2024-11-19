@@ -1,15 +1,15 @@
 import Table, { TableColumn } from 'components/Table/Table';
+import SVGIcon from 'components/SVGIcon/SVGIcon';
 import './NotificationTable.scss';
 import NotificationButtons from 'pages/Notification/NotificationButtons/NotificationButtons';
 import HiddenWebhook from 'pages/Notification/HiddenWebhook/HiddenWebhook';
 import NotificationNameLink from 'pages/Notification/NotificationNameLink/NotificationNameLink';
-import { NotificationChannelKind } from 'api/managment-service.ts';
+import {NotificationChannelKind} from 'api/managment-service.ts';
 import EmailColumn from 'pages/Notification/EmailCell/EmailCell';
-import SectionComponent from 'components/SectionComponent/SectionComponent';
 
-export interface NotificationTableRowProps {
-  id: string;
-  receiverName: string;
+interface NotificationTableRowProps {
+  linkName: string;
+  destination: string;
   createdAt: string;
   updateAt: string;
   action: string;
@@ -45,95 +45,98 @@ interface NotificationTableProps {
   channel: NotificationChannelKind;
 }
 
-const getTableColumnsForWebhookNotificationChannel = (
-  channel: NotificationsChannel,
-): Array<TableColumn<NotificationTableRowProps>> => [
-    {
-      header: 'Name',
-      columnKey: 'name',
-      customComponent: ({ linkName, destination }: NotificationTableRowProps) => (
-        <NotificationNameLink linkName={linkName} destination={destination} />
-      ),
-    },
-    {
-      header: 'Webhook url',
-      columnKey: 'webhookUrl',
-      customComponent: ({ webhookUrl }: NotificationTableRowProps) => (
-        <HiddenWebhook url={webhookUrl} />
-      ),
-    },
-    {
-      header: 'Created at',
-      columnKey: 'createdAt',
-    },
-    {
-      header: 'Update at',
-      columnKey: 'updateAt',
-    },
-    {
-      header: 'Actions',
-      columnKey: 'action',
-      customComponent: ({
-        webhookUrl,
-        linkName,
-        createdAt,
-        updateAt,
-      }: NotificationTableRowProps) => (
-        <NotificationButtons
-          channel={channel}
-          adress={webhookUrl}
-          linkName={linkName}
-          createdAt={createdAt}
-          updateAt={updateAt}
-        />
-      ),
-    },
-  ];
+const getTableColumnsForWebhookNotificationChannel = (channel: NotificationChannelKind):
+Array<TableColumn<NotificationTableRowProps>> => [
+  {
+    header: 'Name',
+    columnKey: 'name',
+    customComponent: ({ linkName, destination }: NotificationTableRowProps) => (
+      <NotificationNameLink linkName={linkName} destination={destination} />
+    ),
+  },
+  {
+    header: 'Webhook url',
+    columnKey: 'webhookUrl',
+    customComponent: ({ webhookUrl }: NotificationTableRowProps) => (
+      <HiddenWebhook url={webhookUrl} />
+    ),
+  },
+  {
+    header: 'Created at',
+    columnKey: 'createdAt',
+  },
+  {
+    header: 'Update at',
+    columnKey: 'updateAt',
+  },
+  {
+    header: 'Actions',
+    columnKey: 'action',
+    customComponent: ({
+      webhookUrl,
+      linkName,
+      destination,
+      createdAt,
+      updateAt,
+    }: NotificationTableRowProps) => (
+      <NotificationButtons
+        channel={channel}
+        adress={webhookUrl}
+        linkName={linkName}
+        destination={destination}
+        createdAt={createdAt}
+        updateAt={updateAt}
+      />
+    ),
+  },
+];
 
-const getTableColumnsForEmailNotificationChannel = (
-  channel: NotificationsChannel,
-): Array<TableColumn<NotificationTableRowProps>> => [
-    {
-      header: 'Name',
-      columnKey: 'name',
-      customComponent: ({ linkName, destination }: NotificationTableRowProps) => (
-        <NotificationNameLink linkName={linkName} destination={destination} />
-      ),
-    },
-    {
-      header: 'Email',
-      columnKey: 'email',
-      customComponent: ({ email }: NotificationTableRowProps) => (
-        <EmailColumn email={email} />
-      ),
-    },
-    {
-      header: 'Created at',
-      columnKey: 'createdAt',
-    },
-    {
-      header: 'Update at',
-      columnKey: 'updateAt',
-    },
-    {
-      header: 'Actions',
-      columnKey: 'action',
-      customComponent: ({
-        email,
-        linkName,
-        createdAt,
-        updateAt,
-      }: NotificationTableRowProps) => (
-        <NotificationButtons
-          channel={channel}
-          adress={email}
-          linkName={linkName}
-          createdAt={createdAt}
-          updateAt={updateAt}
-        />
-      ),
-    },
-  ];
+const getTableColumnsForEmailNotificationChannel = (channel: NotificationChannelKind): Array<
+  TableColumn<NotificationTableRowProps>
+> => [
+  {
+    header: 'Name',
+    columnKey: 'name',
+    customComponent: ({ linkName, destination }: NotificationTableRowProps) => (
+      <NotificationNameLink linkName={linkName} destination={destination} />
+    ),
+  },
+  {
+    header: 'Email',
+    columnKey: 'email',
+    customComponent: ({ email }: NotificationTableRowProps) => (
+      <EmailColumn email={email} />
+    ),
+  },
+  {
+    header: 'Created at',
+    columnKey: 'createdAt',
+  },
+  {
+    header: 'Update at',
+    columnKey: 'updateAt',
+  },
+  {
+    header: 'Actions',
+    columnKey: 'action',
+    customComponent: ({
+      email,
+      linkName,
+      destination,
+      createdAt,
+      updateAt,
+    }: NotificationTableRowProps) => (
+      <NotificationButtons
+        channel={channel}
+        adress={email}
+        linkName={linkName}
+        destination={destination}
+        createdAt={createdAt}
+        updateAt={updateAt}
+      />
+    ),
+  },
+];
 
 const getTableColumns = (
   channel: NotificationChannelKind,
@@ -161,30 +164,23 @@ const NotificationTable = ({
   channel,
 }: NotificationTableProps) => {
   return (
-    // <div className="notification-table">
-    //   <div className="notification-table__heading">
-    //     <div className="notification-table__heading">
-    //       <img src={image} />
-    //       <p className="notification-table__heading__text">{header}</p>
-    //     </div>
-    //     <button className="notification-table__heading__button">
-    //       <SVGIcon iconName="plus-icon" />
-    //     </button>
-    //   </div>
-    //   <div className="notification-table__line" />
-    //   <Table
-    //     columns={getTableColumns(channel, data)}
-    //     rows={data}
-    //     alignLeft={false}
-    //   />
-    // </div>
-    <SectionComponent icon={<img src={image} />} title={header}>
+    <div className="notification-table">
+      <div className="notification-table__heading">
+        <div className="notification-table__heading">
+          <img src={image} />
+          <p className="notification-table__heading__text">{header}</p>
+        </div>
+        <button className="notification-table__heading__button">
+          <SVGIcon iconName="plus-icon" />
+        </button>
+      </div>
+      <div className="notification-table__line" />
       <Table
         columns={getTableColumns(channel, data)}
         rows={data}
         alignLeft={false}
       />
-    </SectionComponent>
+    </div>
   );
 };
 
