@@ -61,7 +61,7 @@ public class SlackNotificationService implements ReportNotifier {
     }
 
     private String getReportUrl(String reportId) {
-        return String.format("%s/%s", MAGPIE_MONITOR_CLIENT_BASE_URL, reportId);
+        return String.format("%s/reports/%s", MAGPIE_MONITOR_CLIENT_BASE_URL, reportId);
     }
 
 }
