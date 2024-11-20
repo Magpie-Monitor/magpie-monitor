@@ -62,7 +62,7 @@ public class ReportsController {
         return ResponseEntity.ok().body(reportsService.getReportSummaries(ReportType.SCHEDULED));
     }
 
-    @GetMapping("/generating")
+    @GetMapping("/await-generation")
     public ResponseEntity<List<ReportGeneratingDTO>> getGenerationReports() {
         return ResponseEntity.ok(reportsService.getGenerationReports());
     }
