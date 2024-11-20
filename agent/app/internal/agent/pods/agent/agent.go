@@ -398,7 +398,7 @@ func (a *Agent) gatherClusterMetadata() {
 		applicationState := data.NewApplicationState(a.clusterId)
 
 		for _, namespace := range a.includedNamespaces {
-			a.getApplicationStateForNamespace(namespace, applicationState)
+			a.getApplicationStateForNamespace(namespace, &applicationState)
 		}
 
 		a.metadata <- applicationState
@@ -406,7 +406,7 @@ func (a *Agent) gatherClusterMetadata() {
 	}
 }
 
-func (a *Agent) getApplicationStateForNamespace(namespace string, applicationState data.ApplicationState) {
+func (a *Agent) getApplicationStateForNamespace(namespace string, applicationState *data.ApplicationState) {
 	err := a.appendDeploymentState(namespace, applicationState)
 	if err != nil {
 		log.Printf("Error fetching deployment state, err=%s", err.Error())
@@ -425,7 +425,7 @@ func (a *Agent) getApplicationStateForNamespace(namespace string, applicationSta
 	applicationState.SetTimestamp()
 }
 
-func (a *Agent) appendDeploymentState(namespace string, applicationState data.ApplicationState) error {
+func (a *Agent) appendDeploymentState(namespace string, applicationState *data.ApplicationState) error {
 	deployments, err := a.kubernetesClient.GetDeployments(namespace)
 
 	if err != nil {
@@ -437,7 +437,7 @@ func (a *Agent) appendDeploymentState(namespace string, applicationState data.Ap
 	return nil
 }
 
-func (a *Agent) appendStatefulSetState(namespace string, applicationState data.ApplicationState) error {
+func (a *Agent) appendStatefulSetState(namespace string, applicationState *data.ApplicationState) error {
 	statefulSets, err := a.kubernetesClient.GetStatefulSets(namespace)
 
 	if err != nil {
@@ -450,7 +450,7 @@ func (a *Agent) appendStatefulSetState(namespace string, applicationState data.A
 
 }
 
-func (a *Agent) appendDaemonSetState(namespace string, applicationState data.ApplicationState) error {
+func (a *Agent) appendDaemonSetState(namespace string, applicationState *data.ApplicationState) error {
 	daemonSets, err := a.kubernetesClient.GetDaemonSets(namespace)
 
 	if err != nil {

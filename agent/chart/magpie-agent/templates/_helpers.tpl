@@ -17,9 +17,9 @@
 
 {{- define "metadata.scrapeIntervals" -}}
 - "--logScrapeIntervalSeconds"
-- "600"
+- "20"
 - "--metadataScrapeIntervalSeconds"
-- "600"
+- "20"
 {{- end -}}
 
 {{- define "redis.connection" -}}
