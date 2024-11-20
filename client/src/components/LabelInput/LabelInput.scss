@@ -1,0 +1,35 @@
+@import '@/variables';
+
+.label-input {
+  display: flex;
+  flex-direction: column;
+
+  &__label {
+    color: $font-color;
+    font-size: 0.7rem;
+  }
+
+  &__input {
+    color: $navbar-text-color;
+    font-size: 1rem;
+    border-color: $component-border-color;
+    border-width: 1px;
+    border-radius: 5px;
+    background-color: $component-background;
+    padding: 0.6rem;
+
+    &:disabled {
+      color: $font-color;
+      filter: brightness(0.9);
+    }
+
+    &:focus {
+      filter: brightness(1.1);
+    }
+  }
+
+  &__validation {
+    color: $red;
+    font-size: 0.7rem;
+  }
+}

@@ -12,16 +12,11 @@ const HiddenWebhook = ({ url }: HiddenWebhookProps) => {
     true,
   );
 
-  const hiddenUrl: string = url
-    .split('/')
-    .map((segment, index, array) =>
-      index === array.length - 1 ? '*'.repeat(segment.length) : segment,
-    )
-    .join('/');
+  const hiddenUrl = [...Array(url.length).keys()].map(() => '*');
 
   return (
     <div className="hidden-webhook">
-      <div className='hidden-webhook__url'>{isHidden ? hiddenUrl : url}</div>
+      <div className="hidden-webhook__url">{isHidden ? hiddenUrl : url}</div>
       <div onClick={toggle} className="hidden-webhook__button">
         <SVGIcon iconName={isHidden ? 'eye-icon' : 'closed-eye-icon'} />
       </div>

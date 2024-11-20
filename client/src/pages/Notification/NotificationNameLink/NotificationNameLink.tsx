@@ -3,15 +3,11 @@ import './NotificationNameLink.scss';
 
 export interface NotificationNameLinkProps {
   linkName: string;
-  destination: string;
 }
 
-const NotificationNameLink = ({
-  linkName,
-  destination,
-}: NotificationNameLinkProps) => {
+const NotificationNameLink = ({ linkName }: NotificationNameLinkProps) => {
   return (
-    <Link className="notification-link-name" to={destination}>
+    <Link className="notification-link-name" to={''}>
       {linkName}
     </Link>
   );

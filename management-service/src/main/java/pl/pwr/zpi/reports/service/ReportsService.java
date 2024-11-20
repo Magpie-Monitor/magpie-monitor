@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import pl.pwr.zpi.reports.dto.report.*;
+import pl.pwr.zpi.reports.dto.report.ReportDetailedSummaryDTO;
+import pl.pwr.zpi.reports.dto.report.ReportIncidentsDTO;
+import pl.pwr.zpi.reports.dto.report.ReportPaginatedIncidentsDTO;
+import pl.pwr.zpi.reports.dto.report.ReportSummaryDTO;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncident;
@@ -13,7 +16,6 @@ import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncidentSource;
 import pl.pwr.zpi.reports.entity.report.request.ReportGenerationRequestMetadata;
 import pl.pwr.zpi.reports.enums.ReportGenerationStatus;
-import pl.pwr.zpi.reports.enums.ReportType;
 import pl.pwr.zpi.reports.repository.*;
 import pl.pwr.zpi.reports.repository.projection.ReportIncidentsProjection;
 
@@ -36,16 +38,8 @@ public class ReportsService {
         return reportGenerationRequestMetadataRepository.findByStatus(ReportGenerationStatus.ERROR);
     }
 
-    public List<ReportGeneratingDTO> getGenerationReports() {
-        return reportGenerationRequestMetadataRepository
-                .findByStatus(ReportGenerationStatus.GENERATING)
-                .stream()
-                .map(ReportGeneratingDTO::ofReportGenerationRequestMetadata)
-                .toList();
-    }
-
-    public List<ReportSummaryDTO> getReportSummaries(String reportType) {
-        return reportRepository.findAllByReportType(ReportType.fromString(reportType)).stream()
+    public List<ReportSummaryDTO> getReportSummaries() {
+        return reportRepository.findAllProjectedBy().stream()
                 .map(ReportSummaryDTO::ofReportSummaryProjection)
                 .toList();
     }
