@@ -12,7 +12,11 @@ const Home = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const reports = await ManagmentServiceApiInstance.getReports();
+        const [onDemandReports, scheduledReports] = await Promise.all([
+          ManagmentServiceApiInstance.getReports('ON-DEMAND'),
+          ManagmentServiceApiInstance.getReports('SCHEDULED'),
+        ]);
+        const reports = [...onDemandReports, ...scheduledReports];
         if (reports.length > 0) {
           setLastReportId(reports[reports.length - 1].id);
         }
