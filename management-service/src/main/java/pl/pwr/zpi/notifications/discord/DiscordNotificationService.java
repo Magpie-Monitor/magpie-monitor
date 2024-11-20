@@ -42,7 +42,7 @@ public class DiscordNotificationService implements ReportNotifier {
 
         discordMessagingService.sendMessage(
                 ResourceLoaderUtils.loadResourceToString(NEW_REPORT_MESSAGE_PATH) +
-                        String.format("%s/%s", MAGPIE_MONITOR_CLIENT_BASE_URL, reportId),
+                        String.format("%s/reports/%s", MAGPIE_MONITOR_CLIENT_BASE_URL, reportId),
                 discordReceiver.getWebhookUrl());
     }
 

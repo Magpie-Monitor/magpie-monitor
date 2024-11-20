@@ -32,9 +32,9 @@ public class ClusterConfiguration {
     @OneToMany(fetch = FetchType.EAGER)
     private List<EmailReceiver> emailReceivers;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ApplicationConfiguration> applicationConfigurations;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<NodeConfiguration> nodeConfigurations;
 
     public List<Long> getSlackReceiverIds() {
