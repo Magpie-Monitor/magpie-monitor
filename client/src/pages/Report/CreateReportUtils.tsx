@@ -141,7 +141,7 @@ export const generateReport = ({
 
     const schedulePeriodMs = periodToMilliseconds[generationPeriod] || 0;
 
-    if (generationType === 'ON DEMAND') {
+    if (generationType === 'ON-DEMAND') {
         const report: ReportPost = {
             clusterId: id ?? '',
             accuracy: 'HIGH',
