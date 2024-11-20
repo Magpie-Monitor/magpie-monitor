@@ -20,7 +20,6 @@ agent:
   remoteWrite:
     metadata:
       url: <URL>
-      clientSecret: <SECRET>
     logs:
       url: <URL>
       username: <USERNAME>
