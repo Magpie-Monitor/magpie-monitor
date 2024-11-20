@@ -51,6 +51,12 @@
 - "{{ .Values.agent.remoteWrite.metadata.url }}/v1/metadata/clusters"
 - "--clusterMetadataServiceClientSecret"
 - {{ .Values.agent.remoteWrite.metadata.clientSecret | quote }}
+- "--maxPodPacketSizeBytes"
+- 5000
+- "--maxContainerPacketSizeBytes"
+- 1000
+- "--remoteWriteApplicationMetadataTopic"
+- "application_metadata"
 {{- end -}}
 
 {{- define "agent.pod.excludedNamespaces" }}
@@ -69,6 +75,10 @@
 - "{{ .Values.agent.remoteWrite.metadata.url }}/v1/metadata/nodes"
 - "--clusterMetadataServiceClientSecret"
 - {{ .Values.agent.remoteWrite.metadata.clientSecret | quote }}
+- "--nodePacketSizeBytes"
+- 1000
+- "--remoteWriteNodeMetadataTopic"
+- "node_metadata"
 {{- end -}}
 
 {{- define "agent.node.watchedFiles" }}

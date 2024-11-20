@@ -4,7 +4,7 @@ agent:
     enabled: true
     image: magpiemonitor/agent
     excludedNamespaces:
-      - kube-system
+      - mm
   node:
     enabled: true
     image: magpiemonitor/agent 
