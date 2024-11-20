@@ -24,7 +24,7 @@ const CreateReport = () => {
     const [applications, setApplications] = useState<ApplicationDataRow[]>([]);
     const [nodes, setNodes] = useState<NodeDataRow[]>([]);
     const [accuracy, setAccuracy] = useState<AccuracyLevel>('HIGH');
-    const [generationType, setGenerationType] = useState<ReportType>('ON DEMAND');
+    const [generationType, setGenerationType] = useState<ReportType>('ON-DEMAND');
     const [generationPeriod, setGenerationPeriod] =
         useState<string>(schedulePeriodOptions.periods[2]);
     const navigate = useNavigate();
@@ -78,7 +78,7 @@ const CreateReport = () => {
                             <AccuracySection setParentAccuracy={setAccuracy}/>
                             <ReportGenerationType setParentGenerationType={setGenerationType}/>
                         </div>
-                        {generationType === 'ON DEMAND' ? (
+                        {generationType === 'ON-DEMAND' ? (
                             <DateRangeSection onDateChange={handleDateRangeChange}/>
                         ) : (
                             <SchedulePeriod setGenerationPeriod={setGenerationPeriod}/>
