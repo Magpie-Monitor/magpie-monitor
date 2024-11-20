@@ -461,7 +461,7 @@ class ManagmentServiceApi {
 
   public async getAwaitingGenerationReports(): Promise<AwaitingGenerationReport[]> {
     await this.refreshTokenIfExpired();
-    const response = await this.axiosInstance.get('/api/v1/reports/generating');
+    const response = await this.axiosInstance.get('/api/v1/reports/await-generation');
     return response.data;
   }
 
