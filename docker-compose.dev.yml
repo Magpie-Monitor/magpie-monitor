@@ -78,9 +78,9 @@ services:
       - "--excludedNamespace"
       - "mm"
       - "--maxPodPacketSizeBytes"
-      - ${MAX_POD_PACKET_SIZE_BYTES}
+      - ${AGENT_MAX_POD_PACKET_SIZE_BYTES}
       - "--maxContainerPacketSizeBytes"
-      - ${MAX_CONTAINER_PACKET_SIZE_BYTES}
+      - ${AGENT_MAX_CONTAINER_PACKET_SIZE_BYTES}
     develop:
       watch:
         - action: rebuild
@@ -131,7 +131,7 @@ services:
       - "--remoteWriteNodeMetadataTopic"
       - ${NODE_AGENT_NODE_METADATA_TOPIC}
       - "--nodePacketSizeBytes"
-      - ${NODE_PACKET_SIZE_BYTES}
+      - ${AGENT_NODE_PACKET_SIZE_BYTES}
     environment:
       NODE_NAME: "mock-node-name"
     develop:
