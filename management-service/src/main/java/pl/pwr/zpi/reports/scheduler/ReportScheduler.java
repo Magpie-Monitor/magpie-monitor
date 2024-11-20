@@ -1,19 +1,17 @@
 package pl.pwr.zpi.reports.scheduler;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.cluster.entity.ClusterConfiguration;
 import pl.pwr.zpi.cluster.repository.ClusterRepository;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
 import pl.pwr.zpi.reports.dto.scheduler.ReportSchedule;
+import pl.pwr.zpi.reports.enums.ReportType;
 import pl.pwr.zpi.reports.repository.ReportScheduleRepository;
 import pl.pwr.zpi.reports.service.ReportGenerationService;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -28,7 +26,8 @@ public class ReportScheduler {
         reportScheduleRepository.findAll().forEach(this::processSchedule);
     }
 
-    private void processSchedule(ReportSchedule schedule) {
+    @Transactional
+    public void processSchedule(ReportSchedule schedule) {
         long nextGenerationTime = calculateNextGenerationTime(schedule);
 
         if (nextGenerationTime > System.currentTimeMillis()) {
@@ -48,7 +47,7 @@ public class ReportScheduler {
                 nextGenerationTime
         );
 
-        reportGenerationService.createReport(reportRequest);
+        reportGenerationService.createReport(reportRequest, ReportType.SCHEDULED);
 
         schedule.setLastGenerationMs(nextGenerationTime);
         reportScheduleRepository.save(schedule);

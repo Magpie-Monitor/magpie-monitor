@@ -1,8 +1,9 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
-import Table, { TableColumn } from 'components/Table/Table.tsx';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import Table, {TableColumn} from 'components/Table/Table.tsx';
+import {useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 import {
+  ReportAwaitingGeneration,
   ManagmentServiceApiInstance,
   ReportSummary,
 } from 'api/managment-service';
@@ -13,10 +14,17 @@ import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/He
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import Spinner from 'components/Spinner/Spinner.tsx';
 import {dateFromTimestampMs} from 'lib/date.ts';
+import './Reports.scss';
+import CustomTag from 'components/CustomTag/CustomTag.tsx';
 
 const Reports = () => {
-  const [rows, setRows] = useState<ReportSummary[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [rowsOnDemand, setRowsOnDemand] = useState<ReportSummary[]>([]);
+  const [rowsScheduled, setRowsScheduled] = useState<ReportSummary[]>([]);
+  const [rowsAwaitingGeneration, setRowsAwaitingGeneration] =
+    useState<ReportAwaitingGeneration[]>([]);
+  const [loadingOnDemand, setLoadingOnDemand] = useState<boolean>(true);
+  const [loadingScheduled, setLoadingScheduled] = useState<boolean>(true);
+  const [loadingAwaitGeneration, setLoadingAwaitGeneration] = useState<boolean>(true);
   const navigate = useNavigate();
 
   const handleRowClick = (id: string) => {
@@ -33,36 +41,89 @@ const Reports = () => {
         </LinkComponent>
       ),
     },
-    { header: 'Title', columnKey: 'title' },
+    {header: 'Title', columnKey: 'title'},
     {
       header: 'Urgency',
       columnKey: 'urgency',
       customComponent: (row: ReportSummary) => (
-        <UrgencyBadge label={row.urgency} />
+        <UrgencyBadge label={row.urgency}/>
       ),
     },
-    { header: 'Start date', columnKey: 'startDate' },
-    { header: 'End date', columnKey: 'endDate' },
+    {header: 'Start date', columnKey: 'startDate'},
+    {header: 'End date', columnKey: 'endDate'},
   ];
 
-  const fetchReports = async () => {
+  const columnsGenerating: Array<TableColumn<ReportAwaitingGeneration>> = [
+    {
+      header: 'Cluster',
+      columnKey: 'clusterId',
+      customComponent: (row: ReportAwaitingGeneration) => (
+        <LinkComponent to="">
+          {row.clusterId}
+        </LinkComponent>
+      ),
+    },
+    {
+      header: 'Report Type',
+      columnKey: 'reportType',
+      customComponent: (row: ReportAwaitingGeneration) => <CustomTag name={row.reportType}/>,
+    },
+    {header: 'Start date', columnKey: 'startDate'},
+    {header: 'End date', columnKey: 'endDate'},
+  ];
+
+  const fetchReportsOnDemand = async () => {
     try {
-      const reports = await ManagmentServiceApiInstance.getReports();
+      const reports = await ManagmentServiceApiInstance.getReports('ON-DEMAND');
       const mappedReports = reports.map((report: ReportSummary) => ({
         ...report,
         startDate: dateFromTimestampMs(report.sinceMs),
         endDate: dateFromTimestampMs(report.toMs),
       }));
-      setRows(mappedReports);
+      setRowsOnDemand(mappedReports);
     } catch (error) {
-      console.error('Error fetching reports:', error);
+      console.error('Error fetching on-demand reports:', error);
     } finally {
-      setLoading(false);
+      setLoadingOnDemand(false);
+    }
+  };
+
+  const fetchReportsScheduled = async () => {
+    try {
+      const reports = await ManagmentServiceApiInstance.getReports('SCHEDULED');
+      const mappedReports = reports.map((report: ReportSummary) => ({
+        ...report,
+        startDate: dateFromTimestampMs(report.sinceMs),
+        endDate: dateFromTimestampMs(report.toMs),
+      }));
+      setRowsScheduled(mappedReports);
+    } catch (error) {
+      console.error('Error fetching scheduled reports:', error);
+    } finally {
+      setLoadingScheduled(false);
+    }
+  };
+
+  const fetchReportAwaitingGenerations = async () => {
+    try {
+      const reports = await ManagmentServiceApiInstance.getAwaitingGenerationReports();
+      const mappedReports = reports.map((report: ReportAwaitingGeneration) => ({
+        ...report,
+        startDate: dateFromTimestampMs(report.sinceMs),
+        endDate: dateFromTimestampMs(report.toMs),
+      }));
+      setRowsAwaitingGeneration(mappedReports);
+    } catch (error) {
+      console.error('Error fetching generating reports:', error);
+    } finally {
+      setLoadingAwaitGeneration(false);
     }
   };
 
   useEffect(() => {
-    fetchReports();
+    fetchReportsOnDemand();
+    fetchReportsScheduled();
+    fetchReportAwaitingGenerations();
   }, []);
 
   return (
@@ -70,27 +131,56 @@ const Reports = () => {
       header={
         <HeaderWithIcon
           title={'Reports'}
-          icon={<SVGIcon iconName="reports-list-icon" />}
+          icon={<SVGIcon iconName="reports-list-icon"/>}
         />
       }
     >
-      <SectionComponent
-        icon={<SVGIcon iconName="chart-icon" />}
-        title={'Generated reports'}
-      >
-        {loading ? (
-          <Spinner />
-        ) : rows.length === 0 ? (
-          <>
-            <p>No reports. &nbsp;</p>
-            <LinkComponent to="/clusters">
-              Generate new report
-            </LinkComponent> 
-          </>
-        ) : (
-          <Table columns={columns} rows={rows} />
+      <div className="reports">
+        {rowsAwaitingGeneration.length > 0 && (
+          <SectionComponent
+            icon={<SVGIcon iconName="chart-icon"/>}
+            title={'Reports awaiting generation'}
+          >
+            {loadingAwaitGeneration ? (
+              <Spinner/>
+            ) : (
+              <Table columns={columnsGenerating} rows={rowsAwaitingGeneration}/>
+            )}
+          </SectionComponent>
         )}
-      </SectionComponent>
+
+        <SectionComponent
+          icon={<SVGIcon iconName="chart-icon"/>}
+          title={'Generated reports scheduled'}
+        >
+          {loadingScheduled ? (
+            <Spinner/>
+          ) : rowsScheduled.length === 0 ? (
+            <>
+              <p>No reports. &nbsp;</p>
+              <LinkComponent to="/clusters">Generate new report</LinkComponent>
+            </>
+          ) : (
+            <Table columns={columns} rows={rowsScheduled}/>
+          )}
+        </SectionComponent>
+
+        <SectionComponent
+          icon={<SVGIcon iconName="chart-icon"/>}
+          title={'Generated reports on demand'}
+        >
+          {loadingOnDemand ? (
+            <Spinner/>
+          ) : rowsOnDemand.length === 0 ? (
+            <>
+              <p>No reports. &nbsp;</p>
+              <LinkComponent to="/clusters">Generate new report</LinkComponent>
+            </>
+          ) : (
+            <Table columns={columns} rows={rowsOnDemand}/>
+          )}
+        </SectionComponent>
+      </div>
     </PageTemplate>
   );
 };

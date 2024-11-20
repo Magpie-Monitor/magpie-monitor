@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.pwr.zpi.reports.dto.report.ReportDetailedSummaryDTO;
-import pl.pwr.zpi.reports.dto.report.ReportIncidentsDTO;
-import pl.pwr.zpi.reports.dto.report.ReportPaginatedIncidentsDTO;
-import pl.pwr.zpi.reports.dto.report.ReportSummaryDTO;
+import pl.pwr.zpi.reports.dto.report.*;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
@@ -16,6 +13,7 @@ import pl.pwr.zpi.reports.dto.request.CreateReportScheduleRequest;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncidentSource;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncidentSource;
 import pl.pwr.zpi.reports.entity.report.request.ReportGenerationRequestMetadata;
+import pl.pwr.zpi.reports.enums.ReportType;
 import pl.pwr.zpi.reports.service.ReportGenerationService;
 import pl.pwr.zpi.reports.service.ReportScheduleService;
 import pl.pwr.zpi.reports.service.ReportsService;
@@ -33,7 +31,7 @@ public class ReportsController {
 
     @PostMapping
     public ResponseEntity<Void> createReport(@RequestBody CreateReportRequest reportRequest) {
-        reportGenerationService.createReport(reportRequest);
+        reportGenerationService.createReport(reportRequest, ReportType.ON_DEMAND);
         return ResponseEntity.ok().build();
     }
 
@@ -55,8 +53,13 @@ public class ReportsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ReportSummaryDTO>> getReports() {
-        return ResponseEntity.ok().body(reportsService.getReportSummaries());
+    public ResponseEntity<List<ReportSummaryDTO>> getReportsOnDemand(@RequestParam String reportType) {
+        return ResponseEntity.ok().body(reportsService.getReportSummaries(reportType));
+    }
+
+    @GetMapping("/await-generation")
+    public ResponseEntity<List<ReportGeneratingDTO>> getGenerationReports() {
+        return ResponseEntity.ok(reportsService.getGenerationReports());
     }
 
     @GetMapping("/{id}")

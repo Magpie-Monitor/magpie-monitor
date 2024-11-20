@@ -46,7 +46,7 @@ const router = createBrowserRouter(
           <Route path="" element={<Reports />} />
           <Route path=":id" element={<ReportDetails />} />
         </Route>
-        <Route path="/notifications" element={<Notification />} />
+        <Route path="/settings" element={<Notification />} />
       </Route>
     </Route>,
   ),
