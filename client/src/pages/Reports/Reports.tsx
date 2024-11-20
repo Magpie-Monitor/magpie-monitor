@@ -3,7 +3,7 @@ import Table, {TableColumn} from 'components/Table/Table.tsx';
 import {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {
-  AwaitingGenerationReport,
+  ReportAwaitingGeneration,
   ManagmentServiceApiInstance,
   ReportSummary,
 } from 'api/managment-service';
@@ -20,10 +20,11 @@ import CustomTag from 'components/CustomTag/CustomTag.tsx';
 const Reports = () => {
   const [rowsOnDemand, setRowsOnDemand] = useState<ReportSummary[]>([]);
   const [rowsScheduled, setRowsScheduled] = useState<ReportSummary[]>([]);
-  const [rowsAwaitingGeneration, setRowsAwaitingGeneration] = useState<AwaitingGenerationReport[]>([]);
+  const [rowsAwaitingGeneration, setRowsAwaitingGeneration] =
+    useState<ReportAwaitingGeneration[]>([]);
   const [loadingOnDemand, setLoadingOnDemand] = useState<boolean>(true);
   const [loadingScheduled, setLoadingScheduled] = useState<boolean>(true);
-  const [loadingGenerating, setLoadingGenerating] = useState<boolean>(true);
+  const [loadingAwaitGeneration, setLoadingAwaitGeneration] = useState<boolean>(true);
   const navigate = useNavigate();
 
   const handleRowClick = (id: string) => {
@@ -52,11 +53,11 @@ const Reports = () => {
     {header: 'End date', columnKey: 'endDate'},
   ];
 
-  const columnsGenerating: Array<TableColumn<AwaitingGenerationReport>> = [
+  const columnsGenerating: Array<TableColumn<ReportAwaitingGeneration>> = [
     {
       header: 'Cluster',
       columnKey: 'clusterId',
-      customComponent: (row: AwaitingGenerationReport) => (
+      customComponent: (row: ReportAwaitingGeneration) => (
         <LinkComponent to="">
           {row.clusterId}
         </LinkComponent>
@@ -65,7 +66,7 @@ const Reports = () => {
     {
       header: 'Report Type',
       columnKey: 'reportType',
-      customComponent: (row: AwaitingGenerationReport) => <CustomTag name={row.reportType}/>,
+      customComponent: (row: ReportAwaitingGeneration) => <CustomTag name={row.reportType}/>,
     },
     {header: 'Start date', columnKey: 'startDate'},
     {header: 'End date', columnKey: 'endDate'},
@@ -73,7 +74,7 @@ const Reports = () => {
 
   const fetchReportsOnDemand = async () => {
     try {
-      const reports = await ManagmentServiceApiInstance.getReportsOnDemand();
+      const reports = await ManagmentServiceApiInstance.getReports('ON-DEMAND');
       const mappedReports = reports.map((report: ReportSummary) => ({
         ...report,
         startDate: dateFromTimestampMs(report.sinceMs),
@@ -89,7 +90,7 @@ const Reports = () => {
 
   const fetchReportsScheduled = async () => {
     try {
-      const reports = await ManagmentServiceApiInstance.getReportsScheduled();
+      const reports = await ManagmentServiceApiInstance.getReports('SCHEDULED');
       const mappedReports = reports.map((report: ReportSummary) => ({
         ...report,
         startDate: dateFromTimestampMs(report.sinceMs),
@@ -103,10 +104,10 @@ const Reports = () => {
     }
   };
 
-  const fetchAwaitingGenerationReports = async () => {
+  const fetchReportAwaitingGenerations = async () => {
     try {
       const reports = await ManagmentServiceApiInstance.getAwaitingGenerationReports();
-      const mappedReports = reports.map((report: AwaitingGenerationReport) => ({
+      const mappedReports = reports.map((report: ReportAwaitingGeneration) => ({
         ...report,
         startDate: dateFromTimestampMs(report.sinceMs),
         endDate: dateFromTimestampMs(report.toMs),
@@ -115,14 +116,14 @@ const Reports = () => {
     } catch (error) {
       console.error('Error fetching generating reports:', error);
     } finally {
-      setLoadingGenerating(false);
+      setLoadingAwaitGeneration(false);
     }
   };
 
   useEffect(() => {
     fetchReportsOnDemand();
     fetchReportsScheduled();
-    fetchAwaitingGenerationReports();
+    fetchReportAwaitingGenerations();
   }, []);
 
   return (
@@ -134,13 +135,13 @@ const Reports = () => {
         />
       }
     >
-      <div className="reports__body">
+      <div className="reports">
         {rowsAwaitingGeneration.length > 0 && (
           <SectionComponent
             icon={<SVGIcon iconName="chart-icon"/>}
             title={'Reports awaiting generation'}
           >
-            {loadingGenerating ? (
+            {loadingAwaitGeneration ? (
               <Spinner/>
             ) : (
               <Table columns={columnsGenerating} rows={rowsAwaitingGeneration}/>
