@@ -52,14 +52,9 @@ public class ReportsController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/on-demand")
-    public ResponseEntity<List<ReportSummaryDTO>> getReportsOnDemand() {
-        return ResponseEntity.ok().body(reportsService.getReportSummaries(ReportType.ON_DEMAND));
-    }
-
-    @GetMapping("/scheduled")
-    public ResponseEntity<List<ReportSummaryDTO>> getReportsScheduled() {
-        return ResponseEntity.ok().body(reportsService.getReportSummaries(ReportType.SCHEDULED));
+    @GetMapping
+    public ResponseEntity<List<ReportSummaryDTO>> getReportsOnDemand(@RequestParam String reportType) {
+        return ResponseEntity.ok().body(reportsService.getReportSummaries(reportType));
     }
 
     @GetMapping("/await-generation")

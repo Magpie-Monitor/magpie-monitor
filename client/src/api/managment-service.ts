@@ -45,9 +45,9 @@ interface TokenInfo {
 
 export type AccuracyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 export type UrgencyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
-export type ReportType = 'ON DEMAND' | 'SCHEDULED';
+export type ReportType = 'ON-DEMAND' | 'SCHEDULED';
 
-export interface AwaitingGenerationReport {
+export interface ReportAwaitingGeneration {
   clusterId: string;
   reportType: ReportType;
   sinceMs: number;
@@ -427,15 +427,20 @@ class ManagmentServiceApi {
     // };
   }
 
-  public async getReportsOnDemand(): Promise<ReportSummary[]> {
+  public async getReports(reportType: ReportType): Promise<ReportSummary[]> {
     await this.refreshTokenIfExpired();
-    const response = await this.axiosInstance.get('/api/v1/reports/on-demand');
+    const response = await this.axiosInstance.get('/api/v1/reports', {
+      params: {
+        reportType,
+      },
+    });
     const reports: ReportSummary[] = response.data;
+
     reports.forEach((report) => {
       if (!VALID_URGENCY_VALUES.includes(report.urgency)) {
         throw new Error(
           `Invalid urgency value "${report.urgency}" for report ID 
-            ${report.id}. Allowed values are: ${VALID_URGENCY_VALUES.join(', ')}`,
+        ${report.id}. Allowed values are: ${VALID_URGENCY_VALUES.join(', ')}`,
         );
       }
     });
@@ -443,23 +448,7 @@ class ManagmentServiceApi {
     return reports;
   }
 
-  public async getReportsScheduled(): Promise<ReportSummary[]> {
-    await this.refreshTokenIfExpired();
-    const response = await this.axiosInstance.get('/api/v1/reports/scheduled');
-    const reports: ReportSummary[] = response.data;
-    reports.forEach((report) => {
-      if (!VALID_URGENCY_VALUES.includes(report.urgency)) {
-        throw new Error(
-            `Invalid urgency value "${report.urgency}" for report ID 
-            ${report.id}. Allowed values are: ${VALID_URGENCY_VALUES.join(', ')}`,
-        );
-      }
-    });
-
-    return reports;
-  }
-
-  public async getAwaitingGenerationReports(): Promise<AwaitingGenerationReport[]> {
+  public async getAwaitingGenerationReports(): Promise<ReportAwaitingGeneration[]> {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get('/api/v1/reports/await-generation');
     return response.data;

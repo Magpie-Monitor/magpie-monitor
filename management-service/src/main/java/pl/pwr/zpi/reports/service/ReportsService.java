@@ -44,8 +44,8 @@ public class ReportsService {
                 .toList();
     }
 
-    public List<ReportSummaryDTO> getReportSummaries(ReportType reportType) {
-        return reportRepository.findAllByReportType(reportType).stream()
+    public List<ReportSummaryDTO> getReportSummaries(String reportType) {
+        return reportRepository.findAllByReportType(ReportType.fromString(reportType)).stream()
                 .map(ReportSummaryDTO::ofReportSummaryProjection)
                 .toList();
     }
