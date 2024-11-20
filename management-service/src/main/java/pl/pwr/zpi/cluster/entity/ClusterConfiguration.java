@@ -1,6 +1,9 @@
 package pl.pwr.zpi.cluster.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,11 +28,11 @@ public class ClusterConfiguration {
     private boolean isEnabled;
     private Long generatedEveryMillis;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany
     private List<SlackReceiver> slackReceivers;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany
     private List<DiscordReceiver> discordReceivers;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany
     private List<EmailReceiver> emailReceivers;
 
     @OneToMany(cascade = CascadeType.ALL)

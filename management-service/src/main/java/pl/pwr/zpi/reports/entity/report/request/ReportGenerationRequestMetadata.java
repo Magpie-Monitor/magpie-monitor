@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 import pl.pwr.zpi.reports.dto.event.ReportRequestFailed;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
 import pl.pwr.zpi.reports.enums.ReportGenerationStatus;
-import pl.pwr.zpi.reports.enums.ReportType;
 
 import java.util.List;
 
@@ -20,18 +19,15 @@ public class ReportGenerationRequestMetadata {
     private ReportGenerationStatus status;
     private ReportRequestFailed error;
     private CreateReportRequest createReportRequest;
-    private ReportType reportType;
 
     public static ReportGenerationRequestMetadata fromCreateReportRequest(
             String correlationId,
-            CreateReportRequest createReportRequest,
-            ReportType reportType
+            CreateReportRequest createReportRequest
     ) {
         return ReportGenerationRequestMetadata.builder()
                 .correlationId(correlationId)
                 .status(ReportGenerationStatus.GENERATING)
                 .createReportRequest(createReportRequest)
-                .reportType(reportType)
                 .build();
     }
 

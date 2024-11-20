@@ -5,39 +5,55 @@
   font-size: 1rem;
   background-color: transparent;
   padding: 0.3rem 1rem;
+  transition: all 0.5s;
+
+  &:disabled {
+    color: $component-border-color;
+    border-color: $component-border-color;
+    cursor: default;
+
+    &:hover {
+      color: $component-border-color;
+      border-color: $component-border-color;
+      background-color: unset;
+    }
+  }
 }
 
 .action-button {
   &--green {
     border-color: $green;
     color: $green;
-    @extend .default-button-size;
 
     &:hover {
       color: $secondary;
       background-color: $green;
     }
+
+    @extend .default-button-size;
   }
 
   &--red {
     border-color: $red;
     color: $red;
-    @extend .default-button-size;
 
     &:hover {
       color: $secondary;
       background-color: $red;
     }
+
+    @extend .default-button-size;
   }
 
   &--olive {
     border-color: $olive;
     color: $olive;
-    @extend .default-button-size;
 
     &:hover {
       color: $secondary;
       background-color: $olive;
     }
+
+    @extend .default-button-size;
   }
 }

@@ -101,6 +101,7 @@
   mask: url('/src/assets/drop-down-icon.svg') no-repeat center;
   width: 25px;
   height: 25px;
+
   .svg-icon {
     width: 25px;
     height: 25px;
@@ -113,6 +114,7 @@
   mask: url('/src/assets/drop-down-icon.svg') no-repeat center;
   width: 25px;
   height: 25px;
+
   .svg-icon {
     width: 25px;
     height: 25px;
@@ -152,6 +154,30 @@
   @extend .svg-icon;
   background-color: $green;
   mask: url('/src/assets/notification-icon.svg') no-repeat center;
+  mask-size: 25px 25px;
+
+  &--white {
+    @extend .notification-icon;
+
+    .svg-icon {
+      background-color: white;
+    }
+  }
+}
+
+.big-notification-icon {
+  @extend .svg-icon;
+  background-color: $green;
+  mask: url('/src/assets/notification-icon.svg') no-repeat center;
+  mask-size: 35px 35px;
+
+  &--white {
+    @extend .notification-icon;
+
+    .svg-icon {
+      background-color: white;
+    }
+  }
 }
 
 .task_done_icon {
@@ -167,6 +193,7 @@
   mask: url('/src/assets/hourglass.svg') no-repeat center;
   width: 30px;
   height: 30px;
+
   .svg-icon {
     width: 30px;
     height: 30px;
@@ -176,11 +203,19 @@
 .eye-icon {
   @extend .svg-icon;
   mask: url('/src/assets/eye-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $white;
+  }
 }
 
 .closed-eye-icon {
   @extend .svg-icon;
   mask: url('/src/assets/closed-eye-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $white;
+  }
 }
 
 .fire-icon {

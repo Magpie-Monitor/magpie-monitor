@@ -12,7 +12,6 @@ import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
 import pl.pwr.zpi.reports.entity.report.Report;
 import pl.pwr.zpi.reports.entity.report.request.ReportGenerationRequestMetadata;
 import pl.pwr.zpi.reports.enums.ReportGenerationStatus;
-import pl.pwr.zpi.reports.enums.ReportType;
 import pl.pwr.zpi.reports.repository.*;
 
 @Slf4j
@@ -31,19 +30,19 @@ public class ReportGenerationService {
 
     public void retryFailedReportGenerationRequest(String correlationId) {
         reportGenerationRequestMetadataRepository.findByCorrelationId(correlationId).ifPresent(metadata -> {
-            createReport(metadata.getCreateReportRequest(), metadata.getReportType());
+            createReport(metadata.getCreateReportRequest());
         });
     }
 
-    public void createReport(CreateReportRequest reportRequest, ReportType reportType) {
+    public void createReport(CreateReportRequest reportRequest) {
         ReportRequested reportRequested = ReportRequested.of(reportRequest);
-        persistReportGenerationRequestMetadata(reportRequested.correlationId(), reportRequest, reportType);
+        persistReportGenerationRequestMetadata(reportRequested.correlationId(), reportRequest);
         reportPublisher.publishReportRequestedEvent(reportRequested, this::handleReportGenerationError);
     }
 
-    public void persistReportGenerationRequestMetadata(String correlationId, CreateReportRequest reportRequest, ReportType reportType) {
+    public void persistReportGenerationRequestMetadata(String correlationId, CreateReportRequest reportRequest) {
         reportGenerationRequestMetadataRepository.save(
-                ReportGenerationRequestMetadata.fromCreateReportRequest(correlationId, reportRequest, reportType)
+                ReportGenerationRequestMetadata.fromCreateReportRequest(correlationId, reportRequest)
         );
     }
 
@@ -82,7 +81,7 @@ public class ReportGenerationService {
     }
 
     private void saveGeneratedReport(ReportGenerationRequestMetadata requestMetadata, ReportGenerated reportGenerated) {
-        persistReport(reportGenerated.report(), requestMetadata.getReportType());
+        persistReport(reportGenerated.report());
         updateReportGenerationRequestMetadataStatus(requestMetadata, ReportGenerationStatus.GENERATED);
         notifyReportGenerated(requestMetadata, reportGenerated.getReportId());
     }
@@ -92,8 +91,7 @@ public class ReportGenerationService {
         reportGenerationRequestMetadataRepository.save(requestMetadata);
     }
 
-    private void persistReport(Report report, ReportType reportType) {
-        report.setReportType(reportType);
+    private void persistReport(Report report) {
         reportRepository.save(report);
 
         extendIncidentsWithReportId(report);

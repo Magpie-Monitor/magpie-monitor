@@ -13,7 +13,6 @@ import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncidentSource;
 import pl.pwr.zpi.reports.entity.report.node.NodeReport;
 import pl.pwr.zpi.reports.entity.report.node.scheduled.ScheduledNodeInsight;
-import pl.pwr.zpi.reports.enums.ReportType;
 import pl.pwr.zpi.reports.enums.Urgency;
 
 import java.util.List;
@@ -25,7 +24,6 @@ import java.util.List;
 public class Report {
     @Id
     private String id;
-    private ReportType reportType;
     private String correlationId;
     private String status;
     private String clusterId;
