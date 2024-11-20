@@ -47,7 +47,7 @@ export type AccuracyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 export type UrgencyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 export type ReportType = 'ON DEMAND' | 'SCHEDULED';
 
-export interface GeneratingReport {
+export interface AwaitingGenerationReport {
   clusterId: string;
   reportType: ReportType;
   sinceMs: number;
@@ -459,7 +459,7 @@ class ManagmentServiceApi {
     return reports;
   }
 
-  public async getGeneratingReports(): Promise<GeneratingReport[]> {
+  public async getAwaitingGenerationReports(): Promise<AwaitingGenerationReport[]> {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get('/api/v1/reports/generating');
     return response.data;
