@@ -35,7 +35,10 @@ public class ConfidentialTextEncoder {
 
     public String encrypt(String message) {
         cipherInit();
-        return Base64.getEncoder().encodeToString(cipherDoFinal(message.getBytes(StandardCharsets.UTF_8)));
+        return Base64.getEncoder()
+                .encodeToString(
+                        cipherDoFinal(message.getBytes(StandardCharsets.UTF_8))
+                );
     }
 
     public String decrypt(String encryptedMessage) {
