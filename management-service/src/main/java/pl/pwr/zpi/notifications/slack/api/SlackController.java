@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.pwr.zpi.notifications.slack.SlackNotificationService;
 import pl.pwr.zpi.notifications.slack.dto.SlackReceiverDTO;
+import pl.pwr.zpi.notifications.slack.dto.UpdateSlackReceiverRequest;
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
 import pl.pwr.zpi.notifications.slack.service.SlackReceiverService;
 
@@ -31,8 +32,9 @@ public class SlackController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<SlackReceiver> updateSlackIntegration(@PathVariable Long id, @Valid @RequestBody SlackReceiverDTO slackReceiver) {
-        return ResponseEntity.ok().body(slackReceiverService.updateSlackIntegration(id, slackReceiver));
+    public ResponseEntity<SlackReceiver> updateSlackIntegration(
+            @PathVariable Long id, @Valid @RequestBody UpdateSlackReceiverRequest updateRequest) {
+        return ResponseEntity.ok().body(slackReceiverService.updateSlackIntegration(id, updateRequest));
     }
 
     @PostMapping("/{id}/test-notification")
