@@ -25,17 +25,21 @@ public class DiscordReceiverService {
     private final String WEBHOOK_URL_REGEX = "https://discord.com/api/webhooks/[0-9]+/[a-zA-Z0-9\\-]+";
 
     public List<DiscordReceiver> getAllDiscordIntegrations() {
-        return discordRepository.findAll();
+        List<DiscordReceiver> receivers = discordRepository.findAll();
+        receivers.forEach(receiver -> receiver.setWebhookUrl(
+                getAnonymizedWebhookUrl(receiver.getWebhookUrl())
+        ));
+        return receivers;
     }
 
     public void deleteDiscordReceiver(Long receiverId) {
         discordRepository.deleteById(receiverId);
     }
 
-    public void createDiscordReceiver(DiscordReceiverDTO discordIntegration) throws Exception {
+    public void createDiscordReceiver(DiscordReceiverDTO discordIntegration) {
         long now = System.currentTimeMillis();
 
-        String encryptedWebhookUrl = confidentialTextEncoder.encrypt(discordIntegration.getWebhookUrl());
+        String encryptedWebhookUrl = encryptWebhookUrl(discordIntegration.getWebhookUrl());
         checkIfWebhookExists(encryptedWebhookUrl);
         DiscordReceiver receiver = DiscordReceiver.builder()
                 .receiverName(discordIntegration.getName())
@@ -46,9 +50,18 @@ public class DiscordReceiverService {
         discordRepository.save(receiver);
     }
 
-    public DiscordReceiver updateDiscordIntegration(Long id, UpdateDiscordReceiverRequest updateDiscordReceiverRequest) throws Exception {
+    private String encryptWebhookUrl(String webhookUrl) {
+        try {
+            return confidentialTextEncoder.encrypt(webhookUrl);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public DiscordReceiver updateDiscordIntegration(Long id, UpdateDiscordReceiverRequest updateDiscordReceiverRequest) {
         var receiver = getDiscordReceiver(id);
-        String encryptedWebhookUrl = confidentialTextEncoder.encrypt(updateDiscordReceiverRequest.webhookUrl());
+
+        String encryptedWebhookUrl = encryptWebhookUrl(updateDiscordReceiverRequest.webhookUrl());
         checkIfUserCanUpdateWebhookUrl(encryptedWebhookUrl, id);
 
         patchReceiver(receiver, updateDiscordReceiverRequest);
@@ -70,8 +83,8 @@ public class DiscordReceiverService {
     }
 
     private void validateReceiverName(String name) {
-        if(name.isEmpty() || name.length() > 100) {
-           throw new RuntimeException("Receiver name length has to be > 1 and < 100");
+        if(name.length() < 2 || name.length() > 100) {
+           throw new RuntimeException("Receiver name length has to be >= 2 and <= 100");
         }
     }
 
@@ -90,14 +103,24 @@ public class DiscordReceiverService {
     }
 
     private String getAnonymizedWebhookUrl(String webhookUrl) {
+        webhookUrl = decryptWebhookUrl(webhookUrl);
+
         String[] webhookParts = webhookUrl.split("/");
         String authToken = webhookParts[webhookParts.length - 1];
-        return joinWebhookWithoutAuthToken(webhookParts) + authToken.replace(".", "*");
+        return joinWebhookWithoutAuthToken(webhookParts) + "/" + "*".repeat(authToken.length());
+    }
+
+    private String decryptWebhookUrl(String webhookUrl) {
+        try {
+            return confidentialTextEncoder.decrypt(webhookUrl);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String joinWebhookWithoutAuthToken(String[] webhookParts) {
         return Stream.of(webhookParts)
-                .limit(webhookParts.length - 2)
+                .limit(webhookParts.length - 1)
                 .collect(Collectors.joining("/"));
     }
 
