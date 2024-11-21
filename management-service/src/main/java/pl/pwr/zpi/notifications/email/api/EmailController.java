@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.pwr.zpi.notifications.email.EmailNotificationService;
+import pl.pwr.zpi.notifications.email.dto.EmailReceiverDTO;
 import pl.pwr.zpi.notifications.email.dto.EmailReceiverUpdateRequest;
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
-import pl.pwr.zpi.notifications.email.dto.EmailReceiverDTO;
 import pl.pwr.zpi.notifications.email.service.EmailReceiverService;
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
 
