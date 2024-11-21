@@ -25,14 +25,14 @@ public class DiscordController {
     }
 
     @PostMapping
-    public ResponseEntity<DiscordReceiver> addDiscordReceiver(@Valid @RequestBody DiscordReceiverDTO discordReceiver) throws Exception {
+    public ResponseEntity<DiscordReceiver> addDiscordReceiver(@Valid @RequestBody DiscordReceiverDTO discordReceiver) {
         discordReceiverService.createDiscordReceiver(discordReceiver);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<DiscordReceiver> updateDiscordIntegration(
-            @PathVariable Long id, @RequestBody UpdateDiscordReceiverRequest DiscordReceiver) throws Exception {
+            @PathVariable Long id, @RequestBody UpdateDiscordReceiverRequest DiscordReceiver) {
         return ResponseEntity.ok().body(discordReceiverService.updateDiscordIntegration(id, DiscordReceiver));
     }
 

@@ -42,32 +42,31 @@ public class EmailReceiverService {
         checkIfUserCanUpdateEmail(updateRequest.email(), id);
         patchEmail(receiver, updateRequest);
 
+        receiver.setUpdatedAt(System.currentTimeMillis());
         return emailRepository.save(receiver);
     }
 
     private void patchEmail(EmailReceiver emailReceiver, EmailReceiverUpdateRequest updateRequest) {
-        if(updateRequest.email() != null) {
-            validateEmail(updateRequest.email());
-            emailReceiver.setReceiverEmail(updateRequest.email());
-        }
-
         if(updateRequest.name() != null) {
             validateReceiverName(updateRequest.name());
             emailReceiver.setReceiverName(updateRequest.name());
         }
 
-        emailReceiver.setUpdatedAt(System.currentTimeMillis());
+        if(updateRequest.email() != null) {
+            validateEmail(updateRequest.email());
+            emailReceiver.setReceiverEmail(updateRequest.email());
+        }
+    }
+
+    private void validateReceiverName(String name) {
+        if(name.length() < 2 || name.length() > 100) {
+            throw new RuntimeException("Email receiver name length has to be >= 2 and <= 100");
+        }
     }
 
     private void validateEmail(String email) {
         if(!emailValidator.isValid(email)) {
             throw new RuntimeException("Invalid email");
-        }
-    }
-
-    private void validateReceiverName(String name) {
-        if(name.isEmpty()) {
-           throw new RuntimeException("Receiver name is empty");
         }
     }
 

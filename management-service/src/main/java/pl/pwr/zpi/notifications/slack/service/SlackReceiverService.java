@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder;
-import pl.pwr.zpi.notifications.discord.dto.UpdateDiscordReceiverRequest;
-import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.slack.dto.SlackReceiverDTO;
 import pl.pwr.zpi.notifications.slack.dto.UpdateSlackReceiverRequest;
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
@@ -27,13 +25,17 @@ public class SlackReceiverService {
     private final String WEBHOOK_URL_REGEX = "https://hooks.slack.com/services/[A-Z0-9]+/[A-Z0-9]+/[a-zA-Z0-9]+";
 
     public List<SlackReceiver> getAllSlackIntegrations() {
-        return slackRepository.findAll();
+        List<SlackReceiver> receivers = slackRepository.findAll();
+        receivers.forEach(receiver -> receiver.setWebhookUrl(
+                getAnonymizedWebhookUrl(receiver.getWebhookUrl()))
+        );
+        return receivers;
     }
 
-    public void addNewSlackIntegration(SlackReceiverDTO slackIntegration) throws Exception {
+    public void addNewSlackIntegration(SlackReceiverDTO slackIntegration) {
         long now = System.currentTimeMillis();
 
-        String encryptedWebhookUrl = confidentialTextEncoder.encrypt(slackIntegration.getWebhookUrl());
+        String encryptedWebhookUrl = encryptWebhookUrl(slackIntegration.getWebhookUrl());
         checkIfWebhookExists(encryptedWebhookUrl);
         SlackReceiver receiver = SlackReceiver.builder()
                 .receiverName(slackIntegration.getName())
@@ -42,6 +44,14 @@ public class SlackReceiverService {
                 .updatedAt(now)
                 .build();
         slackRepository.save(receiver);
+    }
+
+    private String encryptWebhookUrl(String webhookUrl) {
+        try {
+            return confidentialTextEncoder.encrypt(webhookUrl);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public SlackReceiver updateSlackIntegration(Long id, UpdateSlackReceiverRequest updateRequest) {
@@ -54,38 +64,50 @@ public class SlackReceiverService {
     }
 
     private void patchReceiver(SlackReceiver slackReceiver, UpdateSlackReceiverRequest updateRequest) {
-        if(updateRequest.name() != null) {
+        if (updateRequest.name() != null) {
             validateReceiverName(updateRequest.name());
             slackReceiver.setReceiverName(updateRequest.name());
         }
 
-        if(updateRequest.webhookUrl() != null) {
+        if (updateRequest.webhookUrl() != null) {
             validateWebhookUrl(updateRequest.webhookUrl());
-            slackReceiver.setWebhookUrl(updateRequest.webhookUrl());
+            slackReceiver.setWebhookUrl(encryptWebhookUrl(updateRequest.webhookUrl()));
         }
     }
 
     private void validateReceiverName(String name) {
-        if(name.isEmpty() || name.length() > 100) {
-            throw new RuntimeException("Receiver name length has to be > 1 and < 100");
+        if (name.length() < 2 || name.length() > 100) {
+            throw new RuntimeException("Receiver name length has to be >= 2 and <= 100");
         }
     }
 
     private void validateWebhookUrl(String webhookUrl) {
-        if(!Pattern.matches(WEBHOOK_URL_REGEX, webhookUrl)) {
+        if (!Pattern.matches(WEBHOOK_URL_REGEX, webhookUrl)) {
             throw new RuntimeException(String.format("webhookUrl has to satisfy the following regex - %s", WEBHOOK_URL_REGEX));
         }
     }
 
     private String getAnonymizedWebhookUrl(String webhookUrl) {
+        webhookUrl = decryptWebhookUrl(webhookUrl);
+
         String[] webhookParts = webhookUrl.split("/");
         String authToken = webhookParts[webhookParts.length - 1];
-        return joinWebhookWithoutAuthToken(webhookParts) + authToken.replace(".", "*");
+
+        return joinWebhookWithoutAuthToken(webhookParts) + "/" + "*".repeat(authToken.length());
+    }
+
+    private String decryptWebhookUrl(String webhookUrl) {
+        try {
+            System.out.println(webhookUrl);
+            return confidentialTextEncoder.decrypt(webhookUrl);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String joinWebhookWithoutAuthToken(String[] webhookParts) {
         return Stream.of(webhookParts)
-                .limit(webhookParts.length - 2)
+                .limit(webhookParts.length - 1)
                 .collect(Collectors.joining("/"));
     }
 

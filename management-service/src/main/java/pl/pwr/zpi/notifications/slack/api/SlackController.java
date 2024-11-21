@@ -26,7 +26,7 @@ public class SlackController {
     }
 
     @PostMapping
-    public ResponseEntity<SlackReceiver> addSlackIntegration(@Valid @RequestBody SlackReceiverDTO slackReceiver) throws Exception {
+    public ResponseEntity<SlackReceiver> addSlackIntegration(@Valid @RequestBody SlackReceiverDTO slackReceiver) {
         slackReceiverService.addNewSlackIntegration(slackReceiver);
         return ResponseEntity.ok().build();
     }
@@ -38,7 +38,7 @@ public class SlackController {
     }
 
     @PostMapping("/{id}/test-notification")
-    public ResponseEntity<SlackReceiver> sendTestMessage(@PathVariable Long id) throws Exception {
+    public ResponseEntity<SlackReceiver> sendTestMessage(@PathVariable Long id) {
         slackNotificationService.sendTestMessage(id);
         return ResponseEntity.ok().build();
     }
