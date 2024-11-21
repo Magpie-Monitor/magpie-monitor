@@ -35,8 +35,10 @@ public class SlackReceiverService {
     public void addNewSlackIntegration(SlackReceiverDTO slackIntegration) {
         long now = System.currentTimeMillis();
 
-        String encryptedWebhookUrl = encryptWebhookUrl(slackIntegration.getWebhookUrl());
+        String encryptedWebhookUrl = confidentialTextEncoder.encrypt(slackIntegration.getWebhookUrl());
+
         checkIfWebhookExists(encryptedWebhookUrl);
+
         SlackReceiver receiver = SlackReceiver.builder()
                 .receiverName(slackIntegration.getName())
                 .webhookUrl(encryptedWebhookUrl)
@@ -44,14 +46,6 @@ public class SlackReceiverService {
                 .updatedAt(now)
                 .build();
         slackRepository.save(receiver);
-    }
-
-    private String encryptWebhookUrl(String webhookUrl) {
-        try {
-            return confidentialTextEncoder.encrypt(webhookUrl);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public SlackReceiver updateSlackIntegration(Long id, UpdateSlackReceiverRequest updateRequest) {
@@ -71,7 +65,7 @@ public class SlackReceiverService {
 
         if (updateRequest.webhookUrl() != null) {
             validateWebhookUrl(updateRequest.webhookUrl());
-            slackReceiver.setWebhookUrl(encryptWebhookUrl(updateRequest.webhookUrl()));
+            slackReceiver.setWebhookUrl(confidentialTextEncoder.encrypt(updateRequest.webhookUrl()));
         }
     }
 
@@ -88,21 +82,12 @@ public class SlackReceiverService {
     }
 
     private String getAnonymizedWebhookUrl(String webhookUrl) {
-        webhookUrl = decryptWebhookUrl(webhookUrl);
+        webhookUrl = confidentialTextEncoder.decrypt(webhookUrl);
 
         String[] webhookParts = webhookUrl.split("/");
         String authToken = webhookParts[webhookParts.length - 1];
 
         return joinWebhookWithoutAuthToken(webhookParts) + "/" + "*".repeat(authToken.length());
-    }
-
-    private String decryptWebhookUrl(String webhookUrl) {
-        try {
-            System.out.println(webhookUrl);
-            return confidentialTextEncoder.decrypt(webhookUrl);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private String joinWebhookWithoutAuthToken(String[] webhookParts) {
@@ -128,7 +113,7 @@ public class SlackReceiverService {
         }
     }
 
-    public SlackReceiver getEncodedWebhookUrl(Long id) throws Exception {
+    public SlackReceiver getEncodedWebhookUrl(Long id) {
         var receiver = getById(id);
         receiver.setWebhookUrl(confidentialTextEncoder.decrypt(receiver.getWebhookUrl()));
         return receiver;
