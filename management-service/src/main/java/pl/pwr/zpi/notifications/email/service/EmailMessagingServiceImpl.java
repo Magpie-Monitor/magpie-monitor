@@ -31,8 +31,7 @@ public class EmailMessagingServiceImpl implements EmailMessagingService {
         helper.setTo(receiver);
         helper.setSubject(subject);
         helper.setText(body, isHtml);
-//        helper.addInline("magpie-monitor-icon", ResourceLoaderUtils.loadResourceByteArray("templates/email/assets/magpie-monitor-icon.png"));
-//        helper.addInline("github-logo-icon", ResourceLoaderUtils.loadResourceByteArray("templates/email/assets/github-logo-icon.png"));
+
         ClassPathResource magpieMonitorIcon = new ClassPathResource("templates/email/assets/magpie-monitor-icon.png");
         ClassPathResource githubLogoIcon = new ClassPathResource("templates/email/assets/github-logo-icon.png");
 

@@ -36,7 +36,7 @@ public class EmailController {
         return ResponseEntity.ok().body(emailReceiverService.updateEmail(id, emailReceiver));
     }
 
-    @PostMapping("/{id}/test-notification")
+    @GetMapping("/{id}/test-notification")
     public ResponseEntity<SlackReceiver> sendTestEmail(@PathVariable Long id) {
         emailNotificationService.sendTestEmail(id);
         return ResponseEntity.ok().build();
