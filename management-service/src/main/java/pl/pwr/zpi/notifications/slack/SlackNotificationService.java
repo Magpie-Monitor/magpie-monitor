@@ -26,17 +26,7 @@ public class SlackNotificationService implements ReportNotifier {
 
     public void sendTestMessage(Long receiverSlackId) {
         SlackReceiver receiver = receiverService.getById(receiverSlackId);
-        String decrypted = decryptWebhookUrl(receiver.getWebhookUrl());
-
-        sendTestMessage(decrypted);
-    }
-
-    private String decryptWebhookUrl(String webhookUrl) {
-        try {
-            return confidentialTextEncoder.decrypt(webhookUrl);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        sendTestMessage(confidentialTextEncoder.decrypt(receiver.getWebhookUrl()));
     }
 
     public void sendTestMessage(String webhookUrl) {
@@ -45,7 +35,6 @@ public class SlackNotificationService implements ReportNotifier {
                 webhookUrl
         );
     }
-
 
     @Override
     public void notifyOnReportGenerated(Long receiverId, String reportId) {

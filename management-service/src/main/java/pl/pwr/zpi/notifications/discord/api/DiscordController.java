@@ -37,7 +37,7 @@ public class DiscordController {
     }
 
     @PostMapping("/{id}/test-notification")
-    public ResponseEntity<DiscordReceiver> sendTestMessage(@PathVariable Long id) throws Exception {
+    public ResponseEntity<DiscordReceiver> sendTestMessage(@PathVariable Long id) {
         discordNotificationService.sendTestMessage(id);
         return ResponseEntity.ok().build();
     }
