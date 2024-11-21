@@ -11,7 +11,7 @@ public class HeadingAttributeProvider implements AttributeProvider {
     @Override
     public void setAttributes(Node node, String tag, Map<String, String> map) {
         if (node instanceof Heading) {
-            String commonStyle = "width: 100%; text-align: center; color: black;";
+            String commonStyle = "width: 100%; text-align: center; color: white;";
 
             switch (tag) {
                 case "h1" -> map.put("style", commonStyle + "font-size: 2rem;");

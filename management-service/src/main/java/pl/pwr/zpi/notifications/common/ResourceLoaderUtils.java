@@ -1,8 +1,7 @@
 package pl.pwr.zpi.notifications.common;
 
 import lombok.SneakyThrows;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.*;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -26,5 +25,10 @@ public final class ResourceLoaderUtils {
     @SneakyThrows
     public static byte[] loadResource(String path) {
         return resourceLoader.getResource(path).getInputStream().readAllBytes();
+    }
+
+    @SneakyThrows
+    public static ByteArrayResource loadResourceByteArray(String path) {
+        return new ByteArrayResource(loadResource(path));
     }
 }
