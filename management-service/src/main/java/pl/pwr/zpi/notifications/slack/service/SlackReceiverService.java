@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder;
+import pl.pwr.zpi.notifications.discord.dto.UpdateDiscordReceiverRequest;
+import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.slack.dto.SlackReceiverDTO;
+import pl.pwr.zpi.notifications.slack.dto.UpdateSlackReceiverRequest;
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
 import pl.pwr.zpi.notifications.slack.repository.SlackRepository;
 
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,6 +23,8 @@ public class SlackReceiverService {
 
     private final SlackRepository slackRepository;
     private final ConfidentialTextEncoder confidentialTextEncoder;
+
+    private final String WEBHOOK_URL_REGEX = "https://hooks.slack.com/services/[A-Z0-9]+/[A-Z0-9]+/[a-zA-Z0-9]+";
 
     public List<SlackReceiver> getAllSlackIntegrations() {
         return slackRepository.findAll();
@@ -38,14 +44,37 @@ public class SlackReceiverService {
         slackRepository.save(receiver);
     }
 
-    public SlackReceiver updateSlackIntegration(Long id, SlackReceiverDTO slackReceiver) {
+    public SlackReceiver updateSlackIntegration(Long id, UpdateSlackReceiverRequest updateRequest) {
         var receiver = getById(id);
 
-        receiver.setReceiverName(slackReceiver.getName());
-        receiver.setWebhookUrl(getAnonymizedWebhookUrl(slackReceiver.getWebhookUrl()));
+        patchReceiver(receiver, updateRequest);
         receiver.setUpdatedAt(System.currentTimeMillis());
 
         return slackRepository.save(receiver);
+    }
+
+    private void patchReceiver(SlackReceiver slackReceiver, UpdateSlackReceiverRequest updateRequest) {
+        if(updateRequest.name() != null) {
+            validateReceiverName(updateRequest.name());
+            slackReceiver.setReceiverName(updateRequest.name());
+        }
+
+        if(updateRequest.webhookUrl() != null) {
+            validateWebhookUrl(updateRequest.webhookUrl());
+            slackReceiver.setWebhookUrl(updateRequest.webhookUrl());
+        }
+    }
+
+    private void validateReceiverName(String name) {
+        if(name.isEmpty() || name.length() > 100) {
+            throw new RuntimeException("Receiver name length has to be > 1 and < 100");
+        }
+    }
+
+    private void validateWebhookUrl(String webhookUrl) {
+        if(!Pattern.matches(WEBHOOK_URL_REGEX, webhookUrl)) {
+            throw new RuntimeException(String.format("webhookUrl has to satisfy the following regex - %s", WEBHOOK_URL_REGEX));
+        }
     }
 
     private String getAnonymizedWebhookUrl(String webhookUrl) {

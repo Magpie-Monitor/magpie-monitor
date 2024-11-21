@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.notifications.email.dto.EmailReceiverDTO;
+import pl.pwr.zpi.notifications.email.dto.EmailReceiverUpdateRequest;
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
 import pl.pwr.zpi.notifications.email.repository.EmailRepository;
 
@@ -35,23 +36,24 @@ public class EmailReceiverService {
         emailRepository.save(receiver);
     }
 
-    public EmailReceiver updateEmail(Long id, EmailReceiverDTO updateRequest) {
+    public EmailReceiver updateEmail(Long id, EmailReceiverUpdateRequest updateRequest) {
         var receiver = getEmailReceiver(id);
 
-        checkIfUserCanUpdateEmail(updateRequest.getEmail(), id);
+        checkIfUserCanUpdateEmail(updateRequest.email(), id);
         patchEmail(receiver, updateRequest);
 
         return emailRepository.save(receiver);
     }
 
-    private void patchEmail(EmailReceiver emailReceiver, EmailReceiverDTO updateRequest) {
-        if(updateRequest.getEmail() != null) {
-            validateEmail(updateRequest.getEmail());
-            emailReceiver.setReceiverEmail(updateRequest.getEmail());
+    private void patchEmail(EmailReceiver emailReceiver, EmailReceiverUpdateRequest updateRequest) {
+        if(updateRequest.email() != null) {
+            validateEmail(updateRequest.email());
+            emailReceiver.setReceiverEmail(updateRequest.email());
         }
 
-        if(updateRequest.getName() != null) {
-            emailReceiver.setReceiverName(updateRequest.getName());
+        if(updateRequest.name() != null) {
+            validateReceiverName(updateRequest.name());
+            emailReceiver.setReceiverName(updateRequest.name());
         }
 
         emailReceiver.setUpdatedAt(System.currentTimeMillis());
@@ -60,6 +62,12 @@ public class EmailReceiverService {
     private void validateEmail(String email) {
         if(!emailValidator.isValid(email)) {
             throw new RuntimeException("Invalid email");
+        }
+    }
+
+    private void validateReceiverName(String name) {
+        if(name.isEmpty()) {
+           throw new RuntimeException("Receiver name is empty");
         }
     }
 

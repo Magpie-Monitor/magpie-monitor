@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder;
 import pl.pwr.zpi.notifications.discord.dto.DiscordReceiverDTO;
+import pl.pwr.zpi.notifications.discord.dto.UpdateDiscordReceiverRequest;
 import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.discord.repository.DiscordRepository;
 
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,6 +21,8 @@ public class DiscordReceiverService {
 
     private final DiscordRepository discordRepository;
     private final ConfidentialTextEncoder confidentialTextEncoder;
+
+    private final String WEBHOOK_URL_REGEX = "https://discord.com/api/webhooks/[0-9]+/[a-zA-Z0-9\\-]+";
 
     public List<DiscordReceiver> getAllDiscordIntegrations() {
         return discordRepository.findAll();
@@ -42,15 +46,39 @@ public class DiscordReceiverService {
         discordRepository.save(receiver);
     }
 
-    public DiscordReceiver updateDiscordIntegration(Long id, DiscordReceiverDTO discordReceiver) throws Exception {
+    public DiscordReceiver updateDiscordIntegration(Long id, UpdateDiscordReceiverRequest updateDiscordReceiverRequest) throws Exception {
         var receiver = getDiscordReceiver(id);
-        String encryptedWebhookUrl = confidentialTextEncoder.encrypt(discordReceiver.getWebhookUrl());
+        String encryptedWebhookUrl = confidentialTextEncoder.encrypt(updateDiscordReceiverRequest.webhookUrl());
         checkIfUserCanUpdateWebhookUrl(encryptedWebhookUrl, id);
 
-        receiver.setReceiverName(discordReceiver.getName());
-        receiver.setWebhookUrl(encryptedWebhookUrl);
+        patchReceiver(receiver, updateDiscordReceiverRequest);
+
         receiver.setUpdatedAt(System.currentTimeMillis());
         return discordRepository.save(receiver);
+    }
+
+    private void patchReceiver(DiscordReceiver discordReceiver, UpdateDiscordReceiverRequest updateRequest) {
+        if(updateRequest.name() != null) {
+            validateReceiverName(updateRequest.name());
+            discordReceiver.setReceiverName(updateRequest.name());
+        }
+
+        if(updateRequest.webhookUrl() != null) {
+            validateWebhookUrl(updateRequest.webhookUrl());
+            discordReceiver.setWebhookUrl(updateRequest.webhookUrl());
+        }
+    }
+
+    private void validateReceiverName(String name) {
+        if(name.isEmpty() || name.length() > 100) {
+           throw new RuntimeException("Receiver name length has to be > 1 and < 100");
+        }
+    }
+
+    private void validateWebhookUrl(String webhookUrl) {
+        if(!Pattern.matches(WEBHOOK_URL_REGEX, webhookUrl)) {
+            throw new RuntimeException(String.format("webhookUrl has to satisfy the following regex - %s", WEBHOOK_URL_REGEX));
+        }
     }
 
     public DiscordReceiver getDiscordReceiver(Long receiverWebhookId) {
