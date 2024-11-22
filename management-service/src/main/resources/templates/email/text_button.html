@@ -3,49 +3,27 @@
   <meta name="viewport" content="width=device-width">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
-  <style>
-    .page {
-      font-family: 'Roboto', sans-serif;
-      color: white;
-    }
-    .button-table {
-      width: 100%;
-      background-color: transparent;
-      text-align: center;
-    }
-    .button-table__cell {
-      text-align: center;
-    }
-    .button-table__link {
-      text-decoration: none;
-    }
-    .button-table__button {
-      background-color: transparent;
-      border: 2px solid #5cd060;
-      border-radius: 5px;
-      color: #5cd060;
-      padding: 0.3rem 1rem;
-      font-size: 0.9rem;
-      text-align: center;
-      min-width: 50%;
-      cursor: pointer;
-      transition: all 0.5s;
-    }
-    .button-table__button:hover {
-      background-color: #5cd060;
-      color: white;
-    }
-  </style>
 </head>
-<body class="page">
-<table class="button-table">
+<body>
+<table style="width: 100%; background-color: transparent; font-family: 'Roboto', sans-serif; color: white;">
   <tr>
-    <td class="button-table__cell">
-      <a href="%url%" class="button-table__link">
+    <td style="text-align: center;">
+      <a href="%url%" style="text-decoration: none;">
         <input
                 type="submit"
                 value="%text%"
-                class="button-table__button">
+                style="
+            background-color: transparent;
+            border: 2px solid #5cd060;
+            border-radius: 5px;
+            color: #5cd060;
+            padding: 0.3rem 1rem;
+            font-size: 1rem;
+            text-align: center;
+            min-width: 50%;
+            cursor: pointer;
+            transition: all 0.5s;
+          ">
       </a>
     </td>
   </tr>
