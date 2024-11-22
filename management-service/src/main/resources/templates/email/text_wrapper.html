@@ -1,14 +1,35 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
+    <style>
+        .page {
+            font-family: 'Roboto', sans-serif;
+        }
+        .content-section {
+            width: 100%;
+            background-color: #07111b;
+            min-height: 200px;
+        }
+        .content-section__outer-cell {
+            display: block;
+            padding: 1em;
+        }
+        .content-section__inner-table {
+            border: 0;
+            width: 100%;
+        }
+        .content-section__inner-cell {
+            color: white;
+        }
+    </style>
 </head>
-<body>
-<table style="width: 100%; background-color: #07111b; min-height: 200px;">
+<body class="page">
+<table class="content-section">
     <tr>
-        <td style="display: block; padding: 1em">
-            <table style="border: 0; width: 100%">
+        <td class="content-section__outer-cell">
+            <table class="content-section__inner-table">
                 <tr>
-                    <td style="color: white;">
+                    <td class="content-section__inner-cell">
                         %content%
                     </td>
                 </tr>

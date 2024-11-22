@@ -2,14 +2,33 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
+    <style>
+        .page {
+            font-family: 'Roboto', sans-serif;
+        }
+        .container {
+            width: 100%;
+            height: 100px;
+            background-color: #eeeeee;
+        }
+        .container__outer-cell {
+            display: block;
+            text-align: center;
+        }
+        .container__inner-table {
+            border: 0;
+            max-width: 600px;
+            color: white;
+        }
+    </style>
 </head>
-<body>
-<table style="width: 100%; height: 100px; background-color: #eeeeee">
+<body class="page">
+<table class="container">
     <tr>
-        <td align="center" style="display: block">
-            <table style="border: 0; max-width: 600px; color: white;">
+        <td class="container__outer-cell">
+            <table class="container__inner-table">
                 <tr>
-                    <td>%content%</td>
+                    <td class="container__inner-cell">%content%</td>
                 </tr>
             </table>
         </td>
