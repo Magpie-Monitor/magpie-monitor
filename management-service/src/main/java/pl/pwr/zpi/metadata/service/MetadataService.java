@@ -3,6 +3,7 @@ package pl.pwr.zpi.metadata.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import pl.pwr.zpi.cluster.service.ClusterService;
 import pl.pwr.zpi.metadata.broker.dto.application.AggregatedApplicationMetadata;
 import pl.pwr.zpi.metadata.broker.dto.cluster.AggregatedClusterMetadata;
 import pl.pwr.zpi.metadata.broker.dto.node.AggregatedNodeMetadata;
@@ -42,18 +43,18 @@ public class MetadataService {
         return clusterMetadataRepository.findFirstByOrderByCollectedAtMsDesc()
                 .map(metadata -> metadata.metadata()
                         .stream()
-                        .map(cluster -> new ClusterMetadataDTO(cluster.clusterId(), true))
+                        .map(cluster -> ClusterMetadataDTO.of(cluster.clusterId(), true))
                         .collect(Collectors.toCollection(ArrayList::new))
                 )
                 .orElse(new ArrayList<>());
     }
 
     private Set<ClusterMetadataDTO> filterInactiveClusters(List<ClusterMetadataDTO> activeClusterMetadataDTOS) {
-        Set<String> activeClusterIds = activeClusterMetadataDTOS.stream().map(ClusterMetadataDTO::clusterId).collect(Collectors.toSet());
+        Set<String> activeClusterIds = activeClusterMetadataDTOS.stream().map(ClusterMetadataDTO::getClusterId).collect(Collectors.toSet());
 
         return metadataHistoryService.getClustersHistory().stream()
-                .map(clusterHistory -> new ClusterMetadataDTO(clusterHistory.id(), false))
-                .filter(clusterMetadataDTO -> !activeClusterIds.contains(clusterMetadataDTO.clusterId()))
+                .map(clusterHistory -> ClusterMetadataDTO.of(clusterHistory.id(), false))
+                .filter(clusterMetadataDTO -> !activeClusterIds.contains(clusterMetadataDTO.getClusterId()))
                 .collect(Collectors.toSet());
     }
 
@@ -61,7 +62,7 @@ public class MetadataService {
         if (!clusterMetadataRepository.existsByMetadataClusterId(clusterId)) {
             return Optional.empty();
         }
-        return Optional.of(new ClusterMetadataDTO(clusterId, getActiveClusters().contains(new ClusterMetadataDTO(clusterId, false))));
+        return Optional.of(ClusterMetadataDTO.of(clusterId, getActiveClusters().contains(ClusterMetadataDTO.of(clusterId, false))));
     }
 
     public List<NodeMetadataDTO> getClusterNodes(String clusterId) {

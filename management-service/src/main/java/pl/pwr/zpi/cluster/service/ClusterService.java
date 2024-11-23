@@ -26,6 +26,43 @@ public class ClusterService {
     private final ClusterRepository clusterRepository;
     private final ReceiverService receiverService;
     private final MetadataService metadataService;
+    private final ReportGenerationService reportGenerationService;
+
+    public List<ClusterMetadataDTO> getAllClusters() {
+        List<ClusterMetadataDTO> clusters = metadataService.getAllClusters();
+        clusters.forEach(this::setClusterConfigurationForMetadata);
+        return clusters;
+    }
+
+    public void setClusterConfigurationForMetadata(ClusterMetadataDTO metadata) {
+        clusterRepository.findById(metadata.getClusterId()).ifPresent(configuration -> {
+            metadata.setAccuracy(configuration.getAccuracy());
+            metadata.setUpdatedAtMillis(configuration.getUpdatedAtMillis());
+        });
+    }
+
+    public List<NodeMetadataDTO> getClusterNodes(String clusterId) {
+        return metadataService.getClusterNodes(clusterId);
+    }
+
+    public List<ApplicationMetadataDTO> getClusterApplications(String clusterId) {
+        return metadataService.getClusterApplications(clusterId);
+    }
+
+    public void generateReportForCluster(String clusterId, Long sinceMs, Long toMs) {
+        clusterRepository.findById(clusterId).ifPresentOrElse(
+                clusterConfiguration -> generateReportForClusterConfiguration(clusterConfiguration, sinceMs, toMs),
+                () -> {
+                    throw new RuntimeException(String.format("Report configuration not found for cluster of an id: %s", clusterId));
+                }
+        );
+    }
+
+    private void generateReportForClusterConfiguration(ClusterConfiguration clusterConfiguration, Long sinceMs, Long toMs) {
+        CreateReportRequest createReportRequest =
+                CreateReportRequest.fromClusterConfiguration(clusterConfiguration, sinceMs, toMs);
+        reportGenerationService.createReport(createReportRequest);
+    }
 
     public UpdateClusterConfigurationResponse updateClusterConfiguration(UpdateClusterConfigurationRequest configurationRequest) {
         ClusterConfiguration clusterConfiguration = ClusterConfiguration.ofClusterConfigurationRequest(configurationRequest);
