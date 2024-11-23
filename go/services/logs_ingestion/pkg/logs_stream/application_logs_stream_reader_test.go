@@ -20,7 +20,7 @@ const LOGS_INGESTION_TEST_INDEX = "ingestion-test"
 
 func TestApplicationLogsStreamReader(t *testing.T) {
 
-	fmt.Println("Started a test")
+	fmt.Println("Started a test!")
 
 	type TestDependencies struct {
 		fx.In
