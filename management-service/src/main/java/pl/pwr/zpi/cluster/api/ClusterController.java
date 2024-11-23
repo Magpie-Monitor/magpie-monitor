@@ -37,7 +37,7 @@ public class ClusterController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ClusterConfigurationDTO> getClusterById(@PathVariable String id) {
-        return ResponseEntity.of(clusterService.getClusterById(id));
+        return ResponseEntity.ok(clusterService.getClusterById(id));
     }
 
     @PutMapping
