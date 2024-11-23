@@ -643,10 +643,11 @@ func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsight
 
 func (s *ReportsService) GetApplicationReportsFromInsights(
 	applicationInsights []insights.ApplicationInsightsWithMetadata,
-	applicationConfiguration map[string]*insights.ApplicationInsightConfiguration,
+	applicationConfigurations []*insights.ApplicationInsightConfiguration,
 ) ([]*repositories.ApplicationReport, error) {
 
 	insightsByApplication := insights.GroupInsightsByApplication(applicationInsights)
+	applicationConfigurationByName := insights.GroupApplicationConfigurationByName(applicationConfigurations)
 
 	reports := make([]*repositories.ApplicationReport, 0, len(insightsByApplication))
 
@@ -654,7 +655,7 @@ func (s *ReportsService) GetApplicationReportsFromInsights(
 
 		incidentsFromInsights := array.Map(func(insight insights.ApplicationInsightsWithMetadata) *repositories.ApplicationIncident {
 
-			return s.getApplicationIncidentFromInsight(insight, applicationConfiguration[insight.Insight.ApplicationName])
+			return s.getApplicationIncidentFromInsight(insight, applicationConfigurationByName[insight.Insight.ApplicationName])
 		})
 
 		incidents := incidentsFromInsights(insightsForApplication)
@@ -663,7 +664,7 @@ func (s *ReportsService) GetApplicationReportsFromInsights(
 			Incidents:       incidents,
 		}
 
-		config, ok := applicationConfiguration[applicationName]
+		config, ok := applicationConfigurationByName[applicationName]
 		if ok {
 			report.Accuracy = config.Accuracy
 			report.CustomPrompt = config.CustomPrompt
@@ -677,16 +678,17 @@ func (s *ReportsService) GetApplicationReportsFromInsights(
 
 func (s *ReportsService) GetNodeReportsFromInsights(
 	nodeInsights []insights.NodeInsightsWithMetadata,
-	configurationByNode map[string]*insights.NodeInsightConfiguration,
+	nodeConfigurations []*insights.NodeInsightConfiguration,
 ) ([]*repositories.NodeReport, error) {
 	insightsByNode := insights.GroupInsightsByNode(nodeInsights)
 
+	configurationsByNode := insights.GroupNodeConfigurationByName(nodeConfigurations)
 	reports := make([]*repositories.NodeReport, 0, len(insightsByNode))
 
 	for nodeName, insightsForNode := range insightsByNode {
 
 		nodeIncidentsFromInsights := array.Map(func(insight insights.NodeInsightsWithMetadata) *repositories.NodeIncident {
-			return s.getNodeIncidentFromInsight(insight, configurationByNode[insight.Insight.NodeName])
+			return s.getNodeIncidentFromInsight(insight, configurationsByNode[insight.Insight.NodeName])
 		})
 
 		incidents := nodeIncidentsFromInsights(insightsForNode)
@@ -696,7 +698,7 @@ func (s *ReportsService) GetNodeReportsFromInsights(
 			Incidents: incidents,
 		}
 
-		config, ok := configurationByNode[nodeName]
+		config, ok := configurationsByNode[nodeName]
 		if ok {
 			report.Accuracy = config.Accuracy
 			report.CustomPrompt = config.CustomPrompt

@@ -10,6 +10,7 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
 	"go.uber.org/zap"
+	"golang.org/x/exp/maps"
 	"time"
 )
 
@@ -20,11 +21,11 @@ type ApplicationInsightConfiguration struct {
 }
 
 type ScheduledApplicationInsights struct {
-	ScheduledJobIds          []string                                    `bson:"scheduledJobIds" json:"scheduledJobIds"`
-	SinceMs                  int64                                       `bson:"sinceMs" json:"sinceMs"`
-	ToMs                     int64                                       `bson:"toMs" json:"toMs"`
-	ClusterId                string                                      `bson:"clusterId" json:"clusterId"`
-	ApplicationConfiguration map[string]*ApplicationInsightConfiguration `bson:"applicationConfiguration" json:"applicationConfiguration"`
+	ScheduledJobIds          []string                           `bson:"scheduledJobIds" json:"scheduledJobIds"`
+	SinceMs                  int64                              `bson:"sinceMs" json:"sinceMs"`
+	ToMs                     int64                              `bson:"toMs" json:"toMs"`
+	ClusterId                string                             `bson:"clusterId" json:"clusterId"`
+	ApplicationConfiguration []*ApplicationInsightConfiguration `bson:"applicationConfiguration" json:"applicationConfiguration"`
 }
 
 type ApplicationLogsInsight struct {
@@ -82,6 +83,17 @@ func GroupInsightsByApplication(applicationInsights []ApplicationInsightsWithMet
 		insightsByApplication[applicationName] = append(insightsByApplication[applicationName], insight)
 	}
 	return insightsByApplication
+}
+
+func GroupApplicationConfigurationByName(applicationConfigurations []*ApplicationInsightConfiguration) map[string]*ApplicationInsightConfiguration {
+	applicationConfigurationsByName := make(map[string]*ApplicationInsightConfiguration)
+
+	for _, configuration := range applicationConfigurations {
+		applicationName := configuration.ApplicationName
+		applicationConfigurationsByName[applicationName] = configuration
+	}
+
+	return applicationConfigurationsByName
 }
 
 func (g *OpenAiInsightsGenerator) getApplicationLogById(logId string, logs []*repositories.ApplicationLogsDocument) (*repositories.ApplicationLogsDocument, error) {
@@ -318,12 +330,14 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 		return nil, err
 	}
 
+	applicationConfigurationsList := maps.Values(configurationByApplication)
+
 	return &ScheduledApplicationInsights{
 		ScheduledJobIds:          ids,
 		ClusterId:                clusterId,
 		SinceMs:                  sinceMs,
 		ToMs:                     toMs,
-		ApplicationConfiguration: configurationByApplication,
+		ApplicationConfiguration: applicationConfigurationsList,
 	}, nil
 }
 
