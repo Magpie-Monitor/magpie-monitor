@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -14,5 +15,6 @@ public class ScheduledApplicationInsight {
     private Long sinceMs;
     private Long toMs;
     private String clusterId;
-    private List<ScheduledApplicationInsightConfiguration> applicationConfiguration;
+    private Map<String, ScheduledApplicationInsightConfiguration> applicationConfiguration;
+//    private List<ScheduledApplicationInsightConfiguration> applicationConfiguration;
 }
