@@ -52,21 +52,6 @@ public class ClusterService {
         return metadataService.getClusterApplications(clusterId);
     }
 
-    public void generateReportForCluster(String clusterId, Long sinceMs, Long toMs) {
-        clusterRepository.findById(clusterId).ifPresentOrElse(
-                clusterConfiguration -> generateReportForClusterConfiguration(clusterConfiguration, sinceMs, toMs),
-                () -> {
-                    throw new RuntimeException(String.format("Report configuration not found for cluster of an id: %s", clusterId));
-                }
-        );
-    }
-
-    private void generateReportForClusterConfiguration(ClusterConfiguration clusterConfiguration, Long sinceMs, Long toMs) {
-        CreateReportRequest createReportRequest =
-                CreateReportRequest.fromClusterConfiguration(clusterConfiguration, sinceMs, toMs);
-        reportGenerationService.createReport(createReportRequest, ReportType.SCHEDULED);
-    }
-
     public UpdateClusterConfigurationResponse updateClusterConfiguration(UpdateClusterConfigurationRequest configurationRequest) {
         ClusterConfiguration clusterConfiguration = ClusterConfiguration.ofClusterConfigurationRequest(configurationRequest);
         setClusterNotificationReceivers(clusterConfiguration, configurationRequest);
@@ -110,6 +95,6 @@ public class ClusterService {
     }
 
     private Optional<Boolean> isClusterRunning(String clusterId) {
-        return metadataService.getClusterById(clusterId).map(ClusterMetadataDTO::running);
+        return metadataService.getClusterById(clusterId).map(ClusterMetadataDTO::isRunning);
     }
 }
