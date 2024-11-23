@@ -10,6 +10,7 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/openai"
 	"go.uber.org/zap"
+	"golang.org/x/exp/maps"
 	"time"
 )
 
@@ -30,11 +31,11 @@ type NodeInsightConfiguration struct {
 }
 
 type ScheduledNodeInsights struct {
-	ScheduledJobIds   []string                             `bson:"scheduledJobIds" json:"scheduledJobIds"`
-	SinceMs           int64                                `bson:"sinceMs" json:"sinceMs"`
-	ToMs              int64                                `bson:"toMs" json:"toMs"`
-	ClusterId         string                               `bson:"clusterId" json:"clusterId"`
-	NodeConfiguration map[string]*NodeInsightConfiguration `bson:"nodeConfiguration" json:"nodeConfiguration"`
+	ScheduledJobIds   []string                    `bson:"scheduledJobIds" json:"scheduledJobIds"`
+	SinceMs           int64                       `bson:"sinceMs" json:"sinceMs"`
+	ToMs              int64                       `bson:"toMs" json:"toMs"`
+	ClusterId         string                      `bson:"clusterId" json:"clusterId"`
+	NodeConfiguration []*NodeInsightConfiguration `bson:"nodeConfiguration" json:"nodeConfiguration"`
 }
 
 type NodeInsightMetadata struct {
@@ -179,12 +180,14 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 		return nil, err
 	}
 
+	nodeConfigurationList := maps.Values(configurationByNode)
+
 	return &ScheduledNodeInsights{
 		ScheduledJobIds:   ids,
 		ClusterId:         clusterId,
 		SinceMs:           sinceMs,
 		ToMs:              toMs,
-		NodeConfiguration: configurationByNode,
+		NodeConfiguration: nodeConfigurationList,
 	}, nil
 }
 
@@ -397,6 +400,16 @@ func GroupInsightsByNode(nodeInsights []NodeInsightsWithMetadata) map[string][]N
 		}
 	}
 	return insightsByNode
+}
+
+func GroupNodeConfigurationByName(nodeConfigurations []*NodeInsightConfiguration) map[string]*NodeInsightConfiguration {
+	nodeConfigurationsByName := make(map[string]*NodeInsightConfiguration)
+
+	for _, configuration := range nodeConfigurations {
+		nodeConfigurationsByName[configuration.NodeName] = configuration
+	}
+
+	return nodeConfigurationsByName
 }
 
 var _ NodeInsightsGenerator = &OpenAiInsightsGenerator{}
