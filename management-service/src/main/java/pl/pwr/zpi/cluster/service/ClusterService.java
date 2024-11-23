@@ -30,6 +30,7 @@ public class ClusterService {
     public UpdateClusterConfigurationResponse updateClusterConfiguration(UpdateClusterConfigurationRequest configurationRequest) {
         ClusterConfiguration clusterConfiguration = ClusterConfiguration.ofClusterConfigurationRequest(configurationRequest);
         setClusterNotificationReceivers(clusterConfiguration, configurationRequest);
+        clusterConfiguration.setUpdatedAtMillis(System.currentTimeMillis());
         clusterRepository.save(clusterConfiguration);
         return new UpdateClusterConfigurationResponse(clusterConfiguration.getId());
     }

@@ -2,6 +2,7 @@ package pl.pwr.zpi.notifications.slack.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder;
 import pl.pwr.zpi.notifications.slack.dto.SlackReceiverDTO;
@@ -22,7 +23,8 @@ public class SlackReceiverService {
     private final SlackRepository slackRepository;
     private final ConfidentialTextEncoder confidentialTextEncoder;
 
-    private final String WEBHOOK_URL_REGEX = "https://hooks.slack.com/services/[A-Z0-9]+/[A-Z0-9]+/[a-zA-Z0-9]+";
+    @Value("${slack.webhook.url.regex}")
+    private String WEBHOOK_URL_REGEX;
 
     public List<SlackReceiver> getAllSlackIntegrations() {
         List<SlackReceiver> receivers = slackRepository.findAll();
@@ -51,10 +53,18 @@ public class SlackReceiverService {
     public SlackReceiver updateSlackIntegration(Long id, UpdateSlackReceiverRequest updateRequest) {
         var receiver = getById(id);
 
+        checkIfUserCanUpdateWebhookUrl(updateRequest.webhookUrl(), id);
+
         patchReceiver(receiver, updateRequest);
         receiver.setUpdatedAt(System.currentTimeMillis());
 
-        return slackRepository.save(receiver);
+        return getAnonymizedSlackReceiver(receiver);
+    }
+
+    private SlackReceiver getAnonymizedSlackReceiver(SlackReceiver receiver) {
+        receiver = slackRepository.save(receiver);
+        receiver.setWebhookUrl(getAnonymizedWebhookUrl(receiver.getWebhookUrl()));
+        return receiver;
     }
 
     private void patchReceiver(SlackReceiver slackReceiver, UpdateSlackReceiverRequest updateRequest) {

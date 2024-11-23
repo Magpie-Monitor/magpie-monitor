@@ -24,6 +24,7 @@ public class ClusterConfiguration {
     private Accuracy accuracy;
     private boolean isEnabled;
     private Long generatedEveryMillis;
+    private Long updatedAtMillis;
 
     @OneToMany(fetch = FetchType.EAGER)
     private List<SlackReceiver> slackReceivers;

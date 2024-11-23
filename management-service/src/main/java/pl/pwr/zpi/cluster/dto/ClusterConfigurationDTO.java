@@ -20,7 +20,8 @@ public record ClusterConfigurationDTO(
         List<DiscordReceiver> discordReceivers,
         List<EmailReceiver> emailReceivers,
         List<ApplicationConfigurationDTO> applicationConfigurations,
-        List<NodeConfigurationDTO> nodeConfigurations
+        List<NodeConfigurationDTO> nodeConfigurations,
+        Long updatedAtMillis
 ) {
 
     public static ClusterConfigurationDTO ofCluster(ClusterConfiguration clusterConfiguration, boolean running) {
@@ -45,6 +46,7 @@ public record ClusterConfigurationDTO(
                                 .map(NodeConfigurationDTO::ofNodeConfiguration)
                                 .toList()
                 )
+                .updatedAtMillis(clusterConfiguration.getUpdatedAtMillis())
                 .build();
     }
 }
