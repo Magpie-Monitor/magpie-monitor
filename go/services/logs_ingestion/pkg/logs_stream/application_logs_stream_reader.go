@@ -41,7 +41,8 @@ func NewKafkaApplicationLogsStreamReader(params ApplicationLogsStreamReaderParam
 			APPLICATION_LOGS_QUEUE_PASSWORD_KEY,
 			APPLICATION_LOGS_QUEUE_USERNAME_KEY,
 			APPLICATION_LOGS_TOPIC_KEY,
-		})
+		},
+	)
 
 	kafkaHost := os.Getenv(APPLICATION_LOGS_QUQUE_HOST_KEY)
 	kafkaPort := os.Getenv(APPLICATION_LOGS_QUEUE_PORT_KEY)
