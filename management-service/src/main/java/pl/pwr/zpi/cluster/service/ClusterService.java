@@ -15,13 +15,10 @@ import pl.pwr.zpi.notifications.ReceiverService;
 import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
-import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
 import pl.pwr.zpi.reports.enums.Accuracy;
-import pl.pwr.zpi.reports.enums.ReportType;
-import pl.pwr.zpi.reports.service.ReportGenerationService;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -31,7 +28,6 @@ public class ClusterService {
     private final ClusterRepository clusterRepository;
     private final ReceiverService receiverService;
     private final MetadataService metadataService;
-    private final ReportGenerationService reportGenerationService;
 
     public List<ClusterMetadataDTO> getAllClusters() {
         List<ClusterMetadataDTO> clusters = metadataService.getAllClusters();
@@ -40,10 +36,21 @@ public class ClusterService {
     }
 
     public void setClusterConfigurationForMetadata(ClusterMetadataDTO metadata) {
-        clusterRepository.findById(metadata.getClusterId()).ifPresent(configuration -> {
-            metadata.setAccuracy(Objects.requireNonNullElse(configuration.getAccuracy(), Accuracy.LOW));
+        clusterRepository.findById(metadata.getClusterId()).ifPresentOrElse(configuration -> {
+            metadata.setAccuracy(configuration.getAccuracy());
             metadata.setUpdatedAtMillis(configuration.getUpdatedAtMillis());
-        });
+            metadata.setSlackReceivers(configuration.getSlackReceivers());
+            metadata.setDiscordReceivers(configuration.getDiscordReceivers());
+            metadata.setEmailReceivers(configuration.getEmailReceivers());
+        }, () -> setDefaultClusterConfigurationForMetadata(metadata));
+    }
+
+    private void setDefaultClusterConfigurationForMetadata(ClusterMetadataDTO metadata) {
+        metadata.setAccuracy(Accuracy.LOW);
+        metadata.setUpdatedAtMillis(0L);
+        metadata.setSlackReceivers(Collections.emptyList());
+        metadata.setDiscordReceivers(Collections.emptyList());
+        metadata.setEmailReceivers(Collections.emptyList());
     }
 
     public List<NodeMetadataDTO> getClusterNodes(String clusterId) {
@@ -86,14 +93,14 @@ public class ClusterService {
                 .toList();
     }
 
-    public Optional<ClusterConfigurationDTO> getClusterById(String clusterId) {
+    public ClusterConfigurationDTO getClusterById(String clusterId) {
         return clusterRepository.findById(clusterId).map(clusterConfiguration -> {
             Optional<Boolean> isRunning = isClusterRunning(clusterId);
             return isRunning
                     .map(running -> ClusterConfigurationDTO.ofCluster(clusterConfiguration, running))
                     .orElse(ClusterConfigurationDTO.ofCluster(clusterConfiguration, false));
 
-        });
+        }).orElse(ClusterConfigurationDTO.defaultConfiguration());
     }
 
     private Optional<Boolean> isClusterRunning(String clusterId) {
