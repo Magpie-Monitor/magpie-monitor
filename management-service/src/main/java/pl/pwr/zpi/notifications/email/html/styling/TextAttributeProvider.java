@@ -10,7 +10,7 @@ public class TextAttributeProvider implements AttributeProvider {
     @Override
     public void setAttributes(Node node, String s, Map<String, String> map) {
         if (node instanceof Paragraph) {
-            map.put("style", "color: black; font-size: 0.75rem; text-align: justify;");
+            map.put("style", "color: white; font-size: 1.1rem; text-align: justify;");
         }
     }
 }
