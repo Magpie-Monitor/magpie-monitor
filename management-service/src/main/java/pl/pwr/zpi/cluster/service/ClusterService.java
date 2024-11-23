@@ -16,10 +16,12 @@ import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
+import pl.pwr.zpi.reports.enums.Accuracy;
 import pl.pwr.zpi.reports.enums.ReportType;
 import pl.pwr.zpi.reports.service.ReportGenerationService;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -39,7 +41,7 @@ public class ClusterService {
 
     public void setClusterConfigurationForMetadata(ClusterMetadataDTO metadata) {
         clusterRepository.findById(metadata.getClusterId()).ifPresent(configuration -> {
-            metadata.setAccuracy(configuration.getAccuracy());
+            metadata.setAccuracy(Objects.requireNonNullElse(configuration.getAccuracy(), Accuracy.LOW));
             metadata.setUpdatedAtMillis(configuration.getUpdatedAtMillis());
         });
     }
