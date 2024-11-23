@@ -7,13 +7,16 @@ import pl.pwr.zpi.cluster.dto.UpdateClusterConfigurationRequest;
 import pl.pwr.zpi.cluster.dto.UpdateClusterConfigurationResponse;
 import pl.pwr.zpi.cluster.entity.ClusterConfiguration;
 import pl.pwr.zpi.cluster.repository.ClusterRepository;
+import pl.pwr.zpi.metadata.dto.application.ApplicationMetadataDTO;
 import pl.pwr.zpi.metadata.dto.cluster.ClusterMetadataDTO;
+import pl.pwr.zpi.metadata.dto.node.NodeMetadataDTO;
 import pl.pwr.zpi.metadata.service.MetadataService;
 import pl.pwr.zpi.notifications.ReceiverService;
 import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
+import pl.pwr.zpi.reports.enums.ReportType;
 import pl.pwr.zpi.reports.service.ReportGenerationService;
 
 import java.util.List;
@@ -61,7 +64,7 @@ public class ClusterService {
     private void generateReportForClusterConfiguration(ClusterConfiguration clusterConfiguration, Long sinceMs, Long toMs) {
         CreateReportRequest createReportRequest =
                 CreateReportRequest.fromClusterConfiguration(clusterConfiguration, sinceMs, toMs);
-        reportGenerationService.createReport(createReportRequest);
+        reportGenerationService.createReport(createReportRequest, ReportType.SCHEDULED);
     }
 
     public UpdateClusterConfigurationResponse updateClusterConfiguration(UpdateClusterConfigurationRequest configurationRequest) {
