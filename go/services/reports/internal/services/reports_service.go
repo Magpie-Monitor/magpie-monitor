@@ -504,7 +504,7 @@ func (s *ReportsService) CompletePendingReport(reportId string, applicationInsig
 	scheduledReport.ApplicationReports = applicationReports
 	scheduledReport.NodeReports = nodeReports
 	scheduledReport.Status = repositories.ReportState_AwaitingIncidentMerging
-	scheduledReport.Urgency = s.getReportUrgencyFromApplicationAndNodeReports(applicationReports, nodeReports)
+	scheduledReport.Urgency = s.GetReportUrgencyFromApplicationAndNodeReports(applicationReports, nodeReports)
 	scheduledReport.AnalyzedNodes = len(scheduledReport.ScheduledNodeInsights.NodeConfiguration)
 	scheduledReport.AnalyzedApplications = len(scheduledReport.ScheduledApplicationInsights.ApplicationConfiguration)
 	scheduledReport.ScheduledNodeIncidentMergerJobs = scheduledNodeIncidentsMergerJobs
@@ -589,7 +589,7 @@ func (s *ReportsService) getApplicationIncidentFromInsight(
 }
 
 // Get maximum of all urgencies from incidents from passed reports
-func (s *ReportsService) getReportUrgencyFromApplicationAndNodeReports(
+func (s *ReportsService) GetReportUrgencyFromApplicationAndNodeReports(
 	applicationReports []*repositories.ApplicationReport,
 	nodeReports []*repositories.NodeReport,
 ) insights.Urgency {
