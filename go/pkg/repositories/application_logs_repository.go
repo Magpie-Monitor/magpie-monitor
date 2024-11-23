@@ -155,7 +155,7 @@ func (r *ElasticSearchApplicationLogsRepository) GetLogs(ctx context.Context, cl
 	}
 
 	for {
-		if !batch.HasNextBatch() {
+		if batch.HasNextBatch() {
 			nextBatch, err := batch.GetNextBatch()
 			if err != nil {
 				r.logger.Error("Failed to get next batch of application logs")
@@ -163,6 +163,8 @@ func (r *ElasticSearchApplicationLogsRepository) GetLogs(ctx context.Context, cl
 			}
 
 			applicationLogs = append(applicationLogs, nextBatch...)
+		} else {
+			return applicationLogs, nil
 		}
 	}
 }

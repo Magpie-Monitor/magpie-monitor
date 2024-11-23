@@ -19,7 +19,6 @@ type ReportRequest struct {
 	ToMs                     *int64                                      `json:"toMs"`
 	ApplicationConfiguration []*insights.ApplicationInsightConfiguration `json:"applicationConfiguration"`
 	NodeConfiguration        []*insights.NodeInsightConfiguration        `json:"nodeConfiguration"`
-	MaxLength                *int                                        `json:"maxLength"`
 }
 
 type ReportRequested struct {

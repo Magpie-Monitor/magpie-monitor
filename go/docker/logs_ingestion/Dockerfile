@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 
 FROM build AS tests
 
-RUN echo "go env -w GOCACHE=/go/pkg/mod/ && go test ./services/logs_ingestion/..." > test.sh 
+RUN echo "go env -w GOCACHE=/go/pkg/mod/ && go test -v ./services/logs_ingestion/..." > test.sh 
 RUN chmod +x test.sh
 
 ENTRYPOINT ["bash", "./test.sh"]

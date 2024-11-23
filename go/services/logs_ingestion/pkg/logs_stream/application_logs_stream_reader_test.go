@@ -8,7 +8,6 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/tests"
 	"github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/config"
-	_ "github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/config"
 	logsstream "github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/logs_stream"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/fx"
@@ -20,6 +19,8 @@ import (
 const LOGS_INGESTION_TEST_INDEX = "ingestion-test"
 
 func TestApplicationLogsStreamReader(t *testing.T) {
+
+	fmt.Println("Started a test")
 
 	type TestDependencies struct {
 		fx.In
@@ -48,10 +49,10 @@ func TestApplicationLogsStreamReader(t *testing.T) {
 			CollectedAtMs: 10,
 			Namespace:     "test-node",
 			Pods: []*repositories.PodLogs{
-				&repositories.PodLogs{
+				{
 					Name: "test-pod",
 					Containers: []*repositories.ContainerLogs{
-						&repositories.ContainerLogs{
+						{
 							Name:    "test-container",
 							Image:   "test-image",
 							Content: "Test application content",

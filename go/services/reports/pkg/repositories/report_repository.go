@@ -3,6 +3,9 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"os"
+
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,8 +15,14 @@ import (
 	"go.uber.org/zap"
 )
 
+const REPORTS_DB_NAME_KEY = "REPORTSDB_NAME"
+
 func NewReportCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[*Report] {
-	return &repositories.MongoDbCollection[*Report]{Log: log, Db: "reports", Col: "reports", Client: client}
+	envs.ValidateEnvs("Failed to get reports db name", []string{REPORTS_DB_NAME_KEY})
+
+	reportDb := os.Getenv(REPORTS_DB_NAME_KEY)
+
+	return &repositories.MongoDbCollection[*Report]{Log: log, Db: reportDb, Col: "reports", Client: client}
 }
 
 type NodeReport struct {

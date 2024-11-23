@@ -81,7 +81,7 @@ func (r *ElasticSearchNodeLogsRepository) GetLogs(ctx context.Context, cluster s
 	}
 
 	for {
-		if !batch.HasNextBatch() {
+		if batch.HasNextBatch() {
 			nextBatch, err := batch.GetNextBatch()
 			if err != nil {
 				r.logger.Error("Failed to get next batch of node logs")
@@ -89,6 +89,8 @@ func (r *ElasticSearchNodeLogsRepository) GetLogs(ctx context.Context, cluster s
 			}
 
 			nodeLogs = append(nodeLogs, nextBatch...)
+		} else {
+			return nodeLogs, nil
 		}
 	}
 }
