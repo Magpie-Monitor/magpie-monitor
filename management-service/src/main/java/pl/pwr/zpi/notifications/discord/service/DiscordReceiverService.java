@@ -2,6 +2,7 @@ package pl.pwr.zpi.notifications.discord.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder;
 import pl.pwr.zpi.notifications.discord.dto.DiscordReceiverDTO;
@@ -22,7 +23,8 @@ public class DiscordReceiverService {
     private final DiscordRepository discordRepository;
     private final ConfidentialTextEncoder confidentialTextEncoder;
 
-    private final String WEBHOOK_URL_REGEX = "https://discord.com/api/webhooks/[0-9]+/[a-zA-Z0-9\\-]+";
+    @Value("${discord.webhook.url.regex}")
+    private String WEBHOOK_URL_REGEX;
 
     public List<DiscordReceiver> getAllDiscordIntegrations() {
         List<DiscordReceiver> receivers = discordRepository.findAll();
@@ -61,7 +63,14 @@ public class DiscordReceiverService {
         patchReceiver(receiver, updateDiscordReceiverRequest);
 
         receiver.setUpdatedAt(System.currentTimeMillis());
-        return discordRepository.save(receiver);
+
+        return getAnonymizedDiscordReceiver(receiver);
+    }
+
+    private DiscordReceiver getAnonymizedDiscordReceiver(DiscordReceiver receiver) {
+        receiver = discordRepository.save(receiver);
+        receiver.setWebhookUrl(getAnonymizedWebhookUrl(receiver.getWebhookUrl()));
+        return receiver;
     }
 
     private void patchReceiver(DiscordReceiver discordReceiver, UpdateDiscordReceiverRequest updateRequest) {
@@ -72,7 +81,7 @@ public class DiscordReceiverService {
 
         if (updateRequest.webhookUrl() != null) {
             validateWebhookUrl(updateRequest.webhookUrl());
-            discordReceiver.setWebhookUrl(updateRequest.webhookUrl());
+            discordReceiver.setWebhookUrl(confidentialTextEncoder.encrypt(updateRequest.webhookUrl()));
         }
     }
 
@@ -101,6 +110,7 @@ public class DiscordReceiverService {
 
         String[] webhookParts = webhookUrl.split("/");
         String authToken = webhookParts[webhookParts.length - 1];
+
         return joinWebhookWithoutAuthToken(webhookParts) + "/" + "*".repeat(authToken.length());
     }
 

@@ -1,4 +1,11 @@
 package pl.pwr.zpi.metadata.dto.cluster;
 
-public record ClusterMetadataDTO(String clusterId, boolean running) {
+import pl.pwr.zpi.reports.enums.Accuracy;
+
+public record ClusterMetadataDTO(
+        String clusterId,
+        //Long updatedAtMillis,
+        //Accuracy accuracy,
+        boolean running
+) {
 }

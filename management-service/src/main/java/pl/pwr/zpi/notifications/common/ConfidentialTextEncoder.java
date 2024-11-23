@@ -34,7 +34,7 @@ public class ConfidentialTextEncoder {
     }
 
     public String encrypt(String message) {
-        cipherInit();
+        cipherInit(Cipher.ENCRYPT_MODE);
         return Base64.getEncoder()
                 .encodeToString(
                         cipherDoFinal(message.getBytes(StandardCharsets.UTF_8))
@@ -42,7 +42,7 @@ public class ConfidentialTextEncoder {
     }
 
     public String decrypt(String encryptedMessage) {
-        cipherInit();
+        cipherInit(Cipher.DECRYPT_MODE);
         return new String(
                 cipherDoFinal(Base64.getDecoder().decode(encryptedMessage)),
                 StandardCharsets.UTF_8
@@ -58,9 +58,9 @@ public class ConfidentialTextEncoder {
         }
     }
 
-    private void cipherInit() {
+    private void cipherInit(int mode) {
         try {
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            cipher.init(mode, secretKey);
         } catch (InvalidKeyException e) {
             log.error("Cipher init error: {}", e.getMessage());
             throw new RuntimeException(e);
