@@ -571,6 +571,7 @@ func (s *ReportsService) getApplicationIncidentFromInsight(
 
 	if len(insight.Metadata) == 0 {
 		s.logger.Info("Metadata is empty", zap.Any("metadata", insight), zap.Any("conf", configuration))
+		sources = make([]repositories.ApplicationIncidentSource, 0)
 	}
 
 	return &repositories.ApplicationIncident{
@@ -626,6 +627,11 @@ func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsight
 			Filename:  metadata.Filename,
 		}
 	})(insight.Metadata)
+
+	if len(insight.Metadata) == 0 {
+		s.logger.Info("Metadata is empty", zap.Any("metadata", insight), zap.Any("conf", configuration))
+		sources = make([]repositories.NodeIncidentSource, 0)
+	}
 
 	return &repositories.NodeIncident{
 		ClusterId:      insight.Metadata[0].ClusterId,
