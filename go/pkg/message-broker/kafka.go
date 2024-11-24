@@ -2,6 +2,7 @@ package messagebroker
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -67,6 +68,8 @@ func NewKafkaMessageBroker(addr string, topic string, username string, password 
 		AllowAutoTopicCreation: true,
 		Transport:              &kafka.Transport{SASL: plain.Mechanism{Username: username, Password: password}},
 		BatchBytes:             int64(kafkaMaxMessageBytesInt),
+		// BatchBytes: 0,
+		// BatchSize:  0,
 	}
 
 	mechanism, err := scram.Mechanism(scram.SHA512, username, password)
@@ -86,6 +89,10 @@ func NewKafkaMessageBroker(addr string, topic string, username string, password 
 			GroupID:        kafkaBrokerGroupId,
 			Dialer:         dialer,
 			CommitInterval: time.Second,
+			QueueCapacity:  0,
+			MinBytes:       0,
+			MaxWait:        time.Duration(time.Second),
+			// CommitInterval: 0,
 		},
 	)
 
@@ -115,6 +122,7 @@ func (b *KafkaMessageBroker) Publish(ctx context.Context, key []byte, value []by
 func (b *KafkaMessageBroker) Subscribe(ctx context.Context, messages chan<- []byte, errors chan<- error) {
 	for {
 		msg, err := b.reader.ReadMessage(ctx)
+		fmt.Println("read message: ", msg)
 
 		if err != nil {
 			b.logger.Error("Failed to read message", zap.Error(err))

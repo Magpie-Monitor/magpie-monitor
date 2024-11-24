@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"sync"
@@ -86,16 +85,18 @@ func NewMetadataService(params MetadataServiceParams) *MetadataService {
 		clusterActivityWindowMillis:                         envs.ConvertToInt64(CLUSTER_ACTIVITY_WINDOW_MILLIS_ENV_NAME),
 	}
 
-	params.Lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			go metadataService.pollForClusterStateChange()
-			go metadataService.pollForApplicationStateChange()
-			go metadataService.pollForNodeStateChange()
-			go metadataService.consumeApplicationMetadata()
-			go metadataService.consumeNodeMetadata()
-			return nil
-		},
-	})
+	// metadataService.init()
+
+	// params.Lc.Append(fx.Hook{
+	// 	OnStart: func(ctx context.Context) error {
+	// 		go metadataService.PollForClusterStateChange()
+	// 		go metadataService.PollForApplicationStateChange()
+	// 		go metadataService.PollForNodeStateChange()
+	// 		go metadataService.ConsumeApplicationMetadata()
+	// 		go metadataService.ConsumeNodeMetadata()
+	// 		return nil
+	// 	},
+	// })
 
 	return &metadataService
 }
@@ -119,7 +120,15 @@ type MetadataService struct {
 	nodeMetadataBroker                                  *messagebroker.KafkaJsonMessageBroker[repositories.NodeState]
 }
 
-func (m *MetadataService) consumeApplicationMetadata() {
+func (m *MetadataService) init() {
+	go m.PollForClusterStateChange()
+	go m.PollForApplicationStateChange()
+	go m.PollForNodeStateChange()
+	go m.ConsumeApplicationMetadata()
+	go m.ConsumeNodeMetadata()
+}
+
+func (m *MetadataService) ConsumeApplicationMetadata() {
 	var (
 		msg = make(chan repositories.ApplicationState)
 		err = make(chan error)
@@ -133,14 +142,17 @@ func (m *MetadataService) consumeApplicationMetadata() {
 	for {
 		select {
 		case metadata := <-msg:
-			m.clusterRepo.InsertDocuments([]interface{}{metadata})
+			_, err := m.clusterRepo.InsertDocuments([]interface{}{metadata})
+			if err != nil {
+				m.log.Error("Error inserting consumed application metadata", zap.Error(err))
+			}
 		case error := <-err:
 			m.log.Error("Error consuming application metadata", zap.Error(error))
 		}
 	}
 }
 
-func (m *MetadataService) consumeNodeMetadata() {
+func (m *MetadataService) ConsumeNodeMetadata() {
 	var (
 		msg = make(chan repositories.NodeState)
 		err = make(chan error)
@@ -154,14 +166,17 @@ func (m *MetadataService) consumeNodeMetadata() {
 	for {
 		select {
 		case metadata := <-msg:
-			m.nodeRepo.InsertDocuments([]interface{}{metadata})
+			_, err := m.nodeRepo.InsertDocuments([]interface{}{metadata})
+			if err != nil {
+				m.log.Error("Error inserting consumed node metadata", zap.Error(err))
+			}
 		case error := <-err:
 			m.log.Error("Error consuming node metadata", zap.Error(error))
 		}
 	}
 }
 
-func (m *MetadataService) pollForNodeStateChange() {
+func (m *MetadataService) PollForNodeStateChange() {
 	for {
 		time.Sleep(time.Duration(m.nodeAggregatedStateChangePollIntervalSeconds) * time.Second)
 
@@ -183,7 +198,7 @@ func (m *MetadataService) pollForNodeStateChange() {
 	}
 }
 
-func (m *MetadataService) pollForApplicationStateChange() {
+func (m *MetadataService) PollForApplicationStateChange() {
 	for {
 		time.Sleep(time.Duration(m.applicationAggregatedStateChangePollIntervalSeconds) * time.Second)
 
@@ -205,7 +220,7 @@ func (m *MetadataService) pollForApplicationStateChange() {
 	}
 }
 
-func (m *MetadataService) pollForClusterStateChange() {
+func (m *MetadataService) PollForClusterStateChange() {
 	for {
 		time.Sleep(time.Duration(m.clusterAggregatedStateChangePollIntervalSeconds) * time.Second)
 

@@ -290,6 +290,7 @@ services:
     build:
       context: ./go
       dockerfile: ./docker/cluster_metadata/Dockerfile
+      target: final
     ports:
       - ${CLUSTER_METADATA_HTTP_PORT:-8092}:${CLUSTER_METADATA_HTTP_PORT:-8092}
     environment:
