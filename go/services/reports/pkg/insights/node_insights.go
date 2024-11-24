@@ -251,11 +251,6 @@ func (g *OpenAiInsightsGenerator) GetScheduledNodeInsights(
 		return nil, err
 	}
 
-	if err != nil {
-		g.logger.Error("Failed to get application logs for scheduled insight")
-		return nil, err
-	}
-
 	insights, err := g.getNodeInsightsFromBatchEntries(completionResponses, scheduledInsights)
 	if err != nil {
 		g.logger.Error("Failed to transform batch entries into node insights")
@@ -289,11 +284,6 @@ func (g *OpenAiInsightsGenerator) AwaitScheduledNodeInsights(
 	completionResponses, err := g.client.CompletionResponseEntriesFromBatches(batches)
 	if err != nil {
 		g.logger.Error("Failed to get node batch completion responses", zap.Error(err))
-		return nil, err
-	}
-
-	if err != nil {
-		g.logger.Error("Failed to get application logs for scheduled insight")
 		return nil, err
 	}
 
