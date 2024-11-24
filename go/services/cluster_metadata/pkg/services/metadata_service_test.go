@@ -69,7 +69,7 @@ func TestApplicationMetadataIngestion(t *testing.T) {
 			},
 		}
 
-		dependencies.ApplicationMetadataBroker.Publish("test", expectedMetadata)
+		dependencies.ApplicationMetadataBroker.Publish("test2", expectedMetadata)
 
 		// writer := &kafka.Writer{
 		// 	Addr:                   kafka.TCP("kafka:9094"),
@@ -83,9 +83,9 @@ func TestApplicationMetadataIngestion(t *testing.T) {
 
 		// writer.WriteMessages(context.Background(), kafka.Message{Key: []byte("test"), Value: j})
 
-		fmt.Println("test")
+		fmt.Println("test222")
 
-		time.Sleep(26 * time.Second)
+		time.Sleep(40 * time.Second)
 
 		metadata, err := dependencies.ApplicationMetadataRepository.GetDocument(bson.D{{Key: "clusterId", Value: "wojtek-test"}, {Key: "collectedAtMs", Value: 1234}}, bson.D{})
 		if err != nil {
@@ -163,19 +163,7 @@ func TestNodeMetadataIngestion(t *testing.T) {
 		dependencies.NodeMetadataBroker.Publish("test", expectedMetadata)
 		dependencies.NodeMetadataBroker.Publish("test", expectedMetadata2)
 
-		// writer := &kafka.Writer{
-		// 	Addr:                   kafka.TCP("kafka:9094"),
-		// 	Topic:                  "node_metadata",
-		// 	AllowAutoTopicCreation: true,
-		// 	Transport:              &kafka.Transport{SASL: plain.Mechanism{Username: "username", Password: "password"}},
-		// 	BatchBytes:             int64(5000000),
-		// }
-
-		// j, _ := json.Marshal(expectedMetadata)
-
-		// writer.WriteMessages(context.Background(), kafka.Message{Key: []byte("test"), Value: j})
-
-		time.Sleep(26 * time.Second)
+		time.Sleep(40 * time.Second)
 
 		metadata, err := dependencies.NodeMetadataRepository.GetDocument(bson.D{{Key: "clusterId", Value: "wojtek-test"}, {Key: "collectedAtMs", Value: 310}}, bson.D{})
 		if err != nil {
@@ -196,158 +184,100 @@ func TestNodeMetadataIngestion(t *testing.T) {
 	tests.RunTest(test, t, config.AppModule)
 }
 
-// func TestApplicationMetadataStateUpdate(t *testing.T) {
-// 	type TestDependencies struct {
-// 		fx.In
-// 		Logger                           *zap.Logger
-// 		MetadataService                  *services.MetadataService
-// 		ApplicationMetadataBroker        *messagebroker.KafkaJsonMessageBroker[repositories.ApplicationState]
-// 		ApplicationMetadataUpdatedBroker *messagebroker.KafkaJsonMessageBroker[services.ApplicationMetadataUpdated]
-// 		ApplicationMetadataRepository    *sharedrepo.MongoDbCollection[repositories.ApplicationState]
-// 		ApplicationAggregatedRepo        *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
-// 		Creds                            *messagebroker.KafkaCredentials
-// 	}
+func TestApplicationMetadataStateUpdate(t *testing.T) {
+	type TestDependencies struct {
+		fx.In
+		Logger                           *zap.Logger
+		MetadataService                  *services.MetadataService
+		ApplicationMetadataBroker        *messagebroker.KafkaJsonMessageBroker[repositories.ApplicationState]
+		ApplicationMetadataUpdatedBroker *messagebroker.KafkaJsonMessageBroker[services.ApplicationMetadataUpdated]
+		ApplicationMetadataRepository    *sharedrepo.MongoDbCollection[repositories.ApplicationState]
+		ApplicationAggregatedRepo        *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
+		Creds                            *messagebroker.KafkaCredentials
+	}
 
-// 	test := func(dependencies TestDependencies) {
-// 		// c := make(chan services.ApplicationMetadataUpdated)
-// 		// err := make(chan error)
+	test := func(dependencies TestDependencies) {
+		c := make(chan services.ApplicationMetadataUpdated)
+		err := make(chan error)
 
-// 		// defer close(c)
-// 		// defer close(err)
+		go dependencies.ApplicationMetadataUpdatedBroker.Subscribe(c, err)
 
-// 		// broker := messagebroker.NewKafkaJsonMessageBroker[services.ApplicationMetadataUpdated](
-// 		// 	dependencies.Logger,
-// 		// 	dependencies.Creds.Address,
-// 		// 	"application_metadata_updated",
-// 		// 	dependencies.Creds.Username,
-// 		// 	dependencies.Creds.Password,
-// 		// )
+		go dependencies.MetadataService.PollForApplicationStateChange()
 
-// 		// reader := kafka.NewReader(
-// 		// 	kafka.ReaderConfig{
-// 		// 		Brokers:  []string{addr},
-// 		// 		Topic:    topic,
-// 		// 		MaxBytes: 10e8,
-// 		// 		// GroupID:        kafkaBrokerGroupId,
-// 		// 		Dialer:         dialer,
-// 		// 		CommitInterval: time.Second,
-// 		// 	},
-// 		// )
-// 		// ready := make(chan struct{})
-// 		// go func() {
+		_, e := dependencies.ApplicationAggregatedRepo.DeleteAll()
+		if e != nil {
+			t.Fail()
+		}
 
-// 		// go dependencies.ApplicationMetadataUpdatedBroker.Subscribe(c, err)
-// 		mechanism, err := scram.Mechanism(scram.SHA512, "username", "password")
-// 		if err != nil {
-// 			panic("Failed to set sasl mechanism for logs ingestion kafka queue")
-// 		}
+		_, e = dependencies.ApplicationMetadataRepository.DeleteAll()
+		if e != nil {
+			t.Fail()
+		}
 
-// 		dialer := &kafka.Dialer{
-// 			SASLMechanism: mechanism,
-// 		}
+		expectedMetadata := repositories.ApplicationState{
+			CollectedAtMs: time.Now().UnixMilli(),
+			ClusterId:     "test2",
+			Applications: []repositories.Application{
+				repositories.Application{
+					Kind: "Deployment",
+					Name: "test-dp",
+				},
+				repositories.Application{
+					Kind: "StatefulSet",
+					Name: "test-sts-1",
+				},
+			},
+		}
 
-// 		reader := kafka.NewReader(
-// 			kafka.ReaderConfig{
-// 				Brokers:        []string{"kafka:9094"},
-// 				Topic:          "application_metadata_updated",
-// 				MaxBytes:       10e8,
-// 				GroupID:        "magpie-monitor",
-// 				Dialer:         dialer,
-// 				CommitInterval: time.Second,
-// 			},
-// 		)
+		expectedMetadata2 := repositories.ApplicationState{
+			CollectedAtMs: time.Now().UnixMilli(),
+			ClusterId:     "test2",
+			Applications: []repositories.Application{
+				repositories.Application{
+					Kind: "Deployment",
+					Name: "test-dp2",
+				},
+				repositories.Application{
+					Kind: "StatefulSet",
+					Name: "test-sts-1",
+				},
+			},
+		}
 
-// 		_, e := dependencies.ApplicationAggregatedRepo.DeleteAll()
-// 		if e != nil {
-// 			t.Fail()
-// 		}
+		expectedMetadata3 := repositories.ApplicationState{
+			CollectedAtMs: time.Now().UnixMilli(),
+			ClusterId:     "test2",
+			Applications: []repositories.Application{
+				repositories.Application{
+					Kind: "Deployment",
+					Name: "test-dp2",
+				},
+				repositories.Application{
+					Kind: "StatefulSet",
+					Name: "test-sts-1",
+				},
+			},
+		}
 
-// 		_, e = dependencies.ApplicationMetadataRepository.DeleteAll()
-// 		if e != nil {
-// 			t.Fail()
-// 		}
+		dependencies.ApplicationMetadataRepository.InsertDocument(expectedMetadata)
+		dependencies.ApplicationMetadataRepository.InsertDocument(expectedMetadata2)
+		dependencies.ApplicationMetadataRepository.InsertDocument(expectedMetadata3)
 
-// 		expectedMetadata := repositories.ApplicationState{
-// 			CollectedAtMs: time.Now().UnixMilli(),
-// 			ClusterId:     "test2",
-// 			Applications: []repositories.Application{
-// 				repositories.Application{
-// 					Kind: "Deployment",
-// 					Name: "test-dp",
-// 				},
-// 				repositories.Application{
-// 					Kind: "StatefulSet",
-// 					Name: "test-sts-1",
-// 				},
-// 			},
-// 		}
+		for {
+			select {
+			case metadata := <-c:
+				fmt.Println(metadata)
+				return
+			case ec := <-err:
+				fmt.Println(ec)
+				t.Fail()
+				return
+			}
+		}
+	}
 
-// 		expectedMetadata2 := repositories.ApplicationState{
-// 			CollectedAtMs: time.Now().UnixMilli(),
-// 			ClusterId:     "test2",
-// 			Applications: []repositories.Application{
-// 				repositories.Application{
-// 					Kind: "Deployment",
-// 					Name: "test-dp2",
-// 				},
-// 				repositories.Application{
-// 					Kind: "StatefulSet",
-// 					Name: "test-sts-1",
-// 				},
-// 			},
-// 		}
-
-// 		expectedMetadata3 := repositories.ApplicationState{
-// 			CollectedAtMs: time.Now().UnixMilli(),
-// 			ClusterId:     "test2",
-// 			Applications: []repositories.Application{
-// 				repositories.Application{
-// 					Kind: "Deployment",
-// 					Name: "test-dp2",
-// 				},
-// 				repositories.Application{
-// 					Kind: "StatefulSet",
-// 					Name: "test-sts-1",
-// 				},
-// 			},
-// 		}
-
-// 		dependencies.ApplicationMetadataRepository.InsertDocument(expectedMetadata)
-// 		dependencies.ApplicationMetadataRepository.InsertDocument(expectedMetadata2)
-// 		dependencies.ApplicationMetadataRepository.InsertDocument(expectedMetadata3)
-
-// 		for {
-// 			fmt.Println("here")
-// 			msg, _ := reader.ReadMessage(context.Background())
-// 			fmt.Println(msg)
-// 			break
-// 		}
-
-// 		// for {
-// 		// 	msg := <-c
-// 		// 	fmt.Println(msg)
-// 		// 	break
-// 		// }
-
-// 		// timeout := time.After(60 * time.Second)
-// 		// for {
-// 		// 	select {
-// 		// 	case metadata := <-c:
-// 		// 		fmt.Println(metadata)
-// 		// 		return
-// 		// 		// case ec := <-err:
-// 		// 		// 	fmt.Println(ec)
-// 		// 		// 	t.Fail()
-// 		// 		// 	return
-// 		// 		// case <-timeout:
-// 		// 		// 	fmt.Println("timeout")
-// 		// 		// 	return
-// 		// 	}
-// 		// }
-// 	}
-
-// 	tests.RunTest(test, t, config.AppModule)
-// }
+	tests.RunTest(test, t, config.AppModule)
+}
 
 // func TestNodeMetadataStateUpdate(t *testing.T) {
 
@@ -361,42 +291,12 @@ func TestNodeMetadataIngestion(t *testing.T) {
 // 	}
 
 // 	test := func(dependencies TestDependencies) {
-// 		// c := make(chan services.NodeMetadataUpdated)
-// 		// err := make(chan error)
+// 		c := make(chan services.NodeMetadataUpdated)
+// 		err := make(chan error)
 
-// 		// defer close(c)
-// 		// defer close(err)
+// 		go dependencies.NodeMetadataUpdatedBroker.Subscribe(c, err)
 
-// 		// go dependencies.NodeMetadataUpdatedBroker.Subscribe(c, err)
-
-// 		// ready := make(chan struct{})
-// 		// go func() {
-// 		// go dependencies.NodeMetadataUpdatedBroker.Subscribe(c, err)
-// 		// close(ready)
-// 		// }()
-// 		// <-ready
-
-// 		// time.Sleep(5 * time.Second)
-
-// 		mechanism, err := scram.Mechanism(scram.SHA512, "username", "password")
-// 		if err != nil {
-// 			panic("Failed to set sasl mechanism for logs ingestion kafka queue")
-// 		}
-
-// 		dialer := &kafka.Dialer{
-// 			SASLMechanism: mechanism,
-// 		}
-
-// 		reader := kafka.NewReader(
-// 			kafka.ReaderConfig{
-// 				Brokers:        []string{"kafka:9094"},
-// 				Topic:          "node_metadata_updated",
-// 				MaxBytes:       10e8,
-// 				GroupID:        "magpie-monitor",
-// 				Dialer:         dialer,
-// 				CommitInterval: time.Second,
-// 			},
-// 		)
+// 		go dependencies.MetadataService.PollForNodeStateChange()
 
 // 		dependencies.NodeAggregatedRepo.DeleteAll()
 // 		dependencies.NodeMetadataRepository.DeleteAll()
@@ -418,47 +318,19 @@ func TestNodeMetadataIngestion(t *testing.T) {
 // 		dependencies.NodeMetadataRepository.InsertDocument(expectedMetadata)
 // 		dependencies.NodeMetadataRepository.InsertDocument(expectedMetadata2)
 
-// 		// go dependencies.NodeMetadataBroker.Publish("", expectedMetadata2)
-
-// 		// msg := <-c
-// 		// fmt.Println(msg)
-
 // 		for {
-// 			fmt.Println("here")
-// 			msg, _ := reader.ReadMessage(context.Background())
-// 			fmt.Println(msg)
-// 			break
+// 			select {
+// 			case metadata := <-c:
+// 				fmt.Println(metadata)
+// 				return
+// 			case ec := <-err:
+// 				fmt.Println(ec)
+// 				t.Fail()
+// 				return
+// 			}
 // 		}
 
-// 		// for {
-// 		// 	msg := <-c
-// 		// 	fmt.Println(msg)
-// 		// 	break
-// 		// }
-
-// 		// timeout := time.After(60 * time.Second)
-// 		// for {
-// 		// 	select {
-// 		// 	case metadata := <-c:
-// 		// 		fmt.Println(metadata)
-// 		// 		return
-// 		// 		// case ec := <-err:
-// 		// 		// 	fmt.Println(ec)
-// 		// 		// 	t.Fail()
-// 		// 		// 	return
-// 		// 		// case <-timeout:
-// 		// 		// 	fmt.Println("timeout")
-// 		// 		// 	return
-// 		// 	}
-// 		// }
-
-// 		// 	case <-time.After(100 * time.Second):
-// 		// 		fmt.Println("timeout")
-// 		// 		t.Fail()
-// 		// 	}
-// 		// }
-
-// 		// dependencies.NodeMetadataRepository.DeleteAll()
+// 		dependencies.NodeMetadataRepository.DeleteAll()
 // 	}
 
 // 	tests.RunTest(test, t, config.AppModule)

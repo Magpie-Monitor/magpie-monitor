@@ -92,7 +92,7 @@ func NewKafkaMessageBroker(addr string, topic string, username string, password 
 			QueueCapacity:  0,
 			MinBytes:       0,
 			MaxWait:        time.Duration(time.Second),
-			// CommitInterval: 0,
+			// CommitInterval: ,
 		},
 	)
 
