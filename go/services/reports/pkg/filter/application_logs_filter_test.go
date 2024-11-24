@@ -22,7 +22,7 @@ func TestFilterByApplicationsAccuracy(
 		{
 			description: "Filter all logs without key words withing High accuracy",
 			logsByApplication: map[string][]*repositories.ApplicationLogsDocument{
-				"test-app-1": []*repositories.ApplicationLogsDocument{
+				"test-app-1": {
 					{
 						Id:      "test-log-1",
 						Content: "This logs will be filtered",
@@ -33,7 +33,7 @@ func TestFilterByApplicationsAccuracy(
 					},
 				},
 
-				"test-app-2": []*repositories.ApplicationLogsDocument{
+				"test-app-2": {
 					{
 						Id:      "test-log-3",
 						Content: "This is a medium log. CPU Usage",
@@ -56,14 +56,14 @@ func TestFilterByApplicationsAccuracy(
 			},
 
 			expectedLogs: map[string][]*repositories.ApplicationLogsDocument{
-				"test-app-1": []*repositories.ApplicationLogsDocument{
+				"test-app-1": {
 					{
 						Id:      "test-log-2",
 						Content: "This is a log with High Disk Usage",
 					},
 				},
 
-				"test-app-2": []*repositories.ApplicationLogsDocument{
+				"test-app-2": {
 					{
 						Id:      "test-log-3",
 						Content: "This is a medium log. CPU Usage",
