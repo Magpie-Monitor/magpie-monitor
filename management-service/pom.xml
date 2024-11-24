@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.5</version>
+        <version>3.4.0</version>
         <relativePath/>
     </parent>
     <groupId>pl.pwr</groupId>
@@ -28,12 +28,17 @@
     </scm>
     <properties>
         <java.version>21</java.version>
-        <spring.boot.version>3.3.5</spring.boot.version>
-        <projectlombok.version>1.18.34</projectlombok.version>
+        <spring.boot.version>3.4.0</spring.boot.version>
+        <projectlombok.version>1.18.36</projectlombok.version>
         <springdoc.version>2.6.0</springdoc.version>
         <jjwt.version>0.12.6</jjwt.version>
-        <commonmark.version>0.22.0</commonmark.version>
-        <slack-api-client.version>1.43.1</slack-api-client.version>
+        <commonmark.version>0.24.0</commonmark.version>
+        <slack-api-client.version>1.44.2</slack-api-client.version>
+        <groovy-all.version>4.0.24</groovy-all.version>
+        <spock.version>2.4-M4-groovy-4.0</spock.version>
+        <gmavenplus-plugin.version>4.0.1</gmavenplus-plugin.version>
+        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+        <mockito.version>5.2.0</mockito.version>
     </properties>
     <dependencies>
         <dependency>
@@ -60,7 +65,7 @@
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
-            <version>3.2.4</version>
+            <version>3.3.0</version>
         </dependency>
 
         <dependency>
@@ -97,13 +102,13 @@
         <dependency>
             <groupId>com.google.auth</groupId>
             <artifactId>google-auth-library-oauth2-http</artifactId>
-            <version>1.27.0</version>
+            <version>1.30.0</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.google.http-client/google-http-client-gson -->
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client-gson</artifactId>
-            <version>1.45.0</version>
+            <version>1.45.1</version>
         </dependency>
 
         <dependency>
@@ -169,6 +174,30 @@
             <artifactId>commonmark</artifactId>
             <version>${commonmark.version}</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.groovy/groovy-all -->
+        <dependency>
+            <groupId>org.apache.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy-all.version}</version>
+            <type>pom</type>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.spockframework/spock-core -->
+        <dependency>
+            <groupId>org.spockframework</groupId>
+            <artifactId>spock-core</artifactId>
+            <version>${spock.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-inline-->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -176,6 +205,41 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>${gmavenplus-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>compileTests</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <testSources>
+                        <testSource>
+                            <directory>${project.basedir}/src/test/groovy</directory>
+                            <includes>
+                                <include>**/*.groovy</include>
+                            </includes>
+                        </testSource>
+                    </testSources>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <testSourceDirectory>src/test/groovy</testSourceDirectory>
+                    <includes>
+                        <include>**/*Specification.groovy</include>
+                        <include>**/*Test.groovy</include>
+                    </includes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

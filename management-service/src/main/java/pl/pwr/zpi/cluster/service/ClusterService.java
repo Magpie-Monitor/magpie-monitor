@@ -13,8 +13,6 @@ import pl.pwr.zpi.notifications.ReceiverService;
 import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver;
-import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
-import pl.pwr.zpi.reports.service.ReportGenerationService;
 
 import java.util.List;
 import java.util.Optional;
@@ -64,7 +62,6 @@ public class ClusterService {
             return isRunning
                     .map(running -> ClusterConfigurationDTO.ofCluster(clusterConfiguration, running))
                     .orElse(ClusterConfigurationDTO.ofCluster(clusterConfiguration, false));
-
         });
     }
 
