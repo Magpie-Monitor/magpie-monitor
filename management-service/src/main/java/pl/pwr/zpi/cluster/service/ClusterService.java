@@ -30,9 +30,9 @@ public class ClusterService {
     private final MetadataService metadataService;
 
     public List<ClusterMetadataDTO> getAllClusters() {
-        List<ClusterMetadataDTO> clusters = metadataService.getAllClusters();
-        clusters.forEach(this::setClusterConfigurationForMetadata);
-        return clusters;
+        return metadataService.getAllClusters().stream()
+                .peek(this::setClusterConfigurationForMetadata)
+                .toList();
     }
 
     public void setClusterConfigurationForMetadata(ClusterMetadataDTO metadata) {
@@ -46,7 +46,7 @@ public class ClusterService {
     }
 
     private void setDefaultClusterConfigurationForMetadata(ClusterMetadataDTO metadata) {
-        metadata.setAccuracy(Accuracy.LOW);
+        metadata.setAccuracy(Accuracy.HIGH);
         metadata.setUpdatedAtMillis(0L);
         metadata.setSlackReceivers(Collections.emptyList());
         metadata.setDiscordReceivers(Collections.emptyList());
