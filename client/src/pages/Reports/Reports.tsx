@@ -68,8 +68,7 @@ const Reports = () => {
       columnKey: 'reportType',
       customComponent: (row: ReportAwaitingGeneration) => <CustomTag name={row.reportType}/>,
     },
-    {header: 'Start date', columnKey: 'startDate'},
-    {header: 'End date', columnKey: 'endDate'},
+    {header: 'Requested generation at', columnKey: 'requestedAtMs'},
   ];
 
   const fetchReportsOnDemand = async () => {

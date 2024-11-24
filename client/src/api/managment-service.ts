@@ -60,6 +60,7 @@ export interface ReportSummary {
   clusterId: string;
   title: string;
   urgency: UrgencyLevel;
+  requestedAtMs: number;
   sinceMs: number;
   toMs: number;
   [key: string]: string | number;

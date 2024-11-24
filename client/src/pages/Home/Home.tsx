@@ -18,7 +18,8 @@ const Home = () => {
         ]);
         const reports = [...onDemandReports, ...scheduledReports];
         if (reports.length > 0) {
-          setLastReportId(reports[reports.length - 1].id);
+          reports.sort((a, b) => b.requestedAtMs - a.requestedAtMs);
+          setLastReportId(reports[0].id);
         }
       } catch (e: unknown) {
         console.error('Failed to fetch reports');
