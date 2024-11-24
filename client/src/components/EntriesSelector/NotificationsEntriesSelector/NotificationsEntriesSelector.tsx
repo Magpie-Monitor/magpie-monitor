@@ -1,17 +1,15 @@
 import React from 'react';
 import EntriesSelector from 'components/EntriesSelector/EntriesSelector';
-import { ManagmentServiceApiInstance } from 'api/managment-service.ts';
 import { NotificationChannel } from 'pages/Report/NotificationSection/NotificationSection.tsx';
 
-// eslint-disable-next-line max-len
-import Channels from 'pages/Report/NotificationSection/NotificationChannelsColumn/NotificationChannelColumn.tsx';
+import Channels
+  from 'pages/Report/NotificationSection/NotificationChannelsColumn/NotificationChannelColumn.tsx';
 import {
   transformNotificationChannelToDetailsColumn,
   transformNotificationChannelToServiceColumn,
 } from 'pages/Report/NotificationSection/NotificationUtils.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import { TableColumn } from 'components/Table/Table.tsx';
-import { dateFromTimestampMs } from 'lib/date.ts';
 
 interface NotificationsEntriesSelectorProps {
   selectedChannels: NotificationChannel[];
@@ -21,6 +19,7 @@ interface NotificationsEntriesSelectorProps {
   channelsToExclude: NotificationChannel[];
   onAdd: () => void;
   onClose: () => void;
+  availableChannels: NotificationChannel[];
 }
 
 const NotificationsEntriesSelector: React.FC<
@@ -31,27 +30,8 @@ const NotificationsEntriesSelector: React.FC<
   channelsToExclude,
   onAdd,
   onClose,
+  availableChannels
 }) => {
-  const fetchNotificationChannels = async () => {
-    try {
-      const channels =
-        await ManagmentServiceApiInstance.getNotificationChannels();
-      return channels.map(
-        (channel): NotificationChannel => ({
-          id: channel.id,
-          name: channel.name,
-          service: channel.service,
-          details: channel.details,
-          updated: dateFromTimestampMs(channel.updated),
-          added: dateFromTimestampMs(channel.added),
-        }),
-      );
-    } catch (error) {
-      console.error('Failed to fetch channels:', error);
-      return [];
-    }
-  };
-
   const getUniqueKey = (channel: NotificationChannel) =>
     `${channel.id}-${channel.service}`;
 
@@ -84,7 +64,7 @@ const NotificationsEntriesSelector: React.FC<
       itemsToExclude={channelsToExclude}
       onAdd={onAdd}
       onClose={onClose}
-      fetchData={fetchNotificationChannels}
+      items={availableChannels}
       columns={columns}
       getKey={getUniqueKey}
       entityLabel="notification-channel"

@@ -1,6 +1,5 @@
 import React from 'react';
 import EntriesSelector from 'components/EntriesSelector/EntriesSelector';
-import { AccuracyLevel, ManagmentServiceApiInstance } from 'api/managment-service.ts';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import { NodeDataRow } from 'pages/Report/NodesSection/NodesSection.tsx';
 
@@ -10,8 +9,7 @@ interface NodesEntriesSelectorProps {
     nodesToExclude: NodeDataRow[];
     onAdd: () => void;
     onClose: () => void;
-    clusterId: string;
-    defaultAccuracy: AccuracyLevel;
+    availableNodes: NodeDataRow[];
 }
 
 const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
@@ -20,23 +18,8 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
                                                                        nodesToExclude,
                                                                        onAdd,
                                                                        onClose,
-                                                                       clusterId,
-                                                                       defaultAccuracy,
+                                                                       availableNodes
                                                                    }) => {
-    const fetchNodes = async () => {
-        try {
-            const data = await ManagmentServiceApiInstance.getNodes(clusterId);
-            return data.map((node) => ({
-                name: node.name,
-                running: node.running,
-                accuracy: defaultAccuracy,
-                customPrompt: '',
-            }));
-        } catch (error) {
-            console.error('Failed to fetch nodes:', error);
-            return [];
-        }
-    };
 
     const getUniqueKey = (node: NodeDataRow) => node.name;
 
@@ -59,8 +42,8 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
             itemsToExclude={nodesToExclude}
             onAdd={onAdd}
             onClose={onClose}
-            fetchData={fetchNodes}
             columns={columns}
+            items={availableNodes}
             getKey={getUniqueKey}
             entityLabel="node"
             noEntriesMessage={<p>There is no node to add.</p>}
