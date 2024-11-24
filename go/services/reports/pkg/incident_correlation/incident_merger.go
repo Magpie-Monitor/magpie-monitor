@@ -187,7 +187,8 @@ func getGroupPacketId(groupId string, packetId int) string {
 }
 
 func getGroupFromEncodedGroupPacketId(groupPacketId string) string {
-	return strings.Split(groupPacketId, "-")[0]
+	splittedPacketId := strings.Split(groupPacketId, "-")
+	return strings.Join(splittedPacketId[:len(splittedPacketId)-1], "-")
 }
 
 func (m *OpenAiIncidentMerger) TryGettingIncidentMergerJobIfFinished(job *repositories.ScheduledIncidentMergerJob) (map[string][]IncidentMergeGroup, error) {
