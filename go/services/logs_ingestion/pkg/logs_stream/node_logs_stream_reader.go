@@ -69,7 +69,7 @@ func (r *KafkaNodeLogsStreamReader) Handle(
 	ctx context.Context,
 	nodeLogs *repositories.NodeLogs) error {
 
-	err := r.nodesLogsRepository.InsertLogs(ctx, nodeLogs)
+	_, err := r.nodesLogsRepository.InsertLogs(ctx, nodeLogs)
 	if err != nil {
 		r.logger.Error("Failed to index node logs", zap.Error(err))
 	}

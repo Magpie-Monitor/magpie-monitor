@@ -3,14 +3,16 @@ package repositories
 import (
 	"context"
 	"encoding/json"
+	"time"
+
 	"github.com/IBM/fp-go/array"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	es "github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/operationtype"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
-	"time"
 )
 
 // TODO: To be clarified once the contract from agent is agreed upon
@@ -75,7 +77,7 @@ func (l *ApplicationLogs) Flatten() []*ApplicationLogsDocument {
 type ApplicationLogsRepository interface {
 	CreateIndex(ctx context.Context, indexName string) error
 	GetLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) ([]*ApplicationLogsDocument, error)
-	InsertLogs(ctx context.Context, logs *ApplicationLogs) error
+	InsertLogs(ctx context.Context, logs *ApplicationLogs) ([]string, error)
 	RemoveIndex(ctx context.Context, indexName string) error
 	GetBatchedLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) (ApplicationLogsBatchRetriever, error)
 	GetLogsByIds(ctx context.Context, clusterId string, startDate time.Time, endDate time.Time, ids []string) ([]*ApplicationLogsDocument, error)
@@ -226,7 +228,8 @@ func (r *ElasticSearchApplicationLogsRepository) RemoveIndex(ctx context.Context
 	return nil
 }
 
-func (r *ElasticSearchApplicationLogsRepository) InsertLogs(ctx context.Context, logs *ApplicationLogs) error {
+// Returns ids of inserted logs
+func (r *ElasticSearchApplicationLogsRepository) InsertLogs(ctx context.Context, logs *ApplicationLogs) ([]string, error) {
 
 	index := getApplicationLogsIndexName(logs)
 
@@ -252,12 +255,18 @@ func (r *ElasticSearchApplicationLogsRepository) InsertLogs(ctx context.Context,
 		bulk.IndexOp(*types.NewIndexOperation(), jsonLog)
 	}
 
-	_, err := bulk.Do(ctx)
-
+	insertedLogs, err := bulk.Do(ctx)
 	if err != nil {
 		r.logger.Error("Failed to insert application logs", zap.Error(err))
 	}
-	return nil
+
+	ids := make([]string, 0, 0)
+	for _, log := range insertedLogs.Items {
+		ids = append(ids, *log[operationtype.Index].Id_)
+
+	}
+
+	return ids, nil
 }
 
 func GroupApplicationLogsByName(logs []*ApplicationLogsDocument) map[string][]*ApplicationLogsDocument {

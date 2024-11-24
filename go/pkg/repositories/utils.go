@@ -78,7 +78,7 @@ func PrefillApplicationLogs(
 	t *testing.T,
 	logger *zap.Logger,
 	applicationLogsRepository ApplicationLogsRepository,
-	logs []*ApplicationLogs) {
+	logs []*ApplicationLogs) []string {
 
 	ctx := context.Background()
 
@@ -94,17 +94,23 @@ func PrefillApplicationLogs(
 		// assert.NoError(t, err, "Failed to remove index")
 	}
 
+	insertedLogsIds := make([]string, 0, 0)
+
 	for _, log := range logs {
-		err := applicationLogsRepository.InsertLogs(ctx, log)
+		ids, err := applicationLogsRepository.InsertLogs(ctx, log)
 		assert.NoError(t, err, "Failed to prefill application logs")
+		insertedLogsIds = append(insertedLogsIds, ids...)
 	}
+
+	return insertedLogsIds
 }
 
+// Returns ids of created logs
 func PrefillNodeLogs(
 	t *testing.T,
 	logger *zap.Logger,
 	nodeLogsRepository NodeLogsRepository,
-	logs []*NodeLogs) {
+	logs []*NodeLogs) []string {
 
 	ctx := context.Background()
 
@@ -119,9 +125,13 @@ func PrefillNodeLogs(
 		nodeLogsRepository.RemoveIndex(ctx, index)
 		// assert.NoError(t, err, "Failed to remove index")
 	}
+	ids := make([]string, 0, 0)
 
 	for _, log := range logs {
-		err := nodeLogsRepository.InsertLogs(ctx, log)
+		insertedLogId, err := nodeLogsRepository.InsertLogs(ctx, log)
+		ids = append(ids, insertedLogId)
 		assert.NoError(t, err, "Failed to prefill application logs")
 	}
+
+	return ids
 }

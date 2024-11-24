@@ -100,6 +100,10 @@ func init() {
 					incidentcorrelation.NewOpenAiIncidentMerger,
 					fx.As(new(incidentcorrelation.IncidentMerger)),
 				),
+
+				// Adding direct implementation for tests
+				insights.NewOpenAiInsightsGenerator,
+
 				zap.NewExample),
 		)
 	} else {
@@ -108,6 +112,8 @@ func init() {
 				return &fxevent.ZapLogger{Logger: log}
 			}),
 			fx.Provide(
+
+				// insights.NewOpenAiInsightsGenerator,
 				// routing.NewRootRouter,
 				services.NewReportsService,
 				// handlers.NewReportsRouter,
