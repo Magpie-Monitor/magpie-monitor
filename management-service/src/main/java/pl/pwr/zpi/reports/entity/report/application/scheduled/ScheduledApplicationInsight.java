@@ -15,6 +15,5 @@ public class ScheduledApplicationInsight {
     private Long sinceMs;
     private Long toMs;
     private String clusterId;
-    private Map<String, ScheduledApplicationInsightConfiguration> applicationConfiguration;
-//    private List<ScheduledApplicationInsightConfiguration> applicationConfiguration;
+    private List<ScheduledApplicationInsightConfiguration> applicationConfiguration;
 }
