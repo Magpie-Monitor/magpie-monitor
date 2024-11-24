@@ -14,13 +14,13 @@ const DateRangeSection = ({ onDateChange }: DateRangeSectionProps) => {
 
     const getStartOfDay = (dateMs: number) => {
         const date = new Date(dateMs);
-        date.setHours(0, 0, 0, 0);
+        date.setUTCHours(0, 0, 0, 0);
         return date.getTime();
     };
 
     const getEndOfDay = (dateMs: number) => {
         const date = new Date(dateMs);
-        date.setHours(23, 56, 56, 999);
+        date.setUTCHours(23, 59, 59, 999);
         return date.getTime();
     };
 
