@@ -338,7 +338,7 @@ func (s *ReportsService) MergeNodeIncidents(nodeIncidentMergerJobs []*repositori
 		for idx, nodeReport := range report.NodeReports {
 			mergerGroups, ok := nodeMergerGroups[nodeReport.Node]
 			if !ok {
-				s.logger.Info("Application is not present in merger groups, skipping")
+				s.logger.Info("Node is not present in merger groups, skipping")
 				continue
 			}
 
