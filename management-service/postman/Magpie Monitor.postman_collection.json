@@ -89,6 +89,36 @@
 					"response": []
 				},
 				{
+					"name": "/api/v1/notification-channels/mails/{id}",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"xxx\",\n    \"webhookUrl\": \"https://hooks.slack.com/services/xxx/xxx/xxx\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/api/v1/notification-channels/slack/7",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"slack",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/api/v1/notification-channels/mails/{id}/test-notification",
 					"request": {
 						"method": "GET",
@@ -137,7 +167,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"\",\n    \"webhookUrl\": \"https://hooks.slack.com/services/xxx/xxx/xxx\"\n}",
+							"raw": "{\n    \"name\": \"werwerweasadasdasdr\",\n    \"webhookUrl\": \"https://hooks.slack.com/services/AAAAAAAAA/BBBBBBBBBB/CCCCCCCCCCCCCC\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -184,6 +214,36 @@
 								"notification-channels",
 								"slack",
 								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notification-channels/slack/{id}",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"xxx\",\n    \"webhookUrl\": \"https://hooks.slack.com/services/xxx/xxx/xxx\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/api/v1/notification-channels/slack/7",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"slack",
+								"7"
 							]
 						}
 					},
@@ -285,6 +345,36 @@
 								"notification-channels",
 								"discord",
 								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/v1/notification-channels/discord/{id}",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"xxx\",\n    \"webhookUrl\": \"https://hooks.slack.com/services/xxx/xxx/xxx\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/api/v1/notification-channels/slack/7",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notification-channels",
+								"slack",
+								"7"
 							]
 						}
 					},
