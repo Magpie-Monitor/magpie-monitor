@@ -128,7 +128,7 @@ func (m *MetadataService) consumeApplicationMetadata() {
 	defer close(msg)
 	defer close(err)
 
-	go m.applicationMetadataBroker.Subscribe(msg, err)
+	go m.applicationMetadataBroker.Subscribe(context.TODO(), msg, err)
 
 	for {
 		select {
@@ -149,7 +149,7 @@ func (m *MetadataService) consumeNodeMetadata() {
 	defer close(msg)
 	defer close(err)
 
-	go m.nodeMetadataBroker.Subscribe(msg, err)
+	go m.nodeMetadataBroker.Subscribe(context.TODO(), msg, err)
 
 	for {
 		select {

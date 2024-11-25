@@ -71,7 +71,7 @@ func (h *ReportsHandler) ListenForReportRequests() {
 	errChan := make(chan error)
 	ctx := context.Background()
 
-	go h.reportRequestedBroker.Subscribe(requests, errChan)
+	go h.reportRequestedBroker.Subscribe(ctx, requests, errChan)
 	for {
 		select {
 		case request := <-requests:

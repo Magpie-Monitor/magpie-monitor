@@ -178,7 +178,6 @@ func TestReportHandler_ScheduleReport(t *testing.T) {
 
 	tests.RunTest(test, t, config.AppModule)
 }
-
 func TestReportHandler_ListenForReportRequests(t *testing.T) {
 
 	type TestDependencies struct {
@@ -286,45 +285,42 @@ func TestReportHandler_ListenForReportRequests(t *testing.T) {
 		)
 
 		for _, tc := range testCases {
-			t.Run(tc.description, func(t *testing.T) {
 
-				err := dependencies.ReportsRepository.DeleteAll(context.TODO())
-				assert.NoError(t, err)
+			err := dependencies.ReportsRepository.DeleteAll(context.TODO())
+			assert.NoError(t, err)
 
-				dependencies.ReportRequestedBroker.Publish("test-message", brokers.ReportRequested{
-					CorrelationId: testCorreleationId,
-					ReportRequest: *tc.request,
-				})
+			dependencies.ReportRequestedBroker.Publish("test-message", brokers.ReportRequested{
+				CorrelationId: testCorreleationId,
+				ReportRequest: *tc.request,
+			})
 
-				go dependencies.ReportHandler.ListenForReportRequests()
+			go dependencies.ReportHandler.ListenForReportRequests()
 
-				if tc.expectedErr != nil {
-					messages := make(chan brokers.ReportRequestFailed)
-					go dependencies.ReportFailedBroker.Subscribe(messages, make(chan error))
+			if tc.expectedErr != nil {
+				ctx, cancel := context.WithTimeout(context.Background(), time.Second*20*time.Duration(integrationTestWaitModifier))
 
-					ctx, _ := context.WithTimeout(context.Background(), time.Second*20*time.Duration(integrationTestWaitModifier))
-					done := ctx.Done()
+				messages := make(chan brokers.ReportRequestFailed)
+				go dependencies.ReportFailedBroker.Subscribe(ctx, messages, make(chan error))
 
-					select {
-					case message := <-messages:
-						message.TimestampMs = tc.expectedErr.TimestampMs
-						assert.Equal(t, *tc.expectedErr, message)
-						break
-					case <-done:
-						break
-					}
-
-				} else {
-					time.Sleep(time.Duration(integrationTestWaitModifier) * 20 * time.Second)
-
-					reports, err := dependencies.ReportsRepository.GetPendingGenerationReports(context.Background())
-
-					assert.NoError(t, err)
-					assert.Equal(t, 1, len(reports))
-					assert.Equal(t, testCorreleationId, reports[0].CorrelationId)
+				select {
+				case message := <-messages:
+					message.TimestampMs = tc.expectedErr.TimestampMs
+					assert.Equal(t, *tc.expectedErr, message)
+				case <-ctx.Done():
+					t.Fatal("ReportRequest request timeout")
 				}
 
-			})
+				cancel()
+			} else {
+				time.Sleep(time.Duration(integrationTestWaitModifier) * 20 * time.Second)
+
+				reports, err := dependencies.ReportsRepository.GetPendingGenerationReports(context.Background())
+
+				assert.NoError(t, err)
+				assert.Equal(t, 1, len(reports))
+				assert.Equal(t, testCorreleationId, reports[0].CorrelationId)
+			}
+
 		}
 	}
 
