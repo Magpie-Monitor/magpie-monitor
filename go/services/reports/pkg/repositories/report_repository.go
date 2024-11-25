@@ -136,6 +136,7 @@ type ReportRepository interface {
 	InsertNodeIncidents(ctx context.Context, reports []*NodeIncident) ([]*NodeIncident, error)
 	GetPendingGenerationReports(ctx context.Context) ([]*Report, error)
 	GetPendingIncidentMergingReports(ctx context.Context) ([]*Report, error)
+	DeleteAll(ctx context.Context) error
 }
 
 func (r *MongoDbReportRepository) GetPendingGenerationReports(ctx context.Context) ([]*Report, error) {
@@ -296,6 +297,11 @@ func (r *MongoDbReportRepository) UpdateReport(ctx context.Context, report *Repo
 	report.Id = id.Hex()
 
 	return nil
+}
+
+func (r *MongoDbReportRepository) DeleteAll(ctx context.Context) error {
+	_, err := r.mongoDbCollection.DeleteMany(bson.D{})
+	return err
 }
 
 type Params struct {

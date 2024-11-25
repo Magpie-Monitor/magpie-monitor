@@ -62,6 +62,11 @@ func (m *MongoDbCollection[T]) GetDistinctDocumentFieldValues(fieldName string, 
 	return col.Distinct(context.TODO(), fieldName, filter)
 }
 
+func (m *MongoDbCollection[T]) DeleteMany(filter bson.D) (interface{}, error) {
+	col := m.Client.Database(m.Db).Collection(m.Col)
+	return col.DeleteMany(context.TODO(), filter)
+}
+
 func (m *MongoDbCollection[T]) InsertDocuments(docs []interface{}) ([]primitive.ObjectID, error) {
 	col := m.Client.Database(m.Db).Collection(m.Col)
 
