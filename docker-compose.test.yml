@@ -1,29 +1,29 @@
 services:
-  # logs-ingestion-service-test:
-  #   user: "0"
-  #   container_name: magpie-monitor-test-logs-ingestion-service
-  #   build:
-  #     context: ./go
-  #     dockerfile: ./docker/logs_ingestion/Dockerfile
-  #     target: tests
-  #   environment:
-  #     - APP_ENV=test
-  #     - LOGSDB_PORT=${LOGSDB_PORT}
-  #     - LOGSDB_HOST=${LOGSDB_HOST}
-  #     - LOGSDB_USER=${LOGSDB_USER}
-  #     - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
-  #     - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
-  #     - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
-  #     - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
-  #     - LOGS_INGESTION_QUEUE_USERNAME=${KAFKA_CLIENT_USERNAME}
-  #     - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
-  #     - LOGS_INGESTION_NODE_LOGS_TOPIC=${LOGS_INGESTION_NODE_LOGS_TOPIC}
-  #     - LOGS_INGESTION_APPLICATION_LOGS_TOPIC=${LOGS_INGESTION_APPLICATION_LOGS_TOPIC}
-  #     - KAFKA_BROKER_GROUP_ID=${KAFKA_BROKER_GROUP_ID}
-  #     - INTEGRATION_TEST_WAIT_MODIFIER=${INTEGRATION_TEST_WAIT_MODIFIER}
-  #   volumes:
-  #     - es-certs:/usr/local/share
-  #     - cache:/go/pkg/mod/
+  logs-ingestion-service-test:
+    user: "0"
+    container_name: magpie-monitor-test-logs-ingestion-service
+    build:
+      context: ./go
+      dockerfile: ./docker/logs_ingestion/Dockerfile
+      target: tests
+    environment:
+      - APP_ENV=test
+      - LOGSDB_PORT=${LOGSDB_PORT}
+      - LOGSDB_HOST=${LOGSDB_HOST}
+      - LOGSDB_USER=${LOGSDB_USER}
+      - LOGSDB_PASSWORD=${LOGSDB_PASSWORD}
+      - LOGSDB_CERT_PATH=${LOGSDB_CERT_PATH}
+      - LOGS_INGESTION_QUEUE_HOST=${LOGS_INGESTION_QUEUE_HOST}
+      - LOGS_INGESTION_QUEUE_PORT=${LOGS_INGESTION_QUEUE_PORT}
+      - LOGS_INGESTION_QUEUE_USERNAME=${KAFKA_CLIENT_USERNAME}
+      - LOGS_INGESTION_QUEUE_PASSWORD=${KAFKA_CLIENT_PASSWORD}
+      - LOGS_INGESTION_NODE_LOGS_TOPIC=${LOGS_INGESTION_NODE_LOGS_TOPIC}
+      - LOGS_INGESTION_APPLICATION_LOGS_TOPIC=${LOGS_INGESTION_APPLICATION_LOGS_TOPIC}
+      - KAFKA_BROKER_GROUP_ID=${KAFKA_BROKER_GROUP_ID}
+      - INTEGRATION_TEST_WAIT_MODIFIER=${INTEGRATION_TEST_WAIT_MODIFIER}
+    volumes:
+      - es-certs:/usr/local/share
+      - cache:/go/pkg/mod/
   reports-service-test:
     user: "0"
     container_name: magpie-monitor-test-reports-service
