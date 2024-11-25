@@ -113,7 +113,7 @@ func (p *BatchPoller) tokensFromJob(job *OpenAiJob) (int64, error) {
 	completionTokens := p.maxCompletionOutputTokens * len(job.CompletionRequests)
 
 	batchFile := bytes.NewBufferString("")
-	var completionRequestContent = make([]*CompletionRequest, len(job.CompletionRequests))
+	var completionRequestContent = make([]*CompletionRequest, 0, len(job.CompletionRequests))
 	for _, value := range job.CompletionRequests {
 		completionRequestContent = append(completionRequestContent, value)
 	}
@@ -124,7 +124,7 @@ func (p *BatchPoller) tokensFromJob(job *OpenAiJob) (int64, error) {
 		return 0, err
 	}
 
-	completionTokens += batchFile.Len() / CHARS_PER_OPENAI_TOKEN
+	completionTokens += (batchFile.Len() / CHARS_PER_OPENAI_TOKEN)
 
 	return int64(completionTokens), nil
 }
