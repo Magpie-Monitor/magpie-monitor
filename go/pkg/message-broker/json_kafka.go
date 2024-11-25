@@ -30,24 +30,30 @@ func (b *KafkaJsonMessageBroker[T]) Publish(key string, message T) error {
 	return b.broker.Publish(context.Background(), []byte(key), encodedMessage)
 }
 
-func (b *KafkaJsonMessageBroker[T]) Subscribe(messages chan<- T, errors chan<- error) {
+func (b *KafkaJsonMessageBroker[T]) Subscribe(ctx context.Context, messages chan<- T, errors chan<- error) {
 
 	msgChannel := make(chan []byte)
 
-	go b.broker.Subscribe(context.Background(), msgChannel, errors)
+	go b.broker.Subscribe(ctx, msgChannel, errors)
 
 	for {
-		message := <-msgChannel
-		var decodedMessage T
+		select {
+		case message := <-msgChannel:
+			var decodedMessage T
 
-		err := json.Unmarshal(message, &decodedMessage)
-		if err != nil {
-			b.logger.Error("Failed to decode broker json message", zap.Error(err),
-				zap.Any("messsage", message))
-			errors <- err
+			err := json.Unmarshal(message, &decodedMessage)
+			if err != nil {
+				b.logger.Error("Failed to decode broker json message", zap.Error(err),
+					zap.Any("messsage", message))
+				errors <- err
+			}
+
+			messages <- decodedMessage
+
+		case <-ctx.Done():
+			b.logger.Info("KafkaJsonMessageBroker conext was cancelled")
+			break
 		}
-
-		messages <- decodedMessage
 
 	}
 
