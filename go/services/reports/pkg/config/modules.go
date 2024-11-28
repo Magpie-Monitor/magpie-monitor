@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/elasticsearch"
 	sharedrepositories "github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
-	// "github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/tests"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/brokers"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/internal/database"
@@ -33,13 +32,9 @@ func init() {
 			}),
 			fx.Provide(
 
-				// routing.NewRootRouter,
 				services.NewReportsService,
-				// handlers.NewReportsRouter,
 				handlers.NewReportsHandler,
 
-				// handlers.NewIncidentsRouter,
-				// handlers.NewIncidentHandler,
 				services.NewNodeIncidentsService,
 				services.NewApplicationIncidentsService,
 
@@ -113,14 +108,9 @@ func init() {
 			}),
 			fx.Provide(
 
-				// insights.NewOpenAiInsightsGenerator,
-				// routing.NewRootRouter,
 				services.NewReportsService,
-				// handlers.NewReportsRouter,
 				handlers.NewReportsHandler,
 
-				// handlers.NewIncidentsRouter,
-				// handlers.NewIncidentHandler,
 				services.NewNodeIncidentsService,
 				services.NewApplicationIncidentsService,
 

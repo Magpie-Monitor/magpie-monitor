@@ -52,7 +52,7 @@ func (b *KafkaJsonMessageBroker[T]) Subscribe(ctx context.Context, messages chan
 
 		case <-ctx.Done():
 			b.logger.Info("KafkaJsonMessageBroker conext was cancelled")
-			break
+			return
 		}
 
 	}

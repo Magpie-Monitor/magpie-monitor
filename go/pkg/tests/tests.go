@@ -23,7 +23,5 @@ func RunTest[T any](test func(dependencies T), t *testing.T, appModule fx.Option
 	)
 
 	app.Start(context.Background())
-	// app.RequireStart()
-	// app.RequireStop()
 	app.Stop(context.Background())
 }
