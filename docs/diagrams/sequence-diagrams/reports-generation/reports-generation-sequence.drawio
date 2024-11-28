@@ -1,0 +1,223 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:132.0) Gecko/20100101 Firefox/132.0" version="24.9.3">
+  <diagram name="Page-1" id="13e1069c-82ec-6db2-03f1-153e76fe0fe0">
+    <mxGraphModel dx="1490" dy="1566" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ALFuxbj99j44AXitxbVv-17" value=":OpenAI model" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#bac8d3;strokeColor=#23445d;" vertex="1" parent="1">
+          <mxGeometry x="950" y="90" width="100" height="580" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-18" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#bac8d3;strokeColor=#23445d;" vertex="1" parent="ALFuxbj99j44AXitxbVv-17">
+          <mxGeometry x="45" y="110" width="10" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="7baba1c4bc27f4b0-2" value=":Management service" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#fad7ac;strokeColor=#b46504;" parent="1" vertex="1">
+          <mxGeometry x="190" y="90" width="100" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="7baba1c4bc27f4b0-10" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#fad7ac;strokeColor=#b46504;" parent="7baba1c4bc27f4b0-2" vertex="1">
+          <mxGeometry x="45" y="100" width="10" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="7baba1c4bc27f4b0-3" value=":Report Request Failed Queue" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="600" y="90" width="110" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="7baba1c4bc27f4b0-8" value=":Web client" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#bac8d3;strokeColor=#23445d;" parent="1" vertex="1">
+          <mxGeometry x="30" y="90" width="100" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="7baba1c4bc27f4b0-9" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#bac8d3;strokeColor=#23445d;" parent="7baba1c4bc27f4b0-8" vertex="1">
+          <mxGeometry x="45" y="100" width="10" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="7baba1c4bc27f4b0-11" value="1.1 Request a report" style="html=1;verticalAlign=bottom;endArrow=block;entryX=0;entryY=0;labelBackgroundColor=none;fontFamily=Verdana;fontSize=12;edgeStyle=elbowEdgeStyle;elbow=vertical;" parent="1" source="7baba1c4bc27f4b0-9" target="7baba1c4bc27f4b0-10" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="150" y="200" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-1" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=1;collapsible=0;width=60;height=30;" vertex="1" parent="1">
+          <mxGeometry x="110" y="230" width="320" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-2" value="[Is report scheduled]" style="text;html=1;" vertex="1" parent="ALFuxbj99j44AXitxbVv-1">
+          <mxGeometry width="100" height="20" relative="1" as="geometry">
+            <mxPoint x="10" y="30" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-3" value="[else]" style="line;strokeWidth=1;dashed=1;labelPosition=center;verticalLabelPosition=bottom;align=left;verticalAlign=top;spacingLeft=20;spacingTop=15;html=1;whiteSpace=wrap;" vertex="1" parent="ALFuxbj99j44AXitxbVv-1">
+          <mxGeometry y="125" width="320" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-4" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=#fad7ac;strokeColor=#b46504;" vertex="1" parent="ALFuxbj99j44AXitxbVv-1">
+          <mxGeometry x="130" y="60" width="10" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-5" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.924;exitY=0.156;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="7baba1c4bc27f4b0-10" target="ALFuxbj99j44AXitxbVv-4">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="340" y="320" as="sourcePoint" />
+            <mxPoint x="390" y="270" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="290" y="284" />
+              <mxPoint x="290" y="310" />
+              <mxPoint x="270" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-6" value="1.1.1: Configure report to be generated cyclicly" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ALFuxbj99j44AXitxbVv-5">
+          <mxGeometry x="-0.0407" y="3" relative="1" as="geometry">
+            <mxPoint x="117" y="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-7" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.311;exitY=0.433;exitDx=0;exitDy=0;exitPerimeter=0;entryX=-0.159;entryY=0.596;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="7baba1c4bc27f4b0-10" target="ALFuxbj99j44AXitxbVv-10">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="310" y="450" as="sourcePoint" />
+            <mxPoint x="390" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-8" value="1.2:&amp;nbsp; Publish request for report generation" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ALFuxbj99j44AXitxbVv-7">
+          <mxGeometry x="-0.0048" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-9" value=":Report Requested Queue" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="470" y="90" width="120" height="740" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-10" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="ALFuxbj99j44AXitxbVv-9">
+          <mxGeometry x="55" y="110" width="10" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-29" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;" vertex="1" parent="ALFuxbj99j44AXitxbVv-9">
+          <mxGeometry x="-420" y="500" width="825" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="7baba1c4bc27f4b0-13" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" parent="ALFuxbj99j44AXitxbVv-9" vertex="1">
+          <mxGeometry x="180" y="515" width="10" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-31" value="[report failed to generate]" style="text;html=1;" vertex="1" parent="ALFuxbj99j44AXitxbVv-9">
+          <mxGeometry x="-380" y="530" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-30" value="[else]" style="line;strokeWidth=1;dashed=1;labelPosition=center;verticalLabelPosition=bottom;align=left;verticalAlign=top;spacingLeft=20;spacingTop=15;html=1;whiteSpace=wrap;" vertex="1" parent="ALFuxbj99j44AXitxbVv-9">
+          <mxGeometry x="-420" y="620" width="840" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-38" value="" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="ALFuxbj99j44AXitxbVv-9">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-235" y="610" as="sourcePoint" />
+            <mxPoint x="-390" y="611" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-39" value="1.7.1.2: Return failed report " style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ALFuxbj99j44AXitxbVv-38">
+          <mxGeometry x="0.1286" relative="1" as="geometry">
+            <mxPoint x="10" y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-11" value=":Report Generated Queue" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="720" y="90" width="100" height="730" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-12" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="ALFuxbj99j44AXitxbVv-11">
+          <mxGeometry x="42.5" y="650" width="15" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-13" value=":Reports Service" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;rounded=1;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="830" y="90" width="100" height="750" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-14" value="" style="html=1;points=[];perimeter=orthogonalPerimeter;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;align=center;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="ALFuxbj99j44AXitxbVv-13">
+          <mxGeometry x="45" y="110" width="10" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-19" value="" style="endArrow=classic;html=1;rounded=0;exitX=1.386;exitY=0.778;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="ALFuxbj99j44AXitxbVv-13">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="54.999999999999886" y="410" as="sourcePoint" />
+            <mxPoint x="165.64" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-20" value="1.4: Send logs and metadata to generate report with a LLM" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ALFuxbj99j44AXitxbVv-19">
+          <mxGeometry x="-0.2769" y="2" relative="1" as="geometry">
+            <mxPoint x="125" y="-38" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-21" value="" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="ALFuxbj99j44AXitxbVv-13">
+          <mxGeometry x="55" y="440" width="10" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-33" value="" style="endArrow=classic;html=1;rounded=0;exitX=-0.043;exitY=0.866;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.643;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;" edge="1" parent="ALFuxbj99j44AXitxbVv-13" target="7baba1c4bc27f4b0-13">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="55" y="560" as="sourcePoint" />
+            <mxPoint x="-50" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-34" value="1.7.1: Publish report request failed message" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ALFuxbj99j44AXitxbVv-33">
+          <mxGeometry x="0.1049" relative="1" as="geometry">
+            <mxPoint x="9" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-15" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.529;exitY=0.655;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="ALFuxbj99j44AXitxbVv-10" target="ALFuxbj99j44AXitxbVv-13">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="480" y="460" as="sourcePoint" />
+            <mxPoint x="530" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-16" value="1.3:&amp;nbsp; Consume report requested message" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ALFuxbj99j44AXitxbVv-15">
+          <mxGeometry x="0.0022" y="3" relative="1" as="geometry">
+            <mxPoint y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-22" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0;exitDx=0;exitDy=5;exitPerimeter=0;" edge="1" parent="1" source="ALFuxbj99j44AXitxbVv-21" target="ALFuxbj99j44AXitxbVv-17">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="670" y="420" as="sourcePoint" />
+            <mxPoint x="720" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-23" value="1.5: Await for model output" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ALFuxbj99j44AXitxbVv-22">
+          <mxGeometry x="-0.1427" y="-2" relative="1" as="geometry">
+            <mxPoint x="30" y="-17" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-25" value="" style="endArrow=classic;html=1;rounded=0;exitX=-0.043;exitY=0.866;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.9;entryY=0.367;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;" edge="1" parent="1" source="ALFuxbj99j44AXitxbVv-14" target="ALFuxbj99j44AXitxbVv-12">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="600" y="510" as="sourcePoint" />
+            <mxPoint x="650" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-40" value="1.7.2: Publish report generated message" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ALFuxbj99j44AXitxbVv-25">
+          <mxGeometry x="0.4813" relative="1" as="geometry">
+            <mxPoint x="88" y="-15" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-27" value="" style="html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=block;endFill=1;dashed=1;rounded=0;entryX=1;entryY=1;entryDx=0;entryDy=-5;entryPerimeter=0;" edge="1" parent="1" source="ALFuxbj99j44AXitxbVv-17" target="ALFuxbj99j44AXitxbVv-21">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="540" y="490" as="sourcePoint" />
+            <mxPoint x="700" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-28" value="1.6: Retrieve model output" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ALFuxbj99j44AXitxbVv-27">
+          <mxGeometry x="-0.1511" y="2" relative="1" as="geometry">
+            <mxPoint x="15" y="-17" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-35" value="" style="endArrow=classic;html=1;rounded=0;entryX=1.153;entryY=0.801;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;" edge="1" parent="1" target="7baba1c4bc27f4b0-10">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="649" y="670" as="sourcePoint" />
+            <mxPoint x="560" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-36" value="1.7.1.1: Consume message and update report as failed " style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ALFuxbj99j44AXitxbVv-35">
+          <mxGeometry x="0.1286" relative="1" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-41" value="" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1" target="7baba1c4bc27f4b0-2">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="760" y="770" as="sourcePoint" />
+            <mxPoint x="760" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-43" value="1.7.2.1: Consume message and update report as generated " style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ALFuxbj99j44AXitxbVv-41">
+          <mxGeometry x="0.0143" y="-2" relative="1" as="geometry">
+            <mxPoint x="-76" y="-8" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-44" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.93;entryY=0.986;entryDx=0;entryDy=0;entryPerimeter=0;exitX=-0.008;exitY=0.985;exitDx=0;exitDy=0;exitPerimeter=0;dashed=1;" edge="1" parent="1" source="7baba1c4bc27f4b0-10" target="7baba1c4bc27f4b0-9">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="230" y="780" as="sourcePoint" />
+            <mxPoint x="300" y="730" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-45" value="1.7.2.2: Return generated report" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ALFuxbj99j44AXitxbVv-44">
+          <mxGeometry x="-0.0632" y="1" relative="1" as="geometry">
+            <mxPoint x="-5" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ALFuxbj99j44AXitxbVv-46" value="Report generation" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;recursiveResize=0;container=1;collapsible=0;width=160;" vertex="1" parent="1">
+          <mxGeometry y="40" width="1210" height="810" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
