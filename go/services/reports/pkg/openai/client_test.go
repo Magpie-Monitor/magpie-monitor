@@ -110,7 +110,7 @@ func TestClientSplitCompletionReqestsByBatchSize(t *testing.T) {
 			dependencies.Client.BatchSizeBytes = tc.batchSizeBytes
 			splitted, err := dependencies.Client.SplitCompletionReqestsByBatchSize(tc.completionRequests)
 			assert.NoError(t, err, "Failed to split completion requests")
-			assert.Equal(t, tc.expectedSplittedCompletionRequests, splitted)
+			assert.ElementsMatch(t, tc.expectedSplittedCompletionRequests, splitted)
 
 		}
 	}

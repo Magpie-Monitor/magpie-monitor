@@ -91,7 +91,6 @@ func PrefillApplicationLogs(
 
 	for index := range indexes {
 		applicationLogsRepository.RemoveIndex(ctx, index)
-		// assert.NoError(t, err, "Failed to remove index")
 	}
 
 	insertedLogsIds := make([]string, 0, 0)
