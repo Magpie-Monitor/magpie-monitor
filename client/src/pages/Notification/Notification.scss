@@ -3,7 +3,7 @@
 .notification {
   height: 100vh;
   width: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
   flex-grow: 1;
   padding: 20px;
   display: flex;

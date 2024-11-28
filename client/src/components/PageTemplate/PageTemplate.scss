@@ -1,7 +1,7 @@
 @import '@/variables';
 
 .page-template {
-  overflow-y: scroll;
+  overflow-y: auto;
   flex-grow: 1;
   width: 100%;
   padding: 1rem;
