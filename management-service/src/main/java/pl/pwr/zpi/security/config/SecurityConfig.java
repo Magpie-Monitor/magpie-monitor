@@ -44,12 +44,10 @@ public class SecurityConfig {
                             "/public/api/**",
                             "/v3/api-docs/**",
                             "/swagger-ui/**",
-                            "/api/v1/auth/login",
+                            "/api/v1/auth/**",
                             "/login/oauth2/code/**",
-                            "/",
-                            "/login**",
                             "/error"
-                            ).permitAll();
+                    ).permitAll();
                     request.anyRequest().authenticated();
                 })
                 .oauth2Login(oauth2 -> oauth2
@@ -64,7 +62,7 @@ public class SecurityConfig {
                         .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)))
                 .addFilterBefore(new OauthAuthenticator(authorizedClientService), AuthorizationFilter.class)
                 .exceptionHandling(exception ->
-                    exception.accessDeniedHandler(accessDeniedHandler())
+                        exception.accessDeniedHandler(accessDeniedHandler())
                 );
         return http.build();
     }
