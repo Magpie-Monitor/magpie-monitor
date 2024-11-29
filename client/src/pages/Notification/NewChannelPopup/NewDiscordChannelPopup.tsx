@@ -16,6 +16,7 @@ import LabelInput, {
 } from 'components/LabelInput/LabelInput';
 import NewChannelPopupHeader from 'pages/Notification/NewChannelPopupHeader/NewChannelPopupHeader';
 import { discordWebhookValidation } from 'lib/validators';
+import { useToast } from 'providers/ToastProvider/ToastProvider';
 
 const defaultDiscordChannel: DiscordChannelForm = {
   name: '',
@@ -30,15 +31,23 @@ const NewDiscordChannelPopup = ({
   const [discordChannel, setDiscordChannel] = useState<DiscordChannelForm>(
     defaultDiscordChannel,
   );
+  const { showMessage } = useToast();
 
   const createDiscordChannel = async () => {
     if (discordChannel === defaultDiscordChannel) return;
 
     try {
       await ManagmentServiceApiInstance.postDiscordChannel(discordChannel);
+      showMessage({
+        message: 'Notification channel was created',
+        type: 'INFO',
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('Error posting slack channels: ', error);
+      showMessage({
+        message: `Failed to add discord channel ${error}`,
+        type: 'ERROR',
+      });
     } finally {
       setIsDisplayed(false);
       onSubmit();

@@ -94,15 +94,33 @@ const SlackTable = () => {
             setIsEditChannelPopupDisplayed(true);
             setEditChannelPopupData(props);
           }}
-          onTest={() => {
-            showMessage({
-              message: 'Test notification was sent',
-              type: 'ERROR',
-            });
-            // ManagmentServiceApiInstance.testSlackChannel(props.id);
+          onTest={async () => {
+            try {
+              await ManagmentServiceApiInstance.testSlackChannel(props.id);
+              showMessage({
+                message: 'Test notification was sent',
+                type: 'INFO',
+              });
+            } catch (e: unknown) {
+              showMessage({
+                message: `Failed to send notification: ${e}`,
+                type: 'ERROR',
+              });
+            }
           }}
           onDelete={async () => {
-            await ManagmentServiceApiInstance.deleteSlackChannel(props.id);
+            try {
+              await ManagmentServiceApiInstance.deleteSlackChannel(props.id);
+              showMessage({
+                message: 'Slack channel was deleted',
+                type: 'WARNING',
+              });
+            } catch (e: unknown) {
+              showMessage({
+                message: `Failed to delete slack channel: ${e}`,
+                type: 'ERROR',
+              });
+            }
             setLoading(true);
           }}
         />
