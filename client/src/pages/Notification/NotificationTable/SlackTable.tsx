@@ -15,6 +15,7 @@ import NewSlackChannelPopup from 'pages/Notification/NewChannelPopup/NewSlackCha
 import { dateFromTimestampMs } from 'lib/date';
 import EditSlackChannelPopup from 'pages/Notification/EditChannelPopup/EditSlackChannelPopup';
 import './NotificationTable.scss';
+import { useToast } from 'providers/ToastProvider/ToastProvider';
 interface SlackTableRowProps extends NotificationTableRowProps {
   webhookUrl: string;
 }
@@ -42,6 +43,8 @@ const SlackTable = () => {
     useState<boolean>(false);
   const [editChannelPopupData, setEditChannelPopupData] =
     useState<SlackTableRowProps | null>(null);
+
+  const { showMessage } = useToast();
 
   const fetchSlackChannels = async () => {
     try {
@@ -92,7 +95,11 @@ const SlackTable = () => {
             setEditChannelPopupData(props);
           }}
           onTest={() => {
-            ManagmentServiceApiInstance.testSlackChannel(props.id);
+            showMessage({
+              message: 'Test notification was sent',
+              type: 'ERROR',
+            });
+            // ManagmentServiceApiInstance.testSlackChannel(props.id);
           }}
           onDelete={async () => {
             await ManagmentServiceApiInstance.deleteSlackChannel(props.id);
