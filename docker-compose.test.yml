@@ -21,7 +21,6 @@ services:
       - LOGS_INGESTION_APPLICATION_LOGS_TOPIC=${LOGS_INGESTION_APPLICATION_LOGS_TOPIC}
       - KAFKA_BROKER_GROUP_ID=${KAFKA_BROKER_GROUP_ID}
       - INTEGRATION_TEST_WAIT_MODIFIER=${INTEGRATION_TEST_WAIT_MODIFIER}
-
     volumes:
       - es-certs:/usr/local/share
       - cache:/go/pkg/mod/
@@ -77,6 +76,7 @@ services:
       dockerfile: ./docker/reports/Dockerfile
       target: tests
     volumes:
+      - es-certs:/usr/local/share
       - cache:/go/pkg/mod/
     environment:
       - APP_ENV=test
