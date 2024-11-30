@@ -20,15 +20,16 @@
     height: 100%;
     column-gap: 10px;
     row-gap: 10px;
+    flex-grow: 1;
   }
 
   &__chart {
     flex-grow: 1;
-    margin: 20px;
+    margin: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: $navbar-text-color;
-    min-width: 30%;
+    min-width: 20%;
   }
 }
