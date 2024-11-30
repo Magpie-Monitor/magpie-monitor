@@ -68,6 +68,7 @@ services:
     volumes:
       - es-certs:/usr/local/share
       - cache:/go/pkg/mod/
+      
   reports-service-test:
     user: "0"
     container_name: magpie-monitor-test-reports-service
