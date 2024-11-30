@@ -15,16 +15,11 @@ import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import Spinner from 'components/Spinner/Spinner.tsx';
 import {dateFromTimestampMs} from 'lib/date.ts';
 import './Reports.scss';
-import CustomTag from 'components/CustomTag/CustomTag.tsx';
 
 const Reports = () => {
   const [rowsOnDemand, setRowsOnDemand] = useState<ReportSummary[]>([]);
   const [rowsScheduled, setRowsScheduled] = useState<ReportSummary[]>([]);
-  const [rowsAwaitingGeneration, setRowsAwaitingGeneration] =
-    useState<ReportAwaitingGeneration[]>([]);
-  const [loadingOnDemand, setLoadingOnDemand] = useState<boolean>(true);
-  const [loadingScheduled, setLoadingScheduled] = useState<boolean>(true);
-  const [loadingAwaitGeneration, setLoadingAwaitGeneration] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
   const handleRowClick = (id: string) => {
@@ -46,27 +41,8 @@ const Reports = () => {
       header: 'Urgency',
       columnKey: 'urgency',
       customComponent: (row: ReportSummary) => (
-        <UrgencyBadge label={row.urgency}/>
+        row.urgency ? <UrgencyBadge label={row.urgency}/> : null
       ),
-    },
-    {header: 'Start date', columnKey: 'startDate'},
-    {header: 'End date', columnKey: 'endDate'},
-  ];
-
-  const columnsGenerating: Array<TableColumn<ReportAwaitingGeneration>> = [
-    {
-      header: 'Cluster',
-      columnKey: 'clusterId',
-      customComponent: (row: ReportAwaitingGeneration) => (
-        <LinkComponent to="">
-          {row.clusterId}
-        </LinkComponent>
-      ),
-    },
-    {
-      header: 'Report Type',
-      columnKey: 'reportType',
-      customComponent: (row: ReportAwaitingGeneration) => <CustomTag name={row.reportType}/>,
     },
     {header: 'Start date', columnKey: 'startDate'},
     {header: 'End date', columnKey: 'endDate'},
@@ -74,17 +50,16 @@ const Reports = () => {
 
   const fetchReportsOnDemand = async () => {
     try {
-      const reports = await ManagmentServiceApiInstance.getReports('ON-DEMAND');
+      const reports = await ManagmentServiceApiInstance.getReports('ON_DEMAND');
       const mappedReports = reports.map((report: ReportSummary) => ({
         ...report,
         startDate: dateFromTimestampMs(report.sinceMs),
         endDate: dateFromTimestampMs(report.toMs),
-      }));
+      }))
+        .sort((a, b) => b.requestedAtMs - a.requestedAtMs);
       setRowsOnDemand(mappedReports);
     } catch (error) {
       console.error('Error fetching on-demand reports:', error);
-    } finally {
-      setLoadingOnDemand(false);
     }
   };
 
@@ -95,12 +70,11 @@ const Reports = () => {
         ...report,
         startDate: dateFromTimestampMs(report.sinceMs),
         endDate: dateFromTimestampMs(report.toMs),
-      }));
+      }))
+        .sort((a, b) => b.requestedAtMs - a.requestedAtMs);
       setRowsScheduled(mappedReports);
     } catch (error) {
       console.error('Error fetching scheduled reports:', error);
-    } finally {
-      setLoadingScheduled(false);
     }
   };
 
@@ -109,21 +83,46 @@ const Reports = () => {
       const reports = await ManagmentServiceApiInstance.getAwaitingGenerationReports();
       const mappedReports = reports.map((report: ReportAwaitingGeneration) => ({
         ...report,
+        id: `${report.clusterId}-${report.sinceMs}`,
+        title: 'Awaiting generation...',
         startDate: dateFromTimestampMs(report.sinceMs),
         endDate: dateFromTimestampMs(report.toMs),
+        urgency: null,
+        requestedAtMs: Date.now(),
       }));
-      setRowsAwaitingGeneration(mappedReports);
+
+      const onDemandReports = mappedReports.filter(report => report.reportType === 'ON_DEMAND');
+      const scheduledReports = mappedReports.filter(report => report.reportType === 'SCHEDULED');
+
+      setRowsOnDemand(prev => [
+        ...onDemandReports.map(report => ({
+          ...report
+        })).sort((a, b) => b.requestedAtMs - a.requestedAtMs),
+        ...prev,
+      ]);
+
+      setRowsScheduled(prev => [
+        ...scheduledReports.map(report => ({
+          ...report
+        })).sort((a, b) => b.requestedAtMs - a.requestedAtMs),
+        ...prev,
+      ]);
     } catch (error) {
       console.error('Error fetching generating reports:', error);
-    } finally {
-      setLoadingAwaitGeneration(false);
     }
   };
 
   useEffect(() => {
-    fetchReportsOnDemand();
-    fetchReportsScheduled();
-    fetchReportAwaitingGenerations();
+    const fetchAllReports = async () => {
+      setLoading(true);
+      await Promise.all([
+        fetchReportsOnDemand(),
+        fetchReportsScheduled(),
+        fetchReportAwaitingGenerations(),
+      ]);
+      setLoading(false);
+    };
+    fetchAllReports();
   }, []);
 
   return (
@@ -136,24 +135,11 @@ const Reports = () => {
       }
     >
       <div className="reports">
-        {rowsAwaitingGeneration.length > 0 && (
-          <SectionComponent
-            icon={<SVGIcon iconName="chart-icon"/>}
-            title={'Reports awaiting generation'}
-          >
-            {loadingAwaitGeneration ? (
-              <Spinner/>
-            ) : (
-              <Table columns={columnsGenerating} rows={rowsAwaitingGeneration}/>
-            )}
-          </SectionComponent>
-        )}
-
         <SectionComponent
           icon={<SVGIcon iconName="chart-icon"/>}
           title={'Generated reports scheduled'}
         >
-          {loadingScheduled ? (
+          {loading ? (
             <Spinner/>
           ) : rowsScheduled.length === 0 ? (
             <>
@@ -169,7 +155,7 @@ const Reports = () => {
           icon={<SVGIcon iconName="chart-icon"/>}
           title={'Generated reports on demand'}
         >
-          {loadingOnDemand ? (
+          {loading ? (
             <Spinner/>
           ) : rowsOnDemand.length === 0 ? (
             <>

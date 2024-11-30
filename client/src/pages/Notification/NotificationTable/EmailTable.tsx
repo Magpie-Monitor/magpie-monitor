@@ -12,7 +12,7 @@ import {
 import LoadingTable from './LoadingTable';
 import EmailColumn from 'pages/Notification/EmailCell/EmailCell';
 import NewEmailChannelPopup from 'pages/Notification/NewChannelPopup/NewEmailChannelPopup';
-import { dateFromTimestampMs } from 'lib/date';
+import { dateTimeFromTimestampMs } from 'lib/date';
 import EditEmailChannelPopup from 'pages/Notification/EditChannelPopup/EditEmailChannelPopup';
 import './NotificationTable.scss';
 
@@ -28,8 +28,8 @@ const getEmailChannelTableRow = ({
   receiverEmail,
 }: EmailNotificationChannel): EmailTableRowProps => ({
   name: receiverName,
-  updatedAt: dateFromTimestampMs(updatedAt),
-  createdAt: dateFromTimestampMs(createdAt),
+  updatedAt: dateTimeFromTimestampMs(updatedAt),
+  createdAt: dateTimeFromTimestampMs(createdAt),
   email: receiverEmail,
   id,
 });

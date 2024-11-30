@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import TagButton from 'components/TagButton/TagButton';
-import { dateFromTimestampMs } from 'lib/date';
+import { dateTimeFromTimestampMs } from 'lib/date';
 import './SchedulePeriod.scss';
 
 export interface SchedulePeriodProps {
@@ -34,7 +34,7 @@ const SchedulePeriod: React.FC<SchedulePeriodProps> = ({ setGenerationPeriod }) 
             const now = Date.now();
             const periodMs = periodToMilliseconds[period] || 0;
             const nextTimestamp = now + periodMs;
-            setNextReportDate(dateFromTimestampMs(nextTimestamp));
+            setNextReportDate(dateTimeFromTimestampMs(nextTimestamp));
         };
 
         calculateNextReportDate();

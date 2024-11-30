@@ -6,7 +6,7 @@ import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import NotificationsEntriesSelector
     from 'components/EntriesSelector/NotificationsEntriesSelector/NotificationsEntriesSelector.tsx';
 import {ManagmentServiceApiInstance} from 'api/managment-service.ts';
-import {dateFromTimestampMs} from 'lib/date.ts';
+import {dateTimeFromTimestampMs} from 'lib/date.ts';
 
 export interface NotificationChannel {
     id: string;
@@ -42,8 +42,8 @@ const NotificationSection: React.FC<NotificationSectionProps> = ({
                   name: channel.name,
                   service: channel.service,
                   details: channel.details,
-                  updated: dateFromTimestampMs(channel.updated),
-                  added: dateFromTimestampMs(channel.added),
+                  updated: dateTimeFromTimestampMs(channel.updated),
+                  added: dateTimeFromTimestampMs(channel.added),
               }),
             ))
         } catch (error) {

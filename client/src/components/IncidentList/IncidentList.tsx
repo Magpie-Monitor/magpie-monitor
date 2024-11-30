@@ -1,6 +1,6 @@
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import './IncidentList.scss';
-import { dateFromTimestampMs } from 'lib/date';
+import { dateTimeFromTimestampMs } from 'lib/date';
 import { GenericIncident } from 'types/incident';
 import { UrgencyLevel } from '@api/managment-service';
 
@@ -44,7 +44,7 @@ const IncidentList = ({ incidents, onClick }: IncidentListProps) => {
           </div>
           <div className="incident-list__entry__summary">{incident.title}</div>
           <div className="incident-list__entry__date">
-            {dateFromTimestampMs(incident.timestamp)}
+            {dateTimeFromTimestampMs(incident.timestamp)}
           </div>
         </div>
       ))}

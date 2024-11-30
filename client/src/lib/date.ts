@@ -1,8 +1,12 @@
 export const defaultDateFromUnixTimestamp = (timestamp: number): string =>
   new Date(timestamp * 1000).toLocaleString();
 
-export const dateFromTimestampMs = (timestamp: number): string => {
+export const dateTimeFromTimestampMs = (timestamp: number): string => {
   return new Date(timestamp).toLocaleString();
+};
+
+export const dateFromTimestampMs = (timestamp: number): string => {
+  return new Date(timestamp).toLocaleDateString();
 };
 
 export const dateOnlyFromTimestampMs = (timestamp: number): string => {
