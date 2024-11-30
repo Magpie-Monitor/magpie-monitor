@@ -1,4 +1,5 @@
 import 'pages/ReportDetails/ReportDetails.scss';
+import './Subsection.scss';
 
 interface ReportDetailsSubsectionProps {
   title: string;
