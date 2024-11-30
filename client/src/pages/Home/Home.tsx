@@ -18,8 +18,11 @@ const Home = () => {
         ]);
         const reports = [...onDemandReports, ...scheduledReports];
         if (reports.length > 0) {
-          reports.sort((a, b) => b.requestedAtMs - a.requestedAtMs);
-          setLastReportId(reports[0].id);
+          // reports.sort((a, b) => b.requestedAtMs - a.requestedAtMs);
+          const report = reports.find(
+            (currReport) => currReport.id == '674479c22ea0268d0801f4e4',
+          );
+          setLastReportId(report!.id);
         }
       } catch (e: unknown) {
         console.error('Failed to fetch reports');

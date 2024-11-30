@@ -22,7 +22,8 @@ import { useNavigate } from 'react-router-dom';
 const statItems = (
   report: ReportDetails,
   stats: IncidentStats,
-): StatItemData[] => [
+): StatItemData[] => {
+  const defaultStats: StatItemData[] = [
     {
       title: 'Analyzed apps',
       value: report.analyzedApplications,
@@ -65,13 +66,42 @@ const statItems = (
       unit: 'entries',
       valueColor: colors.urgency.low,
     },
-    {
-      title: 'Node with most incidents',
-      value: stats.nodeWithMostIncidents.nodeName,
-      unit: 'entries',
-      valueColor: colors.urgency.low,
-    },
   ];
+
+  if (stats.nodeWithMostIncidents.nodeName) {
+    defaultStats.push({
+      title: 'Node with highest number of incidents',
+      value: stats.nodeWithMostIncidents.nodeName,
+      unit: '',
+      valueColor: colors.urgency.low,
+    });
+
+    defaultStats.push({
+      title: `Incidents from ${stats.nodeWithMostIncidents.numberOfIncidents}`,
+      value: stats.nodeWithMostIncidents.numberOfIncidents,
+      unit: 'incidents',
+      valueColor: colors.urgency.low,
+    });
+  }
+
+  if (stats.applicationWithMostIncidents.applicationName) {
+    defaultStats.push({
+      title: 'Application with highest number of incidents',
+      value: stats.applicationWithMostIncidents.applicationName,
+      unit: '',
+      valueColor: colors.urgency.low,
+    });
+
+    defaultStats.push({
+      title: `Incidents from ${stats.applicationWithMostIncidents.applicationName}`,
+      value: stats.applicationWithMostIncidents.numberOfIncidents,
+      unit: 'incidents',
+      valueColor: colors.urgency.low,
+    });
+  }
+
+  return defaultStats;
+};
 
 const ReportDetailsSection = ({
   report,
@@ -114,24 +144,26 @@ const ReportDetailsSection = ({
                 urgencyIncidentCount={urgencyIncidentCount(incidentStats)}
               />
             </ReportDetailsSubsection>
-
-            <ReportDetailsSubsection title="Application incidents">
-              <IncidentList
-                incidents={genericIncidentsFromApplicationIncidents(
-                  incidents.applicationIncidents,
-                )}
-                onClick={handleApplicationIncidentNavigation}
-              />
-            </ReportDetailsSubsection>
-
-            <ReportDetailsSubsection title="Node incidents">
-              <IncidentList
-                incidents={genericIncidentsFromNodeIncidents(
-                  incidents.nodeIncidents,
-                )}
-                onClick={handleNodeIncidentNavigation}
-              />
-            </ReportDetailsSubsection>
+            {incidents.applicationIncidents.length > 0 && (
+              <ReportDetailsSubsection title="Application incidents">
+                <IncidentList
+                  incidents={genericIncidentsFromApplicationIncidents(
+                    incidents.applicationIncidents,
+                  )}
+                  onClick={handleApplicationIncidentNavigation}
+                />
+              </ReportDetailsSubsection>
+            )}
+            {incidents.nodeIncidents.length > 0 && (
+              <ReportDetailsSubsection title="Node incidents">
+                <IncidentList
+                  incidents={genericIncidentsFromNodeIncidents(
+                    incidents.nodeIncidents,
+                  )}
+                  onClick={handleNodeIncidentNavigation}
+                />
+              </ReportDetailsSubsection>
+            )}
           </div>
         )}
       </div>
