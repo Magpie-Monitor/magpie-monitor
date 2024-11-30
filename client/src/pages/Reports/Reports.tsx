@@ -13,7 +13,7 @@ import PageTemplate from 'components/PageTemplate/PageTemplate';
 import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/HeaderWithIcon';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import Spinner from 'components/Spinner/Spinner.tsx';
-import {dateFromTimestampMs} from 'lib/date.ts';
+import {dateFromTimestampMs, dateTimeWithoutSecondsFromTimestampMs} from 'lib/date.ts';
 import './Reports.scss';
 
 const Reports = () => {
@@ -71,6 +71,10 @@ const Reports = () => {
       ),
     },
     {
+      header: 'Requested at',
+      columnKey: 'requestedAtDate',
+    },
+    {
       header: 'Actions',
       columnKey: '',
       customComponent: (row: ReportSummary) => (
@@ -95,6 +99,7 @@ const Reports = () => {
         ...report,
         startDate: dateFromTimestampMs(report.sinceMs),
         endDate: dateFromTimestampMs(report.toMs),
+        requestedAtDate: dateTimeWithoutSecondsFromTimestampMs(report.requestedAtMs),
       }));
 
       setRowsOnDemand(prev => [
@@ -106,6 +111,7 @@ const Reports = () => {
     }
   };
 
+
   const fetchReportsScheduled = async () => {
     try {
       const reports = await ManagmentServiceApiInstance.getReports('SCHEDULED');
@@ -113,6 +119,7 @@ const Reports = () => {
         ...report,
         startDate: dateFromTimestampMs(report.sinceMs),
         endDate: dateFromTimestampMs(report.toMs),
+        requestedAtDate: dateTimeWithoutSecondsFromTimestampMs(report.requestedAtMs),
       }));
 
       setRowsScheduled(prev => [
@@ -135,6 +142,7 @@ const Reports = () => {
         endDate: dateFromTimestampMs(report.toMs),
         urgency: null,
         requestedAtMs: Date.now(),
+        requestedAtDate: dateTimeWithoutSecondsFromTimestampMs(Date.now()),
       }));
 
       const updateRows =

@@ -78,7 +78,8 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
   {
     header: 'Notification',
     columnKey: 'notificationChannels',
-    customComponent: ({ notificationChannels }: { notificationChannels: NotificationChannelColumn[] }) => {
+    customComponent: ({ notificationChannels }:
+                        { notificationChannels: NotificationChannelColumn[] }) => {
       return <Channels channels={notificationChannels} />;
     },
   },
