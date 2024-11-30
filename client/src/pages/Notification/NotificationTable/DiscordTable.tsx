@@ -99,7 +99,7 @@ const DiscordTable = () => {
             try {
               await ManagmentServiceApiInstance.testDiscordChannel(props.id);
               showMessage({
-                message: 'Test notification was sent',
+                message: 'Successfully sent a test notification',
                 type: 'INFO',
               });
             } catch (e: unknown) {
