@@ -21,7 +21,8 @@ import {
 const statItems = (
   report: ReportDetails,
   stats: IncidentStats,
-): StatItemData[] => [
+): StatItemData[] => {
+  const defaultStats: StatItemData[] = [
     {
       title: 'Analyzed apps',
       value: report.analyzedApplications,
@@ -41,13 +42,13 @@ const statItems = (
       valueColor: colors.urgency.high,
     },
     {
-      title: 'Medium incidents',
+      title: 'Medium urgency incidents',
       value: stats.mediumUrgencyIncidents,
       unit: 'incidents',
       valueColor: colors.urgency.medium,
     },
     {
-      title: 'Low incidents',
+      title: 'Low urgency incidents',
       value: stats.lowUrgencyIncidents,
       unit: 'incidents',
       valueColor: colors.urgency.low,
@@ -65,6 +66,41 @@ const statItems = (
       valueColor: colors.urgency.low,
     },
   ];
+
+  if (stats.nodeWithMostIncidents.nodeName) {
+    defaultStats.push({
+      title: 'Node with highest number of incidents',
+      value: stats.nodeWithMostIncidents.nodeName,
+      unit: '',
+      valueColor: colors.urgency.low,
+    });
+
+    defaultStats.push({
+      title: `Incidents from ${stats.nodeWithMostIncidents.numberOfIncidents}`,
+      value: stats.nodeWithMostIncidents.numberOfIncidents,
+      unit: 'incidents',
+      valueColor: colors.urgency.low,
+    });
+  }
+
+  if (stats.applicationWithMostIncidents.applicationName) {
+    defaultStats.push({
+      title: 'Application with highest number of incidents',
+      value: stats.applicationWithMostIncidents.applicationName,
+      unit: '',
+      valueColor: colors.urgency.low,
+    });
+
+    defaultStats.push({
+      title: `Incidents from ${stats.applicationWithMostIncidents.applicationName}`,
+      value: stats.applicationWithMostIncidents.numberOfIncidents,
+      unit: 'incidents',
+      valueColor: colors.urgency.low,
+    });
+  }
+
+  return defaultStats;
+};
 
 const ReportDetailsPage = () => {
   const { id } = useParams();

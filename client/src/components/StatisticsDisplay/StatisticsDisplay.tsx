@@ -6,7 +6,7 @@ import colors from 'global/colors';
 
 export interface StatItemData {
     title: string;
-    value: number;
+    value: number | string;
     unit: string;
     valueColor?: string;
 }
@@ -34,9 +34,11 @@ const StatisticsDisplay = ({
                         />
                     ))}
                 </div>
-                <div className="statistics-display__chart">
-                    <UrgencyPolarChart urgencyIncidentCount={urgencyIncidentCount} />
-                </div>
+                {statItems.length > 0 && statItems[0].value && (
+                    <div className="statistics-display__chart">
+                        <UrgencyPolarChart urgencyIncidentCount={urgencyIncidentCount} />
+                    </div>
+                )}
             </div>
         </div>
     );

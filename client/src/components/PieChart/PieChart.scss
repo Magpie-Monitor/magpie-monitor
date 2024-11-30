@@ -1,0 +1,18 @@
+@import '@/variables';
+
+.pie-chart {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  padding: 1rem;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $green;
+    border-width: 2px;
+    filter: brightness(1.4);
+    transform: scale(1.01);
+  }
+}
