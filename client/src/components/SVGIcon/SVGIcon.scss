@@ -150,6 +150,20 @@
   }
 }
 
+.open-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/open-icon.svg') no-repeat center;
+
+  .svg-icon {
+    transition: fill 0.3s ease;
+    background-color: $component-border-color;
+
+    &:hover {
+      background-color: $green;
+    }
+  }
+}
+
 .notification-icon {
   @extend .svg-icon;
   background-color: $green;

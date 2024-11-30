@@ -31,15 +31,9 @@ const Reports = () => {
       header: 'Cluster',
       columnKey: 'clusterId',
       customComponent: (row: ReportSummary) =>
-        row.urgency === null ? (
-          <LinkComponent>
-            {row.clusterId}
-          </LinkComponent>
-        ) : (
-          <LinkComponent onClick={() => handleRowClick(row.id)}>
-            {row.clusterId}
-          </LinkComponent>
-        ),
+        <LinkComponent>
+          {row.clusterId}
+        </LinkComponent>
     },
     {
       header: 'Title',
@@ -76,6 +70,22 @@ const Reports = () => {
       </span>
       ),
     },
+    {
+      header: 'Actions',
+      columnKey: '',
+      customComponent: (row: ReportSummary) => (
+        <button
+          className={`reports__action-button ${
+            row.urgency === null ? 'reports__action-button--inactive' : ''
+          }`}
+          onClick={() => row.urgency !== null && handleRowClick(row.id)}
+          disabled={row.urgency === null}
+        >
+          <SVGIcon iconName="open-icon" />
+        </button>
+      ),
+    }
+    ,
   ];
 
   const fetchReportsOnDemand = async () => {

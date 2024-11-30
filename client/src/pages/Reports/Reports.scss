@@ -20,4 +20,22 @@
     margin-left: 7px;
     color: $application-down-color;
   }
+
+  &__action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+
+    &--inactive {
+      cursor: not-allowed;
+      pointer-events: none;
+
+      .svg-icon {
+        background-color: $component-border-color;
+      }
+    }
+  }
 }

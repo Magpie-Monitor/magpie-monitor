@@ -1,10 +1,10 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import PageTemplate from 'components/PageTemplate/PageTemplate';
 import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/HeaderWithIcon';
-import Table, { TableColumn } from 'components/Table/Table';
+import Table, {TableColumn} from 'components/Table/Table';
 import './Clusters.scss';
 import Channels from './components/NotificationChannelsColumn/NotificationChannelsColumn';
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import {
   ClusterSummary,
   ManagmentServiceApiInstance,
@@ -16,6 +16,7 @@ import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import Spinner from 'components/Spinner/Spinner.tsx';
 import ReportActionsCell from './ReportActionsCell';
 import AccuracyBadge from 'components/AccuracyBadge/AccuracyBadge.tsx';
+import {dateTimeFromTimestampMs} from 'lib/date.ts';
 
 interface ClusterDataRow {
   name: string;
@@ -23,6 +24,7 @@ interface ClusterDataRow {
   accuracy: AccuracyLevel;
   notificationChannels: NotificationChannelColumn[];
   updatedAt: string;
+
   [key: string]: string | NotificationChannelColumn[];
 }
 
@@ -34,35 +36,30 @@ export interface NotificationChannelColumn {
 const transformNotificationChannelsToColumns = (
   cluster: ClusterSummary,
 ): NotificationChannelColumn[] => {
-  return cluster.slackChannels
+  return cluster.slackReceivers
     .map(
       (channel): NotificationChannelColumn => ({
         kind: 'SLACK',
-        name: channel.name,
+        name: channel.receiverName,
       }),
     )
     .concat(
-      cluster.discordChannels.map((channel) => ({
+      cluster.discordReceivers.map((channel) => ({
         kind: 'DISCORD',
-        name: channel.name,
+        name: channel.receiverName,
       })),
     )
     .concat(
-      cluster.mailChannels.map((channel) => ({
+      cluster.emailReceivers.map((channel) => ({
         kind: 'EMAIL',
-        name: channel.email,
+        name: channel.receiverName,
       })),
     );
 };
 const transformIsRunningLabel = (
   cluster: ClusterSummary,
 ): ClusterDataRow['state'] => {
-  return cluster.running? 'ONLINE' : 'OFFLINE';
-};
-
-const transformUpdatedAtDate = (cluster: ClusterSummary) => {
-  const date = new Date(cluster.updatedAt);
-  return date.toLocaleString();
+  return cluster.running ? 'ONLINE' : 'OFFLINE';
 };
 
 const columns: Array<TableColumn<ClusterDataRow>> = [
@@ -81,14 +78,16 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
   {
     header: 'Notification',
     columnKey: 'notificationChannels',
-    customComponent: ({ notificationChannels }) => (
-      <Channels channels={notificationChannels} />
-    ),
+    customComponent: ({ notificationChannels }: { notificationChannels: NotificationChannelColumn[] }) => {
+      return <Channels channels={notificationChannels} />;
+    },
   },
   {
     header: 'Accuracy',
     columnKey: 'accuracy',
-    customComponent: ({ accuracy }) => <AccuracyBadge label={accuracy} />,
+    customComponent: (row: ClusterDataRow) => {
+      return <AccuracyBadge label={row.accuracy} />;
+    },
   },
   {
     header: 'Updated at',
@@ -97,9 +96,9 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
   {
     header: 'Reports',
     columnKey: 'actions',
-    customComponent: (row: ClusterDataRow) => (
-      <ReportActionsCell clusterId={row.name} />
-    ),
+    customComponent: (row: ClusterDataRow) => {
+      return <ReportActionsCell clusterId={row.name} />;
+    },
   },
 ];
 
@@ -117,7 +116,7 @@ const Clusters = () => {
           accuracy: cluster.accuracy,
           state: transformIsRunningLabel(cluster),
           notificationChannels: transformNotificationChannelsToColumns(cluster),
-          updatedAt: transformUpdatedAtDate(cluster),
+          updatedAt: dateTimeFromTimestampMs(cluster.updatedAtMillis),
         }),
       );
 
@@ -132,17 +131,17 @@ const Clusters = () => {
     fetchClusters();
   }, []);
 
-  const header = <HeaderWithIcon title={'Clusters'} />;
+  const header = <HeaderWithIcon title={'Clusters'}/>;
 
   return (
     <PageTemplate header={header}>
       <SectionComponent
         title={'Clusters'}
-        icon={<SVGIcon iconName="clusters-icon" />}
+        icon={<SVGIcon iconName="clusters-icon"/>}
       >
-        {isLoading && <Spinner />}
+        {isLoading && <Spinner/>}
         {!isLoading && clusters.length > 0 && (
-          <Table columns={columns} rows={clusters} />
+          <Table columns={columns} rows={clusters}/>
         )}
         {!isLoading && clusters.length === 0 && (
           <div>No registered clusters yet</div>
