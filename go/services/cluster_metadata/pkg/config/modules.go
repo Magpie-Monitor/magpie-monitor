@@ -18,6 +18,7 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/services"
 	"github.com/gorilla/mux"
 	"go.uber.org/fx"
+	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 )
 
@@ -60,9 +61,6 @@ func init() {
 
 	if env == tests.TEST_ENVIRONMENT {
 		AppModule = fx.Options(
-			// fx.WithLogger(func(log *zap.Logger) fxevent.Logger {
-			// 	return &fxevent.ZapLogger{Logger: log}
-			// }),
 			fx.Provide(
 				NewHTTPServer,
 
@@ -82,8 +80,11 @@ func init() {
 				services.NewMetadataService,
 				services.NewMetadataEventPublisher,
 
-				services.NewApplicationMetadataBroker,
-				services.NewNodeMetadataBroker,
+				tests.NewMockApplicationMetadataBroker,
+				tests.NewMockNodeMetadataBroker,
+				tests.NewMockNodeMetadataUpdatedBroker,
+				tests.NewMockApplicationMetadataUpdatedBroker,
+				tests.NewMockClusterMetadataUpdatedBroker,
 
 				repositories.NewApplicationMetadataCollection,
 				repositories.NewNodeMetadataCollection,
@@ -91,18 +92,14 @@ func init() {
 				repositories.NewNodeAggregatedMetadataCollection,
 				repositories.NewClusterAggregatedStateCollection,
 
-				services.NewApplicationMetadataUpdatedBroker,
-				services.NewNodeMetadataUpdatedBroker,
-				services.NewClusterMetadataUpdatedBroker,
-
 				zap.NewProduction,
 			),
 		)
 	} else {
 		AppModule = fx.Options(
-			// fx.WithLogger(func(log *zap.Logger) fxevent.Logger {
-			// 	return &fxevent.ZapLogger{Logger: log}
-			// }),
+			fx.WithLogger(func(log *zap.Logger) fxevent.Logger {
+				return &fxevent.ZapLogger{Logger: log}
+			}),
 			fx.Provide(
 				NewHTTPServer,
 
@@ -124,6 +121,10 @@ func init() {
 
 				services.NewApplicationMetadataBroker,
 				services.NewNodeMetadataBroker,
+
+				services.NewApplicationMetadataUpdatedBroker,
+				services.NewNodeMetadataUpdatedBroker,
+				services.NewClusterMetadataUpdatedBroker,
 
 				repositories.NewApplicationMetadataCollection,
 				repositories.NewNodeMetadataCollection,

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"sync"
@@ -62,8 +63,8 @@ type MetadataServiceParams struct {
 	NodeAggregatedRepo        *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
 	ClusterAggregatedRepo     *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
 	EventEmitter              *MetadataEventPublisher
-	ApplicationMetadataBroker *messagebroker.KafkaJsonMessageBroker[repositories.ApplicationState]
-	NodeMetadataBroker        *messagebroker.KafkaJsonMessageBroker[repositories.NodeState]
+	ApplicationMetadataBroker messagebroker.MessageBroker[repositories.ApplicationState]
+	NodeMetadataBroker        messagebroker.MessageBroker[repositories.NodeState]
 }
 
 func NewMetadataService(params MetadataServiceParams) *MetadataService {
@@ -85,8 +86,16 @@ func NewMetadataService(params MetadataServiceParams) *MetadataService {
 		clusterActivityWindowMillis:                         envs.ConvertToInt64(CLUSTER_ACTIVITY_WINDOW_MILLIS_ENV_NAME),
 	}
 
-	// metadataService.init()
+	metadataService.Init()
 
+	// params.Lc.Append(fx.Hook{
+	// 	OnStart: func(ctx context.Context) error {
+	// 		metadataService.Init()
+	// 		return nil
+	// 	},
+	// })
+
+	// TODO - move to invoke
 	// params.Lc.Append(fx.Hook{
 	// 	OnStart: func(ctx context.Context) error {
 	// 		go metadataService.PollForClusterStateChange()
@@ -116,11 +125,11 @@ type MetadataService struct {
 	clusterAggregatedStateChangePollIntervalSeconds     int
 	nodeAggregatedStateChangePollIntervalSeconds        int
 	applicationAggregatedStateChangePollIntervalSeconds int
-	applicationMetadataBroker                           *messagebroker.KafkaJsonMessageBroker[repositories.ApplicationState]
-	nodeMetadataBroker                                  *messagebroker.KafkaJsonMessageBroker[repositories.NodeState]
+	applicationMetadataBroker                           messagebroker.MessageBroker[repositories.ApplicationState]
+	nodeMetadataBroker                                  messagebroker.MessageBroker[repositories.NodeState]
 }
 
-func (m *MetadataService) init() {
+func (m *MetadataService) Init() {
 	go m.PollForClusterStateChange()
 	go m.PollForApplicationStateChange()
 	go m.PollForNodeStateChange()
@@ -134,10 +143,10 @@ func (m *MetadataService) ConsumeApplicationMetadata() {
 		err = make(chan error)
 	)
 
-	defer close(msg)
-	defer close(err)
+	ctx := context.Background()
+	defer ctx.Done()
 
-	go m.applicationMetadataBroker.Subscribe(context.TODO(), msg, err)
+	go m.applicationMetadataBroker.Subscribe(ctx, msg, err)
 
 	for {
 		select {
@@ -158,10 +167,9 @@ func (m *MetadataService) ConsumeNodeMetadata() {
 		err = make(chan error)
 	)
 
-	defer close(msg)
-	defer close(err)
+	ctx := context.Background()
 
-	go m.nodeMetadataBroker.Subscribe(context.TODO(), msg, err)
+	go m.nodeMetadataBroker.Subscribe(ctx, msg, err)
 
 	for {
 		select {

@@ -56,8 +56,8 @@ func (b *KafkaJsonMessageBroker[T]) Subscribe(ctx context.Context, messages chan
 		}
 
 	}
-
 }
+
 func (b *KafkaJsonMessageBroker[T]) CloseReader() error {
 	return b.broker.CloseReader()
 

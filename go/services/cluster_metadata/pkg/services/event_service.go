@@ -16,16 +16,21 @@ const (
 	CLUSTER_METADATA_CLUSTER_TOPIC_ENV_NAME     = "CLUSTER_METADATA_CLUSTER_TOPIC"
 )
 
-func NewMetadataEventPublisher(log *zap.Logger, credentials *messagebroker.KafkaCredentials) *MetadataEventPublisher {
+func NewMetadataEventPublisher(
+	log *zap.Logger,
+	appMetadataBroker messagebroker.MessageBroker[ApplicationMetadataUpdated],
+	nodeMetadataBroker messagebroker.MessageBroker[NodeMetadataUpdated],
+	clusterMetadataBroker messagebroker.MessageBroker[ClusterMetadataUpdated],
+) *MetadataEventPublisher {
 	return &MetadataEventPublisher{
 		log:                       log,
-		applicationMetadataBroker: NewApplicationMetadataUpdatedBroker(log, credentials),
-		nodeMetadataBroker:        NewNodeMetadataUpdatedBroker(log, credentials),
-		clusterMetadataBroker:     NewClusterMetadataUpdatedBroker(log, credentials),
+		applicationMetadataBroker: appMetadataBroker,
+		nodeMetadataBroker:        nodeMetadataBroker,
+		clusterMetadataBroker:     clusterMetadataBroker,
 	}
 }
 
-func NewApplicationMetadataUpdatedBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ApplicationMetadataUpdated] {
+func NewApplicationMetadataUpdatedBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) messagebroker.MessageBroker[ApplicationMetadataUpdated] {
 	envs.ValidateEnvs("%s env variable not set", []string{
 		CLUSTER_METADATA_APPLICATION_TOPIC_ENV_NAME,
 	})
@@ -37,7 +42,7 @@ func NewApplicationMetadataUpdatedBroker(logger *zap.Logger, credentials *messag
 	)
 }
 
-func NewNodeMetadataUpdatedBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[NodeMetadataUpdated] {
+func NewNodeMetadataUpdatedBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) messagebroker.MessageBroker[NodeMetadataUpdated] {
 	envs.ValidateEnvs("%s env variable not set", []string{
 		CLUSTER_METADATA_NODE_TOPIC_ENV_NAME,
 	})
@@ -50,7 +55,7 @@ func NewNodeMetadataUpdatedBroker(logger *zap.Logger, credentials *messagebroker
 	)
 }
 
-func NewClusterMetadataUpdatedBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[ClusterMetadataUpdated] {
+func NewClusterMetadataUpdatedBroker(logger *zap.Logger, credentials *messagebroker.KafkaCredentials) messagebroker.MessageBroker[ClusterMetadataUpdated] {
 	envs.ValidateEnvs("%s env variable not set", []string{
 		CLUSTER_METADATA_CLUSTER_TOPIC_ENV_NAME,
 	})
@@ -80,9 +85,9 @@ type ClusterMetadataUpdated struct {
 
 type MetadataEventPublisher struct {
 	log                       *zap.Logger
-	applicationMetadataBroker *messagebroker.KafkaJsonMessageBroker[ApplicationMetadataUpdated]
-	nodeMetadataBroker        *messagebroker.KafkaJsonMessageBroker[NodeMetadataUpdated]
-	clusterMetadataBroker     *messagebroker.KafkaJsonMessageBroker[ClusterMetadataUpdated]
+	applicationMetadataBroker messagebroker.MessageBroker[ApplicationMetadataUpdated]
+	nodeMetadataBroker        messagebroker.MessageBroker[NodeMetadataUpdated]
+	clusterMetadataBroker     messagebroker.MessageBroker[ClusterMetadataUpdated]
 }
 
 func (e *MetadataEventPublisher) PublishApplicationMetadataUpdatedEvent(metadata repositories.AggregatedApplicationMetadata) error {

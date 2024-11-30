@@ -1,7 +1,7 @@
 package services_test
 
 import (
-	"fmt"
+	"context"
 	"testing"
 	"time"
 
@@ -17,370 +17,528 @@ import (
 	"go.uber.org/zap"
 )
 
-func TestApplicationMetadataIngestion(t *testing.T) {
+func TestNodeMetadataIngestion(t *testing.T) {
 	type TestDependencies struct {
 		fx.In
+		Logger *zap.Logger
+
+		MetadataService *services.MetadataService
+
+		NodeMetadataBroker messagebroker.MessageBroker[repositories.NodeState]
+
+		NodeMetadataRepository *sharedrepo.MongoDbCollection[repositories.NodeState]
+		NodeAggregatedRepo     *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
+	}
+
+	testCases := []struct {
+		name     string
+		metadata repositories.NodeState
+	}{
+		{
+			name: "Ingest metadata with multiple watched files",
+			metadata: repositories.NodeState{
+				ClusterId:     "cluster",
+				NodeName:      "node",
+				CollectedAtMs: time.Now().UnixMilli(),
+				WatchedFiles: []string{
+					"file1",
+					"file2",
+					"file3",
+					"file4",
+				},
+			},
+		},
+		{
+			name: "Ingest metadata without watched files",
+			metadata: repositories.NodeState{
+				ClusterId:     "cluster",
+				NodeName:      "node",
+				CollectedAtMs: time.Now().UnixMilli(),
+				WatchedFiles:  []string{},
+			},
+		},
+	}
+
+	test := func(dependencies TestDependencies) {
+		log := dependencies.Logger
+		cleanup := func() {
+			dependencies.NodeMetadataRepository.DeleteAll()
+			dependencies.NodeAggregatedRepo.DeleteAll()
+		}
+
+		for _, test := range testCases {
+			var metadata = test.metadata
+
+			log.Info("Executing", zap.String("test", test.name))
+
+			cleanup()
+
+			dependencies.NodeMetadataBroker.Publish("", metadata)
+
+			time.Sleep(15 * time.Second)
+
+			result, err := dependencies.NodeMetadataRepository.GetDocument(
+				bson.D{
+					{Key: "clusterId", Value: metadata.ClusterId},
+					{Key: "collectedAtMs", Value: metadata.CollectedAtMs}},
+				bson.D{},
+			)
+
+			if err != nil {
+				log.Error("Error reading node metadata", zap.Error(err))
+				t.Error("Error reading node metadata")
+			}
+
+			assert.Len(t, result.WatchedFiles, len(metadata.WatchedFiles))
+			assert.ElementsMatch(t, result.WatchedFiles, metadata.WatchedFiles)
+		}
+	}
+
+	tests.RunTest(test, t, config.AppModule)
+}
+
+func TestApplicationMetadataIngestion(t *testing.T) {
+
+	testCases := []struct {
+		name     string
+		metadata repositories.ApplicationState
+	}{
+		{
+			name: "Ingest metadata with multiple applications",
+			metadata: repositories.ApplicationState{
+				CollectedAtMs: time.Now().UnixMilli(),
+				ClusterId:     "cluster",
+				Applications: []repositories.Application{
+					{
+						Kind: "Deployment",
+						Name: "test-dp",
+					},
+					{
+						Kind: "StatefulSet",
+						Name: "test-sts",
+					},
+				},
+			},
+		},
+		{
+			name: "Ingest metadata without applications",
+			metadata: repositories.ApplicationState{
+				CollectedAtMs: time.Now().UnixMilli(),
+				ClusterId:     "cluster",
+				Applications:  []repositories.Application{},
+			},
+		},
+	}
+
+	type TestDependencies struct {
+		fx.In
+		Logger                        *zap.Logger
 		MetadataService               *services.MetadataService
-		ApplicationMetadataBroker     *messagebroker.KafkaJsonMessageBroker[repositories.ApplicationState]
+		ApplicationMetadataBroker     messagebroker.MessageBroker[repositories.ApplicationState]
 		ApplicationMetadataRepository *sharedrepo.MongoDbCollection[repositories.ApplicationState]
 	}
 
 	test := func(dependencies TestDependencies) {
-		go dependencies.MetadataService.ConsumeApplicationMetadata()
 
-		dependencies.ApplicationMetadataRepository.DeleteAll()
+		for _, test := range testCases {
+			var (
+				log      = dependencies.Logger
+				metadata = test.metadata
+			)
+			log.Info("Executing", zap.String("test", test.name))
 
-		expectedMetadata := repositories.ApplicationState{
-			CollectedAtMs: 1234,
-			ClusterId:     "wojtek-test",
-			Applications: []repositories.Application{
-				repositories.Application{
-					Kind: "Deployment",
-					Name: "test-dp",
-				},
-				repositories.Application{
-					Kind: "StatefulSet",
-					Name: "test-sts",
-				},
-				repositories.Application{
-					Kind: "Deployment",
-					Name: "test-dp",
-				},
-				repositories.Application{
-					Kind: "StatefulSet",
-					Name: "test-sts",
-				},
-				repositories.Application{
-					Kind: "Deployment",
-					Name: "test-dp",
-				},
-				repositories.Application{
-					Kind: "StatefulSet",
-					Name: "test-sts",
-				},
-				repositories.Application{
-					Kind: "Deployment",
-					Name: "test-dp",
-				},
-				repositories.Application{
-					Kind: "StatefulSet",
-					Name: "test-sts",
-				},
-			},
+			dependencies.ApplicationMetadataRepository.DeleteAll()
+			dependencies.ApplicationMetadataBroker.Publish("", metadata)
+
+			time.Sleep(15 * time.Second)
+
+			result, err := dependencies.ApplicationMetadataRepository.GetDocument(
+				bson.D{
+					{Key: "clusterId", Value: metadata.ClusterId},
+					{Key: "collectedAtMs", Value: metadata.CollectedAtMs}},
+				bson.D{},
+			)
+			if err != nil {
+				log.Error("Error reading application metadata", zap.Error(err))
+				t.Error("Error reading application metadata")
+			}
+
+			assert.Len(t, result.Applications, len(metadata.Applications), "Invalid number of applications")
+			assert.ElementsMatch(t, result.Applications, metadata.Applications)
 		}
-
-		dependencies.ApplicationMetadataBroker.Publish("test2", expectedMetadata)
-
-		// writer := &kafka.Writer{
-		// 	Addr:                   kafka.TCP("kafka:9094"),
-		// 	Topic:                  "application_metadata",
-		// 	AllowAutoTopicCreation: true,
-		// 	Transport:              &kafka.Transport{SASL: plain.Mechanism{Username: "username", Password: "password"}},
-		// 	BatchBytes:             int64(5000000),
-		// }
-
-		// j, _ := json.Marshal(expectedMetadata)
-
-		// writer.WriteMessages(context.Background(), kafka.Message{Key: []byte("test"), Value: j})
-
-		fmt.Println("test222")
-
-		time.Sleep(40 * time.Second)
-
-		metadata, err := dependencies.ApplicationMetadataRepository.GetDocument(bson.D{{Key: "clusterId", Value: "wojtek-test"}, {Key: "collectedAtMs", Value: 1234}}, bson.D{})
-		if err != nil {
-			t.Fail()
-		}
-
-		fmt.Println(metadata)
-
-		docs, _ := dependencies.ApplicationMetadataRepository.GetDocuments(bson.D{}, bson.D{})
-		fmt.Println(docs)
-
-		assert.Len(t, metadata.Applications, 8, "Invalid number of applications")
-		assert.Equal(t, expectedMetadata.Applications[0].Kind, metadata.Applications[0].Kind)
-
-		dependencies.ApplicationMetadataRepository.DeleteAll()
 	}
 
 	tests.RunTest(test, t, config.AppModule)
 }
 
-func TestNodeMetadataIngestion(t *testing.T) {
+func TestNodeMetadataStateUpdate(t *testing.T) {
+
+	testCases := []struct {
+		name     string
+		metadata []repositories.NodeState
+		result   repositories.AggregatedNodeMetadata
+	}{
+		{
+			name: "Update for two nodes with fixed fileset",
+			metadata: []repositories.NodeState{
+				{
+					ClusterId:     "cluster",
+					NodeName:      "node1",
+					CollectedAtMs: time.Now().UnixMilli(),
+					WatchedFiles:  []string{"file1", "file2", "file3"},
+				},
+				{
+					ClusterId:     "cluster",
+					NodeName:      "node2",
+					CollectedAtMs: time.Now().UnixMilli(),
+					WatchedFiles:  []string{"file1", "file2", "file3"},
+				},
+			},
+			result: repositories.AggregatedNodeMetadata{
+				ClusterId: "cluster",
+				Metadata: []repositories.NodeMetadata{
+					{
+						Name:  "node1",
+						Files: []interface{}{"file1", "file2", "file3"},
+					},
+					{
+						Name:  "node2",
+						Files: []interface{}{"file1", "file2", "file3"},
+					},
+				},
+			},
+		},
+		{
+			name: "Update for a single node with varied fileset",
+			metadata: []repositories.NodeState{
+				{
+					ClusterId:     "cluster",
+					NodeName:      "node",
+					CollectedAtMs: time.Now().UnixMilli(),
+					WatchedFiles:  []string{"file1", "file2"},
+				},
+				{
+					ClusterId:     "cluster",
+					NodeName:      "node",
+					CollectedAtMs: time.Now().UnixMilli(),
+					WatchedFiles:  []string{"file1", "file2", "file3"},
+				},
+				{
+					ClusterId:     "cluster",
+					NodeName:      "node",
+					CollectedAtMs: time.Now().UnixMilli(),
+					WatchedFiles:  []string{"file4"},
+				},
+			},
+			result: repositories.AggregatedNodeMetadata{
+				ClusterId: "cluster",
+				Metadata: []repositories.NodeMetadata{
+					{
+						Name:  "node",
+						Files: []interface{}{"file1", "file2", "file3", "file4"},
+					},
+				},
+			},
+		},
+	}
+
 	type TestDependencies struct {
 		fx.In
-		Logger                 *zap.Logger
-		MetadataService        *services.MetadataService
-		NodeMetadataBroker     *messagebroker.KafkaJsonMessageBroker[repositories.NodeState]
-		NodeMetadataRepository *sharedrepo.MongoDbCollection[repositories.NodeState]
-		Creds                  *messagebroker.KafkaCredentials
+		Logger *zap.Logger
+
+		MetadataService *services.MetadataService
+
+		NodeMetadataBroker        messagebroker.MessageBroker[repositories.NodeState]
+		NodeMetadataUpdatedBroker messagebroker.MessageBroker[services.NodeMetadataUpdated]
+
+		NodeRepo           *sharedrepo.MongoDbCollection[repositories.NodeState]
+		NodeAggregatedRepo *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
 	}
 
-	test := func(dependencies TestDependencies) {
-		go dependencies.MetadataService.ConsumeNodeMetadata()
+	for _, test := range testCases {
+		tests.RunTest(func(dependencies TestDependencies) {
+			var (
+				metadata = test.metadata
+				result   = test.result
+				log      = dependencies.Logger
+			)
 
-		_, err := dependencies.NodeMetadataRepository.DeleteAll()
-		if err != nil {
-			t.Fail()
-		}
+			log.Info("Executing", zap.String("test", test.name))
 
-		expectedMetadata := repositories.NodeState{
-			ClusterId:     "wojtek-test",
-			NodeName:      "test2",
-			CollectedAtMs: 310,
-			WatchedFiles: []string{
-				"test",
-				"test2",
-				"test",
-				"test2",
-				"test",
-				"test2",
-				"test",
-				"test2",
-				"test",
-				"test2",
-			},
-		}
+			dependencies.NodeRepo.DeleteAll()
+			dependencies.NodeAggregatedRepo.DeleteAll()
 
-		expectedMetadata2 := repositories.NodeState{
-			ClusterId:     "wojtek-test",
-			NodeName:      "test2",
-			CollectedAtMs: 311,
-			WatchedFiles: []string{
-				"test",
-				"test2",
-				"test",
-				"test2",
-				"test",
-				"test2",
-				"test",
-				"test2",
-				"test",
-				"test2",
-			},
-		}
+			for _, state := range metadata {
+				dependencies.NodeMetadataBroker.Publish("", state)
+			}
 
-		dependencies.NodeMetadataBroker.Publish("test", expectedMetadata)
-		dependencies.NodeMetadataBroker.Publish("test", expectedMetadata2)
+			msg := make(chan services.NodeMetadataUpdated)
+			go dependencies.NodeMetadataUpdatedBroker.Subscribe(context.Background(), msg, make(chan<- error))
 
-		time.Sleep(40 * time.Second)
+			updatedState := <-msg
 
-		metadata, err := dependencies.NodeMetadataRepository.GetDocument(bson.D{{Key: "clusterId", Value: "wojtek-test"}, {Key: "collectedAtMs", Value: 310}}, bson.D{})
-		if err != nil {
-			t.Fail()
-		}
+			assert.Equal(t, result.ClusterId, updatedState.Metadata.ClusterId, "Cluster ID don't match")
+			assert.Equal(t, result.Metadata[0].Name, updatedState.Metadata.Metadata[0].Name, "Node names don't match")
 
-		fmt.Println(metadata, "test")
+			for idx, metadata := range updatedState.Metadata.Metadata {
+				assert.Equal(t, result.Metadata[idx].Name, metadata.Name)
+				assert.ElementsMatch(t, result.Metadata[idx].Files, metadata.Files, "Metadata don't match")
+			}
 
-		assert.Len(t, metadata.WatchedFiles, 10, "Inavlid number of files - TEST")
-		assert.Equal(t, expectedMetadata.WatchedFiles[0], metadata.WatchedFiles[0])
-
-		_, err = dependencies.NodeMetadataRepository.DeleteAll()
-		if err != nil {
-			t.Fail()
-		}
+			assert.Len(t, updatedState.Metadata.Metadata, len(result.Metadata), "Incorrect number of nodes")
+		},
+			t,
+			config.AppModule,
+		)
 	}
-
-	tests.RunTest(test, t, config.AppModule)
 }
 
 func TestApplicationMetadataStateUpdate(t *testing.T) {
+
+	testCases := []struct {
+		name     string
+		metadata []repositories.ApplicationState
+		result   repositories.AggregatedApplicationMetadata
+	}{
+		{
+			name: "Application aggregated state with additional applications",
+			metadata: []repositories.ApplicationState{
+				{
+					CollectedAtMs: time.Now().UnixMilli(),
+					ClusterId:     "cluster",
+					Applications: []repositories.Application{
+						{
+							Kind: "Deployment",
+							Name: "dp",
+						},
+						{
+							Kind: "StatefulSet",
+							Name: "sts",
+						},
+					},
+				},
+				{
+					CollectedAtMs: time.Now().UnixMilli(),
+					ClusterId:     "cluster",
+					Applications: []repositories.Application{
+						{
+							Kind: "Deployment",
+							Name: "dp",
+						},
+						{
+							Kind: "StatefulSet",
+							Name: "sts-2",
+						},
+						{
+							Kind: "DaemonSet",
+							Name: "dp-3",
+						},
+					},
+				},
+			},
+			result: repositories.AggregatedApplicationMetadata{
+				ClusterId: "cluster",
+				Metadata: []repositories.ApplicationMetadata{
+					{
+						Kind: "Deployment",
+						Name: "dp",
+					},
+					{
+						Kind: "StatefulSet",
+						Name: "sts",
+					},
+					{
+						Kind: "StatefulSet",
+						Name: "sts-2",
+					},
+					{
+						Kind: "DaemonSet",
+						Name: "dp-3",
+					},
+				},
+			},
+		},
+		{
+			name: "Application aggregated state without additional applications",
+			metadata: []repositories.ApplicationState{
+				{
+					CollectedAtMs: time.Now().UnixMilli(),
+					ClusterId:     "cluster",
+					Applications: []repositories.Application{
+						{
+							Kind: "Deployment",
+							Name: "dp",
+						},
+						{
+							Kind: "StatefulSet",
+							Name: "sts",
+						},
+					},
+				},
+				{
+					CollectedAtMs: time.Now().UnixMilli(),
+					ClusterId:     "cluster",
+					Applications: []repositories.Application{
+						{
+							Kind: "Deployment",
+							Name: "dp",
+						},
+						{
+							Kind: "StatefulSet",
+							Name: "sts",
+						},
+					},
+				},
+			},
+			result: repositories.AggregatedApplicationMetadata{
+				ClusterId: "cluster",
+				Metadata: []repositories.ApplicationMetadata{
+					{
+						Kind: "Deployment",
+						Name: "dp",
+					},
+					{
+						Kind: "StatefulSet",
+						Name: "sts",
+					},
+				},
+			},
+		},
+		{
+			name: "Application aggregated state with empty applications",
+			metadata: []repositories.ApplicationState{
+				{
+					CollectedAtMs: time.Now().UnixMilli(),
+					ClusterId:     "cluster",
+					Applications:  []repositories.Application{},
+				},
+				{
+					CollectedAtMs: time.Now().UnixMilli(),
+					ClusterId:     "cluster",
+					Applications:  []repositories.Application{},
+				},
+			},
+			result: repositories.AggregatedApplicationMetadata{
+				ClusterId: "cluster",
+				Metadata:  []repositories.ApplicationMetadata{},
+			},
+		},
+	}
+
 	type TestDependencies struct {
 		fx.In
-		Logger                           *zap.Logger
-		MetadataService                  *services.MetadataService
-		ApplicationMetadataBroker        *messagebroker.KafkaJsonMessageBroker[repositories.ApplicationState]
-		ApplicationMetadataUpdatedBroker *messagebroker.KafkaJsonMessageBroker[services.ApplicationMetadataUpdated]
-		ApplicationMetadataRepository    *sharedrepo.MongoDbCollection[repositories.ApplicationState]
-		ApplicationAggregatedRepo        *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
-		Creds                            *messagebroker.KafkaCredentials
+		Logger *zap.Logger
+
+		MetadataService *services.MetadataService
+
+		ApplicationMetadataRepository *sharedrepo.MongoDbCollection[repositories.ApplicationState]
+		ApplicationAggregatedRepo     *sharedrepo.MongoDbCollection[repositories.AggregatedApplicationMetadata]
+		AppRepo                       *sharedrepo.MongoDbCollection[repositories.ApplicationState]
+
+		ApplicationMetadataBroker        messagebroker.MessageBroker[repositories.ApplicationState]
+		ApplicationMetadataUpdatedBroker messagebroker.MessageBroker[services.ApplicationMetadataUpdated]
 	}
 
-	test := func(dependencies TestDependencies) {
-		c := make(chan services.ApplicationMetadataUpdated)
-		err := make(chan error)
+	for _, test := range testCases {
+		tests.RunTest(func(dependencies TestDependencies) {
+			var (
+				log    = dependencies.Logger
+				result = test.result
+			)
 
-		go dependencies.ApplicationMetadataUpdatedBroker.Subscribe(c, err)
+			log.Info("Executing", zap.String("test", test.name))
 
-		go dependencies.MetadataService.PollForApplicationStateChange()
+			dependencies.AppRepo.DeleteAll()
+			dependencies.ApplicationAggregatedRepo.DeleteAll()
+			dependencies.ApplicationMetadataRepository.DeleteAll()
 
-		_, e := dependencies.ApplicationAggregatedRepo.DeleteAll()
-		if e != nil {
-			t.Fail()
-		}
-
-		_, e = dependencies.ApplicationMetadataRepository.DeleteAll()
-		if e != nil {
-			t.Fail()
-		}
-
-		expectedMetadata := repositories.ApplicationState{
-			CollectedAtMs: time.Now().UnixMilli(),
-			ClusterId:     "test2",
-			Applications: []repositories.Application{
-				repositories.Application{
-					Kind: "Deployment",
-					Name: "test-dp",
-				},
-				repositories.Application{
-					Kind: "StatefulSet",
-					Name: "test-sts-1",
-				},
-			},
-		}
-
-		expectedMetadata2 := repositories.ApplicationState{
-			CollectedAtMs: time.Now().UnixMilli(),
-			ClusterId:     "test2",
-			Applications: []repositories.Application{
-				repositories.Application{
-					Kind: "Deployment",
-					Name: "test-dp2",
-				},
-				repositories.Application{
-					Kind: "StatefulSet",
-					Name: "test-sts-1",
-				},
-			},
-		}
-
-		expectedMetadata3 := repositories.ApplicationState{
-			CollectedAtMs: time.Now().UnixMilli(),
-			ClusterId:     "test2",
-			Applications: []repositories.Application{
-				repositories.Application{
-					Kind: "Deployment",
-					Name: "test-dp2",
-				},
-				repositories.Application{
-					Kind: "StatefulSet",
-					Name: "test-sts-1",
-				},
-			},
-		}
-
-		dependencies.ApplicationMetadataRepository.InsertDocument(expectedMetadata)
-		dependencies.ApplicationMetadataRepository.InsertDocument(expectedMetadata2)
-		dependencies.ApplicationMetadataRepository.InsertDocument(expectedMetadata3)
-
-		for {
-			select {
-			case metadata := <-c:
-				fmt.Println(metadata)
-				return
-			case ec := <-err:
-				fmt.Println(ec)
-				t.Fail()
-				return
+			for _, app := range test.metadata {
+				dependencies.ApplicationMetadataBroker.Publish("", app)
 			}
-		}
-	}
 
-	tests.RunTest(test, t, config.AppModule)
+			msg := make(chan services.ApplicationMetadataUpdated)
+			go dependencies.ApplicationMetadataUpdatedBroker.Subscribe(context.Background(), msg, make(chan<- error))
+
+			updatedState := <-msg
+
+			assert.Equal(t, result.ClusterId, updatedState.Metadata.ClusterId)
+			assert.ElementsMatch(t, result.Metadata, updatedState.Metadata.Metadata)
+		}, t, config.AppModule)
+	}
 }
 
-// func TestNodeMetadataStateUpdate(t *testing.T) {
+func TestClusterMetadataStateUpdate(t *testing.T) {
+	type TestDependencies struct {
+		fx.In
+		MetadataService              *services.MetadataService
+		AppRepo                      *sharedrepo.MongoDbCollection[repositories.ApplicationState]
+		NodeRepo                     *sharedrepo.MongoDbCollection[repositories.NodeState]
+		ClusterAggregatedRepo        *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
+		NodeMetadataBroker           messagebroker.MessageBroker[repositories.NodeState]
+		ClusterMetadataUpdatedBroker messagebroker.MessageBroker[services.ClusterMetadataUpdated]
+	}
 
-// 	type TestDependencies struct {
-// 		fx.In
-// 		MetadataService           *services.MetadataService
-// 		NodeMetadataBroker        *messagebroker.KafkaJsonMessageBroker[repositories.NodeState]
-// 		NodeMetadataUpdatedBroker *messagebroker.KafkaJsonMessageBroker[services.NodeMetadataUpdated]
-// 		NodeMetadataRepository    *sharedrepo.MongoDbCollection[repositories.NodeState]
-// 		NodeAggregatedRepo        *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
-// 	}
+	testCases := []struct {
+		name     string
+		metadata []repositories.NodeState
+		result   repositories.AggregatedClusterMetadata
+	}{
+		{
+			name: "test",
+			metadata: []repositories.NodeState{
+				{
+					ClusterId:     "cluster1",
+					NodeName:      "node",
+					CollectedAtMs: time.Now().UnixMilli(),
+					WatchedFiles:  []string{"file1", "file2"},
+				},
+				{
+					ClusterId:     "cluster2",
+					NodeName:      "node",
+					CollectedAtMs: time.Now().UnixMilli(),
+					WatchedFiles:  []string{"file1", "file2"},
+				},
+				{
+					ClusterId:     "cluster3",
+					NodeName:      "node",
+					CollectedAtMs: time.Now().UnixMilli(),
+					WatchedFiles:  []string{"file1", "file2"},
+				},
+			},
+			result: repositories.AggregatedClusterMetadata{
+				Metadata: []repositories.ClusterMetadata{
+					{
+						ClusterId: "cluster1",
+					},
+					{
+						ClusterId: "cluster2",
+					},
+					{
+						ClusterId: "cluster3",
+					},
+				},
+			},
+		},
+	}
 
-// 	test := func(dependencies TestDependencies) {
-// 		c := make(chan services.NodeMetadataUpdated)
-// 		err := make(chan error)
+	for _, test := range testCases {
+		tests.RunTest(func(dependencies TestDependencies) {
 
-// 		go dependencies.NodeMetadataUpdatedBroker.Subscribe(c, err)
+			dependencies.ClusterAggregatedRepo.DeleteAll()
+			dependencies.NodeRepo.DeleteAll()
+			dependencies.AppRepo.DeleteAll()
 
-// 		go dependencies.MetadataService.PollForNodeStateChange()
+			for _, state := range test.metadata {
+				dependencies.NodeMetadataBroker.Publish("", state)
+			}
 
-// 		dependencies.NodeAggregatedRepo.DeleteAll()
-// 		dependencies.NodeMetadataRepository.DeleteAll()
+			msg := make(chan services.ClusterMetadataUpdated)
+			go dependencies.ClusterMetadataUpdatedBroker.Subscribe(context.Background(), msg, make(chan<- error))
 
-// 		expectedMetadata := repositories.NodeState{
-// 			ClusterId:     "test",
-// 			NodeName:      "test2",
-// 			CollectedAtMs: time.Now().UnixMilli(),
-// 			WatchedFiles:  []string{"test", "test2"},
-// 		}
+			updatedState := <-msg
 
-// 		expectedMetadata2 := repositories.NodeState{
-// 			ClusterId:     "test",
-// 			NodeName:      "test3",
-// 			CollectedAtMs: time.Now().UnixMilli(),
-// 			WatchedFiles:  []string{"test", "test1", "test5"},
-// 		}
+			assert.ElementsMatch(t, test.result.Metadata, updatedState.Metadata.Metadata)
 
-// 		dependencies.NodeMetadataRepository.InsertDocument(expectedMetadata)
-// 		dependencies.NodeMetadataRepository.InsertDocument(expectedMetadata2)
-
-// 		for {
-// 			select {
-// 			case metadata := <-c:
-// 				fmt.Println(metadata)
-// 				return
-// 			case ec := <-err:
-// 				fmt.Println(ec)
-// 				t.Fail()
-// 				return
-// 			}
-// 		}
-
-// 		dependencies.NodeMetadataRepository.DeleteAll()
-// 	}
-
-// 	tests.RunTest(test, t, config.AppModule)
-// }
-
-// func TestClusterMetadataStateUpdate(t *testing.T) {
-// 	type TestDependencies struct {
-// 		fx.In
-// 		MetadataService              *services.MetadataService
-// 		NodeMetadataBroker           *messagebroker.KafkaJsonMessageBroker[repositories.NodeState]
-// 		ClusterMetadataUpdatedBroker *messagebroker.KafkaJsonMessageBroker[services.ClusterMetadataUpdated]
-// 	}
-
-// 	test := func(dependencies TestDependencies) {
-// 		expectedMetadata := repositories.NodeState{
-// 			ClusterId:     "test",
-// 			NodeName:      "test2",
-// 			CollectedAtMs: time.Now().UnixMilli(),
-// 			WatchedFiles:  []string{"test", "test2"},
-// 		}
-
-// 		expectedMetadata2 := repositories.NodeState{
-// 			ClusterId:     "test22",
-// 			NodeName:      "test2",
-// 			CollectedAtMs: time.Now().UnixMilli(),
-// 			WatchedFiles:  []string{"test", "test2"},
-// 		}
-
-// 		go dependencies.MetadataService.ConsumeNodeMetadata()
-// 		go dependencies.MetadataService.PollForClusterStateChange()
-
-// 		dependencies.NodeMetadataBroker.Publish("", expectedMetadata)
-// 		dependencies.NodeMetadataBroker.Publish("", expectedMetadata2)
-
-// 		time.Sleep(10 * time.Second)
-
-// 		c := make(chan services.ClusterMetadataUpdated)
-// 		err := make(chan error)
-
-// 		go dependencies.ClusterMetadataUpdatedBroker.Subscribe(c, err)
-
-// 		select {
-// 		case metadata := <-c:
-// 			fmt.Println(metadata)
-// 		case err := <-err:
-// 			fmt.Println(err)
-// 			t.Fail()
-// 		}
-
-// 	}
-
-// 	tests.RunTest(test, t, config.AppModule)
-// }
+		}, t, config.AppModule)
+	}
+}
