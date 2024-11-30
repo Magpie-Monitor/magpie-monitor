@@ -187,7 +187,7 @@ const Reports = () => {
       <div className="reports">
         <SectionComponent
           icon={<SVGIcon iconName="chart-icon"/>}
-          title={'Generated reports scheduled'}
+          title={'Scheduled reports'}
         >
           {loading ? (
             <Spinner/>
@@ -203,7 +203,7 @@ const Reports = () => {
 
         <SectionComponent
           icon={<SVGIcon iconName="chart-icon"/>}
-          title={'Generated reports on demand'}
+          title={'Reports on demand'}
         >
           {loading ? (
             <Spinner/>
