@@ -58,8 +58,8 @@ public class ReportsController {
     }
 
     @GetMapping("/await-generation")
-    public ResponseEntity<List<ReportGeneratingDTO>> getGenerationReports() {
-        return ResponseEntity.ok(reportsService.getGenerationReports());
+    public ResponseEntity<List<ReportGeneratingDTO>> getAwaitingGenerationReports() {
+        return ResponseEntity.ok(reportsService.getAwaitingGenerationReports());
     }
 
     @GetMapping("/{id}")

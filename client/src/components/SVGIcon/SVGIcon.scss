@@ -150,6 +150,20 @@
   }
 }
 
+.open-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/open-icon.svg') no-repeat center;
+
+  .svg-icon {
+    transition: fill 0.3s ease;
+    background-color: $component-border-color;
+
+    &:hover {
+      background-color: $green;
+    }
+  }
+}
+
 .notification-icon {
   @extend .svg-icon;
   background-color: $green;
@@ -186,11 +200,36 @@
   mask: url('/src/assets/task_done_icon.svg') no-repeat center;
 }
 
-.hourglass {
+.sand-clock-top {
   @extend .svg-icon;
-  transform: rotate(180deg);
   background-color: $green;
-  mask: url('/src/assets/hourglass.svg') no-repeat center;
+  mask: url('/src/assets/hourglass-top.svg') no-repeat center;
+  width: 30px;
+  height: 30px;
+
+  .svg-icon {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.sand-clock-middle {
+  @extend .svg-icon;
+  background-color: $green;
+  mask: url('/src/assets/hourglass-split.svg') no-repeat center;
+  width: 30px;
+  height: 30px;
+
+  .svg-icon {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.sand-clock-bottom {
+  @extend .svg-icon;
+  background-color: $green;
+  mask: url('/src/assets/hourglass-bottom.svg') no-repeat center;
   width: 30px;
   height: 30px;
 

@@ -1,23 +1,64 @@
-@keyframes flip {
-  0%, 50% {
-    transform: rotate(0deg) scale(1);
+.hourglass {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  animation: spinHourglass 4s linear infinite;
+
+  &__frame-top,
+  &__frame-middle,
+  &__frame-bottom {
+    position: absolute;
+    visibility: hidden;
   }
-  15% {
-    transform: rotate(10deg) scale(1.05);
+
+  &__frame-top {
+    animation: cycleTop 4s linear infinite;
   }
-  30% {
-    transform: rotate(-10deg) scale(1.05);
+
+  &__frame-middle {
+    animation: cycleMiddle 4s linear infinite;
   }
-  100% {
-    transform: rotate(180deg) scale(1);
+
+  &__frame-bottom {
+    animation: cycleBottom 4s linear infinite;
   }
 }
 
-.hourglass {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: flip 2s infinite ease-in-out;
-  transform-origin: center;
-  transition: transform 0.5s;
+@keyframes cycleTop {
+  0%, 25% {
+    visibility: visible;
+  }
+  25.01%, 100% {
+    visibility: hidden;
+  }
+}
+
+@keyframes cycleMiddle {
+  0%, 25% {
+    visibility: hidden;
+  }
+  25.01%, 50% {
+    visibility: visible;
+  }
+  50.01%, 100% {
+    visibility: hidden;
+  }
+}
+
+@keyframes cycleBottom {
+  0%, 50% {
+    visibility: hidden;
+  }
+  50.01%, 100% {
+    visibility: visible;
+  }
+}
+
+@keyframes spinHourglass {
+  0%, 75% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(180deg);
+  }
 }

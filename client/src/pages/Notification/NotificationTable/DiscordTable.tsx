@@ -12,7 +12,7 @@ import {
 } from 'api/managment-service';
 import LoadingTable from './LoadingTable';
 import NewDiscordChannelPopup from 'pages/Notification/NewChannelPopup/NewDiscordChannelPopup';
-import { dateFromTimestampMs } from 'lib/date';
+import { dateTimeFromTimestampMs } from 'lib/date';
 import EditDiscordChannelPopup from 'pages/Notification/EditChannelPopup/EditDiscordChannelPopup';
 import './NotificationTable.scss';
 import { useToast } from 'providers/ToastProvider/ToastProvider';
@@ -29,8 +29,8 @@ const getDiscordChannelTableRow = ({
   webhookUrl,
 }: DiscordNotificationChannel): DiscordTableRowProps => ({
   name: receiverName,
-  updatedAt: dateFromTimestampMs(updatedAt),
-  createdAt: dateFromTimestampMs(createdAt),
+  updatedAt: dateTimeFromTimestampMs(updatedAt),
+  createdAt: dateTimeFromTimestampMs(createdAt),
   webhookUrl: webhookUrl,
   id,
 });

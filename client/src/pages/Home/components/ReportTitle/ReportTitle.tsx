@@ -1,6 +1,6 @@
 import React from 'react';
 import './ReportTitle.scss';
-import { dateFromTimestampMs } from 'lib/date';
+import { dateTimeFromTimestampMs } from 'lib/date';
 
 interface ReportTitleProps {
     source: string;
@@ -20,7 +20,7 @@ const ReportTitle: React.FC<ReportTitleProps> = ({
                 {source}
             </a>
             <p className="report-title__date-range">
-                ({dateFromTimestampMs(startTime)} - {dateFromTimestampMs(endTime)})
+                ({dateTimeFromTimestampMs(startTime)} - {dateTimeFromTimestampMs(endTime)})
             </p>
         </div>
     );

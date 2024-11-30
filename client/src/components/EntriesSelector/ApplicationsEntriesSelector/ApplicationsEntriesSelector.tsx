@@ -29,7 +29,7 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
             header: 'Name',
             columnKey: 'name',
             customComponent: (row: ApplicationDataRow) => (
-                <LinkComponent to="" isRunning={row.running}>
+                <LinkComponent isRunning={row.running}>
                     {row.name}
                 </LinkComponent>
             ),

@@ -13,7 +13,7 @@ const Home = () => {
     const fetchReports = async () => {
       try {
         const [onDemandReports, scheduledReports] = await Promise.all([
-          ManagmentServiceApiInstance.getReports('ON-DEMAND'),
+          ManagmentServiceApiInstance.getReports('ON_DEMAND'),
           ManagmentServiceApiInstance.getReports('SCHEDULED'),
         ]);
         const reports = [...onDemandReports, ...scheduledReports];

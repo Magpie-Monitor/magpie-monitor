@@ -45,7 +45,7 @@ interface TokenInfo {
 
 export type AccuracyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 export type UrgencyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
-export type ReportType = 'ON-DEMAND' | 'SCHEDULED';
+export type ReportType = 'ON_DEMAND' | 'SCHEDULED';
 
 export interface ReportAwaitingGeneration {
   clusterId: string;
@@ -59,11 +59,11 @@ export interface ReportSummary {
   id: string;
   clusterId: string;
   title: string;
-  urgency: UrgencyLevel;
+  urgency: UrgencyLevel | null;
   requestedAtMs: number;
   sinceMs: number;
   toMs: number;
-  [key: string]: string | number;
+  [key: string]: string | number | null;
 }
 
 export interface ReportDetails {
@@ -81,23 +81,20 @@ export interface ReportDetails {
 
 export interface ClusterSummary {
   clusterId: string;
-  running: boolean;
+  updatedAtMillis: number;
   accuracy: AccuracyLevel;
-  updatedAt: number;
-  slackChannels: {
-    name: string;
+  running: boolean;
+  slackReceivers: {
+    receiverName: string;
     webhookUrl: string;
-    updatedAt: number;
   }[];
-  discordChannels: {
-    name: string;
+  discordReceivers: {
+    receiverName: string;
     webhookUrl: string;
-    updatedAt: number;
   }[];
-  mailChannels: {
-    name: string;
-    email: string;
-    updatedAt: number;
+  emailReceivers: {
+    receiverName: string;
+    receiverEmail: string;
   }[];
 }
 
@@ -478,18 +475,7 @@ class ManagmentServiceApi {
   public async getClusters(): Promise<ClusterSummary[]> {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get('api/v1/clusters');
-    const clusters = response.data;
-
-    return clusters.map((cluster: ClusterSummary) => {
-      return {
-        ...cluster,
-        updatedAt: 0,
-        accuracy: 'LOW',
-        slackChannels: [],
-        discordChannels: [],
-        mailChannels: [],
-      };
-    });
+    return response.data;
   }
 
   public async getNotificationChannels(): Promise<NotificationChannel[]> {

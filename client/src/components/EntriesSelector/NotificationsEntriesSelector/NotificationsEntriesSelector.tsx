@@ -39,7 +39,7 @@ const NotificationsEntriesSelector: React.FC<
     {
       header: 'Name',
       columnKey: 'name',
-      customComponent: (row) => <LinkComponent to="">{row.name}</LinkComponent>,
+      customComponent: (row) => <LinkComponent>{row.name}</LinkComponent>,
     },
     {
       header: 'Service',
