@@ -36,7 +36,7 @@ public class ReportsService {
         return reportGenerationRequestMetadataRepository.findByStatus(ReportGenerationStatus.ERROR);
     }
 
-    public List<ReportGeneratingDTO> getGenerationReports() {
+    public List<ReportGeneratingDTO> getAwaitingGenerationReports() {
         return reportGenerationRequestMetadataRepository
                 .findByStatus(ReportGenerationStatus.GENERATING)
                 .stream()

@@ -130,10 +130,12 @@ const NodesSection: React.FC<NodesSectionProps> = ({
             ),
         },
         {
-            header: '',
+            header: 'Kind',
             columnKey: '',
             customComponent: () => (
-                <KindTag/>
+              <KindTag
+                name={'Node'}
+              />
             ),
         },
         {

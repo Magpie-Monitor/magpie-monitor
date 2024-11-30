@@ -48,7 +48,7 @@ const Reports = () => {
         <div className="reports__title-with-icon">
           {row.urgency === null && (
             <div className="reports__spinner">
-              <Spinner size="18px"/>
+              <Spinner size="17px"/>
             </div>
           )}
           <span
