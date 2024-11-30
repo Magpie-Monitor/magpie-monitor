@@ -28,6 +28,7 @@
       "@lib/*": ["lib/*"],
       "@assets/*": ["assets/*"],
       "@messages/*": ["messages/*"],
+      "@links/*": ["links/*"],
     }
   },
   "include": ["src"],
