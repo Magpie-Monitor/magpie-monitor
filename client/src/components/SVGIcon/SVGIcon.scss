@@ -290,6 +290,44 @@
   }
 }
 
+.edit-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/edit-icon.svg') no-repeat center;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+
+  .svg-icon {
+    background-color: $application-down-color;
+    width: 35px;
+    height: 35px;
+    transition: 0.2s ease;
+
+    &:hover {
+      background-color: $green;
+    }
+  }
+}
+
+.send-notification-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/send-notification-icon.svg') no-repeat center;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+
+  .svg-icon {
+    background-color: $application-down-color;
+    width: 35px;
+    height: 35px;
+    transition: 0.2s ease;
+
+    &:hover {
+      background-color: $medium-urgency-background;
+    }
+  }
+}
+
 .incident-category-icon {
   @extend .svg-icon;
   mask: url('/src/assets/fire-icon.svg') no-repeat center;
