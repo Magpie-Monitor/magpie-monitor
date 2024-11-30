@@ -3,25 +3,25 @@
   width: 30px;
   height: 30px;
   animation: spinHourglass 4s linear infinite;
-}
 
-.hourglass__frame-top,
-.hourglass__frame-middle,
-.hourglass__frame-bottom {
-  position: absolute;
-  visibility: hidden;
-}
+  &__frame-top,
+  &__frame-middle,
+  &__frame-bottom {
+    position: absolute;
+    visibility: hidden;
+  }
 
-.hourglass__frame-top {
-  animation: cycleTop 4s linear infinite;
-}
+  &__frame-top {
+    animation: cycleTop 4s linear infinite;
+  }
 
-.hourglass__frame-middle {
-  animation: cycleMiddle 4s linear infinite;
-}
+  &__frame-middle {
+    animation: cycleMiddle 4s linear infinite;
+  }
 
-.hourglass__frame-bottom {
-  animation: cycleBottom 4s linear infinite;
+  &__frame-bottom {
+    animation: cycleBottom 4s linear infinite;
+  }
 }
 
 @keyframes cycleTop {

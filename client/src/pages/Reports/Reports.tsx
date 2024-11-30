@@ -14,6 +14,7 @@ import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/He
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import Spinner from 'components/Spinner/Spinner.tsx';
 import {dateFromTimestampMs} from 'lib/date.ts';
+import Hourglass from 'components/Hourglass/Hourglass.tsx';
 import './Reports.scss';
 
 const Reports = () => {
@@ -36,16 +37,42 @@ const Reports = () => {
         </LinkComponent>
       ),
     },
-    {header: 'Title', columnKey: 'title'},
+    {
+      header: 'Title',
+      columnKey: 'title',
+      customComponent: (row: ReportSummary) => (
+        <div className="reports__title-with-icon">
+          {row.urgency === null && (
+            <div className="reports__hourglass">
+              <Hourglass />
+            </div>
+          )}
+          <span
+            className={`reports__title ${
+              row.urgency === null ? 'reports__title--inactive' : ''
+            }`}
+          >
+        {row.title}
+      </span>
+        </div>
+      ),
+    }
+    ,
     {
       header: 'Urgency',
       columnKey: 'urgency',
+      customComponent: (row: ReportSummary) =>
+        row.urgency ? <UrgencyBadge label={row.urgency} /> : null,
+    },
+    {
+      header: 'Date Range',
+      columnKey: 'dateRange',
       customComponent: (row: ReportSummary) => (
-        row.urgency ? <UrgencyBadge label={row.urgency}/> : null
+        <span>
+        {row.startDate} - {row.endDate}
+      </span>
       ),
     },
-    {header: 'Start date', columnKey: 'startDate'},
-    {header: 'End date', columnKey: 'endDate'},
   ];
 
   const fetchReportsOnDemand = async () => {
@@ -55,9 +82,12 @@ const Reports = () => {
         ...report,
         startDate: dateFromTimestampMs(report.sinceMs),
         endDate: dateFromTimestampMs(report.toMs),
-      }))
-        .sort((a, b) => b.requestedAtMs - a.requestedAtMs);
-      setRowsOnDemand(mappedReports);
+      }));
+
+      setRowsOnDemand(prev => [
+        ...mappedReports,
+        ...prev,
+      ]);
     } catch (error) {
       console.error('Error fetching on-demand reports:', error);
     }
@@ -70,9 +100,12 @@ const Reports = () => {
         ...report,
         startDate: dateFromTimestampMs(report.sinceMs),
         endDate: dateFromTimestampMs(report.toMs),
-      }))
-        .sort((a, b) => b.requestedAtMs - a.requestedAtMs);
-      setRowsScheduled(mappedReports);
+      }));
+
+      setRowsScheduled(prev => [
+        ...mappedReports,
+        ...prev,
+      ]);
     } catch (error) {
       console.error('Error fetching scheduled reports:', error);
     }
@@ -91,22 +124,14 @@ const Reports = () => {
         requestedAtMs: Date.now(),
       }));
 
-      const onDemandReports = mappedReports.filter(report => report.reportType === 'ON_DEMAND');
-      const scheduledReports = mappedReports.filter(report => report.reportType === 'SCHEDULED');
+      const updateRows =
+        (filterType: string, setRows: React.Dispatch<React.SetStateAction<ReportSummary[]>>) => {
+        const filteredReports = mappedReports.filter(report => report.reportType === filterType);
+        setRows(prev => [...filteredReports, ...prev]);
+      };
 
-      setRowsOnDemand(prev => [
-        ...onDemandReports.map(report => ({
-          ...report
-        })).sort((a, b) => b.requestedAtMs - a.requestedAtMs),
-        ...prev,
-      ]);
-
-      setRowsScheduled(prev => [
-        ...scheduledReports.map(report => ({
-          ...report
-        })).sort((a, b) => b.requestedAtMs - a.requestedAtMs),
-        ...prev,
-      ]);
+      updateRows('ON_DEMAND', setRowsOnDemand);
+      updateRows('SCHEDULED', setRowsScheduled);
     } catch (error) {
       console.error('Error fetching generating reports:', error);
     }
@@ -120,6 +145,10 @@ const Reports = () => {
         fetchReportsScheduled(),
         fetchReportAwaitingGenerations(),
       ]);
+
+      setRowsOnDemand(prev => [...prev].sort((a, b) => b.requestedAtMs - a.requestedAtMs));
+      setRowsScheduled(prev => [...prev].sort((a, b) => b.requestedAtMs - a.requestedAtMs));
+
       setLoading(false);
     };
     fetchAllReports();
