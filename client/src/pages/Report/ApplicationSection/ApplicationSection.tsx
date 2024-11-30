@@ -106,7 +106,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
             header: 'Name',
             columnKey: 'name',
             customComponent: (app: ApplicationDataRow) => (
-                <LinkComponent to="" isRunning={app.running}>
+                <LinkComponent isRunning={app.running}>
                     {app.name}
                 </LinkComponent>
             ),

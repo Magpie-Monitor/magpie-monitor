@@ -6,8 +6,15 @@ export const dateTimeFromTimestampMs = (timestamp: number): string => {
 };
 
 export const dateFromTimestampMs = (timestamp: number): string => {
-  return new Date(timestamp).toLocaleDateString();
+  const date = new Date(timestamp);
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}.${month}.${year}`;
 };
+
 
 export const dateOnlyFromTimestampMs = (timestamp: number): string => {
   return new Date(timestamp).toLocaleDateString();

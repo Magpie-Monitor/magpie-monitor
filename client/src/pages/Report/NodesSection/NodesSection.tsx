@@ -103,7 +103,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({
             header: 'Name',
             columnKey: 'name',
             customComponent: (node: NodeDataRow) => (
-                <LinkComponent to="" isRunning={node.running}>
+                <LinkComponent isRunning={node.running}>
                     {node.name}
                 </LinkComponent>
             ),

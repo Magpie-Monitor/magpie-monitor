@@ -28,7 +28,7 @@ const NodesEntriesSelector: React.FC<NodesEntriesSelectorProps> = ({
             header: 'Name',
             columnKey: 'name',
             customComponent: (row: NodeDataRow) => (
-                <LinkComponent to="" isRunning={row.running}>
+                <LinkComponent isRunning={row.running}>
                     {row.name}
                 </LinkComponent>
             ),

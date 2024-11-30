@@ -14,7 +14,6 @@ import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/He
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import Spinner from 'components/Spinner/Spinner.tsx';
 import {dateFromTimestampMs} from 'lib/date.ts';
-import Hourglass from 'components/Hourglass/Hourglass.tsx';
 import './Reports.scss';
 
 const Reports = () => {
@@ -31,11 +30,16 @@ const Reports = () => {
     {
       header: 'Cluster',
       columnKey: 'clusterId',
-      customComponent: (row: ReportSummary) => (
-        <LinkComponent to="" onClick={() => handleRowClick(row.id)}>
-          {row.clusterId}
-        </LinkComponent>
-      ),
+      customComponent: (row: ReportSummary) =>
+        row.urgency === null ? (
+          <LinkComponent>
+            {row.clusterId}
+          </LinkComponent>
+        ) : (
+          <LinkComponent onClick={() => handleRowClick(row.id)}>
+            {row.clusterId}
+          </LinkComponent>
+        ),
     },
     {
       header: 'Title',
@@ -43,8 +47,8 @@ const Reports = () => {
       customComponent: (row: ReportSummary) => (
         <div className="reports__title-with-icon">
           {row.urgency === null && (
-            <div className="reports__hourglass">
-              <Hourglass />
+            <div className="reports__spinner">
+              <Spinner size="18px"/>
             </div>
           )}
           <span
@@ -52,17 +56,16 @@ const Reports = () => {
               row.urgency === null ? 'reports__title--inactive' : ''
             }`}
           >
-        {row.title}
-      </span>
+          {row.title}
+        </span>
         </div>
       ),
-    }
-    ,
+    },
     {
       header: 'Urgency',
       columnKey: 'urgency',
       customComponent: (row: ReportSummary) =>
-        row.urgency ? <UrgencyBadge label={row.urgency} /> : null,
+        row.urgency ? <UrgencyBadge label={row.urgency}/> : null,
     },
     {
       header: 'Date Range',
@@ -126,9 +129,9 @@ const Reports = () => {
 
       const updateRows =
         (filterType: string, setRows: React.Dispatch<React.SetStateAction<ReportSummary[]>>) => {
-        const filteredReports = mappedReports.filter(report => report.reportType === filterType);
-        setRows(prev => [...filteredReports, ...prev]);
-      };
+          const filteredReports = mappedReports.filter(report => report.reportType === filterType);
+          setRows(prev => [...filteredReports, ...prev]);
+        };
 
       updateRows('ON_DEMAND', setRowsOnDemand);
       updateRows('SCHEDULED', setRowsScheduled);
