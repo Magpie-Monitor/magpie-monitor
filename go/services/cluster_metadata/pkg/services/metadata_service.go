@@ -86,26 +86,12 @@ func NewMetadataService(params MetadataServiceParams) *MetadataService {
 		clusterActivityWindowMillis:                         envs.ConvertToInt64(CLUSTER_ACTIVITY_WINDOW_MILLIS_ENV_NAME),
 	}
 
-	metadataService.Init()
-
-	// params.Lc.Append(fx.Hook{
-	// 	OnStart: func(ctx context.Context) error {
-	// 		metadataService.Init()
-	// 		return nil
-	// 	},
-	// })
-
-	// TODO - move to invoke
-	// params.Lc.Append(fx.Hook{
-	// 	OnStart: func(ctx context.Context) error {
-	// 		go metadataService.PollForClusterStateChange()
-	// 		go metadataService.PollForApplicationStateChange()
-	// 		go metadataService.PollForNodeStateChange()
-	// 		go metadataService.ConsumeApplicationMetadata()
-	// 		go metadataService.ConsumeNodeMetadata()
-	// 		return nil
-	// 	},
-	// })
+	params.Lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			metadataService.Init()
+			return nil
+		},
+	})
 
 	return &metadataService
 }
@@ -130,14 +116,14 @@ type MetadataService struct {
 }
 
 func (m *MetadataService) Init() {
-	go m.PollForClusterStateChange()
-	go m.PollForApplicationStateChange()
-	go m.PollForNodeStateChange()
-	go m.ConsumeApplicationMetadata()
-	go m.ConsumeNodeMetadata()
+	go m.pollForClusterStateChange()
+	go m.pollForApplicationStateChange()
+	go m.pollForNodeStateChange()
+	go m.consumeApplicationMetadata()
+	go m.consumeNodeMetadata()
 }
 
-func (m *MetadataService) ConsumeApplicationMetadata() {
+func (m *MetadataService) consumeApplicationMetadata() {
 	var (
 		msg = make(chan repositories.ApplicationState)
 		err = make(chan error)
@@ -161,7 +147,7 @@ func (m *MetadataService) ConsumeApplicationMetadata() {
 	}
 }
 
-func (m *MetadataService) ConsumeNodeMetadata() {
+func (m *MetadataService) consumeNodeMetadata() {
 	var (
 		msg = make(chan repositories.NodeState)
 		err = make(chan error)
@@ -184,7 +170,7 @@ func (m *MetadataService) ConsumeNodeMetadata() {
 	}
 }
 
-func (m *MetadataService) PollForNodeStateChange() {
+func (m *MetadataService) pollForNodeStateChange() {
 	for {
 		time.Sleep(time.Duration(m.nodeAggregatedStateChangePollIntervalSeconds) * time.Second)
 
@@ -206,7 +192,7 @@ func (m *MetadataService) PollForNodeStateChange() {
 	}
 }
 
-func (m *MetadataService) PollForApplicationStateChange() {
+func (m *MetadataService) pollForApplicationStateChange() {
 	for {
 		time.Sleep(time.Duration(m.applicationAggregatedStateChangePollIntervalSeconds) * time.Second)
 
@@ -228,7 +214,7 @@ func (m *MetadataService) PollForApplicationStateChange() {
 	}
 }
 
-func (m *MetadataService) PollForClusterStateChange() {
+func (m *MetadataService) pollForClusterStateChange() {
 	for {
 		time.Sleep(time.Duration(m.clusterAggregatedStateChangePollIntervalSeconds) * time.Second)
 

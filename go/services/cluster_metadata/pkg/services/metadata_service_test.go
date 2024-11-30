@@ -11,6 +11,7 @@ import (
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/config"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/services"
+
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.uber.org/fx"
@@ -18,17 +19,6 @@ import (
 )
 
 func TestNodeMetadataIngestion(t *testing.T) {
-	type TestDependencies struct {
-		fx.In
-		Logger *zap.Logger
-
-		MetadataService *services.MetadataService
-
-		NodeMetadataBroker messagebroker.MessageBroker[repositories.NodeState]
-
-		NodeMetadataRepository *sharedrepo.MongoDbCollection[repositories.NodeState]
-		NodeAggregatedRepo     *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
-	}
 
 	testCases := []struct {
 		name     string
@@ -59,19 +49,30 @@ func TestNodeMetadataIngestion(t *testing.T) {
 		},
 	}
 
+	type TestDependencies struct {
+		fx.In
+		Logger *zap.Logger
+
+		MetadataService *services.MetadataService
+
+		NodeMetadataBroker messagebroker.MessageBroker[repositories.NodeState]
+
+		NodeMetadataRepository *sharedrepo.MongoDbCollection[repositories.NodeState]
+		NodeAggregatedRepo     *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
+	}
+
 	test := func(dependencies TestDependencies) {
 		log := dependencies.Logger
-		cleanup := func() {
-			dependencies.NodeMetadataRepository.DeleteAll()
-			dependencies.NodeAggregatedRepo.DeleteAll()
-		}
 
 		for _, test := range testCases {
+			dependencies.MetadataService.Init()
+
 			var metadata = test.metadata
 
 			log.Info("Executing", zap.String("test", test.name))
 
-			cleanup()
+			dependencies.NodeMetadataRepository.DeleteAll()
+			dependencies.NodeAggregatedRepo.DeleteAll()
 
 			dependencies.NodeMetadataBroker.Publish("", metadata)
 
@@ -89,8 +90,8 @@ func TestNodeMetadataIngestion(t *testing.T) {
 				t.Error("Error reading node metadata")
 			}
 
-			assert.Len(t, result.WatchedFiles, len(metadata.WatchedFiles))
-			assert.ElementsMatch(t, result.WatchedFiles, metadata.WatchedFiles)
+			assert.Len(t, result.WatchedFiles, len(metadata.WatchedFiles), "Invalid number of watched files")
+			assert.ElementsMatch(t, result.WatchedFiles, metadata.WatchedFiles, "Watched files don't match")
 		}
 	}
 
@@ -141,6 +142,8 @@ func TestApplicationMetadataIngestion(t *testing.T) {
 	test := func(dependencies TestDependencies) {
 
 		for _, test := range testCases {
+			dependencies.MetadataService.Init()
+
 			var (
 				log      = dependencies.Logger
 				metadata = test.metadata
@@ -164,7 +167,7 @@ func TestApplicationMetadataIngestion(t *testing.T) {
 			}
 
 			assert.Len(t, result.Applications, len(metadata.Applications), "Invalid number of applications")
-			assert.ElementsMatch(t, result.Applications, metadata.Applications)
+			assert.ElementsMatch(t, result.Applications, metadata.Applications, "Applications don't match")
 		}
 	}
 
@@ -257,6 +260,9 @@ func TestNodeMetadataStateUpdate(t *testing.T) {
 
 	for _, test := range testCases {
 		tests.RunTest(func(dependencies TestDependencies) {
+
+			dependencies.MetadataService.Init()
+
 			var (
 				metadata = test.metadata
 				result   = test.result
@@ -275,17 +281,17 @@ func TestNodeMetadataStateUpdate(t *testing.T) {
 			msg := make(chan services.NodeMetadataUpdated)
 			go dependencies.NodeMetadataUpdatedBroker.Subscribe(context.Background(), msg, make(chan<- error))
 
-			updatedState := <-msg
+			updatedStateEvent := <-msg
+			updatedState := updatedStateEvent.Metadata
 
-			assert.Equal(t, result.ClusterId, updatedState.Metadata.ClusterId, "Cluster ID don't match")
-			assert.Equal(t, result.Metadata[0].Name, updatedState.Metadata.Metadata[0].Name, "Node names don't match")
+			assert.Equal(t, result.ClusterId, updatedState.ClusterId, "Invalid clusterId")
 
-			for idx, metadata := range updatedState.Metadata.Metadata {
-				assert.Equal(t, result.Metadata[idx].Name, metadata.Name)
-				assert.ElementsMatch(t, result.Metadata[idx].Files, metadata.Files, "Metadata don't match")
+			for idx, metadata := range updatedState.Metadata {
+				assert.Equal(t, result.Metadata[idx].Name, metadata.Name, "Invalid node name")
+				assert.ElementsMatch(t, result.Metadata[idx].Files, metadata.Files, "Invalid node files")
 			}
 
-			assert.Len(t, updatedState.Metadata.Metadata, len(result.Metadata), "Incorrect number of nodes")
+			assert.Len(t, updatedState.Metadata, len(result.Metadata), "Invalid number of nodes")
 		},
 			t,
 			config.AppModule,
@@ -441,6 +447,9 @@ func TestApplicationMetadataStateUpdate(t *testing.T) {
 
 	for _, test := range testCases {
 		tests.RunTest(func(dependencies TestDependencies) {
+
+			dependencies.MetadataService.Init()
+
 			var (
 				log    = dependencies.Logger
 				result = test.result
@@ -459,24 +468,17 @@ func TestApplicationMetadataStateUpdate(t *testing.T) {
 			msg := make(chan services.ApplicationMetadataUpdated)
 			go dependencies.ApplicationMetadataUpdatedBroker.Subscribe(context.Background(), msg, make(chan<- error))
 
-			updatedState := <-msg
+			updatedStateEvent := <-msg
 
-			assert.Equal(t, result.ClusterId, updatedState.Metadata.ClusterId)
-			assert.ElementsMatch(t, result.Metadata, updatedState.Metadata.Metadata)
+			updatedState := updatedStateEvent.Metadata
+
+			assert.Equal(t, result.ClusterId, updatedState.ClusterId, "Invalid clusterId")
+			assert.ElementsMatch(t, result.Metadata, updatedState.Metadata, "Invalid application metadata")
 		}, t, config.AppModule)
 	}
 }
 
 func TestClusterMetadataStateUpdate(t *testing.T) {
-	type TestDependencies struct {
-		fx.In
-		MetadataService              *services.MetadataService
-		AppRepo                      *sharedrepo.MongoDbCollection[repositories.ApplicationState]
-		NodeRepo                     *sharedrepo.MongoDbCollection[repositories.NodeState]
-		ClusterAggregatedRepo        *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
-		NodeMetadataBroker           messagebroker.MessageBroker[repositories.NodeState]
-		ClusterMetadataUpdatedBroker messagebroker.MessageBroker[services.ClusterMetadataUpdated]
-	}
 
 	testCases := []struct {
 		name     string
@@ -521,8 +523,20 @@ func TestClusterMetadataStateUpdate(t *testing.T) {
 		},
 	}
 
+	type TestDependencies struct {
+		fx.In
+		MetadataService              *services.MetadataService
+		AppRepo                      *sharedrepo.MongoDbCollection[repositories.ApplicationState]
+		NodeRepo                     *sharedrepo.MongoDbCollection[repositories.NodeState]
+		ClusterAggregatedRepo        *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
+		NodeMetadataBroker           messagebroker.MessageBroker[repositories.NodeState]
+		ClusterMetadataUpdatedBroker messagebroker.MessageBroker[services.ClusterMetadataUpdated]
+	}
+
 	for _, test := range testCases {
 		tests.RunTest(func(dependencies TestDependencies) {
+
+			dependencies.MetadataService.Init()
 
 			dependencies.ClusterAggregatedRepo.DeleteAll()
 			dependencies.NodeRepo.DeleteAll()
@@ -537,8 +551,7 @@ func TestClusterMetadataStateUpdate(t *testing.T) {
 
 			updatedState := <-msg
 
-			assert.ElementsMatch(t, test.result.Metadata, updatedState.Metadata.Metadata)
-
+			assert.ElementsMatch(t, test.result.Metadata, updatedState.Metadata.Metadata, "Invalid cluster metadata")
 		}, t, config.AppModule)
 	}
 }

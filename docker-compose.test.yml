@@ -66,7 +66,6 @@ services:
       NODE_AGENT_NODE_METADATA_TOPIC: ${NODE_AGENT_NODE_METADATA_TOPIC}
       INTEGRATION_TEST_WAIT_MODIFIER: ${INTEGRATION_TEST_WAIT_MODIFIER}
     volumes:
-      - es-certs:/usr/local/share
       - cache:/go/pkg/mod/
       
   reports-service-test:
