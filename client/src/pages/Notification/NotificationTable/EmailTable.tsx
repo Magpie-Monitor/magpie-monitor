@@ -99,7 +99,7 @@ const EmailTable = () => {
             try {
               await ManagmentServiceApiInstance.testEmailChannel(props.id);
               showMessage({
-                message: 'Test notification was sent',
+                message: 'Successfully sent a test notification',
                 type: 'INFO',
               });
             } catch (e: unknown) {
