@@ -114,7 +114,7 @@ const EmailTable = () => {
               await ManagmentServiceApiInstance.deleteEmailChannel(props.id);
               showMessage({
                 message: 'Email channel was deleted',
-                type: 'INFO',
+                type: 'WARNING',
               });
             } catch (e: unknown) {
               showMessage({
