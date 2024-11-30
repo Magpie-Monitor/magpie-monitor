@@ -20,7 +20,10 @@ const ConfigurationSection = ({
     >
       <div className="incident-configuration">
         <LabelField label="Accuracy" field={accuracy} />
-        <LabelField label="Custom prompt" field={customPrompt} />
+        <LabelField
+          label="Custom prompt"
+          field={customPrompt ? customPrompt : '[Empty prompt]'}
+        />
       </div>
     </SectionComponent>
   );

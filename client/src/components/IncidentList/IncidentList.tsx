@@ -21,9 +21,9 @@ const IncidentList = ({ incidents, onClick }: IncidentListProps) => {
     from: { opacity: 0, transform: 'translateY(20px)' },
     enter: { opacity: 1, transform: 'translateY(0)' },
     leave: { opacity: 0, transform: 'translateY(20px)' },
-    config: { duration: 200 }, // Animation duration
+    config: { duration: 100 }, // Animation duration
     keys: incidents.map((incident) => incident.id), // Ensure unique keys
-    trail: 400,
+    trail: 200,
   });
 
   if (incidents.length === 0) {
