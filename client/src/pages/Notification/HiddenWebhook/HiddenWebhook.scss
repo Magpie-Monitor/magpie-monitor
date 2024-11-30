@@ -5,9 +5,10 @@
   flex-direction: row;
   align-items: center;
   max-width: 300px;
+  cursor: pointer;
 
   &__url {
-    text-align: center;
+    /* text-align: center; */
     overflow-x: hidden;
   }
 

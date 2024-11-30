@@ -7,6 +7,7 @@
   &__label {
     color: $font-color;
     font-size: 0.7rem;
+    margin-left: 5px;
   }
 
   &__input {
@@ -31,5 +32,6 @@
   &__validation {
     color: $red;
     font-size: 0.7rem;
+    margin-left: 5px;
   }
 }
