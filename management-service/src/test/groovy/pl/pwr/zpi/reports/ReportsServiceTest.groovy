@@ -56,7 +56,7 @@ class ReportsServiceTest extends Specification {
         result == failedRequests
     }
 
-    def "should get generation reports"() {
+    def "should get awaiting generation reports"() {
         given:
         def generatingReports = List.of(
                 createReportGenerationRequestMetadata("132321", ReportGenerationStatus.GENERATING, "cluster1", 1000L, 2000L),
@@ -64,7 +64,7 @@ class ReportsServiceTest extends Specification {
         reportGenerationRequestMetadataRepository.findByStatus(ReportGenerationStatus.GENERATING) >> generatingReports
 
         when:
-        def result = reportsService.getGenerationReports()
+        def result = reportsService.getAwaitingGenerationReports()
 
         then:
         result.size() == generatingReports.size()

@@ -27,13 +27,13 @@ class ClusterServiceTest extends Specification {
         clusterService = new ClusterService(clusterRepository, receiverService, metadataService)
     }
 
-    def "should update pl.pwr.zpi.cluster configuration and save it to repository"() {
+    def "should update cluster configuration and save it to repository"() {
         given:
         def request = new UpdateClusterConfigurationRequest(
-                "test-pl.pwr.zpi.cluster-id", Accuracy.HIGH, true, 1000L,
+                "cluster-id", Accuracy.HIGH, true, 1000L,
                 [1L, 2L], [3L, 4L], [5L, 6L], [], []
         )
-        def clusterConfiguration = new ClusterConfiguration(id: "test-pl.pwr.zpi.cluster-id")
+        def clusterConfiguration = new ClusterConfiguration(id: "cluster-id")
 
         mockReceiverService()
 
@@ -47,11 +47,11 @@ class ClusterServiceTest extends Specification {
         response.clusterId != null
     }
 
-    def "should return pl.pwr.zpi.cluster configuration by id"() {
+    def "should return cluster configuration by id"() {
         given:
-        def clusterId = "test-pl.pwr.zpi.cluster-id"
+        def clusterId = "cluster-id"
         def clusterConfiguration = new ClusterConfiguration(id: clusterId)
-        def metadata = new ClusterMetadataDTO(clusterId, true)
+        def metadata = new ClusterMetadataDTO(clusterId, System.currentTimeMillis(), Accuracy.HIGH, true, [], [], [])
 
         clusterConfiguration.nodeConfigurations = []
         clusterConfiguration.applicationConfigurations = []
@@ -63,14 +63,17 @@ class ClusterServiceTest extends Specification {
         def result = clusterService.getClusterById(clusterId)
 
         then:
-        result.isPresent()
-        result.get().id == clusterConfiguration.id
-        result.get().running == true
+        result != null
+        result.id == clusterId
+        result.running == metadata.isRunning()
+        result.accuracy == clusterConfiguration.accuracy
+        result.nodeConfigurations.isEmpty()
+        result.applicationConfigurations.isEmpty()
     }
 
-    def "should return pl.pwr.zpi.cluster configuration with false running status if pl.pwr.zpi.metadata is empty"() {
+    def "should return cluster configuration with false running status if metadata is empty"() {
         given:
-        def clusterId = "test-pl.pwr.zpi.cluster-id"
+        def clusterId = "cluster-id"
         def clusterConfiguration = new ClusterConfiguration(id: clusterId)
 
         clusterConfiguration.nodeConfigurations = []
@@ -83,9 +86,12 @@ class ClusterServiceTest extends Specification {
         def result = clusterService.getClusterById(clusterId)
 
         then:
-        result.isPresent()
-        result.get().id == clusterConfiguration.id
-        result.get().running == false
+        result != null
+        result.id == clusterId
+        result.running == false
+        result.accuracy == clusterConfiguration.accuracy
+        result.nodeConfigurations.isEmpty()
+        result.applicationConfigurations.isEmpty()
     }
 
     private void mockReceiverService() {

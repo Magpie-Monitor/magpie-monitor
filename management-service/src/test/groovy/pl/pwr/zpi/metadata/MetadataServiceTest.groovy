@@ -48,11 +48,11 @@ class MetadataServiceTest extends Specification {
     }
 
     private ClusterMetadataDTO createClusterMetadataDTO(String clusterId) {
-        return new ClusterMetadataDTO(clusterId, true)
+        return new ClusterMetadataDTO(clusterId, null, null, true, null, null, null)
     }
 
     private ClusterMetadataDTO createInactiveClusterMetadataDTO(String clusterId) {
-        return new ClusterMetadataDTO(clusterId, false)
+        return new ClusterMetadataDTO(clusterId, null, null, false, null, null, null)
     }
 
     private NodeMetadataDTO createNodeMetadataDTO(String nodeName) {
