@@ -18,6 +18,15 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
+type KubernetesApiClient interface {
+	GetDeployments(namespace string) ([]v2.Deployment, error)
+	GetStatefulSets(namespace string) ([]v2.StatefulSet, error)
+	GetDaemonSets(namespace string) ([]v2.DaemonSet, error)
+	GetNamespaces(excludedNamespaces []string) ([]string, error)
+	GetPods(selector *metav1.LabelSelector, namespace string) ([]v1.Pod, error)
+	GetContainerLogsSinceTime(podName, containerName, namespace string, sinceTime time.Time, timestamps bool) (string, error)
+}
+
 func NewKubernetesApiClient(runningMode string) KubernetesApiClient {
 	config := getClientConfig(runningMode)
 
@@ -58,15 +67,6 @@ func getClientConfig(runningMode string) *rest.Config {
 	config = c
 
 	return config
-}
-
-type KubernetesApiClient interface {
-	GetDeployments(namespace string) ([]v2.Deployment, error)
-	GetStatefulSets(namespace string) ([]v2.StatefulSet, error)
-	GetDaemonSets(namespace string) ([]v2.DaemonSet, error)
-	GetNamespaces(excludedNamespaces []string) ([]string, error)
-	GetPods(selector *metav1.LabelSelector, namespace string) ([]v1.Pod, error)
-	GetContainerLogsSinceTime(podName, containerName, namespace string, sinceTime time.Time, timestamps bool) (string, error)
 }
 
 type Client struct {
