@@ -10,7 +10,7 @@ import {
     ReportType,
 } from 'api/managment-service.ts';
 import {periodToMilliseconds} from './SchedulePeriod/SchedulePeriod.tsx';
-import {dateFromTimestampMs} from 'lib/date.ts';
+import {dateTimeFromTimestampMs} from 'lib/date.ts';
 
 export const fetchClusterData = async (
     clusterId: string
@@ -42,24 +42,24 @@ export const fetchClusterData = async (
                 name: receiver.receiverName,
                 details: receiver.webhookUrl,
                 service: 'SLACK' as NotificationChannelKind,
-                added: dateFromTimestampMs(receiver.createdAt),
-                updated: dateFromTimestampMs(receiver.updatedAt),
+                added: dateTimeFromTimestampMs(receiver.createdAt),
+                updated: dateTimeFromTimestampMs(receiver.updatedAt),
             })),
             ...clusterDetails.discordReceivers.map(receiver => ({
                 id: receiver.id.toString(),
                 name: receiver.receiverName,
                 details: receiver.webhookUrl,
                 service: 'DISCORD' as NotificationChannelKind,
-                added: dateFromTimestampMs(receiver.createdAt),
-                updated: dateFromTimestampMs(receiver.updatedAt),
+                added: dateTimeFromTimestampMs(receiver.createdAt),
+                updated: dateTimeFromTimestampMs(receiver.updatedAt),
             })),
             ...clusterDetails.emailReceivers.map(receiver => ({
                 id: receiver.id.toString(),
                 name: receiver.receiverName,
                 details: receiver.receiverEmail,
                 service: 'EMAIL' as NotificationChannelKind,
-                added: dateFromTimestampMs(receiver.createdAt),
-                updated: dateFromTimestampMs(receiver.updatedAt),
+                added: dateTimeFromTimestampMs(receiver.createdAt),
+                updated: dateTimeFromTimestampMs(receiver.updatedAt),
             })),
         ];
 
@@ -141,7 +141,7 @@ export const generateReport = ({
 
     const schedulePeriodMs = periodToMilliseconds[generationPeriod] || 0;
 
-    if (generationType === 'ON-DEMAND') {
+    if (generationType === 'ON_DEMAND') {
         const report: ReportPost = {
             clusterId: id ?? '',
             accuracy: 'HIGH',

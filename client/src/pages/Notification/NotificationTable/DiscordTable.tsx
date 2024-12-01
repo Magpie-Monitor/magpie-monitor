@@ -12,9 +12,10 @@ import {
 } from 'api/managment-service';
 import LoadingTable from './LoadingTable';
 import NewDiscordChannelPopup from 'pages/Notification/NewChannelPopup/NewDiscordChannelPopup';
-import { dateFromTimestampMs } from 'lib/date';
+import { dateTimeFromTimestampMs } from 'lib/date';
 import EditDiscordChannelPopup from 'pages/Notification/EditChannelPopup/EditDiscordChannelPopup';
 import './NotificationTable.scss';
+import { useToast } from 'providers/ToastProvider/ToastProvider';
 
 interface DiscordTableRowProps extends NotificationTableRowProps {
   webhookUrl: string;
@@ -28,8 +29,8 @@ const getDiscordChannelTableRow = ({
   webhookUrl,
 }: DiscordNotificationChannel): DiscordTableRowProps => ({
   name: receiverName,
-  updatedAt: dateFromTimestampMs(updatedAt),
-  createdAt: dateFromTimestampMs(createdAt),
+  updatedAt: dateTimeFromTimestampMs(updatedAt),
+  createdAt: dateTimeFromTimestampMs(createdAt),
   webhookUrl: webhookUrl,
   id,
 });
@@ -43,6 +44,8 @@ const DiscordTable = () => {
     useState<boolean>(false);
   const [editChannelPopupData, setEditChannelPopupData] =
     useState<DiscordTableRowProps | null>(null);
+
+  const { showMessage } = useToast();
 
   const fetchDiscordChannels = async () => {
     try {
@@ -92,11 +95,33 @@ const DiscordTable = () => {
             setEditChannelPopupData(props);
             setIsEditChannelPopupDisplayed(true);
           }}
-          onTest={() => {
-            ManagmentServiceApiInstance.testDiscordChannel(props.id);
+          onTest={async () => {
+            try {
+              await ManagmentServiceApiInstance.testDiscordChannel(props.id);
+              showMessage({
+                message: 'Successfully sent a test notification',
+                type: 'INFO',
+              });
+            } catch (e: unknown) {
+              showMessage({
+                message: `Failed to send test notification: ${e}`,
+                type: 'ERROR',
+              });
+            }
           }}
           onDelete={async () => {
-            await ManagmentServiceApiInstance.deleteDiscordChannel(props.id);
+            try {
+              await ManagmentServiceApiInstance.deleteDiscordChannel(props.id);
+              showMessage({
+                message: 'Discord channel was deleted',
+                type: 'WARNING',
+              });
+            } catch (e: unknown) {
+              showMessage({
+                message: `Failed to delete notification channel: ${e}`,
+                type: 'ERROR',
+              });
+            }
             setLoading(true);
           }}
         />

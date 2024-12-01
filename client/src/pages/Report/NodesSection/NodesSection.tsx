@@ -5,7 +5,7 @@ import TagButton from 'components/TagButton/TagButton.tsx';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
-import { AccuracyLevel } from 'api/managment-service';
+import {AccuracyLevel, ManagmentServiceApiInstance} from 'api/managment-service';
 import NodesEntriesSelector
     from 'components/EntriesSelector/NodesEntriesSelector/NodesEntriesSelector.tsx';
 import CustomTag from 'components/CustomTag/CustomTag.tsx';
@@ -36,8 +36,30 @@ const NodesSection: React.FC<NodesSectionProps> = ({
                                                    }) => {
     const [showModal, setShowModal] = useState(false);
     const [selectedNodes, setSelectedNodes] = useState<NodeDataRow[]>([]);
+    const [availableNodes, setAvailableNodes] = useState<NodeDataRow[]>([]);
     const [showCustomPromptPopup, setShowCustomPromptPopup] = useState(false);
     const [selectedNode, setSelectedNode] = useState<NodeDataRow | null>(null);
+
+    const loadNodes = async () => {
+        try {
+            const data = await ManagmentServiceApiInstance.getNodes(clusterId);
+            setAvailableNodes(
+              data.map((node) => ({
+                  name: node.name,
+                  running: node.running,
+                  accuracy: defaultAccuracy,
+                  customPrompt: '',
+              }))
+            );
+        } catch (error) {
+            console.error('Failed to fetch nodes:', error);
+        }
+    };
+
+    const handleOpenModal = async () => {
+        await loadNodes();
+        setShowModal(true);
+    };
 
     const handleAddNodes = () => {
         setNodes([...nodes, ...selectedNodes]);
@@ -81,7 +103,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({
             header: 'Name',
             columnKey: 'name',
             customComponent: (node: NodeDataRow) => (
-                <LinkComponent to="" isRunning={node.running}>
+                <LinkComponent isRunning={node.running}>
                     {node.name}
                 </LinkComponent>
             ),
@@ -108,10 +130,12 @@ const NodesSection: React.FC<NodesSectionProps> = ({
             ),
         },
         {
-            header: '',
+            header: 'Kind',
             columnKey: '',
             customComponent: () => (
-                <KindTag/>
+              <KindTag
+                name={'Node'}
+              />
             ),
         },
         {
@@ -127,7 +151,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({
         <SectionComponent
             icon={<SVGIcon iconName="application-icon" />}
             title={'Nodes'}
-            callback={() => setShowModal(true)}
+            callback={() => handleOpenModal()}
         >
             <OverlayComponent isDisplayed={showModal} onClose={() => setShowModal(false)}>
                 <NodesEntriesSelector
@@ -136,8 +160,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({
                     nodesToExclude={nodes}
                     onAdd={handleAddNodes}
                     onClose={() => setShowModal(false)}
-                    clusterId={clusterId}
-                    defaultAccuracy={defaultAccuracy}
+                    availableNodes={availableNodes}
                 />
             </OverlayComponent>
 

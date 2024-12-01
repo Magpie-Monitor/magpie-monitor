@@ -69,7 +69,7 @@ type NodeInsightsGenerator interface {
 	) ([]NodeInsightsWithMetadata, error)
 }
 
-type nodeInsightsResponseDto struct {
+type NodeInsightsResponseDto struct {
 	Insights []NodeLogsInsight
 }
 
@@ -108,14 +108,14 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleNode(
 	}
 
 	openAiResponse, err := g.client.Complete(messages,
-		openai.CreateJsonReponseFormat("node_insights", nodeInsightsResponseDto{}))
+		openai.CreateJsonReponseFormat("node_insights", NodeInsightsResponseDto{}))
 
 	if err != nil {
 		g.logger.Error("Failed to get node logs insights from openai client", zap.Error(err))
 		return nil, err
 	}
 
-	var insights nodeInsightsResponseDto
+	var insights NodeInsightsResponseDto
 
 	if len(openAiResponse.Choices) == 0 {
 		g.logger.Error("No insight choices were returned for", zap.Any("node", configuration.NodeName))
@@ -160,7 +160,7 @@ func (g *OpenAiInsightsGenerator) ScheduleNodeInsights(
 			completionRequests[fmt.Sprintf("%s-%d", nodeName, idx)] = &openai.CompletionRequest{
 				Messages:       messages,
 				Temperature:    g.client.Temperature,
-				ResponseFormat: openai.CreateJsonReponseFormat("insights", nodeInsightsResponseDto{}),
+				ResponseFormat: openai.CreateJsonReponseFormat("insights", NodeInsightsResponseDto{}),
 				Model:          g.client.Model(),
 			}
 		}
@@ -254,12 +254,7 @@ func (g *OpenAiInsightsGenerator) GetScheduledNodeInsights(
 		return nil, err
 	}
 
-	if err != nil {
-		g.logger.Error("Failed to get application logs for scheduled insight")
-		return nil, err
-	}
-
-	insights, err := g.getNodeInsightsFromBatchEntries(completionResponses, scheduledInsights)
+	insights, err := g.GetNodeInsightsFromBatchEntries(completionResponses, scheduledInsights)
 	if err != nil {
 		g.logger.Error("Failed to transform batch entries into node insights")
 		return nil, err
@@ -295,12 +290,7 @@ func (g *OpenAiInsightsGenerator) AwaitScheduledNodeInsights(
 		return nil, err
 	}
 
-	if err != nil {
-		g.logger.Error("Failed to get application logs for scheduled insight")
-		return nil, err
-	}
-
-	insights, err := g.getNodeInsightsFromBatchEntries(completionResponses, scheduledInsights)
+	insights, err := g.GetNodeInsightsFromBatchEntries(completionResponses, scheduledInsights)
 	if err != nil {
 		g.logger.Error("Failed to transform batch entries into node insights")
 		return nil, err
@@ -309,14 +299,14 @@ func (g *OpenAiInsightsGenerator) AwaitScheduledNodeInsights(
 	return insights, nil
 }
 
-func (g OpenAiInsightsGenerator) getNodeInsightsFromBatchEntries(
+func (g OpenAiInsightsGenerator) GetNodeInsightsFromBatchEntries(
 	batchEntries []*openai.BatchFileCompletionResponseEntry,
 	scheduledNodeInsights *ScheduledNodeInsights) ([]NodeInsightsWithMetadata, error) {
 
 	// Each jsonl entry contains insights for a single node
 	insights := []NodeInsightsWithMetadata{}
 	for _, response := range batchEntries {
-		var nodeInsights nodeInsightsResponseDto
+		var nodeInsights NodeInsightsResponseDto
 		if len(response.Response.Body.Choices) == 0 {
 			return nil, errors.New("Failed to get insights from batch completion choices")
 		}

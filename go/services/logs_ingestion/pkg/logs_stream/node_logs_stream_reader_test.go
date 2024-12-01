@@ -4,18 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"testing"
-	"time"
-
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/tests"
 	"github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/config"
-	_ "github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/config"
 	logsstream "github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/logs_stream"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"testing"
+	"time"
 )
 
 func TestNodeLogsStreamReader(t *testing.T) {
@@ -47,6 +45,8 @@ func TestNodeLogsStreamReader(t *testing.T) {
 			Filename:      "/etc/var/journalctl",
 			Content:       "Test content",
 		}
+
+		dependencies.Logger.Info("Reposutory", zap.Any("repo", dependencies.NodeLogsRepository))
 
 		expectedLogDocument := repositories.NodeLogsDocument{
 			ClusterId:     LOGS_INGESTION_TEST_INDEX,

@@ -10,7 +10,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 999;
 }
 
 .modal-content {
@@ -19,6 +19,6 @@
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   border: 2px solid $component-border-color;
-  overflow-x: scroll;
+  overflow-x: auto;
   margin: 0 5px;
 }

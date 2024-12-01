@@ -6,7 +6,7 @@ import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPromptPopup from 'components/CustomPromptPopup/CustomPromptPopup.tsx';
-import {AccuracyLevel} from 'api/managment-service';
+import {AccuracyLevel, ManagmentServiceApiInstance} from 'api/managment-service';
 import ApplicationsEntriesSelector
     from 'components/EntriesSelector/ApplicationsEntriesSelector/ApplicationsEntriesSelector.tsx';
 import CustomTag from 'components/CustomTag/CustomTag.tsx';
@@ -40,6 +40,29 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
     const [showCustomPromptPopup, setShowCustomPromptPopup] = useState(false);
     const [selectedApp, setSelectedApp] = useState<ApplicationDataRow | null>(null);
     const [selectedApplications, setSelectedApplications] = useState<ApplicationDataRow[]>([]);
+    const [applicationsToAdd, setApplicationsToAdd] = useState<ApplicationDataRow[]>([]);
+
+    const loadApplications = async () => {
+        try {
+            const data = await ManagmentServiceApiInstance.getApplications(clusterId);
+            setApplicationsToAdd(
+              data.map((app) => ({
+                  name: app.name,
+                  running: app.running,
+                  kind: app.kind,
+                  accuracy: defaultAccuracy,
+                  customPrompt: '',
+              })),
+            );
+        } catch (error) {
+            console.error("Failed to load applications:", error);
+        }
+    };
+
+    const handleOpenModal = async () => {
+        await loadApplications();
+        setShowModal(true);
+    };
 
     const handleAddApplications = () => {
         setApplications([...applications, ...selectedApplications]);
@@ -83,7 +106,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
             header: 'Name',
             columnKey: 'name',
             customComponent: (app: ApplicationDataRow) => (
-                <LinkComponent to="" isRunning={app.running}>
+                <LinkComponent isRunning={app.running}>
                     {app.name}
                 </LinkComponent>
             ),
@@ -131,7 +154,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
         <SectionComponent
             icon={<SVGIcon iconName="application-icon" />}
             title="Applications"
-            callback={() => setShowModal(true)}
+            callback={() => handleOpenModal()}
         >
             <OverlayComponent isDisplayed={showModal} onClose={() => setShowModal(false)}>
                 <ApplicationsEntriesSelector
@@ -140,8 +163,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
                     applicationsToExclude={applications}
                     onAdd={handleAddApplications}
                     onClose={() => setShowModal(false)}
-                    clusterId={clusterId}
-                    defaultAccuracy={defaultAccuracy}
+                    availableApplications={applicationsToAdd}
                 />
             </OverlayComponent>
 

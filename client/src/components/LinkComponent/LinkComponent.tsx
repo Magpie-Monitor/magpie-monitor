@@ -4,7 +4,7 @@ import StateBadge from 'components/StateBadge/StateBadge';
 import { useNavigate } from 'react-router-dom';
 
 interface LinkComponentProps {
-    to: string;
+    to?: string;
     children: React.ReactNode;
     className?: string;
     onClick?: React.MouseEventHandler<HTMLDivElement>;
@@ -12,7 +12,7 @@ interface LinkComponentProps {
 }
 
 const LinkComponent: React.FC<LinkComponentProps> = ({
-    to,
+    to='',
     children,
     className = '',
     onClick,

@@ -1,7 +1,7 @@
 @import '@/variables';
 
 .page-template {
-  overflow-y: scroll;
+  overflow-y: auto;
   flex-grow: 1;
   width: 100%;
   padding: 1rem;
@@ -10,10 +10,10 @@
     width: 100%;
     flex-grow: 1;
 
-    @media (min-width: 1500px) {
+    @media (min-width: 1600px) {
       display: flex;
       flex-direction: column;
-      width: 1300px;
+      width: 1380px;
       margin: 0 auto;
     }
   }

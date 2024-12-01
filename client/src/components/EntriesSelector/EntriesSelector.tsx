@@ -12,7 +12,7 @@ interface EntriesSelectorProps<T extends TableRow> {
   itemsToExclude: T[];
   onAdd: () => void;
   onClose: () => void;
-  fetchData: () => Promise<T[]>;
+  items: T[];
   columns: TableColumn<T>[];
   getKey: (item: T) => string;
   entityLabel: string;
@@ -26,27 +26,14 @@ const EntriesSelector = <T extends TableRow>({
   itemsToExclude,
   onAdd,
   onClose,
-  fetchData,
+  items,
   columns,
   getKey,
   entityLabel,
   noEntriesMessage,
   title,
 }: EntriesSelectorProps<T>): React.ReactNode => {
-  const [items, setItems] = useState<T[]>([]);
   const [selectAll, setSelectAll] = useState(false);
-
-  useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const data = await fetchData();
-        setItems(data);
-      } catch (error) {
-        console.error(`Failed to fetch ${entityLabel}s:`, error);
-      }
-    };
-    fetchItems();
-  }, [fetchData, entityLabel]);
 
   const availableItems = items.filter(
     (item) =>

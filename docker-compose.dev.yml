@@ -39,7 +39,7 @@ services:
         - action: rebuild
           path: ./go/pkg
           target: /src
-          
+
   pod-agent:
     user: "0" # Elevated permission needed for bind mount
     container_name: magpie-monitor-pod-agent

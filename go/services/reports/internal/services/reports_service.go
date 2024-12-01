@@ -338,7 +338,7 @@ func (s *ReportsService) MergeNodeIncidents(nodeIncidentMergerJobs []*repositori
 		for idx, nodeReport := range report.NodeReports {
 			mergerGroups, ok := nodeMergerGroups[nodeReport.Node]
 			if !ok {
-				s.logger.Info("Application is not present in merger groups, skipping")
+				s.logger.Info("Node is not present in merger groups, skipping")
 				continue
 			}
 
@@ -504,7 +504,7 @@ func (s *ReportsService) CompletePendingReport(reportId string, applicationInsig
 	scheduledReport.ApplicationReports = applicationReports
 	scheduledReport.NodeReports = nodeReports
 	scheduledReport.Status = repositories.ReportState_AwaitingIncidentMerging
-	scheduledReport.Urgency = s.getReportUrgencyFromApplicationAndNodeReports(applicationReports, nodeReports)
+	scheduledReport.Urgency = s.GetReportUrgencyFromApplicationAndNodeReports(applicationReports, nodeReports)
 	scheduledReport.AnalyzedNodes = len(scheduledReport.ScheduledNodeInsights.NodeConfiguration)
 	scheduledReport.AnalyzedApplications = len(scheduledReport.ScheduledApplicationInsights.ApplicationConfiguration)
 	scheduledReport.ScheduledNodeIncidentMergerJobs = scheduledNodeIncidentsMergerJobs
@@ -571,6 +571,7 @@ func (s *ReportsService) getApplicationIncidentFromInsight(
 
 	if len(insight.Metadata) == 0 {
 		s.logger.Info("Metadata is empty", zap.Any("metadata", insight), zap.Any("conf", configuration))
+		sources = make([]repositories.ApplicationIncidentSource, 0)
 	}
 
 	return &repositories.ApplicationIncident{
@@ -588,7 +589,7 @@ func (s *ReportsService) getApplicationIncidentFromInsight(
 }
 
 // Get maximum of all urgencies from incidents from passed reports
-func (s *ReportsService) getReportUrgencyFromApplicationAndNodeReports(
+func (s *ReportsService) GetReportUrgencyFromApplicationAndNodeReports(
 	applicationReports []*repositories.ApplicationReport,
 	nodeReports []*repositories.NodeReport,
 ) insights.Urgency {
@@ -626,6 +627,11 @@ func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsight
 			Filename:  metadata.Filename,
 		}
 	})(insight.Metadata)
+
+	if len(insight.Metadata) == 0 {
+		s.logger.Info("Metadata is empty", zap.Any("metadata", insight), zap.Any("conf", configuration))
+		sources = make([]repositories.NodeIncidentSource, 0)
+	}
 
 	return &repositories.NodeIncident{
 		ClusterId:      insight.Metadata[0].ClusterId,

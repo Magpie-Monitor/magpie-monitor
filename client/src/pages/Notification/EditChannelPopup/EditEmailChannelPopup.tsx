@@ -16,6 +16,7 @@ import LabelInput, {
 import NewChannelPopupHeader from 'pages/Notification/NewChannelPopupHeader/NewChannelPopupHeader';
 import { EditChannelPopupProps } from './EditChannelPopup';
 import { emailValidation } from 'lib/validators';
+import { useToast } from 'providers/ToastProvider/ToastProvider';
 
 interface EditEmailChannelPopupProps extends EditChannelPopupProps {
   id: string;
@@ -36,18 +37,24 @@ const EditEmailChannelPopup = ({
     name,
     email,
   });
+  const { showMessage } = useToast();
 
   const editEmailChannel = async () => {
     if (emailChannel.name === name && emailChannel.email === email) return;
 
     try {
       await ManagmentServiceApiInstance.editEmailChannel(emailChannel);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error posting slack channels: ', error);
-    } finally {
+      showMessage({
+        message: 'Channel updated successfully',
+        type: 'INFO',
+      });
       onSubmit();
       setIsDisplayed(false);
+    } catch (error) {
+      showMessage({
+        message: `Failed to update channel ${error}`,
+        type: 'ERROR',
+      });
     }
   };
 

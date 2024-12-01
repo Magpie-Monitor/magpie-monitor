@@ -71,7 +71,7 @@ type ApplicationInsightsGenerator interface {
 	) ([]ApplicationInsightsWithMetadata, error)
 }
 
-type applicationInsightsResponseDto struct {
+type ApplicationInsightsResponseDto struct {
 	Insights []ApplicationLogsInsight
 }
 
@@ -186,7 +186,7 @@ func (g *OpenAiInsightsGenerator) GetScheduledApplicationInsights(
 		return nil, err
 	}
 
-	insights, err := g.getApplicationInsightsFromBatchEntries(completionResponses, scheduledInsights)
+	insights, err := g.GetApplicationInsightsFromBatchEntries(completionResponses, scheduledInsights)
 	if err != nil {
 		g.logger.Error("Failed to transform batch entries into application insights")
 		return nil, err
@@ -227,7 +227,7 @@ func (g *OpenAiInsightsGenerator) AwaitScheduledApplicationInsights(
 		return nil, err
 	}
 
-	insights, err := g.getApplicationInsightsFromBatchEntries(completionResponses, scheduledInsights)
+	insights, err := g.GetApplicationInsightsFromBatchEntries(completionResponses, scheduledInsights)
 	if err != nil {
 		g.logger.Error("Failed to transform batch entries into application insights")
 		return nil, err
@@ -236,14 +236,14 @@ func (g *OpenAiInsightsGenerator) AwaitScheduledApplicationInsights(
 	return insights, nil
 }
 
-func (g *OpenAiInsightsGenerator) getApplicationInsightsFromBatchEntries(
+func (g *OpenAiInsightsGenerator) GetApplicationInsightsFromBatchEntries(
 	batchEntries []*openai.BatchFileCompletionResponseEntry,
 	scheduledInsights *ScheduledApplicationInsights) ([]ApplicationInsightsWithMetadata, error) {
 
 	// Each jsonl entry contains insights for a single application
 	res := []ApplicationInsightsWithMetadata{}
 	for _, response := range batchEntries {
-		var applicationInsights applicationInsightsResponseDto
+		var applicationInsights ApplicationInsightsResponseDto
 		if len(response.Response.Body.Choices) == 0 {
 			return nil, errors.New("Failed to get insights from batch completion choices")
 		}
@@ -309,7 +309,7 @@ func (g *OpenAiInsightsGenerator) ScheduleApplicationInsights(
 				&openai.CompletionRequest{
 					Messages:       messages,
 					Temperature:    g.client.Temperature,
-					ResponseFormat: openai.CreateJsonReponseFormat("insights", applicationInsightsResponseDto{}),
+					ResponseFormat: openai.CreateJsonReponseFormat("insights", ApplicationInsightsResponseDto{}),
 					Model:          g.client.Model(),
 				}
 		}
@@ -398,7 +398,7 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleApplication(
 	}
 
 	openAiResponse, err := g.client.Complete(messages,
-		openai.CreateJsonReponseFormat("application_insights", applicationInsightsResponseDto{}),
+		openai.CreateJsonReponseFormat("application_insights", ApplicationInsightsResponseDto{}),
 	)
 
 	if err != nil {
@@ -406,7 +406,7 @@ func (g *OpenAiInsightsGenerator) getInsightsForSingleApplication(
 		return nil, err
 	}
 
-	var insights applicationInsightsResponseDto
+	var insights ApplicationInsightsResponseDto
 
 	if len(openAiResponse.Choices) == 0 {
 		g.logger.Error("No insight choices were returned for", zap.Any("application", configuration.ApplicationName))

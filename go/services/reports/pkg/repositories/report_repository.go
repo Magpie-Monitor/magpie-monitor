@@ -3,6 +3,9 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"os"
+
+	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/repositories"
 	"github.com/Magpie-Monitor/magpie-monitor/services/reports/pkg/insights"
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,8 +15,14 @@ import (
 	"go.uber.org/zap"
 )
 
+const REPORTS_DB_NAME_KEY = "REPORTSDB_NAME"
+
 func NewReportCollection(log *zap.Logger, client *mongo.Client) *repositories.MongoDbCollection[*Report] {
-	return &repositories.MongoDbCollection[*Report]{Log: log, Db: "reports", Col: "reports", Client: client}
+	envs.ValidateEnvs("Failed to get reports db name", []string{REPORTS_DB_NAME_KEY})
+
+	reportDb := os.Getenv(REPORTS_DB_NAME_KEY)
+
+	return &repositories.MongoDbCollection[*Report]{Log: log, Db: reportDb, Col: "reports", Client: client}
 }
 
 type NodeReport struct {
@@ -127,6 +136,7 @@ type ReportRepository interface {
 	InsertNodeIncidents(ctx context.Context, reports []*NodeIncident) ([]*NodeIncident, error)
 	GetPendingGenerationReports(ctx context.Context) ([]*Report, error)
 	GetPendingIncidentMergingReports(ctx context.Context) ([]*Report, error)
+	DeleteAll(ctx context.Context) error
 }
 
 func (r *MongoDbReportRepository) GetPendingGenerationReports(ctx context.Context) ([]*Report, error) {
@@ -287,6 +297,11 @@ func (r *MongoDbReportRepository) UpdateReport(ctx context.Context, report *Repo
 	report.Id = id.Hex()
 
 	return nil
+}
+
+func (r *MongoDbReportRepository) DeleteAll(ctx context.Context) error {
+	_, err := r.mongoDbCollection.DeleteMany(bson.D{})
+	return err
 }
 
 type Params struct {
