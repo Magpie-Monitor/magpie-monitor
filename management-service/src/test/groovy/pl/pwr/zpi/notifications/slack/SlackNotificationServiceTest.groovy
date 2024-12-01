@@ -1,12 +1,10 @@
-package notifications.slack
+package pl.pwr.zpi.notifications.slack
 
 import org.springframework.beans.factory.annotation.Value
-import pl.pwr.zpi.notifications.slack.SlackNotificationService
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver
 import pl.pwr.zpi.notifications.slack.service.SlackMessagingService
 import pl.pwr.zpi.notifications.slack.service.SlackReceiverService
 import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Subject
 

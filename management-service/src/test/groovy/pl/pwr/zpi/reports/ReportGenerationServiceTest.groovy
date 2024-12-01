@@ -1,4 +1,4 @@
-package reports
+package pl.pwr.zpi.reports
 
 import pl.pwr.zpi.reports.dto.event.ReportGenerated
 import pl.pwr.zpi.reports.dto.event.ReportRequestFailed
@@ -153,7 +153,7 @@ class ReportGenerationServiceTest extends Specification {
         1 * reportPublisher.publishReportRequestedEvent(_, _)
     }
 
-    def "should save report generation metadata"() {
+    def "should save report generation pl.pwr.zpi.metadata"() {
         given:
         def correlationId = "correlation123"
         def reportRequest = createCreateReportRequest("cluster123", 0L, 86400000L)
@@ -166,7 +166,7 @@ class ReportGenerationServiceTest extends Specification {
         1 * reportGenerationRequestMetadataRepository.save(_ as ReportGenerationRequestMetadata)
     }
 
-    def "should throw exception if no metadata found on report generation failure"() {
+    def "should throw exception if no pl.pwr.zpi.metadata found on report generation failure"() {
         given:
         def correlationId = "correlation123"
         def requestFailed = ReportRequestFailed.builder()

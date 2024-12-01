@@ -1,6 +1,6 @@
-package notifications.common
+package pl.pwr.zpi.notifications.common
 
-import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder
+
 import spock.lang.Specification
 import spock.lang.Subject
 

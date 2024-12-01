@@ -1,4 +1,4 @@
-package reports
+package pl.pwr.zpi.reports
 
 import pl.pwr.zpi.reports.enums.Accuracy
 import pl.pwr.zpi.reports.scheduler.ReportScheduler
@@ -59,7 +59,7 @@ class ReportSchedulerTest extends Specification {
         schedule.lastGenerationMs == nextGenerationTime
     }
 
-    def "should throw exception when cluster is not found"() {
+    def "should throw exception when pl.pwr.zpi.cluster is not found"() {
         given:
         def schedule = createReportSchedule("cluster1", 1000L, 1000L)
 

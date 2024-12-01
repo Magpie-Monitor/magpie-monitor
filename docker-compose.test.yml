@@ -26,6 +26,13 @@ services:
       - es-certs:/usr/local/share
       - cache:/go/pkg/mod/
 
+  management-service-test:
+    container_name: magpie-monitor-tests-management-service
+    build:
+      context: ./management-service
+      dockerfile: Dockerfile
+      target: tests
+
 volumes:
   cache:
   es-certs:

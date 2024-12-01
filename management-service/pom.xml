@@ -36,8 +36,6 @@
         <slack-api-client.version>1.44.2</slack-api-client.version>
         <groovy-all.version>4.0.24</groovy-all.version>
         <spock.version>2.4-M4-groovy-4.0</spock.version>
-        <gmavenplus-plugin.version>4.0.1</gmavenplus-plugin.version>
-        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
         <mockito.version>5.2.0</mockito.version>
     </properties>
     <dependencies>
@@ -209,7 +207,7 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>${gmavenplus-plugin.version}</version>
+                <version>4.0.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -218,28 +216,25 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <testSources>
-                        <testSource>
-                            <directory>${project.basedir}/src/test/groovy</directory>
-                            <includes>
-                                <include>**/*.groovy</include>
-                            </includes>
-                        </testSource>
-                    </testSources>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
+                <version>3.0.0-M4</version>
                 <configuration>
-                    <testSourceDirectory>src/test/groovy</testSourceDirectory>
+                    <useFile>false</useFile>
                     <includes>
-                        <include>**/*Specification.groovy</include>
-                        <include>**/*Test.groovy</include>
+                        <include>**/*Test.java</include>
+                        <include>**/*Spec.java</include>
                     </includes>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.vintage</groupId>
+                        <artifactId>junit-vintage-engine</artifactId>
+                        <version>5.8.1</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

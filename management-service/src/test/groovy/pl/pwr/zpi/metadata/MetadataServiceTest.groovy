@@ -1,4 +1,4 @@
-package metadata
+package pl.pwr.zpi.metadata
 
 import pl.pwr.zpi.metadata.broker.dto.application.AggregatedApplicationMetadata
 import pl.pwr.zpi.metadata.broker.dto.application.ApplicationMetadata
@@ -86,7 +86,7 @@ class MetadataServiceTest extends Specification {
         result.contains(createInactiveClusterMetadataDTO("cluster2"))
     }
 
-    def "should return cluster by id"() {
+    def "should return pl.pwr.zpi.cluster by id"() {
         given:
         def clusterId = "cluster1"
         def clusterDTO = createInactiveClusterMetadataDTO(clusterId)
@@ -103,7 +103,7 @@ class MetadataServiceTest extends Specification {
         result.get() == clusterDTO
     }
 
-    def "should return empty if cluster does not exist"() {
+    def "should return empty if pl.pwr.zpi.cluster does not exist"() {
         given:
         def clusterId = "cluster1"
 
@@ -116,7 +116,7 @@ class MetadataServiceTest extends Specification {
         result.isEmpty()
     }
 
-    def "should return all applications for a cluster including inactive ones"() {
+    def "should return all applications for a pl.pwr.zpi.cluster including inactive ones"() {
         given:
         def clusterId = "cluster1"
         def activeApp = createApplicationMetadataDTO("app1")
@@ -141,7 +141,7 @@ class MetadataServiceTest extends Specification {
 
 
 
-    def "should save cluster metadata"() {
+    def "should save pl.pwr.zpi.cluster pl.pwr.zpi.metadata"() {
         given:
         def clusterMetadata = createAggregatedClusterMetadata(1732395048724L)
 
@@ -152,7 +152,7 @@ class MetadataServiceTest extends Specification {
         1 * clusterMetadataRepository.save(clusterMetadata)
     }
 
-    def "should save application metadata"() {
+    def "should save application pl.pwr.zpi.metadata"() {
         given:
         def applicationMetadata = createAggregatedApplicationMetadata(1732395048724L, "test123")
 
@@ -163,7 +163,7 @@ class MetadataServiceTest extends Specification {
         1 * applicationMetadataRepository.save(applicationMetadata)
     }
 
-    def "should save node metadata"() {
+    def "should save node pl.pwr.zpi.metadata"() {
         given:
         def nodeMetadata = createAggregatedNodeMetadata(1732395048724L, "test123")
 

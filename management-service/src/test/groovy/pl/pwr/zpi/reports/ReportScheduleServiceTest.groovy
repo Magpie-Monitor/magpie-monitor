@@ -1,4 +1,4 @@
-package reports
+package pl.pwr.zpi.reports
 
 import pl.pwr.zpi.reports.dto.request.CreateReportScheduleRequest
 import pl.pwr.zpi.reports.dto.scheduler.ReportSchedule
@@ -14,7 +14,7 @@ class ReportScheduleServiceTest extends Specification {
     def reportScheduleRepository = Mock(ReportScheduleRepository)
     def reportScheduleService = new ReportScheduleService(reportScheduleRepository, clusterRepository)
 
-    def "should schedule report when cluster exists"() {
+    def "should schedule report when pl.pwr.zpi.cluster exists"() {
         given:
         def clusterId = "cluster123"
         def scheduleRequest = new CreateReportScheduleRequest(clusterId, 86400000L)
@@ -27,7 +27,7 @@ class ReportScheduleServiceTest extends Specification {
         noExceptionThrown()
     }
 
-    def "should throw exception when cluster does not exist"() {
+    def "should throw exception when pl.pwr.zpi.cluster does not exist"() {
         given:
         def clusterId = "cluster123"
         def scheduleRequest = new CreateReportScheduleRequest(clusterId, 86400000L)

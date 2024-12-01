@@ -1,4 +1,4 @@
-package metadata
+package pl.pwr.zpi.metadata
 
 import pl.pwr.zpi.metadata.dto.application.ApplicationMetadataDTO
 import pl.pwr.zpi.metadata.dto.node.NodeMetadataDTO
@@ -55,7 +55,7 @@ class MetadataHistoryServiceTest extends Specification {
     }
 
 
-    def "should return node history for a cluster"() {
+    def "should return node history for a pl.pwr.zpi.cluster"() {
         given:
         def clusterId = "cluster1"
         def nodeHistory = createNodeHistory("node1", "node2")
@@ -70,7 +70,7 @@ class MetadataHistoryServiceTest extends Specification {
         result == nodeHistory
     }
 
-    def "should return empty node history if no history found for cluster"() {
+    def "should return empty node history if no history found for pl.pwr.zpi.cluster"() {
         given:
         def clusterId = "cluster1"
         clusterHistoryRepository.findById(clusterId) >> Optional.empty()
@@ -82,7 +82,7 @@ class MetadataHistoryServiceTest extends Specification {
         result.isEmpty()
     }
 
-    def "should return application history for a cluster"() {
+    def "should return application history for a pl.pwr.zpi.cluster"() {
         given:
         def clusterId = "cluster1"
         def appHistory = createAppHistory("app1", "app2")
@@ -97,7 +97,7 @@ class MetadataHistoryServiceTest extends Specification {
         result == appHistory
     }
 
-    def "should return empty application history if no history found for cluster"() {
+    def "should return empty application history if no history found for pl.pwr.zpi.cluster"() {
         given:
         def clusterId = "cluster1"
         clusterHistoryRepository.findById(clusterId) >> Optional.empty()
@@ -144,7 +144,7 @@ class MetadataHistoryServiceTest extends Specification {
         clusterId << ["cluster1"]
     }
 
-    def "should update node history for a cluster"() {
+    def "should update node history for a pl.pwr.zpi.cluster"() {
         given:
         def clusterId = "cluster1"
         def nodeMetadataList = List.of(new NodeMetadata("node1", List.of()), new NodeMetadata("node2", List.of()))
@@ -161,7 +161,7 @@ class MetadataHistoryServiceTest extends Specification {
         clusterHistory.nodes().size() == 2
     }
 
-    def "should add node history if cluster does not exist"() {
+    def "should add node history if pl.pwr.zpi.cluster does not exist"() {
         given:
         def clusterId = "cluster1"
         def nodeMetadataList = List.of(new NodeMetadata("node1", List.of()), new NodeMetadata("node2", List.of()))
@@ -177,7 +177,7 @@ class MetadataHistoryServiceTest extends Specification {
         1 * clusterHistoryRepository.save(_)
     }
 
-    def "should update application history for a cluster"() {
+    def "should update application history for a pl.pwr.zpi.cluster"() {
         given:
         def clusterId = "cluster1"
         def appMetadataList = [new ApplicationMetadata("app1", "type1"), new ApplicationMetadata("app2", "type2")]
@@ -194,7 +194,7 @@ class MetadataHistoryServiceTest extends Specification {
         clusterHistory.applications().size() == 2
     }
 
-    def "should add application history if cluster does not exist"() {
+    def "should add application history if pl.pwr.zpi.cluster does not exist"() {
         given:
         def clusterId = "cluster1"
         def appMetadataList = [new ApplicationMetadata("app1", "type1"), new ApplicationMetadata("app2", "type2")]

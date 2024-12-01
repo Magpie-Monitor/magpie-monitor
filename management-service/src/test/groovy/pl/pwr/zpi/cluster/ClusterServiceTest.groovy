@@ -1,4 +1,4 @@
-package cluster
+package pl.pwr.zpi.cluster
 
 import pl.pwr.zpi.cluster.dto.UpdateClusterConfigurationRequest
 import pl.pwr.zpi.cluster.entity.ClusterConfiguration
@@ -27,13 +27,13 @@ class ClusterServiceTest extends Specification {
         clusterService = new ClusterService(clusterRepository, receiverService, metadataService)
     }
 
-    def "should update cluster configuration and save it to repository"() {
+    def "should update pl.pwr.zpi.cluster configuration and save it to repository"() {
         given:
         def request = new UpdateClusterConfigurationRequest(
-                "test-cluster-id", Accuracy.HIGH, true, 1000L,
+                "test-pl.pwr.zpi.cluster-id", Accuracy.HIGH, true, 1000L,
                 [1L, 2L], [3L, 4L], [5L, 6L], [], []
         )
-        def clusterConfiguration = new ClusterConfiguration(id: "test-cluster-id")
+        def clusterConfiguration = new ClusterConfiguration(id: "test-pl.pwr.zpi.cluster-id")
 
         mockReceiverService()
 
@@ -47,9 +47,9 @@ class ClusterServiceTest extends Specification {
         response.clusterId != null
     }
 
-    def "should return cluster configuration by id"() {
+    def "should return pl.pwr.zpi.cluster configuration by id"() {
         given:
-        def clusterId = "test-cluster-id"
+        def clusterId = "test-pl.pwr.zpi.cluster-id"
         def clusterConfiguration = new ClusterConfiguration(id: clusterId)
         def metadata = new ClusterMetadataDTO(clusterId, true)
 
@@ -68,9 +68,9 @@ class ClusterServiceTest extends Specification {
         result.get().running == true
     }
 
-    def "should return cluster configuration with false running status if metadata is empty"() {
+    def "should return pl.pwr.zpi.cluster configuration with false running status if pl.pwr.zpi.metadata is empty"() {
         given:
-        def clusterId = "test-cluster-id"
+        def clusterId = "test-pl.pwr.zpi.cluster-id"
         def clusterConfiguration = new ClusterConfiguration(id: clusterId)
 
         clusterConfiguration.nodeConfigurations = []

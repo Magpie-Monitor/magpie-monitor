@@ -1,4 +1,4 @@
-package reports
+package pl.pwr.zpi.reports
 
 import pl.pwr.zpi.reports.dto.report.*
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO

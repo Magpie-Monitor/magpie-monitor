@@ -1,4 +1,4 @@
-package notifications.email
+package pl.pwr.zpi.notifications.email
 
 import pl.pwr.zpi.notifications.email.service.EmailReceiverService
 import pl.pwr.zpi.notifications.email.dto.EmailReceiverDTO

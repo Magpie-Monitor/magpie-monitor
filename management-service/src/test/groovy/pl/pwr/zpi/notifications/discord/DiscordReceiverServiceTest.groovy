@@ -1,4 +1,4 @@
-package notifications.discord
+package pl.pwr.zpi.notifications.discord
 
 import pl.pwr.zpi.notifications.common.ConfidentialTextEncoder
 import pl.pwr.zpi.notifications.discord.dto.DiscordReceiverDTO
