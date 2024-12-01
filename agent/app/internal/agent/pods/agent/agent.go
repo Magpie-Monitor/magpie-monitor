@@ -169,6 +169,8 @@ func (a *Agent) fetchDaemonSetLogsSinceTime(namespace string, daemonSets []v2.Da
 }
 
 func (a *Agent) fetchPodLogsSinceTime(selector *metav1.LabelSelector, namespace string) ([][]data.Pod, error) {
+	fmt.Println("namespace:", namespace)
+
 	pods, err := a.kubernetesClient.GetPods(selector, namespace)
 	if err != nil {
 		return nil, err
@@ -263,6 +265,8 @@ func (a *Agent) fetchContainerLogsSinceTime(container *v1.Container, podName, na
 	beforeTs := time.Now().UnixNano()
 	logs, err := a.kubernetesClient.GetContainerLogsSinceTime(podName, container.Name, namespace, sinceTime, true)
 	afterTs := time.Now().UnixNano()
+
+	fmt.Println("logs:", logs)
 
 	if err != nil {
 		log.Println("Error fetching logs for Pod: ", podName, " container: ", container.Name)
