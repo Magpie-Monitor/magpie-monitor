@@ -18,8 +18,8 @@ func ConvertConcreteIncidentArrayIntoIncidents[T repositories.Incident](incident
 
 // Removes merged incidents from report and returns new incident as a result
 func mergeApplicationIncidents(group IncidentMergeGroup, applicationIncidents *repositories.ApplicationReport) *repositories.ApplicationIncident {
-	var sourcesToBeMerged []repositories.ApplicationIncidentSource
-	var filteredIncidents []*repositories.ApplicationIncident
+	sourcesToBeMerged := make([]repositories.ApplicationIncidentSource, 0)
+	filteredIncidents := make([]*repositories.ApplicationIncident, 0)
 
 	if len(applicationIncidents.Incidents) == 0 {
 		panic("Empty list of incidents from a application report was passed to an incident merger")
@@ -63,8 +63,8 @@ func MergeApplicationIncidentsByGroups(groups []IncidentMergeGroup, applicationI
 
 // Removes merged incidents from report and returns new incident as a result
 func mergeNodeIncidents(group IncidentMergeGroup, nodeIncidents *repositories.NodeReport) *repositories.NodeIncident {
-	var sourcesToBeMerged []repositories.NodeIncidentSource
-	var filteredIncidents []*repositories.NodeIncident
+	sourcesToBeMerged := make([]repositories.NodeIncidentSource, 0)
+	filteredIncidents := make([]*repositories.NodeIncident, 0)
 
 	if len(nodeIncidents.Incidents) == 0 {
 		panic("Empty list of incidents from a node report was passed to an incident merger")
