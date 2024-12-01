@@ -82,11 +82,14 @@ services:
       context: ./management-service
       dockerfile: Dockerfile
       target: tests
+    volumes:
+      - maven-repo:/root/.m2
 
 volumes:
   cache:
   es-certs:
     external: true
+  maven-repo:
 
 networks:
   default:
