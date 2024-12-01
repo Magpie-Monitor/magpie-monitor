@@ -38,19 +38,10 @@ class ReportGenerationServiceTest extends Specification {
             reportGenerationRequestMetadataRepository
     )
 
-    @Ignore
     def "should create report and publish report requested event"() {
         given:
         def reportRequest = createCreateReportRequest("cluster123", 0L, 86400000L)
         def reportType = ReportType.SCHEDULED
-        def correlationId = "07c71a67-6d42-4f52-a56a-17dfdcc481fc" //UUID is not mocked
-
-        def mockUUID = Mock(UUID) {
-            toString() >> correlationId
-        }
-        GroovyMock(UUID, global: true)
-        UUID.randomUUID() >> mockUUID
-
         def reportRequested = ReportRequested.of(reportRequest)
 
         when:
@@ -58,10 +49,15 @@ class ReportGenerationServiceTest extends Specification {
 
         then:
         1 * reportGenerationRequestMetadataRepository.save(_ as ReportGenerationRequestMetadata)
-        1 * reportPublisher.publishReportRequestedEvent(reportRequested, _)
+        1 * reportPublisher.publishReportRequestedEvent({ ReportRequested reportRequestedEvent ->
+            reportRequestedEvent.reportRequest.clusterId == reportRequested.reportRequest.clusterId &&
+                    reportRequestedEvent.reportRequest.sinceMs == reportRequested.reportRequest.sinceMs &&
+                    reportRequestedEvent.reportRequest.toMs == reportRequested.reportRequest.toMs &&
+                    reportRequestedEvent.reportRequest.applicationConfiguration == reportRequested.reportRequest.applicationConfiguration &&
+                    reportRequestedEvent.reportRequest.nodeConfiguration == reportRequested.reportRequest.nodeConfiguration
+        }, _)
     }
 
-    @Ignore
     def "should handle report generation failure and notify"() {
         given:
         def correlationId = "correlation123"
@@ -71,32 +67,59 @@ class ReportGenerationServiceTest extends Specification {
                 .errorMessage("Error occurred")
                 .timestampMs(System.currentTimeMillis())
                 .build()
+        def createReportRequest = CreateReportRequest.builder()
+                .clusterId("cluster123")
+                .accuracy(Accuracy.HIGH)
+                .sinceMs(0L)
+                .toMs(86400000L)
+                .slackReceiverIds([])
+                .emailReceiverIds([])
+                .discordReceiverIds([])
+                .applicationConfigurations([])
+                .nodeConfigurations([])
+                .build()
         def reportMetadata = ReportGenerationRequestMetadata.builder()
                 .correlationId(correlationId)
                 .status(ReportGenerationStatus.ERROR)
                 .error(requestFailed)
                 .reportType(ReportType.SCHEDULED)
+                .createReportRequest(createReportRequest)
                 .build()
 
         when:
         reportGenerationService.handleReportGenerationError(requestFailed)
 
         then:
-        1 * reportGenerationRequestMetadataRepository.findByCorrelationId(correlationId)  >> Optional.of(reportMetadata)
+        1 * reportGenerationRequestMetadataRepository.findByCorrelationId(correlationId) >> Optional.of(reportMetadata)
         1 * reportNotificationService.notifySlackOnReportGenerationFailed(_, _)
         1 * reportNotificationService.notifyDiscordOnReportGenerationFailed(_, _)
         1 * reportNotificationService.notifyEmailOnReportGenerationFailed(_, _)
     }
 
-    @Ignore
     def "should handle report generated and save report"() {
         given:
         def correlationId = "correlation123"
-        def reportGenerated = new ReportGenerated(correlationId, new Report(), System.currentTimeMillis())
+        def report = Report.builder()
+                .nodeReports([])
+                .applicationReports([])
+                .build()
+        def reportGenerated = new ReportGenerated(correlationId, report, System.currentTimeMillis())
+        def createReportRequest = CreateReportRequest.builder()
+                .clusterId("cluster123")
+                .accuracy(Accuracy.HIGH)
+                .sinceMs(0L)
+                .toMs(86400000L)
+                .slackReceiverIds([])
+                .emailReceiverIds([])
+                .discordReceiverIds([])
+                .applicationConfigurations([])
+                .nodeConfigurations([])
+                .build()
         def reportMetadata = ReportGenerationRequestMetadata.builder()
                 .correlationId(correlationId)
                 .status(ReportGenerationStatus.GENERATED)
                 .reportType(ReportType.SCHEDULED)
+                .createReportRequest(createReportRequest)
                 .build()
 
         when:

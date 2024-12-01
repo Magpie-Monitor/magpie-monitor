@@ -4,16 +4,13 @@ import pl.pwr.zpi.notifications.email.service.EmailReceiverService
 import pl.pwr.zpi.notifications.email.dto.EmailReceiverDTO
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver
 import pl.pwr.zpi.notifications.email.repository.EmailRepository
-import spock.lang.Ignore
 import spock.lang.Specification
-import spock.lang.Subject
 
 
 class EmailReceiverServiceTest extends Specification {
 
     def emailRepository = Mock(EmailRepository)
 
-    @Subject
     def emailReceiverService = new EmailReceiverService(emailRepository)
 
     def "should get all email receivers"() {
@@ -28,19 +25,22 @@ class EmailReceiverServiceTest extends Specification {
         1 * emailRepository.findAll() >> emailReceiverList
     }
 
-    @Ignore
     def "should add a new email receiver"() {
         given:
         def emailReceiverDTO = buildEmailReceiverDTO("Receiver 1", "receiver1@example.com")
         def newReceiver = buildEmailReceiver(null, emailReceiverDTO.getName(), emailReceiverDTO.getEmail())
-        System.currentTimeMillis() >> 1733067719423L
 
         when:
         emailReceiverService.addNewEmail(emailReceiverDTO)
 
         then:
         1 * emailRepository.existsByReceiverEmail(emailReceiverDTO.getEmail()) >> false
-        1 * emailRepository.save(newReceiver)
+        1 * emailRepository.save({ EmailReceiver savedReceiver ->
+            savedReceiver.receiverName == newReceiver.receiverName &&
+                    savedReceiver.receiverEmail == newReceiver.receiverEmail &&
+                    savedReceiver.updatedAt == newReceiver.updatedAt &&
+                    savedReceiver.createdAt >= 0
+        })
     }
 
     def "should throw exception when adding email that already exists"() {
@@ -113,7 +113,6 @@ class EmailReceiverServiceTest extends Specification {
                 .receiverName(name)
                 .receiverEmail(email)
                 .createdAt(System.currentTimeMillis())
-                .updatedAt(System.currentTimeMillis())
                 .build()
     }
 }
