@@ -22,26 +22,23 @@ class SlackNotificationServiceTest extends Specification {
     @Subject
     def slackNotificationService = new SlackNotificationService(slackService, receiverService, confidentialTextEncoder)
 
-    @Ignore
     def "should send test message successfully"() {
         given:
         def receiverSlackId = 1L
-        def receiver = buildSlackReceiver(receiverSlackId, "https://webhook.url")
-        receiverService.getById(receiverSlackId) >> receiver
-        confidentialTextEncoder.decrypt(receiver.getWebhookUrl()) >> receiver.getWebhookUrl()
+        def receiver = buildSlackReceiver(receiverSlackId, "https://hooks.slack.com/services/T04PB0Y4K8Q/B07QG098S7M/Xk3uMvmSOCsFhhTWPSGA")
 
         when:
         slackNotificationService.sendTestMessage(receiverSlackId)
 
         then:
-        1 * receiverService.getById(receiverSlackId)
-        1 * confidentialTextEncoder.decrypt(receiver.getWebhookUrl())
+        1 * receiverService.getById(receiverSlackId) >> receiver
+        1 * confidentialTextEncoder.decrypt(receiver.getWebhookUrl()) >> receiver.getWebhookUrl()
         1 * slackService.sendMessage(_, receiver.getWebhookUrl())
     }
 
     def "should send test message by webhook URL"() {
         given:
-        def webhookUrl = "https://webhook.url"
+        def webhookUrl = "https://hooks.slack.com/services/T04PB0Y4K8Q/B07QG098S7M/Xk3uMvmSOCsFhhTWPSGA"
 
         when:
         slackNotificationService.sendTestMessage(webhookUrl)
@@ -50,21 +47,18 @@ class SlackNotificationServiceTest extends Specification {
         1 * slackService.sendMessage(_, webhookUrl)
     }
 
-    @Ignore
     def "should notify on report generated successfully"() {
         given:
         def receiverId = 1L
         def reportId = "report123"
-        def receiver = buildSlackReceiver(receiverId, "https://webhook.url")
-        receiverService.getEncodedWebhookUrl(receiverId) >> receiver
-        slackService.sendMessage(_, _) >> {}
+        def receiver = buildSlackReceiver(receiverId, "https://hooks.slack.com/services/T04PB0Y4K8Q/B07QG098S7M/Xk3uMvmSOCsFhhTWPSGA")
 
         when:
         slackNotificationService.notifyOnReportGenerated(receiverId, reportId)
 
         then:
-        1 * receiverService.getEncodedWebhookUrl(receiverId)
-        1 * slackService.sendMessage(_, "http://localhost/reports/${reportId}")
+        1 * receiverService.getEncodedWebhookUrl(receiverId) >> receiver
+        1 * slackService.sendMessage(_, "https://hooks.slack.com/services/T04PB0Y4K8Q/B07QG098S7M/Xk3uMvmSOCsFhhTWPSGA") >> {}
     }
 
     def "should throw exception when notify on report generated fails"() {

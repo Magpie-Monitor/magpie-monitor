@@ -3,7 +3,6 @@ package reports
 import pl.pwr.zpi.reports.enums.Accuracy
 import pl.pwr.zpi.reports.scheduler.ReportScheduler
 import spock.lang.Specification
-import spock.lang.Subject
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest
 import pl.pwr.zpi.reports.dto.scheduler.ReportSchedule
 import pl.pwr.zpi.reports.enums.ReportType
@@ -18,7 +17,6 @@ class ReportSchedulerTest extends Specification {
     def clusterRepository = Mock(ClusterRepository)
     def reportGenerationService = Mock(ReportGenerationService)
 
-    @Subject
     def reportScheduler = new ReportScheduler(reportScheduleRepository, clusterRepository, reportGenerationService)
 
     def "should generate reports for all schedules"() {

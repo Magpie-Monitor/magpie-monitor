@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable
 import pl.pwr.zpi.reports.repository.projection.ReportSummaryProjection
 import pl.pwr.zpi.reports.service.ReportsService
 import spock.lang.Specification
-import spock.lang.Subject
 
 
 class ReportsServiceTest extends Specification {
@@ -31,7 +30,6 @@ class ReportsServiceTest extends Specification {
     NodeIncidentSourcesRepository nonNodeIncidentSourcesRepository
     ReportGenerationRequestMetadataRepository reportGenerationRequestMetadataRepository
 
-    @Subject
     ReportsService reportsService
 
     def setup() {

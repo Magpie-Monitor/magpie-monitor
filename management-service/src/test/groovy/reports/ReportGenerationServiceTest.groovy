@@ -43,9 +43,15 @@ class ReportGenerationServiceTest extends Specification {
         given:
         def reportRequest = createCreateReportRequest("cluster123", 0L, 86400000L)
         def reportType = ReportType.SCHEDULED
-        def reportRequested = ReportRequested.of(reportRequest)
+        def correlationId = "07c71a67-6d42-4f52-a56a-17dfdcc481fc" //UUID is not mocked
 
-        reportPublisher.publishReportRequestedEvent(_, _) >> {}
+        def mockUUID = Mock(UUID) {
+            toString() >> correlationId
+        }
+        GroovyMock(UUID, global: true)
+        UUID.randomUUID() >> mockUUID
+
+        def reportRequested = ReportRequested.of(reportRequest)
 
         when:
         reportGenerationService.createReport(reportRequest, reportType)
@@ -72,13 +78,11 @@ class ReportGenerationServiceTest extends Specification {
                 .reportType(ReportType.SCHEDULED)
                 .build()
 
-        reportGenerationRequestMetadataRepository.findByCorrelationId(correlationId) >> Optional.of(reportMetadata)
-
         when:
         reportGenerationService.handleReportGenerationError(requestFailed)
 
         then:
-        1 * reportGenerationRequestMetadataRepository.findByCorrelationId(correlationId)
+        1 * reportGenerationRequestMetadataRepository.findByCorrelationId(correlationId)  >> Optional.of(reportMetadata)
         1 * reportNotificationService.notifySlackOnReportGenerationFailed(_, _)
         1 * reportNotificationService.notifyDiscordOnReportGenerationFailed(_, _)
         1 * reportNotificationService.notifyEmailOnReportGenerationFailed(_, _)
@@ -94,13 +98,12 @@ class ReportGenerationServiceTest extends Specification {
                 .status(ReportGenerationStatus.GENERATED)
                 .reportType(ReportType.SCHEDULED)
                 .build()
-        reportGenerationRequestMetadataRepository.findByCorrelationId(correlationId) >> Optional.of(reportMetadata)
 
         when:
         reportGenerationService.handleReportGenerated(reportGenerated)
 
         then:
-        1 * reportGenerationRequestMetadataRepository.findByCorrelationId(correlationId)
+        1 * reportGenerationRequestMetadataRepository.findByCorrelationId(correlationId) >> Optional.of(reportMetadata)
         1 * reportRepository.save(_ as Report)
         1 * reportNotificationService.notifySlackOnReportCreated(_, _)
         1 * reportNotificationService.notifyDiscordOnReportCreated(_, _)

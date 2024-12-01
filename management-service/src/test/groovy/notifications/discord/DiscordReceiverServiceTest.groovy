@@ -5,16 +5,12 @@ import pl.pwr.zpi.notifications.discord.dto.DiscordReceiverDTO
 import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver
 import pl.pwr.zpi.notifications.discord.repository.DiscordRepository
 import pl.pwr.zpi.notifications.discord.service.DiscordReceiverService
-import spock.lang.Ignore
 import spock.lang.Specification
-import spock.lang.Subject
 
 class DiscordReceiverServiceTest extends Specification {
 
     DiscordRepository discordRepository
     ConfidentialTextEncoder confidentialTextEncoder
-
-    @Subject
     DiscordReceiverService discordReceiverService
 
     def setup() {
@@ -23,19 +19,16 @@ class DiscordReceiverServiceTest extends Specification {
         discordReceiverService = new DiscordReceiverService(discordRepository, confidentialTextEncoder)
     }
 
-    @Ignore
     def "should get all discord integrations"() {
         given:
         def discordReceiverList = List.of(createDiscordReceiver(1L, "Receiver 1", "encryptedWebhook1"))
-        discordRepository.findAll() >> discordReceiverList
 
         when:
         def result = discordReceiverService.getAllDiscordIntegrations()
 
         then:
-        result != null
         result == discordReceiverList
-        1 * discordRepository.findAll()
+        1 * discordRepository.findAll() >> discordReceiverList
     }
 
     def "should add new discord integration successfully"() {
@@ -73,16 +66,15 @@ class DiscordReceiverServiceTest extends Specification {
         thrown(IllegalArgumentException)
     }
 
-    @Ignore
     def "should update discord integration successfully"() {
         given:
         def id = 1L
-        def discordReceiverDTO = createDiscordReceiverDTO("Receiver 1", "http://webhook1")
+        def discordReceiverDTO = createDiscordReceiverDTO("Updated Receiver", "http://webhook1")
         def encryptedWebhookUrl = "encryptedUpdatedWebhook"
-        def existingReceiver = createDiscordReceiver(id, "Receiver 1", encryptedWebhookUrl)
+        def existingReceiver = createDiscordReceiver(id, "Receiver 1", "oldEncryptedWebhook")
 
         discordRepository.findById(id) >> Optional.of(existingReceiver)
-        confidentialTextEncoder.encrypt(_) >> encryptedWebhookUrl
+        confidentialTextEncoder.encrypt(discordReceiverDTO.getWebhookUrl()) >> encryptedWebhookUrl
         discordRepository.existsByWebhookUrl(_) >> false
         discordRepository.save(_) >> existingReceiver
 
@@ -90,18 +82,19 @@ class DiscordReceiverServiceTest extends Specification {
         def updatedReceiver = discordReceiverService.updateDiscordIntegration(id, discordReceiverDTO)
 
         then:
+        updatedReceiver != null
         updatedReceiver.receiverName == "Updated Receiver"
         updatedReceiver.webhookUrl == encryptedWebhookUrl
         1 * discordRepository.findById(id) >> Optional.of(existingReceiver)
+        1 * confidentialTextEncoder.encrypt(discordReceiverDTO.getWebhookUrl()) >> encryptedWebhookUrl
         1 * discordRepository.existsByWebhookUrl(encryptedWebhookUrl) >> false
-        1 * discordRepository.save(_ as DiscordReceiver)
+        1 * discordRepository.save(_ as DiscordReceiver) >> existingReceiver
     }
 
-    @Ignore
     def "should throw exception if webhook URL is assigned to another entry when updating discord integration"() {
         given:
         def id = 1L
-        def discordReceiverDTO = createDiscordReceiverDTO("Receiver 1", "http://webhook1")
+        def discordReceiverDTO = createDiscordReceiverDTO("Receiver 1", "https://discord.com/api/webhooks/1234554321/xKh5vF0Som55bSex4q9slwOApmB0VXjcUoVS5Z9v9vu89snl-XeedfHj")
         def encryptedWebhookUrl = "encryptedUpdatedWebhook"
         def existingReceiver = DiscordReceiver.builder()
                 .id(id)
@@ -112,14 +105,16 @@ class DiscordReceiverServiceTest extends Specification {
                 .build()
 
         discordRepository.findById(id) >> Optional.of(existingReceiver)
-        discordRepository.existsByWebhookUrl(_) >> true
+        confidentialTextEncoder.encrypt(discordReceiverDTO.getWebhookUrl()) >> encryptedWebhookUrl
+        discordRepository.existsByWebhookUrl(encryptedWebhookUrl) >> true
 
         when:
         discordReceiverService.updateDiscordIntegration(id, discordReceiverDTO)
 
         then:
         thrown(IllegalArgumentException)
-        1 * discordRepository.findById(id) >> Optional.of(existingReceiver)
+        2 * discordRepository.findById(id) >> Optional.of(existingReceiver)
+        1 * confidentialTextEncoder.encrypt(_ as String) >> encryptedWebhookUrl
         1 * discordRepository.existsByWebhookUrl(encryptedWebhookUrl) >> true
         0 * discordRepository.save(_ as DiscordReceiver)
     }
@@ -142,7 +137,7 @@ class DiscordReceiverServiceTest extends Specification {
         def id = 1L
         def discordReceiver = createDiscordReceiver(id, "Receiver 1", "encryptedWebhook1")
 
-        def decryptedWebhookUrl = "http://webhook1"
+        def decryptedWebhookUrl = "https://discord.com/api/webhooks/1234554321/xKh5vF0Som55bSex4q9slwOApmB0VXjcUoVS5Z9v9vu89snl-XeedfHj"
 
         discordRepository.findById(id) >> Optional.of(discordReceiver)
         confidentialTextEncoder.decrypt(_) >> decryptedWebhookUrl

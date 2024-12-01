@@ -8,7 +8,7 @@ import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Subject
 
-@Ignore
+
 class EmailReceiverServiceTest extends Specification {
 
     def emailRepository = Mock(EmailRepository)
@@ -20,29 +20,26 @@ class EmailReceiverServiceTest extends Specification {
         given:
         def emailReceiverList = [buildEmailReceiver(1L, "Receiver 1", "receiver1@example.com")]
 
-        emailRepository.findAll() >> emailReceiverList
-
         when:
         def result = emailReceiverService.getAllEmails()
 
         then:
         result == emailReceiverList
-        1 * emailRepository.findAll()
+        1 * emailRepository.findAll() >> emailReceiverList
     }
 
+    @Ignore
     def "should add a new email receiver"() {
         given:
         def emailReceiverDTO = buildEmailReceiverDTO("Receiver 1", "receiver1@example.com")
-        def newReceiver = buildEmailReceiver(1L, emailReceiverDTO.getName(), emailReceiverDTO.getEmail())
-
-        emailRepository.existsByReceiverEmail(emailReceiverDTO.getEmail()) >> false
-        emailRepository.save(_) >> newReceiver
+        def newReceiver = buildEmailReceiver(null, emailReceiverDTO.getName(), emailReceiverDTO.getEmail())
+        System.currentTimeMillis() >> 1733067719423L
 
         when:
         emailReceiverService.addNewEmail(emailReceiverDTO)
 
         then:
-        1 * emailRepository.existsByReceiverEmail(emailReceiverDTO.getEmail())
+        1 * emailRepository.existsByReceiverEmail(emailReceiverDTO.getEmail()) >> false
         1 * emailRepository.save(newReceiver)
     }
 
@@ -50,14 +47,12 @@ class EmailReceiverServiceTest extends Specification {
         given:
         def emailReceiverDTO = buildEmailReceiverDTO("Receiver 1", "receiver1@example.com")
 
-        emailRepository.existsByReceiverEmail(emailReceiverDTO.getEmail()) >> true
-
         when:
         emailReceiverService.addNewEmail(emailReceiverDTO)
 
         then:
         thrown(IllegalArgumentException)
-        1 * emailRepository.existsByReceiverEmail(emailReceiverDTO.getEmail())
+        1 * emailRepository.existsByReceiverEmail(emailReceiverDTO.getEmail()) >> true
     }
 
     def "should update email receiver successfully"() {
@@ -66,37 +61,30 @@ class EmailReceiverServiceTest extends Specification {
         def emailReceiverDTO = buildEmailReceiverDTO("Updated Receiver", "updatedreceiver@example.com")
         def existingReceiver = buildEmailReceiver(id, "Receiver 1", "receiver1@example.com")
 
-        emailRepository.findById(id) >> Optional.of(existingReceiver)
-        emailRepository.existsByReceiverEmail(emailReceiverDTO.getEmail()) >> false
-        emailRepository.save(_) >> existingReceiver
-
         when:
         def updatedReceiver = emailReceiverService.updateEmail(id, emailReceiverDTO)
 
         then:
         updatedReceiver.receiverName == "Updated Receiver"
         updatedReceiver.receiverEmail == "updatedreceiver@example.com"
-        1 * emailRepository.findById(id)
+        1 * emailRepository.findById(id) >> Optional.of(existingReceiver)
         1 * emailRepository.existsByReceiverEmail(emailReceiverDTO.getEmail()) >> false
-        1 * emailRepository.save(_ as EmailReceiver)
+        1 * emailRepository.save(_ as EmailReceiver) >> existingReceiver
     }
 
     def "should throw exception when trying to update email with already existing email"() {
         given:
         def id = 1L
         def emailReceiverDTO = buildEmailReceiverDTO("Receiver 1", "receiver1@example.com")
-        def existingReceiver = buildEmailReceiver(id, "Receiver 1", "receiver1@example.com")
-
-        emailRepository.findById(id) >> Optional.of(existingReceiver)
-        emailRepository.existsByReceiverEmail(emailReceiverDTO.getEmail()) >> true
+        def existingReceiver = buildEmailReceiver(id, "Receiver 2", "receiver2@example.com")
 
         when:
         emailReceiverService.updateEmail(id, emailReceiverDTO)
 
         then:
         thrown(IllegalArgumentException)
-        1 * emailRepository.findById(id)
-        1 * emailRepository.existsByReceiverEmail(emailReceiverDTO.getEmail())
+        2 * emailRepository.findById(id) >> Optional.of(existingReceiver)
+        1 * emailRepository.existsByReceiverEmail(emailReceiverDTO.getEmail()) >> true
     }
 
     def "should throw exception when email receiver not found for update"() {
@@ -104,14 +92,12 @@ class EmailReceiverServiceTest extends Specification {
         def id = 1L
         def emailReceiverDTO = buildEmailReceiverDTO("Receiver 1", "receiver1@example.com")
 
-        emailRepository.findById(id) >> Optional.empty()
-
         when:
         emailReceiverService.updateEmail(id, emailReceiverDTO)
 
         then:
         thrown(IllegalArgumentException)
-        1 * emailRepository.findById(id)
+        1 * emailRepository.findById(id) >> Optional.empty()
     }
 
     private EmailReceiverDTO buildEmailReceiverDTO(String name, String email) {
