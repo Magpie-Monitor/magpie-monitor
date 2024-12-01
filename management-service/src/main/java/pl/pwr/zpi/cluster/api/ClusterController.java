@@ -10,7 +10,6 @@ import pl.pwr.zpi.cluster.service.ClusterService;
 import pl.pwr.zpi.metadata.dto.application.ApplicationMetadataDTO;
 import pl.pwr.zpi.metadata.dto.cluster.ClusterMetadataDTO;
 import pl.pwr.zpi.metadata.dto.node.NodeMetadataDTO;
-import pl.pwr.zpi.metadata.service.MetadataService;
 
 import java.util.List;
 
@@ -19,27 +18,26 @@ import java.util.List;
 @RequestMapping("/api/v1/clusters")
 public class ClusterController {
 
-    private final MetadataService metadataService;
     private final ClusterService clusterService;
 
     @GetMapping
     public ResponseEntity<List<ClusterMetadataDTO>> getClusters() {
-        return ResponseEntity.ok(metadataService.getAllClusters());
+        return ResponseEntity.ok(clusterService.getAllClusters());
     }
 
     @GetMapping("/{id}/nodes")
     public ResponseEntity<List<NodeMetadataDTO>> getClusterNodes(@PathVariable String id) {
-        return ResponseEntity.ok(metadataService.getClusterNodes(id));
+        return ResponseEntity.ok(clusterService.getClusterNodes(id));
     }
 
     @GetMapping("/{id}/applications")
     public ResponseEntity<List<ApplicationMetadataDTO>> getClusterApplications(@PathVariable String id) {
-        return ResponseEntity.ok(metadataService.getClusterApplications(id));
+        return ResponseEntity.ok(clusterService.getClusterApplications(id));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ClusterConfigurationDTO> getClusterById(@PathVariable String id) {
-        return ResponseEntity.of(clusterService.getClusterById(id));
+        return ResponseEntity.ok(clusterService.getClusterById(id));
     }
 
     @PutMapping

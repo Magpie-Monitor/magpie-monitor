@@ -16,6 +16,7 @@ import LabelInput, {
 import NewChannelPopupHeader from 'pages/Notification/NewChannelPopupHeader/NewChannelPopupHeader';
 import { EditChannelPopupProps } from './EditChannelPopup';
 import { discordWebhookValidation } from 'lib/validators';
+import { useToast } from 'providers/ToastProvider/ToastProvider';
 
 interface EditDiscordChannelPopupProps extends EditChannelPopupProps {
   id: string;
@@ -37,6 +38,8 @@ const EditDiscordChannelPopup = ({
     webhookUrl: '',
   });
 
+  const { showMessage } = useToast();
+
   const editDiscordChannel = async () => {
     if (
       discordChannel.name === name &&
@@ -46,12 +49,14 @@ const EditDiscordChannelPopup = ({
 
     try {
       await ManagmentServiceApiInstance.editDiscordChannel(discordChannel);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error posting slack channels: ', error);
-    } finally {
       setIsDisplayed(false);
       onSubmit();
+      showMessage({ message: 'Channel was updated', type: 'INFO' });
+    } catch (error) {
+      showMessage({
+        message: `Failed to update channel ${error}`,
+        type: 'ERROR',
+      });
     }
   };
 

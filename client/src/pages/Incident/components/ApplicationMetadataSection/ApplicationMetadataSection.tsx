@@ -2,7 +2,7 @@ import LabelField from 'components/LabelField/LabelField';
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import './ApplicationMetadataSection.scss';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
-import { dateFromTimestampMs } from 'lib/date';
+import { dateTimeFromTimestampMs } from 'lib/date';
 
 interface ApplicationMetadataSectionParams {
   clusterId: string;
@@ -31,11 +31,11 @@ const ApplicationMetadataSection = ({
         <div className="application-incident-metadata__column">
           <LabelField
             label={'Start Date'}
-            field={dateFromTimestampMs(startDateMs)}
+            field={dateTimeFromTimestampMs(startDateMs)}
           />
           <LabelField
             label={'End Date'}
-            field={dateFromTimestampMs(endDateMs)}
+            field={dateTimeFromTimestampMs(endDateMs)}
           />
         </div>
       </div>

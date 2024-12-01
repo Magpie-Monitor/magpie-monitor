@@ -12,9 +12,10 @@ import {
 import LoadingTable from './LoadingTable';
 import EmailColumn from 'pages/Notification/EmailCell/EmailCell';
 import NewEmailChannelPopup from 'pages/Notification/NewChannelPopup/NewEmailChannelPopup';
-import { dateFromTimestampMs } from 'lib/date';
+import { dateTimeFromTimestampMs } from 'lib/date';
 import EditEmailChannelPopup from 'pages/Notification/EditChannelPopup/EditEmailChannelPopup';
 import './NotificationTable.scss';
+import { useToast } from 'providers/ToastProvider/ToastProvider';
 
 interface EmailTableRowProps extends NotificationTableRowProps {
   email: string;
@@ -28,8 +29,8 @@ const getEmailChannelTableRow = ({
   receiverEmail,
 }: EmailNotificationChannel): EmailTableRowProps => ({
   name: receiverName,
-  updatedAt: dateFromTimestampMs(updatedAt),
-  createdAt: dateFromTimestampMs(createdAt),
+  updatedAt: dateTimeFromTimestampMs(updatedAt),
+  createdAt: dateTimeFromTimestampMs(createdAt),
   email: receiverEmail,
   id,
 });
@@ -43,6 +44,8 @@ const EmailTable = () => {
     useState<boolean>(false);
   const [editChannelPopupData, setEditChannelPopupData] =
     useState<EmailTableRowProps | null>(null);
+
+  const { showMessage } = useToast();
 
   const fetchEmailChannels = async () => {
     try {
@@ -92,11 +95,33 @@ const EmailTable = () => {
             setIsEditChannelPopupDisplayed(true);
             setEditChannelPopupData(props);
           }}
-          onTest={() => {
-            ManagmentServiceApiInstance.testEmailChannel(props.id);
+          onTest={async () => {
+            try {
+              await ManagmentServiceApiInstance.testEmailChannel(props.id);
+              showMessage({
+                message: 'Successfully sent a test notification',
+                type: 'INFO',
+              });
+            } catch (e: unknown) {
+              showMessage({
+                message: 'Failed to send test notification',
+                type: 'ERROR',
+              });
+            }
           }}
           onDelete={async () => {
-            await ManagmentServiceApiInstance.deleteEmailChannel(props.id);
+            try {
+              await ManagmentServiceApiInstance.deleteEmailChannel(props.id);
+              showMessage({
+                message: 'Email channel was deleted',
+                type: 'WARNING',
+              });
+            } catch (e: unknown) {
+              showMessage({
+                message: `Failed to delete email channel: ${e}`,
+                type: 'ERROR',
+              });
+            }
             setLoading(true);
           }}
         />

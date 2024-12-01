@@ -1,9 +1,16 @@
 import React from 'react';
 import './Spinner.scss';
 
-const Spinner: React.FC = () => {
+interface SpinnerProps {
+    size?: string;
+}
+
+const Spinner: React.FC<SpinnerProps> = ({ size = '40px' }) => {
     return (
-        <div className="spinner" />
+      <div
+        className="spinner"
+        style={{ width: size, height: size }}
+      />
     );
 };
 

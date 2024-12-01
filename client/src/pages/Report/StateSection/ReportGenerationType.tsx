@@ -9,7 +9,7 @@ interface ReportGenerationTypeProps {
 }
 
 const ReportGenerationType: React.FC<ReportGenerationTypeProps> = ({ setParentGenerationType }) => {
-    const [generationType, setGenerationType] = useState<ReportType>('ON-DEMAND');
+    const [generationType, setGenerationType] = useState<ReportType>('ON_DEMAND');
 
     const handleGenerationTypeChange = (newGenerationType: ReportType) => {
         setGenerationType(newGenerationType);
@@ -20,7 +20,7 @@ const ReportGenerationType: React.FC<ReportGenerationTypeProps> = ({ setParentGe
         <SectionComponent icon={<SVGIcon iconName='precision-icon' />} title={'Generation type'}>
             <div className="precision-section__input-group">
                 <TagButton
-                    listItems={['ON-DEMAND', 'SCHEDULED']}
+                    listItems={['ON_DEMAND', 'SCHEDULED']}
                     chosenItem={generationType}
                     onSelect={handleGenerationTypeChange}
                 />

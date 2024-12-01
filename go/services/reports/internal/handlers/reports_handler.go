@@ -71,11 +71,11 @@ func (h *ReportsHandler) ListenForReportRequests() {
 	errChan := make(chan error)
 	ctx := context.Background()
 
-	go h.reportRequestedBroker.Subscribe(requests, errChan)
+	go h.reportRequestedBroker.Subscribe(ctx, requests, errChan)
 	for {
 		select {
 		case request := <-requests:
-			err := h.ScheduleReport(ctx, request.CorrelationId, &request.ReportRequest)
+			_, err := h.ScheduleReport(ctx, request.CorrelationId, &request.ReportRequest)
 			if err != nil {
 				h.logger.Error("Failed to schedule a report", zap.Any("err", err), zap.Any("request", request))
 				h.reportRequestFailedBroker.Publish(request.CorrelationId, *err)
@@ -89,33 +89,26 @@ func (h *ReportsHandler) ListenForReportRequests() {
 }
 
 func (h *ReportsHandler) ScheduleReport(ctx context.Context, correlationId string,
-	reportRequest *brokers.ReportRequest) *brokers.ReportRequestFailed {
+	reportRequest *brokers.ReportRequest) (*repositories.Report, *brokers.ReportRequestFailed) {
 
 	if reportRequest.SinceMs == nil {
-		return brokers.NewReportRequestFailedValidation(
+		return nil, brokers.NewReportRequestFailedValidation(
 			correlationId,
 			"Missing sinceMs parameter",
 		)
 	}
 
 	if reportRequest.ToMs == nil {
-		return brokers.NewReportRequestFailedValidation(
+		return nil, brokers.NewReportRequestFailedValidation(
 			correlationId,
 			"Missing toMs parameter",
 		)
 	}
 
 	if reportRequest.ClusterId == nil {
-		return brokers.NewReportRequestFailedValidation(
+		return nil, brokers.NewReportRequestFailedValidation(
 			correlationId,
 			"Missing clusterId parameter",
-		)
-	}
-
-	if reportRequest.ClusterId == nil {
-		return brokers.NewReportRequestFailedValidation(
-			correlationId,
-			"Missing maxLength parameter",
 		)
 	}
 
@@ -132,7 +125,7 @@ func (h *ReportsHandler) ScheduleReport(ctx context.Context, correlationId strin
 
 	if err != nil {
 		h.logger.Error("Failed to generate report", zap.Error(err))
-		return brokers.NewReportRequestFailedInternalError(
+		return nil, brokers.NewReportRequestFailedInternalError(
 			correlationId,
 			fmt.Sprintf("Failed to generate report %s", err.Error()),
 		)
@@ -140,7 +133,7 @@ func (h *ReportsHandler) ScheduleReport(ctx context.Context, correlationId strin
 
 	h.logger.Info("Scheduled report", zap.Any("report", resp))
 
-	return nil
+	return resp, nil
 }
 
 func (h *ReportsHandler) PollReports() {

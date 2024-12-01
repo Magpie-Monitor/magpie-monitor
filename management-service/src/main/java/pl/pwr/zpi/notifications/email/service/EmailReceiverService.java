@@ -2,8 +2,10 @@ package pl.pwr.zpi.notifications.email.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.notifications.email.dto.EmailReceiverDTO;
+import pl.pwr.zpi.notifications.email.dto.EmailReceiverUpdateRequest;
 import pl.pwr.zpi.notifications.email.entity.EmailReceiver;
 import pl.pwr.zpi.notifications.email.repository.EmailRepository;
 
@@ -15,30 +17,57 @@ import java.util.List;
 public class EmailReceiverService {
 
     private final EmailRepository emailRepository;
+    private final EmailValidator emailValidator = EmailValidator.getInstance();
 
     public List<EmailReceiver> getAllEmails() {
         return emailRepository.findAll();
     }
 
     public void addNewEmail(EmailReceiverDTO emailReceiver) {
+        long now = System.currentTimeMillis();
+
         checkIfEmailExists(emailReceiver);
         EmailReceiver receiver = EmailReceiver.builder()
                 .receiverName(emailReceiver.getName())
                 .receiverEmail(emailReceiver.getEmail())
-                .createdAt(System.currentTimeMillis())
+                .createdAt(now)
+                .updatedAt(now)
                 .build();
         emailRepository.save(receiver);
     }
 
-    public EmailReceiver updateEmail(Long id, EmailReceiverDTO emailReceiver) {
+    public EmailReceiver updateEmail(Long id, EmailReceiverUpdateRequest updateRequest) {
         var receiver = getEmailReceiver(id);
 
-        checkIfUserCanUpdateEmail(emailReceiver.getEmail(), id);
+        checkIfUserCanUpdateEmail(updateRequest.email(), id);
+        patchEmail(receiver, updateRequest);
 
-        receiver.setReceiverName(emailReceiver.getName());
-        receiver.setReceiverEmail(emailReceiver.getEmail());
         receiver.setUpdatedAt(System.currentTimeMillis());
         return emailRepository.save(receiver);
+    }
+
+    private void patchEmail(EmailReceiver emailReceiver, EmailReceiverUpdateRequest updateRequest) {
+        if(updateRequest.name() != null) {
+            validateReceiverName(updateRequest.name());
+            emailReceiver.setReceiverName(updateRequest.name());
+        }
+
+        if(updateRequest.email() != null) {
+            validateEmail(updateRequest.email());
+            emailReceiver.setReceiverEmail(updateRequest.email());
+        }
+    }
+
+    private void validateReceiverName(String name) {
+        if(name.length() < 2 || name.length() > 100) {
+            throw new RuntimeException("Email receiver name length has to be >= 2 and <= 100");
+        }
+    }
+
+    private void validateEmail(String email) {
+        if(!emailValidator.isValid(email)) {
+            throw new RuntimeException("Invalid email");
+        }
     }
 
     public EmailReceiver getEmailReceiver(Long receiverEmailId) {
@@ -56,5 +85,9 @@ public class EmailReceiverService {
         if (emailRepository.existsByReceiverEmail(email) && !emailRepository.findById(id).get().getReceiverEmail().equals(email)) {
             throw new IllegalArgumentException("Email is already assigned to other entry");
         }
+    }
+
+    public void deleteEmailReceiver(Long receiverId) {
+        emailRepository.deleteById(receiverId);
     }
 }

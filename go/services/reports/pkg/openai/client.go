@@ -429,8 +429,6 @@ func (c *Client) SplitCompletionReqestsByBatchSize(completionRequests map[string
 			return nil, err
 		}
 
-		c.logger.Debug("Packet size", zap.Any("len", lastPacketSize))
-		c.logger.Debug("Current size", zap.Any("len", len(encodedPacket)))
 		if lastPacketSize+len(encodedPacket) > c.BatchSizeBytes {
 			requestPackets = append(requestPackets, lastPacket)
 			lastPacket = map[string]*CompletionRequest{customId: request}

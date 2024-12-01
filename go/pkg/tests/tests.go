@@ -1,9 +1,12 @@
 package tests
 
 import (
+	// "context"
+	"context"
+	"testing"
+
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
-	"testing"
 )
 
 const (
@@ -19,6 +22,6 @@ func RunTest[T any](test func(dependencies T), t *testing.T, appModule fx.Option
 		fx.Invoke(test),
 	)
 
-	app.RequireStart()
-	app.RequireStop()
+	app.Start(context.Background())
+	app.Stop(context.Background())
 }

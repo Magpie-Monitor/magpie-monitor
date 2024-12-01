@@ -1,7 +1,6 @@
 import React from 'react';
 import EntriesSelector from 'components/EntriesSelector/EntriesSelector';
 import { ApplicationDataRow } from 'pages/Report/ApplicationSection/ApplicationSection';
-import { ManagmentServiceApiInstance, AccuracyLevel } from 'api/managment-service';
 import LinkComponent from 'components/LinkComponent/LinkComponent';
 import KindTag from 'components/KindTag/KindTag.tsx';
 
@@ -11,8 +10,7 @@ interface ApplicationsEntriesSelectorProps {
     applicationsToExclude: ApplicationDataRow[];
     onAdd: () => void;
     onClose: () => void;
-    clusterId: string;
-    defaultAccuracy: AccuracyLevel;
+    availableApplications: ApplicationDataRow[];
 }
 
 const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = ({
@@ -21,19 +19,8 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
                                                                     applicationsToExclude,
                                                                     onAdd,
                                                                     onClose,
-                                                                    clusterId,
-                                                                    defaultAccuracy,
+                                                                    availableApplications,
                                                                                  }) => {
-    const fetchApplications = async () => {
-        const data = await ManagmentServiceApiInstance.getApplications(clusterId);
-        return data.map((app) => ({
-            name: app.name,
-            running: app.running,
-            kind: app.kind,
-            accuracy: defaultAccuracy,
-            customPrompt: '',
-        }));
-    };
 
     const getUniqueKey = (app: ApplicationDataRow) => app.name;
 
@@ -42,7 +29,7 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
             header: 'Name',
             columnKey: 'name',
             customComponent: (row: ApplicationDataRow) => (
-                <LinkComponent to="" isRunning={row.running}>
+                <LinkComponent isRunning={row.running}>
                     {row.name}
                 </LinkComponent>
             ),
@@ -65,7 +52,7 @@ const ApplicationsEntriesSelector: React.FC<ApplicationsEntriesSelectorProps> = 
             itemsToExclude={applicationsToExclude}
             onAdd={onAdd}
             onClose={onClose}
-            fetchData={fetchApplications}
+            items={availableApplications}
             columns={columns}
             getKey={getUniqueKey}
             entityLabel="application"

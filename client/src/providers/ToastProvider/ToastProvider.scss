@@ -1,0 +1,16 @@
+@import '@/variables';
+
+.toasts {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+  z-index: 1000;
+
+  @media (max-width: $sm) {
+    width: 90vw;
+    margin: auto;
+  }
+}

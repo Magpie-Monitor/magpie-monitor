@@ -5,8 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.pwr.zpi.notifications.discord.DiscordNotificationService;
-import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.discord.dto.DiscordReceiverDTO;
+import pl.pwr.zpi.notifications.discord.dto.UpdateDiscordReceiverRequest;
+import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver;
 import pl.pwr.zpi.notifications.discord.service.DiscordReceiverService;
 
 import java.util.List;
@@ -24,24 +25,26 @@ public class DiscordController {
     }
 
     @PostMapping
-    public ResponseEntity<DiscordReceiver> addDiscordIntegration(@Valid @RequestBody DiscordReceiverDTO discordReceiver) throws Exception {
-        discordReceiverService.addNewDiscordIntegration(discordReceiver);
+    public ResponseEntity<DiscordReceiver> addDiscordReceiver(@Valid @RequestBody DiscordReceiverDTO discordReceiver) {
+        discordReceiverService.createDiscordReceiver(discordReceiver);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<DiscordReceiver> updateDiscordIntegration(@PathVariable Long id, @Valid @RequestBody DiscordReceiverDTO DiscordReceiver) throws Exception {
+    public ResponseEntity<DiscordReceiver> updateDiscordIntegration(
+            @PathVariable Long id, @RequestBody UpdateDiscordReceiverRequest DiscordReceiver) {
         return ResponseEntity.ok().body(discordReceiverService.updateDiscordIntegration(id, DiscordReceiver));
     }
 
     @PostMapping("/{id}/test-notification")
-    public ResponseEntity<DiscordReceiver> sendTestMessage(@PathVariable Long id) throws Exception {
+    public ResponseEntity<DiscordReceiver> sendTestMessage(@PathVariable Long id) {
         discordNotificationService.sendTestMessage(id);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{id}/webhook-url")
-    public ResponseEntity<DiscordReceiver> getWebhookUrl(@PathVariable Long id) throws Exception {
-        return ResponseEntity.ok().body(discordReceiverService.getEncodedWebhookUrl(id));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDiscordReceiver(@PathVariable Long id) {
+        discordReceiverService.deleteDiscordReceiver(id);
+        return ResponseEntity.ok().build();
     }
 }

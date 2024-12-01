@@ -28,7 +28,7 @@ type NodeLogsRepository interface {
 	CreateIndex(ctx context.Context, indexName string) error
 	RemoveIndex(ctx context.Context, indexName string) error
 	GetLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) ([]*NodeLogsDocument, error)
-	InsertLogs(ctx context.Context, logs *NodeLogs) error
+	InsertLogs(ctx context.Context, logs *NodeLogs) (string, error)
 	GetBatchedLogs(ctx context.Context, cluster string, startDate time.Time, endDate time.Time) (NodeLogsBatchRetriever, error)
 	GetLogsByIds(ctx context.Context, clusterId string, startDate time.Time, endDate time.Time, ids []string) ([]*NodeLogsDocument, error)
 }
@@ -81,7 +81,7 @@ func (r *ElasticSearchNodeLogsRepository) GetLogs(ctx context.Context, cluster s
 	}
 
 	for {
-		if !batch.HasNextBatch() {
+		if batch.HasNextBatch() {
 			nextBatch, err := batch.GetNextBatch()
 			if err != nil {
 				r.logger.Error("Failed to get next batch of node logs")
@@ -89,6 +89,8 @@ func (r *ElasticSearchNodeLogsRepository) GetLogs(ctx context.Context, cluster s
 			}
 
 			nodeLogs = append(nodeLogs, nextBatch...)
+		} else {
+			return nodeLogs, nil
 		}
 	}
 }
@@ -152,12 +154,12 @@ func (r *ElasticSearchNodeLogsRepository) RemoveIndex(ctx context.Context, index
 	return nil
 }
 
-func (r *ElasticSearchNodeLogsRepository) InsertLogs(ctx context.Context, logs *NodeLogs) error {
+// Returns id of inserted log
+func (r *ElasticSearchNodeLogsRepository) InsertLogs(ctx context.Context, logs *NodeLogs) (string, error) {
 
 	if logs.Content == "" {
-
 		//Skip inserting logs without content
-		return nil
+		return "", nil
 	}
 
 	index := getNodeLogsIndexName(logs)
@@ -166,12 +168,13 @@ func (r *ElasticSearchNodeLogsRepository) InsertLogs(ctx context.Context, logs *
 		r.CreateIndex(ctx, index)
 	}
 
-	_, err := r.esClient.Index(index).Request(logs).Do(ctx)
+	insertedLog, err := r.esClient.Index(index).Request(logs).Do(ctx)
 	if err != nil {
 		r.logger.Error("Failed to insert node logs", zap.Error(err))
+		return "", err
 	}
 
-	return err
+	return insertedLog.Id_, nil
 }
 
 type NodeLogsParams struct {
