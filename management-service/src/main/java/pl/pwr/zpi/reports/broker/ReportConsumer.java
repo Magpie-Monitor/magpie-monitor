@@ -7,13 +7,12 @@ import org.springframework.stereotype.Component;
 import pl.pwr.zpi.reports.dto.event.ReportGenerated;
 import pl.pwr.zpi.reports.dto.event.ReportRequestFailed;
 import pl.pwr.zpi.reports.service.ReportGenerationService;
-import pl.pwr.zpi.reports.service.ReportsService;
 import pl.pwr.zpi.utils.mapper.JsonMapper;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ReportListener {
+public class ReportConsumer {
 
     private final JsonMapper mapper;
     private final ReportGenerationService reportGenerationService;

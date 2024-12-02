@@ -32,7 +32,8 @@ public class DiscordNotificationService implements ReportNotifier {
     private void sendTestMessage(String webhookUrl) {
         discordMessagingService.sendMessage(
                 ResourceLoaderUtils.loadResourceToString(TEST_MESSAGE_PATH),
-                webhookUrl);
+                webhookUrl
+        );
     }
 
     @Override
