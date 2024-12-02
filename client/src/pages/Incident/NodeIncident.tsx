@@ -1,6 +1,6 @@
 import './Incident.scss';
 import PageTemplate from 'components/PageTemplate/PageTemplate';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   ManagmentServiceApiInstance,
@@ -15,27 +15,29 @@ import NodeSourceSection from './components/NodeSourceSection/NodeSourceSection'
 import { getFirstAndLastDateFromTimestamps } from 'lib/date';
 import Spinner from 'components/Spinner/Spinner';
 import ConfigurationSection from './components/ConfigurationSection/ConfigurationSection';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { animated, useTransition } from '@react-spring/web';
+import usePaginatedContent from 'hooks/usePaginatedContent';
+import { FadeInTransition } from 'hooks/TransitionParams';
+import useInfiniteScroll from 'hooks/useInfiniteScroll';
 
 const NODE_SOURCE_PAGE_SIZE = 5;
-const PAGE_TEMPLATE_INFINITE_SCROLL_ID = 'node-incident-page';
 
 const NodeIncidentPage = () => {
   const [incident, setIncident] = useState<NodeIncident>();
   const [isLoading, setIsLoading] = useState(true);
-  const [sourcesPage, setSourcesPage] = useState(0);
-  const [sources, setSources] = useState<NodeIncidentSource[]>([]);
-  const [allSourcesCount, setAllSourcesCount] = useState(-1);
   const { id } = useParams();
+  const {
+    content,
+    contentPage,
+    setTotalContentCount,
+    addContent,
+    isAllContentFetched,
+  } = usePaginatedContent<NodeIncidentSource>();
 
-  const transitions = useTransition(sources, {
-    from: { opacity: 0, transform: 'translateY(20px)' },
-    enter: { opacity: 1, transform: 'translateY(0)' },
-    leave: { opacity: 0, transform: 'translateY(20px)' },
-    config: { duration: 200 },
-    trail: 400,
-  });
+  const [isFetchingSources, setIsFetchingSources] = useState(true);
+
+  const transitions = useTransition(content, FadeInTransition);
+  const pageTemplateRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchNodeIncident = async () => {
@@ -53,31 +55,63 @@ const NodeIncidentPage = () => {
     fetchNodeIncident();
   }, [id]);
 
-  const fetchSources = useCallback(async () => {
-    const newSources = await ManagmentServiceApiInstance.getNodeIncidentSources(
-      incident!.id,
-      sourcesPage,
-      NODE_SOURCE_PAGE_SIZE,
-    );
-
-    if (newSources.data.length === 0) {
+  const handleScroll = async () => {
+    if (isAllContentFetched()) {
       return;
     }
 
-    setAllSourcesCount(newSources.totalEntries);
-    setSources((prev) => [...prev, ...newSources.data]);
-    setSourcesPage((page) => page + 1);
-  }, [incident, sourcesPage]);
+    if (!incident) {
+      return;
+    }
+
+    setIsFetchingSources(true);
+    const newSources = await ManagmentServiceApiInstance.getNodeIncidentSources(
+      incident!.id,
+      contentPage,
+      NODE_SOURCE_PAGE_SIZE,
+    );
+
+    addContent(newSources.data);
+    setTotalContentCount(newSources.totalEntries);
+    setIsFetchingSources(false);
+  };
+
+  useInfiniteScroll({ handleScroll, scrollTargetRef: pageTemplateRef });
 
   useEffect(() => {
+    const fetchSources = async () => {
+      if (!incident) {
+        return;
+      }
+      try {
+        setIsFetchingSources(true);
+        const newSources =
+          await ManagmentServiceApiInstance.getNodeIncidentSources(
+            incident!.id,
+            contentPage,
+            NODE_SOURCE_PAGE_SIZE,
+          );
+
+        setIsFetchingSources(false);
+
+        addContent(newSources.data);
+        setTotalContentCount(newSources.totalEntries);
+      } catch (err) {
+        // eslint-disable-next-line
+        console.error('Failed to fetch sources');
+      }
+    };
     fetchSources();
-  }, [incident, fetchSources]);
+
+    // eslint-disable-next-line
+  }, [incident]);
 
   if (isLoading || !incident) {
     return (
       <PageTemplate header={''}>
-        {' '}
-        <Spinner />{' '}
+        <div className="incident__loader">
+          <Spinner />
+        </div>
       </PageTemplate>
     );
   }
@@ -91,7 +125,7 @@ const NodeIncidentPage = () => {
       header={
         <IncidentHeader id={id!} name={incident.title} timestamp={startDate} />
       }
-      id={PAGE_TEMPLATE_INFINITE_SCROLL_ID}
+      scrollRef={pageTemplateRef}
     >
       <div className="incident">
         <div>
@@ -114,24 +148,21 @@ const NodeIncidentPage = () => {
             <RecommendationSection recommendation={incident.recommendation} />
           </div>
 
-          <InfiniteScroll
-            dataLength={sources.length}
-            next={fetchSources}
-            hasMore={sources.length < allSourcesCount}
-            loader={<Spinner />}
-            scrollableTarget={PAGE_TEMPLATE_INFINITE_SCROLL_ID}
-            className="incident"
-          >
-            {transitions((style, source) => (
-              <animated.div style={style}>
-                <NodeSourceSection
-                  content={source.content}
-                  timestamp={source.timestamp}
-                  filename={source.filename}
-                />
-              </animated.div>
-            ))}
-          </InfiniteScroll>
+          {transitions((style, source) => (
+            <animated.div style={style}>
+              <NodeSourceSection
+                content={source.content}
+                filename={source.filename}
+                timestamp={source.timestamp}
+              />
+            </animated.div>
+          ))}
+
+          {isFetchingSources && (
+            <div className="incident__loader">
+              <Spinner />
+            </div>
+          )}
         </div>
       </div>
     </PageTemplate>
