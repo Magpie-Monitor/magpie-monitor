@@ -7,6 +7,7 @@
   padding: 1rem;
   height: calc(100svh - 2rem);
   margin: 0rem;
+  scroll-snap-type: y mandatory;
 
   &__content {
     width: 100%;
