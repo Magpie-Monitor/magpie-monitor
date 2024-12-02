@@ -30,7 +30,7 @@ const PieChart = ({ data, label }: PieChartProps) => {
 
   const options = {
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
     resizeDelay: 200,
     color: 'white',
     backgroundColor: 'none',
@@ -52,7 +52,7 @@ const PieChart = ({ data, label }: PieChartProps) => {
   } as ChartOptions<'pie'>;
 
   return (
-    <div className="polar-chart">
+    <div className="pie-chart">
       <Pie data={config} options={options} />
     </div>
   );

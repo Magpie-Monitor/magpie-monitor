@@ -1,5 +1,4 @@
 import PageTemplate from 'components/PageTemplate/PageTemplate';
-import Spinner from 'components/Spinner/Spinner';
 import useReportDetails, { IncidentStats } from 'hooks/useReportStats';
 import { useNavigate, useParams } from 'react-router-dom';
 import './ReportDetails.scss';
@@ -17,6 +16,7 @@ import {
   genericIncidentsFromNodeIncidents,
   urgencyIncidentCount,
 } from 'types/incident';
+import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
 
 const statItems = (
   report: ReportDetails,
@@ -112,7 +112,7 @@ const ReportDetailsPage = () => {
   if (isReportLoading || !report || !incidents || !incidentStats) {
     return (
       <PageTemplate header={''}>
-        <Spinner />
+        <CenteredSpinner />
       </PageTemplate>
     );
   }

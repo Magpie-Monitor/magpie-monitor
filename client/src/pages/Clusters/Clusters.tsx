@@ -1,10 +1,10 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import PageTemplate from 'components/PageTemplate/PageTemplate';
 import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/HeaderWithIcon';
-import Table, {TableColumn} from 'components/Table/Table';
+import Table, { TableColumn } from 'components/Table/Table';
 import './Clusters.scss';
 import Channels from './components/NotificationChannelsColumn/NotificationChannelsColumn';
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import {
   ClusterSummary,
   ManagmentServiceApiInstance,
@@ -13,10 +13,10 @@ import {
 } from 'api/managment-service';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
-import Spinner from 'components/Spinner/Spinner.tsx';
 import ReportActionsCell from './ReportActionsCell';
 import AccuracyBadge from 'components/AccuracyBadge/AccuracyBadge.tsx';
-import {dateTimeFromTimestampMs} from 'lib/date.ts';
+import { dateTimeFromTimestampMs } from 'lib/date.ts';
+import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
 
 interface ClusterDataRow {
   name: string;
@@ -78,8 +78,11 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
   {
     header: 'Notification',
     columnKey: 'notificationChannels',
-    customComponent: ({ notificationChannels }:
-                        { notificationChannels: NotificationChannelColumn[] }) => {
+    customComponent: ({
+      notificationChannels,
+    }: {
+      notificationChannels: NotificationChannelColumn[];
+    }) => {
       return <Channels channels={notificationChannels} />;
     },
   },
@@ -132,17 +135,17 @@ const Clusters = () => {
     fetchClusters();
   }, []);
 
-  const header = <HeaderWithIcon title={'Clusters'}/>;
+  const header = <HeaderWithIcon title={'Clusters'} />;
 
   return (
     <PageTemplate header={header}>
       <SectionComponent
         title={'Clusters'}
-        icon={<SVGIcon iconName="clusters-icon"/>}
+        icon={<SVGIcon iconName="clusters-icon" />}
       >
-        {isLoading && <Spinner/>}
+        {isLoading && <CenteredSpinner />}
         {!isLoading && clusters.length > 0 && (
-          <Table columns={columns} rows={clusters}/>
+          <Table columns={columns} rows={clusters} />
         )}
         {!isLoading && clusters.length === 0 && (
           <div>No registered clusters yet</div>

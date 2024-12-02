@@ -8,8 +8,10 @@
   &__content {
     display: flex;
     flex-direction: row;
+    position: relative;
 
     @media (max-width: $lg) {
+      display: flex;
       flex-direction: column;
     }
   }
@@ -20,16 +22,17 @@
     height: 100%;
     column-gap: 10px;
     row-gap: 10px;
-    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
   }
 
   &__chart {
-    flex-grow: 1;
-    margin: 30px;
+    position: relative;
+    margin-top: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     color: $navbar-text-color;
-    min-width: 20%;
+    height: 500px;
   }
 }
