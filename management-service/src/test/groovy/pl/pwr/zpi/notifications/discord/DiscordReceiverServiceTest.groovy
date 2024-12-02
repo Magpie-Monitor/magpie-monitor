@@ -6,7 +6,6 @@ import pl.pwr.zpi.notifications.discord.dto.UpdateDiscordReceiverRequest
 import pl.pwr.zpi.notifications.discord.entity.DiscordReceiver
 import pl.pwr.zpi.notifications.discord.repository.DiscordRepository
 import pl.pwr.zpi.notifications.discord.service.DiscordReceiverService
-import spock.lang.Ignore
 import spock.lang.Specification
 
 class DiscordReceiverServiceTest extends Specification {
@@ -101,7 +100,6 @@ class DiscordReceiverServiceTest extends Specification {
         1 * discordRepository.save(_ as DiscordReceiver) >> existingReceiver
     }
 
-    @Ignore
     def "should throw exception if webhook URL is assigned to another entry when updating discord integration"() {
         given:
         def id = 1L

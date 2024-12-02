@@ -13,7 +13,6 @@ import pl.pwr.zpi.reports.service.ReportGenerationService
 import pl.pwr.zpi.reports.repository.*
 import pl.pwr.zpi.notifications.ReportNotificationService
 import pl.pwr.zpi.reports.broker.ReportPublisher
-import spock.lang.Ignore
 import spock.lang.Specification
 
 class ReportGenerationServiceTest extends Specification {

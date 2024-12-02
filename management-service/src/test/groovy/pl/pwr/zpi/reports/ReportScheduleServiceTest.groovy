@@ -5,7 +5,6 @@ import pl.pwr.zpi.reports.dto.scheduler.ReportSchedule
 import pl.pwr.zpi.reports.repository.ReportScheduleRepository
 import pl.pwr.zpi.cluster.repository.ClusterRepository
 import pl.pwr.zpi.reports.service.ReportScheduleService
-import spock.lang.Ignore
 import spock.lang.Specification
 
 class ReportScheduleServiceTest extends Specification {

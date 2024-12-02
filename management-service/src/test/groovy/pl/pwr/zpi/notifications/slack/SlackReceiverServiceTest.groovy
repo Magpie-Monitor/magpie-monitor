@@ -6,7 +6,6 @@ import pl.pwr.zpi.notifications.slack.dto.UpdateSlackReceiverRequest
 import pl.pwr.zpi.notifications.slack.entity.SlackReceiver
 import pl.pwr.zpi.notifications.slack.repository.SlackRepository
 import pl.pwr.zpi.notifications.slack.service.SlackReceiverService
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Subject
 
