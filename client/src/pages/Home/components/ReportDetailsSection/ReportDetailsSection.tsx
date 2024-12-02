@@ -121,7 +121,11 @@ const ReportDetailsSection = ({
   };
 
   if (isReportLoading || !report) {
-    return <Spinner />;
+    return (
+      <div className="dashboard-report-details-section__loader">
+        <Spinner />
+      </div>
+    );
   }
   return (
     <SectionComponent
