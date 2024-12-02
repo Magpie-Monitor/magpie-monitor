@@ -3,6 +3,7 @@ import './StatisticsDisplay.scss';
 import UrgencyPolarChart from 'components/UrgencyPolarChart/UrgencyPolarChart';
 import { UrgencyLevel } from 'api/managment-service';
 import colors from 'global/colors';
+import { useEffect, useRef } from 'react';
 
 export interface StatItemData {
   title: string;
@@ -20,6 +21,10 @@ const StatisticsDisplay = ({
   statItems,
   urgencyIncidentCount,
 }: StatisticsDisplayProps) => {
+  // Handle dynamic resizing of chartjs component
+  const statsRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
+
   const showChart = () => {
     const indexOfData = Object.values(urgencyIncidentCount).findIndex(
       (item) => {
@@ -29,10 +34,28 @@ const StatisticsDisplay = ({
 
     return indexOfData != -1;
   };
+
+  useEffect(() => {
+    const adjustHeight = () => {
+      if (statsRef.current && chartRef.current) {
+        const statsHeight = statsRef.current.offsetHeight;
+        chartRef.current.style.height = `${statsHeight}px`;
+      }
+    };
+
+    adjustHeight();
+
+    window.addEventListener('resize', adjustHeight);
+
+    return () => {
+      window.removeEventListener('resize', adjustHeight);
+    };
+  }, []);
+
   return (
     <div className="statistics-display">
       <div className="statistics-display__content">
-        <div className="statistics-display__items">
+        <div className="statistics-display__items" ref={statsRef}>
           {statItems.map((item, index) => (
             <StatItem
               key={index}
@@ -44,7 +67,7 @@ const StatisticsDisplay = ({
           ))}
         </div>
         {showChart() && (
-          <div className="statistics-display__chart">
+          <div className="statistics-display__chart" ref={chartRef}>
             <UrgencyPolarChart urgencyIncidentCount={urgencyIncidentCount} />
           </div>
         )}
