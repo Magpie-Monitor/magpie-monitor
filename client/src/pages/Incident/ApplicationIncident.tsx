@@ -15,12 +15,12 @@ import RecommendationSection from './components/RecommendationSection/Recommenda
 import ApplicationSourceSection from './components/ApplicationSourceSection/ApplicationSourceSection';
 import IncidentHeader from './components/IncidentHeader/IncidentHeader';
 import { getFirstAndLastDateFromTimestamps } from 'lib/date';
-import Spinner from 'components/Spinner/Spinner';
 import ConfigurationSection from './components/ConfigurationSection/ConfigurationSection';
 import { useTransition, animated } from '@react-spring/web';
 import useInfiniteScroll from 'hooks/useInfiniteScroll';
 import usePaginatedContent from 'hooks/usePaginatedContent';
 import { FadeInTransition } from 'hooks/TransitionParams';
+import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
 
 const APPLICATION_SOURCE_PAGE_SIZE = 5;
 
@@ -112,7 +112,7 @@ const ApplicationIncidentPage = () => {
   if (isLoading || !incident) {
     return (
       <PageTemplate header={''}>
-        <Spinner />
+        <CenteredSpinner />
       </PageTemplate>
     );
   }
@@ -160,11 +160,7 @@ const ApplicationIncidentPage = () => {
             />
           </animated.div>
         ))}
-        {isFetchingSources && (
-          <div className="incident__loader">
-            <Spinner />
-          </div>
-        )}
+        {isFetchingSources && <CenteredSpinner />}
       </div>
     </PageTemplate>
   );

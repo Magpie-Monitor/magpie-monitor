@@ -13,12 +13,12 @@ import IncidentHeader from './components/IncidentHeader/IncidentHeader';
 import NodeMetadataSection from './components/NodeMetadataSection/NodeMetadataSection';
 import NodeSourceSection from './components/NodeSourceSection/NodeSourceSection';
 import { getFirstAndLastDateFromTimestamps } from 'lib/date';
-import Spinner from 'components/Spinner/Spinner';
 import ConfigurationSection from './components/ConfigurationSection/ConfigurationSection';
 import { animated, useTransition } from '@react-spring/web';
 import usePaginatedContent from 'hooks/usePaginatedContent';
 import { FadeInTransition } from 'hooks/TransitionParams';
 import useInfiniteScroll from 'hooks/useInfiniteScroll';
+import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
 
 const NODE_SOURCE_PAGE_SIZE = 5;
 
@@ -109,9 +109,7 @@ const NodeIncidentPage = () => {
   if (isLoading || !incident) {
     return (
       <PageTemplate header={''}>
-        <div className="incident__loader">
-          <Spinner />
-        </div>
+        <CenteredSpinner />
       </PageTemplate>
     );
   }
@@ -158,11 +156,7 @@ const NodeIncidentPage = () => {
             </animated.div>
           ))}
 
-          {isFetchingSources && (
-            <div className="incident__loader">
-              <Spinner />
-            </div>
-          )}
+          {isFetchingSources && <CenteredSpinner />}
         </div>
       </div>
     </PageTemplate>

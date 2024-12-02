@@ -1,7 +1,6 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import ReportTitle from 'pages/Home/components/ReportTitle/ReportTitle';
-import Spinner from 'components/Spinner/Spinner';
 import { IncidentStats, ReportStats } from 'hooks/useReportStats';
 import { ReportDetails } from 'api/managment-service';
 import StatisticsDisplay, {
@@ -18,6 +17,7 @@ import {
 } from 'types/incident';
 import './ReportDetailsSection.scss';
 import { useNavigate } from 'react-router-dom';
+import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
 
 const statItems = (
   report: ReportDetails,
@@ -121,11 +121,7 @@ const ReportDetailsSection = ({
   };
 
   if (isReportLoading || !report) {
-    return (
-      <div className="dashboard-report-details-section__loader">
-        <Spinner />
-      </div>
-    );
+    return <CenteredSpinner />;
   }
   return (
     <SectionComponent
@@ -139,7 +135,7 @@ const ReportDetailsSection = ({
       }
     >
       <div className="dashboard-report-details-section">
-        {areIncidentsLoading && <Spinner />}
+        {areIncidentsLoading && <CenteredSpinner />}
         {incidents && incidentStats && (
           <div className="dashboard-report-details-section__incidents">
             <ReportDetailsSubsection title={'Statistics'}>
