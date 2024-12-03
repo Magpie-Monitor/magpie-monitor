@@ -21,7 +21,7 @@ import SchedulePeriod, {
 } from './SchedulePeriod/SchedulePeriod.tsx';
 import { fetchClusterData, generateReport } from './CreateReportUtils.tsx';
 import { AccuracyLevel, ReportType } from 'api/managment-service.ts';
-import { getEndOfDay, getStartOfDay } from '@lib/date.ts';
+import { getEndOfDay, getStartOfDay } from 'lib/date.ts';
 
 const CreateReport = () => {
     const { id } = useParams<{ id: string }>();
