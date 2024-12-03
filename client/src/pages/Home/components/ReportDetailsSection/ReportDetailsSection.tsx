@@ -77,7 +77,7 @@ const statItems = (
     });
 
     defaultStats.push({
-      title: `Incidents from ${stats.nodeWithMostIncidents.numberOfIncidents}`,
+      title: `Incidents from ${stats.nodeWithMostIncidents.nodeName}`,
       value: stats.nodeWithMostIncidents.numberOfIncidents,
       unit: 'incidents',
       valueColor: colors.urgency.low,
