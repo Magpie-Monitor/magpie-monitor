@@ -140,24 +140,22 @@ const NodeIncidentPage = () => {
             />
           </div>
         </div>
-        <div className="incident__sources">
-          <div className="incident__row--two-columns">
-            <SummarySection summary={incident.summary} />
-            <RecommendationSection recommendation={incident.recommendation} />
-          </div>
-
-          {transitions((style, source) => (
-            <animated.div style={style}>
-              <NodeSourceSection
-                content={source.content}
-                filename={source.filename}
-                timestamp={source.timestamp}
-              />
-            </animated.div>
-          ))}
-
-          {isFetchingSources && <CenteredSpinner />}
+        <div className="incident__row--two-columns">
+          <SummarySection summary={incident.summary} />
+          <RecommendationSection recommendation={incident.recommendation} />
         </div>
+
+        {transitions((style, source) => (
+          <animated.div style={style}>
+            <NodeSourceSection
+              content={source.content}
+              filename={source.filename}
+              timestamp={source.timestamp}
+            />
+          </animated.div>
+        ))}
+
+        {isFetchingSources && <CenteredSpinner />}
       </div>
     </PageTemplate>
   );
