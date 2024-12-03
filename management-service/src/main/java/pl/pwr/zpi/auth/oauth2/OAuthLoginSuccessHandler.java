@@ -1,5 +1,6 @@
 package pl.pwr.zpi.auth.oauth2;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,27 +9,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import pl.pwr.zpi.security.cookie.CookieService;
 import pl.pwr.zpi.user.data.User;
 import pl.pwr.zpi.user.dto.Provider;
 import pl.pwr.zpi.user.service.UserService;
+import pl.pwr.zpi.utils.jwt.JWTUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Instant;
 import java.util.Optional;
-
 
 @Component
 @RequiredArgsConstructor
@@ -36,65 +32,63 @@ import java.util.Optional;
 public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     @Value("${oauth2.google.redirect-uri}")
-    private String REDIRECT_URI;
+    private String redirectUri;
 
     private final UserService userService;
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final CookieService cookieService;
+    private final JWTUtils jwtUtils;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        if (!(authentication instanceof OAuth2AuthenticationToken)) {
+            throw new ServletException("Unsupported authentication type.");
+        }
+
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
         String registrationId = oauthToken.getAuthorizedClientRegistrationId();
-
         if (registrationId == null) {
-            throw new ServletException("Failed to find the registrationId from the authorities");
+            throw new ServletException("Missing registration ID.");
         }
+
         OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(registrationId, authentication.getName());
+        DefaultOidcUser oidcUser = (DefaultOidcUser) authentication.getPrincipal();
+        OAuth2RefreshToken refreshToken = authorizedClient.getRefreshToken();
 
-        OAuth2AccessToken oAuth2AccessToken = authorizedClient.getAccessToken();
-        OAuth2RefreshToken oAuth2RefreshToken = authorizedClient.getRefreshToken();
-
-        createOrUpdateUser(authentication);
-
-        ResponseCookie authCookie = cookieService.createAuthCookie(oAuth2AccessToken.getTokenValue(), oAuth2AccessToken.getExpiresAt());
-        response.addHeader("Set-Cookie", authCookie.toString());
-        if (oAuth2RefreshToken == null) {
-            throw new RuntimeException("Refresh token is null. Pls contact developers.");
+        if (refreshToken == null) {
+            throw new RuntimeException("Refresh token is null. Please contact the administrator.");
         }
-        ResponseCookie refreshCookie = cookieService.createRefreshCookie(oAuth2RefreshToken.getTokenValue());
-        response.addHeader("Set-Cookie", refreshCookie.toString());
 
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        addCookiesToResponse(response, oidcUser.getIdToken().getTokenValue(), oidcUser.getIdToken().getExpiresAt(), refreshToken.getTokenValue());
 
-        List<GrantedAuthority> updatedAuthorities = new ArrayList<>(authentication.getAuthorities());
-        Authentication updatedAuthentication = new OAuth2AuthenticationToken(
-                oAuth2User,
-                updatedAuthorities,
-                registrationId
-        );
+        createOrUpdateUser(oidcUser);
 
-        SecurityContextHolder.getContext().setAuthentication(updatedAuthentication);
-
-        String targetUrl = REDIRECT_URI;
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        getRedirectStrategy().sendRedirect(request, response, redirectUri);
     }
 
-    private void createOrUpdateUser(Authentication authentication) {
-        getOAuthUserFromAuthentication(authentication)
+    private void addCookiesToResponse(HttpServletResponse response, String authToken, Instant expiresAt, String refreshToken) {
+        ResponseCookie authCookie = cookieService.createAuthCookie(authToken, expiresAt);
+        ResponseCookie refreshCookie = cookieService.createRefreshCookie(refreshToken);
+
+        response.addHeader("Set-Cookie", authCookie.toString());
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+    }
+
+    private void createOrUpdateUser(DefaultOidcUser oidcUser) {
+        Payload payload = jwtUtils.decodeToken(oidcUser.getIdToken().getTokenValue());
+
+        String email = payload.getEmail();
+        String nickname = (String) payload.get("name");
+        String fallbackNickname = nickname != null ? nickname : email.split("@")[0];
+
+        userService.findByEmail(email)
                 .ifPresentOrElse(
-                        (storedUser) -> {
-                        },
+                        user -> log.info("User exists: {}", email),
                         () -> userService.saveUser(User.builder()
-                                .email(((DefaultOidcUser) authentication.getPrincipal()).getEmail())
-                                .nickname(((DefaultOidcUser) authentication.getPrincipal()).getEmail().split("@")[0])
+                                .email(email)
+                                .nickname(fallbackNickname)
                                 .provider(Provider.GOOGLE)
                                 .build())
                 );
-    }
-
-    private Optional<User> getOAuthUserFromAuthentication(Authentication authentication) {
-        String email = ((OAuth2User) authentication.getPrincipal()).getAttribute("email");
-        return userService.findByEmail(email);
     }
 }
