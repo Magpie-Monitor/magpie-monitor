@@ -313,7 +313,7 @@ func (s *ReportsService) MergeApplicationIncidents(applicationMergerJobs []*repo
 			}
 
 			newApplicationIncidents := incidentcorrelation.MergeApplicationIncidentsByGroups(mergerGroups, applicationReport)
-			insertedIncidents, err := s.reportRepository.InsertApplicationIncidents(context.TODO(), newApplicationIncidents)
+			insertedIncidents, err := s.reportRepository.InsertApplicationIncidents(context.TODO(), report.Id, newApplicationIncidents)
 			if err != nil {
 				s.logger.Error("Failed to insert merged application incidents", zap.Error(err))
 				return err
@@ -343,7 +343,7 @@ func (s *ReportsService) MergeNodeIncidents(nodeIncidentMergerJobs []*repositori
 			}
 
 			newNodeIncidents := incidentcorrelation.MergeNodeIncidentsByGroups(mergerGroups, nodeReport)
-			insertedIncidents, err := s.reportRepository.InsertNodeIncidents(context.TODO(), newNodeIncidents)
+			insertedIncidents, err := s.reportRepository.InsertNodeIncidents(context.TODO(), report.Id, newNodeIncidents)
 			if err != nil {
 				s.logger.Error("Failed to insert merged application incidents", zap.Error(err))
 				return err
@@ -425,9 +425,9 @@ func (s *ReportsService) PollReportsPendingGeneration(ctx context.Context, repor
 	}
 }
 
-func (s *ReportsService) InsertNodeIncidents(reports []*repositories.NodeReport) error {
+func (s *ReportsService) InsertNodeIncidents(reports []*repositories.NodeReport, reportId string) error {
 	for idx, report := range reports {
-		insertedIncidents, err := s.reportRepository.InsertNodeIncidents(context.TODO(), report.Incidents)
+		insertedIncidents, err := s.reportRepository.InsertNodeIncidents(context.TODO(), reportId, report.Incidents)
 		if err != nil {
 			s.logger.Error("Failed to insert node incidents", zap.Error(err))
 			return err
@@ -439,9 +439,9 @@ func (s *ReportsService) InsertNodeIncidents(reports []*repositories.NodeReport)
 	return nil
 }
 
-func (s *ReportsService) InsertApplicationIncidents(reports []*repositories.ApplicationReport) error {
+func (s *ReportsService) InsertApplicationIncidents(reports []*repositories.ApplicationReport, reportId string) error {
 	for idx, report := range reports {
-		insertedIncidents, err := s.reportRepository.InsertApplicationIncidents(context.TODO(), report.Incidents)
+		insertedIncidents, err := s.reportRepository.InsertApplicationIncidents(context.TODO(), reportId, report.Incidents)
 		if err != nil {
 			s.logger.Error("Failed to insert node incidents", zap.Error(err))
 			return err
@@ -477,13 +477,13 @@ func (s *ReportsService) CompletePendingReport(reportId string, applicationInsig
 		return nil, err
 	}
 
-	err = s.InsertApplicationIncidents(applicationReports)
+	err = s.InsertApplicationIncidents(applicationReports, scheduledReport.Id)
 	if err != nil {
 		s.logger.Error("Failed to insert node incidents")
 		return nil, err
 	}
 
-	err = s.InsertNodeIncidents(nodeReports)
+	err = s.InsertNodeIncidents(nodeReports, scheduledReport.Id)
 	if err != nil {
 		s.logger.Error("Failed to insert application incidents")
 		return nil, err
@@ -559,13 +559,16 @@ func (s *ReportsService) getApplicationIncidentFromInsight(
 	configuration *insights.ApplicationInsightConfiguration,
 ) *repositories.ApplicationIncident {
 
+	//TODO: GET source on kafka
+
 	sources := array.Map(func(metadata insights.ApplicationInsightMetadata) repositories.ApplicationIncidentSource {
 		return repositories.ApplicationIncidentSource{
 			ContainerName: metadata.ContainerName,
 			PodName:       metadata.PodName,
-			Content:       metadata.Source,
 			Timestamp:     metadata.CollectedAtMs,
 			Image:         metadata.Image,
+			SourceLog:     metadata.SourceLog,
+			SourceLogId:   metadata.SourceLogId,
 		}
 	})(insight.Metadata)
 
@@ -622,9 +625,10 @@ func (s *ReportsService) getNodeIncidentFromInsight(insight insights.NodeInsight
 
 	sources := array.Map(func(metadata insights.NodeInsightMetadata) repositories.NodeIncidentSource {
 		return repositories.NodeIncidentSource{
-			Content:   metadata.Source,
-			Timestamp: metadata.CollectedAtMs,
-			Filename:  metadata.Filename,
+			SourceLog:   metadata.SourceLog,
+			SourceLogId: metadata.SourceLogId,
+			Timestamp:   metadata.CollectedAtMs,
+			Filename:    metadata.Filename,
 		}
 	})(insight.Metadata)
 

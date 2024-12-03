@@ -43,7 +43,8 @@ type NodeInsightMetadata struct {
 	NodeName      string `json:"nodeName"`
 	CollectedAtMs int64  `json:"collectedAtMs"`
 	Filename      string `json:"filename"`
-	Source        string `json:"source"`
+	SourceLogId   string `json:"sourceLogId"`
+	SourceLog     string `json:"sourceLog"`
 }
 
 type NodeInsightsWithMetadata struct {
@@ -367,7 +368,8 @@ func (g *OpenAiInsightsGenerator) addMetadataToNodeInsight(
 		nodeInsightsMetadata = append(nodeInsightsMetadata, NodeInsightMetadata{
 			CollectedAtMs: log.CollectedAtMs,
 			NodeName:      log.Name,
-			Source:        log.Content,
+			SourceLog:     log.Content,
+			SourceLogId:   log.Id,
 			ClusterId:     log.ClusterId,
 			Filename:      log.Filename,
 		},

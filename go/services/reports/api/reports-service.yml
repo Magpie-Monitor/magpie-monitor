@@ -1,0 +1,379 @@
+asyncapi: "2.6.0"
+info:
+  title: Reports Service API
+  version: "v1"
+  description: >
+    AsyncAPI document for the Reports Service that handles report requests, generates reports, and handles report request failures.
+
+servers:
+  kafkaBroker:
+    url: kafka-broker.example.com:9092
+    protocol: kafka
+    description: Central Kafka broker used by the Reports Service.
+
+channels:
+  ReportRequested:
+    description: Topic where the Reports Service listens for report generation requests.
+    subscribe:
+      summary: Reports Service listens for report requests
+      operationId: onReportRequest
+      message:
+        $ref: "#/components/messages/ReportRequestedMessage"
+    bindings:
+      kafka:
+        topic: report-requested
+
+  ReportGenerated:
+    description: Topic where the Reports Service publishes generated reports.
+    publish:
+      summary: Reports Service publishes generated reports
+      operationId: reportGenerated
+      message:
+        $ref: "#/components/messages/ReportGeneratedMessage"
+    bindings:
+      kafka:
+        topic: report-generated
+
+  ReportRequestFailed:
+    description: Topic where the Reports Service publishes failed report requests.
+    publish:
+      summary: Reports Service publishes failed report requests
+      operationId: reportRequestFailed
+      message:
+        $ref: "#/components/messages/ReportRequestFailedMessage"
+    bindings:
+      kafka:
+        topic: report-request-failed
+
+components:
+  messages:
+    ReportRequestedMessage:
+      name: ReportRequestedMessage
+      title: Report Requested
+      description: Message sent to request a report generation.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/ReportRequested"
+
+    ReportGeneratedMessage:
+      name: ReportGeneratedMessage
+      title: Report Generated
+      description: Message sent when a report is successfully generated.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/ReportGenerated"
+
+    ReportRequestFailedMessage:
+      name: ReportRequestFailedMessage
+      title: Report Request Failed
+      description: Message sent when a report request fails.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/ReportRequestFailed"
+
+  schemas:
+    ReportRequested:
+      type: object
+      properties:
+        correlationId:
+          type: string
+        reportRequest:
+          $ref: "#/components/schemas/ReportRequest"
+
+    ReportGenerated:
+      type: object
+      properties:
+        correlationId:
+          type: string
+        report:
+          $ref: "#/components/schemas/Report"
+        timestampMs:
+          type: integer
+          format: int64
+
+    ReportRequestFailed:
+      type: object
+      properties:
+        correlationId:
+          type: string
+        errorType:
+          type: string
+          enum: [VALIDATION_ERROR, TIMEOUT, INTERNAL_ERROR]
+        errorMessage:
+          type: string
+        timestampMs:
+          type: integer
+          format: int64
+
+    ReportRequest:
+      type: object
+      properties:
+        clusterId:
+          type: string
+        sinceMs:
+          type: integer
+          format: int64
+        toMs:
+          type: integer
+          format: int64
+        applicationConfiguration:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationInsightConfiguration"
+        nodeConfiguration:
+          type: array
+          items:
+            $ref: "#/components/schemas/NodeInsightConfiguration"
+
+    Report:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          $ref: "#/components/schemas/ReportState"
+        clusterId:
+          type: string
+        sinceMs:
+          type: integer
+          format: int64
+        toMs:
+          type: integer
+          format: int64
+        requestedAtNs:
+          type: integer
+          format: int64
+        scheduledGenerationAtMs:
+          type: integer
+          format: int64
+        title:
+          type: string
+        nodeReports:
+          type: array
+          items:
+            $ref: "#/components/schemas/NodeReport"
+        applicationReports:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationReport"
+        totalApplicationEntries:
+          type: integer
+        totalNodeEntries:
+          type: integer
+        analyzedApplications:
+          type: integer
+        analyzedNodes:
+          type: integer
+        urgency:
+          $ref: "#/components/schemas/Urgency"
+        scheduledApplicationInsights:
+          $ref: "#/components/schemas/ScheduledApplicationInsights"
+        scheduledNodeInsights:
+          $ref: "#/components/schemas/ScheduledNodeInsights"
+
+    NodeReport:
+      type: object
+      properties:
+        node:
+          type: string
+        accuracy:
+          $ref: "#/components/schemas/Accuracy"
+        customPrompt:
+          type: string
+        incidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/NodeIncident"
+
+    ApplicationReport:
+      type: object
+      properties:
+        applicationName:
+          type: string
+        accuracy:
+          $ref: "#/components/schemas/Accuracy"
+        customPrompt:
+          type: string
+        incidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationIncident"
+
+    NodeIncident:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        category:
+          type: string
+        customPrompt:
+          type: string
+        accuracy:
+          $ref: "#/components/schemas/Accuracy"
+        clusterId:
+          type: string
+        nodeName:
+          type: string
+        summary:
+          type: string
+        recommendation:
+          type: string
+        urgency:
+          $ref: "#/components/schemas/Urgency"
+        sources:
+          type: array
+          items:
+            $ref: "#/components/schemas/NodeIncidentSource"
+
+    ApplicationIncident:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        customPrompt:
+          type: string
+        accuracy:
+          $ref: "#/components/schemas/Accuracy"
+        clusterId:
+          type: string
+        applicationName:
+          type: string
+        category:
+          type: string
+        summary:
+          type: string
+        recommendation:
+          type: string
+        urgency:
+          $ref: "#/components/schemas/Urgency"
+        sources:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationIncidentSource"
+
+    NodeIncidentSource:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: int64
+        content:
+          type: string
+        filename:
+          type: string
+
+    ApplicationIncidentSource:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          format: int64
+        podName:
+          type: string
+        containerName:
+          type: string
+        image:
+          type: string
+        content:
+          type: string
+
+    ScheduledApplicationInsights:
+      type: object
+      properties:
+        scheduledJobIds:
+          type: array
+          items:
+            type: string
+        sinceMs:
+          type: integer
+          format: int64
+        toMs:
+          type: integer
+          format: int64
+        clusterId:
+          type: string
+        applicationConfiguration:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationInsightConfiguration"
+
+    ScheduledNodeInsights:
+      type: object
+      properties:
+        scheduledJobIds:
+          type: array
+          items:
+            type: string
+        sinceMs:
+          type: integer
+          format: int64
+        toMs:
+          type: integer
+          format: int64
+        clusterId:
+          type: string
+        nodeConfiguration:
+          type: array
+          items:
+            $ref: "#/components/schemas/NodeInsightConfiguration"
+
+    ApplicationInsightConfiguration:
+      type: object
+      properties:
+        applicationName:
+          type: string
+        accuracy:
+          $ref: "#/components/schemas/Accuracy"
+        customPrompt:
+          type: string
+
+    NodeInsightConfiguration:
+      type: object
+      properties:
+        nodeName:
+          type: string
+        accuracy:
+          $ref: "#/components/schemas/Accuracy"
+        customPrompt:
+          type: string
+
+    Urgency:
+      type: string
+      enum: [LOW, MEDIUM, HIGH]
+
+    Accuracy:
+      type: string
+      enum: [HIGH, MEDIUM, LOW]
+
+    ReportState:
+      type: string
+      enum: [failed_to_generate, awaiting_generation, generated]
+      description: The current state of the report
+
+    reportsPostParams:
+      type: object
+      properties:
+        correlationId:
+          type: string
+        clusterId:
+          type: string
+        sinceMs:
+          type: integer
+          format: int64
+        toMs:
+          type: integer
+          format: int64
+        applicationConfiguration:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApplicationInsightConfiguration"
+        nodeConfiguration:
+          type: array
+          items:
+            $ref: "#/components/schemas/NodeInsightConfiguration"
+        maxLength:
+          type: integer

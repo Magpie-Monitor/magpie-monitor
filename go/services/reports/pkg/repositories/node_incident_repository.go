@@ -8,11 +8,11 @@ import (
 	"go.uber.org/zap"
 )
 
-type NodeIncidentSource struct {
-	Timestamp int64  `bson:"timestamp" json:"timestamp"`
-	Content   string `bson:"content" json:"content"`
-	Filename  string `bson:"filename" json:"filename"`
-}
+// type NodeIncidentSource struct {
+// 	Timestamp int64  `bson:"timestamp" json:"timestamp"`
+// 	Content   string `bson:"content" json:"content"`
+// 	Filename  string `bson:"filename" json:"filename"`
+// }
 
 type NodeIncident struct {
 	Id             string               `bson:"_id,omitempty" json:"id"`
@@ -25,7 +25,8 @@ type NodeIncident struct {
 	Summary        string               `bson:"summary" json:"summary"`
 	Recommendation string               `bson:"recommendation" json:"recommendation"`
 	Urgency        insights.Urgency     `bson:"urgency" json:"urgency"`
-	Sources        []NodeIncidentSource `bson:"sources" json:"sources"`
+	Sources        []NodeIncidentSource `bson:"-" json:"-"`
+	SourceIds      []string             `bson:"sourceIds" json:"sourceIds"`
 }
 
 func (i *NodeIncident) GetRecommendation() string {
@@ -48,6 +49,10 @@ func (i *NodeIncident) GetCategory() string {
 	return i.Category
 }
 
+func (i *NodeIncident) SetId(newId string) {
+	i.Id = newId
+}
+
 func (i *NodeIncident) GetUrgency() insights.Urgency {
 	return i.Urgency
 }
@@ -62,9 +67,9 @@ type NodeIncidentParams struct {
 	Logger                     *zap.Logger
 }
 
-func NewMongoDbNodeIncidentRepository(p NodeIncidentParams) *MongoDbIncidentRepository[NodeIncident] {
+func NewMongoDbNodeIncidentRepository(p NodeIncidentParams) *MongoDbIncidentRepository[*NodeIncident] {
 
-	return &MongoDbIncidentRepository[NodeIncident]{
+	return &MongoDbIncidentRepository[*NodeIncident]{
 		mongoDbCollection: p.IncidentsDbMongoCollection,
 		logger:            p.Logger,
 	}
@@ -73,12 +78,12 @@ func NewMongoDbNodeIncidentRepository(p NodeIncidentParams) *MongoDbIncidentRepo
 func ProvideAsNodeIncidentRepository(f any) any {
 	return fx.Annotate(
 		f,
-		fx.As(new(IncidentRepository[NodeIncident])),
+		fx.As(new(IncidentRepository[*NodeIncident])),
 	)
 }
 
 // Compile-time check if MongoDbIncidentRepository implements
 // the IncidentRepository interface
-var _ IncidentRepository[NodeIncident] = &MongoDbIncidentRepository[NodeIncident]{}
+var _ IncidentRepository[*NodeIncident] = &MongoDbIncidentRepository[*NodeIncident]{}
 
 var _ Incident = &NodeIncident{}

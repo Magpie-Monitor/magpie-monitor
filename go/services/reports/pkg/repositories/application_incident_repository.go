@@ -8,13 +8,18 @@ import (
 	"go.uber.org/zap"
 )
 
-type ApplicationIncidentSource struct {
-	Timestamp     int64  `bson:"timestamp" json:"timestamp"`
-	PodName       string `bson:"podName" json:"podName"`
-	ContainerName string `bson:"containerName" json:"containerName"`
-	Image         string `bson:"image" json:"image"`
-	Content       string `bson:"content" json:"content"`
-}
+//
+// type ApplicationIncidentSource struct {
+// 	Id            string `bson:"_id,omitempty" json:"id"`
+// 	ReportId      string `bson:"reportId" json:"reportId"`
+// 	IncidentId    string `bson:"incidentId" json:"incidentId"`
+// 	Timestamp     int64  `bson:"timestamp" json:"timestamp"`
+// 	PodName       string `bson:"podName" json:"podName"`
+// 	ContainerName string `bson:"containerName" json:"containerName"`
+// 	Image         string `bson:"image" json:"image"`
+// 	SourceLog     string `bson:"sourceLog" json:"sourceLog"` //Skip saving source to avoid document limit
+// 	SourceLogId   string `bson:"sourceLogId" json:"sourceLogId"`
+// }
 
 type ApplicationIncident struct {
 	Id              string                      `bson:"_id,omitempty" json:"id"`
@@ -27,7 +32,8 @@ type ApplicationIncident struct {
 	CustomPrompt    string                      `bson:"customPrompt" json:"customPrompt"`
 	Accuracy        insights.Accuracy           `bson:"accuracy" json:"accuracy"`
 	Urgency         insights.Urgency            `bson:"urgency" json:"urgency"`
-	Sources         []ApplicationIncidentSource `bson:"sources" json:"sources"`
+	Sources         []ApplicationIncidentSource `bson:"-" json:"-"`
+	SourceIds       []string                    `bson:"sourceIds" json:"sourceIds"`
 }
 
 func (i *ApplicationIncident) GetRecommendation() string {
@@ -50,6 +56,10 @@ func (i *ApplicationIncident) GetCategory() string {
 	return i.Category
 }
 
+func (i *ApplicationIncident) SetId(newId string) {
+	i.Id = newId
+}
+
 func (i *ApplicationIncident) GetUrgency() insights.Urgency {
 	return i.Urgency
 }
@@ -64,9 +74,9 @@ type ApplicationIncidentParams struct {
 	Logger                     *zap.Logger
 }
 
-func NewMongoDbApplicationIncidentRepository(p ApplicationIncidentParams) *MongoDbIncidentRepository[ApplicationIncident] {
+func NewMongoDbApplicationIncidentRepository(p ApplicationIncidentParams) *MongoDbIncidentRepository[*ApplicationIncident] {
 
-	return &MongoDbIncidentRepository[ApplicationIncident]{
+	return &MongoDbIncidentRepository[*ApplicationIncident]{
 		mongoDbCollection: p.IncidentsDbMongoCollection,
 		logger:            p.Logger,
 	}
@@ -75,12 +85,12 @@ func NewMongoDbApplicationIncidentRepository(p ApplicationIncidentParams) *Mongo
 func ProvideAsApplicationIncidentRepository(f any) any {
 	return fx.Annotate(
 		f,
-		fx.As(new(IncidentRepository[ApplicationIncident])),
+		fx.As(new(IncidentRepository[*ApplicationIncident])),
 	)
 }
 
 // Compile-time check if MongoDbIncidentRepository implements
 // the IncidentRepository[ApplicationIncident] interface
-var _ IncidentRepository[ApplicationIncident] = &MongoDbIncidentRepository[ApplicationIncident]{}
+var _ IncidentRepository[*ApplicationIncident] = &MongoDbIncidentRepository[*ApplicationIncident]{}
 
 var _ Incident = &ApplicationIncident{}

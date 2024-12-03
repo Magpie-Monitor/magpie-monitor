@@ -45,7 +45,8 @@ type ApplicationInsightMetadata struct {
 	ContainerName   string `json:"containerName"`
 	PodName         string `json:"podName"`
 	Image           string `json:"image"`
-	Source          string `json:"source"`
+	SourceLog       string `json:"sourceLog"`
+	SourceLogId     string `json:"sourceLogId"`
 }
 
 type ApplicationInsightsWithMetadata struct {
@@ -152,7 +153,8 @@ func (g *OpenAiInsightsGenerator) addMetadataToApplicationInsight(
 			CollectedAtMs:   log.CollectedAtMs,
 			ContainerName:   log.ContainerName,
 			PodName:         log.PodName,
-			Source:          log.Content,
+			SourceLog:       log.Content,
+			SourceLogId:     log.Id,
 			Image:           log.Image,
 		},
 		)

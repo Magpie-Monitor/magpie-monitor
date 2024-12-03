@@ -21,6 +21,7 @@ type Incident interface {
 	GetSummary() string
 	GetUrgency() insights.Urgency
 	GetCategory() string
+	SetId(newId string)
 }
 
 const (
@@ -63,18 +64,19 @@ func NewIncidentInternalError(err error) *IncidentRepositoryError {
 	}
 }
 
-type IncidentRepository[T any] interface {
-	InsertIncidents(ctx context.Context, incidents []*T) ([]string, *IncidentRepositoryError)
+type IncidentRepository[T Incident] interface {
+	InsertIncidents(ctx context.Context, incidents []T) ([]string, *IncidentRepositoryError)
+	UpdateIncident(ctx context.Context, incident T) *IncidentRepositoryError
 	GetIncident(ctx context.Context, id string) (*T, *IncidentRepositoryError)
-	GetIncidentsByIds(ctx context.Context, ids []string) ([]*T, *IncidentRepositoryError)
+	GetIncidentsByIds(ctx context.Context, ids []string) ([]T, *IncidentRepositoryError)
 }
 
-type MongoDbIncidentRepository[T any] struct {
-	mongoDbCollection *repositories.MongoDbCollection[*T]
+type MongoDbIncidentRepository[T Incident] struct {
+	mongoDbCollection *repositories.MongoDbCollection[T]
 	logger            *zap.Logger
 }
 
-func (r *MongoDbIncidentRepository[T]) InsertIncidents(ctx context.Context, incidents []*T) ([]string, *IncidentRepositoryError) {
+func (r *MongoDbIncidentRepository[T]) InsertIncidents(ctx context.Context, incidents []T) ([]string, *IncidentRepositoryError) {
 
 	documents := make([]interface{}, 0, len(incidents))
 	for _, incident := range incidents {
@@ -110,10 +112,10 @@ func (r *MongoDbIncidentRepository[T]) GetIncident(ctx context.Context, id strin
 		return nil, NewIncidentNotFoundError(err)
 	}
 
-	return incident, nil
+	return &incident, nil
 }
 
-func (r *MongoDbIncidentRepository[T]) GetIncidentsByIds(ctx context.Context, ids []string) ([]*T, *IncidentRepositoryError) {
+func (r *MongoDbIncidentRepository[T]) GetIncidentsByIds(ctx context.Context, ids []string) ([]T, *IncidentRepositoryError) {
 
 	idObjects := array.Map(func(id string) primitive.ObjectID {
 		idObj, err := primitive.ObjectIDFromHex(id)
@@ -130,4 +132,25 @@ func (r *MongoDbIncidentRepository[T]) GetIncidentsByIds(ctx context.Context, id
 	}
 
 	return incidents, nil
+}
+
+func (r *MongoDbIncidentRepository[T]) UpdateIncident(ctx context.Context, incident T) *IncidentRepositoryError {
+
+	id, err := primitive.ObjectIDFromHex(incident.GetId())
+	if err != nil {
+		r.logger.Error("Failed to encode incident id", zap.Error(err))
+		return NewInvalidIncidentIdError(err)
+	}
+
+	incident.SetId("")
+
+	err = r.mongoDbCollection.ReplaceDocument(ctx, id, incident)
+	if err != nil {
+		r.logger.Error("Failed to get incident id", zap.Error(err))
+		return NewIncidentInternalError(err)
+	}
+
+	incident.SetId(id.Hex())
+
+	return nil
 }

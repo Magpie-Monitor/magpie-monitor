@@ -26,15 +26,15 @@ func (router *IncidentsRouter) ServeHTTP(w http.ResponseWriter, r *http.Request)
 
 type IncidentsHandler struct {
 	logger                      *zap.Logger
-	applicationIncidentsService *services.IncidentsService[repositories.ApplicationIncident]
-	nodeIncidentsService        *services.IncidentsService[repositories.NodeIncident]
+	applicationIncidentsService *services.IncidentsService[*repositories.ApplicationIncident]
+	nodeIncidentsService        *services.IncidentsService[*repositories.NodeIncident]
 }
 
 type IncidentsHandlerParams struct {
 	fx.In
 	Logger                      *zap.Logger
-	ApplicationIncidentsService *services.IncidentsService[repositories.ApplicationIncident]
-	NodeIncidentsService        *services.IncidentsService[repositories.NodeIncident]
+	ApplicationIncidentsService *services.IncidentsService[*repositories.ApplicationIncident]
+	NodeIncidentsService        *services.IncidentsService[*repositories.NodeIncident]
 }
 
 func NewIncidentHandler(params IncidentsHandlerParams) *IncidentsHandler {

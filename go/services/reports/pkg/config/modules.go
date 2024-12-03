@@ -99,6 +99,16 @@ func init() {
 				// Adding direct implementation for tests
 				insights.NewOpenAiInsightsGenerator,
 
+				repositories.NewNodeIncidentSourcesCollection,
+				repositories.ProvideAsNodeIncidentSourceRepository(
+					repositories.NewMongoDbNodeIncidentSourceRepository,
+				),
+
+				repositories.NewApplicationIncidentSourcesCollection,
+				repositories.ProvideAsApplicationIncidentSourceRepository(
+					repositories.NewMongoDbApplicationIncidentSourceRepository,
+				),
+
 				zap.NewExample),
 		)
 	} else {
@@ -170,6 +180,16 @@ func init() {
 				fx.Annotate(
 					incidentcorrelation.NewOpenAiIncidentMerger,
 					fx.As(new(incidentcorrelation.IncidentMerger)),
+				),
+
+				repositories.NewNodeIncidentSourcesCollection,
+				repositories.ProvideAsNodeIncidentSourceRepository(
+					repositories.NewMongoDbNodeIncidentSourceRepository,
+				),
+
+				repositories.NewApplicationIncidentSourcesCollection,
+				repositories.ProvideAsApplicationIncidentSourceRepository(
+					repositories.NewMongoDbApplicationIncidentSourceRepository,
 				),
 
 				zap.NewExample,

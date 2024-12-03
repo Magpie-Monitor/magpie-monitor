@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type IncidentsService[T any] struct {
+type IncidentsService[T repositories.Incident] struct {
 	logger             *zap.Logger
 	incidentRepository repositories.IncidentRepository[T]
 }
@@ -21,15 +21,15 @@ func (s *IncidentsService[T]) GetSingle(ctx context.Context, id string) (*T, *re
 	return incident, nil
 }
 
-func NewNodeIncidentsService(logger *zap.Logger, incidentRepository repositories.IncidentRepository[repositories.NodeIncident]) *IncidentsService[repositories.NodeIncident] {
-	return &IncidentsService[repositories.NodeIncident]{
+func NewNodeIncidentsService(logger *zap.Logger, incidentRepository repositories.IncidentRepository[*repositories.NodeIncident]) *IncidentsService[*repositories.NodeIncident] {
+	return &IncidentsService[*repositories.NodeIncident]{
 		logger:             logger,
 		incidentRepository: incidentRepository,
 	}
 }
 
-func NewApplicationIncidentsService(logger *zap.Logger, incidentRepository repositories.IncidentRepository[repositories.ApplicationIncident]) *IncidentsService[repositories.ApplicationIncident] {
-	return &IncidentsService[repositories.ApplicationIncident]{
+func NewApplicationIncidentsService(logger *zap.Logger, incidentRepository repositories.IncidentRepository[*repositories.ApplicationIncident]) *IncidentsService[*repositories.ApplicationIncident] {
+	return &IncidentsService[*repositories.ApplicationIncident]{
 		logger:             logger,
 		incidentRepository: incidentRepository,
 	}

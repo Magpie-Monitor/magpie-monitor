@@ -132,8 +132,8 @@ type ReportRepository interface {
 	InsertReport(ctx context.Context, report *Report) (*Report, *ReportRepositoryError)
 	GetSingleReport(ctx context.Context, id string) (*Report, *ReportRepositoryError)
 	UpdateReport(ctx context.Context, report *Report) *ReportRepositoryError
-	InsertApplicationIncidents(ctx context.Context, incidents []*ApplicationIncident) ([]*ApplicationIncident, error)
-	InsertNodeIncidents(ctx context.Context, reports []*NodeIncident) ([]*NodeIncident, error)
+	InsertApplicationIncidents(ctx context.Context, reportId string, incidents []*ApplicationIncident) ([]*ApplicationIncident, error)
+	InsertNodeIncidents(ctx context.Context, reportId string, reports []*NodeIncident) ([]*NodeIncident, error)
 	GetPendingGenerationReports(ctx context.Context) ([]*Report, error)
 	GetPendingIncidentMergingReports(ctx context.Context) ([]*Report, error)
 	DeleteAll(ctx context.Context) error
@@ -162,10 +162,12 @@ func (r *MongoDbReportRepository) GetPendingIncidentMergingReports(ctx context.C
 }
 
 type MongoDbReportRepository struct {
-	logger                         *zap.Logger
-	applicationIncidentsRepository IncidentRepository[ApplicationIncident]
-	nodeIncidentsRepository        IncidentRepository[NodeIncident]
-	mongoDbCollection              *repositories.MongoDbCollection[*Report]
+	logger                               *zap.Logger
+	applicationIncidentsRepository       IncidentRepository[*ApplicationIncident]
+	nodeIncidentsRepository              IncidentRepository[*NodeIncident]
+	mongoDbCollection                    *repositories.MongoDbCollection[*Report]
+	applicationIncidentSourcesRepository IncidentSourceRepository[ApplicationIncidentSource]
+	nodeIncidentSourcesRepository        IncidentSourceRepository[NodeIncidentSource]
 }
 
 func (r *MongoDbReportRepository) GetSingleReport(ctx context.Context, id string) (*Report, *ReportRepositoryError) {
@@ -228,7 +230,7 @@ func (r *MongoDbReportRepository) GetAllReports(ctx context.Context, filter Filt
 	return reports, nil
 }
 
-func (r *MongoDbReportRepository) InsertApplicationIncidents(ctx context.Context, incidents []*ApplicationIncident) ([]*ApplicationIncident, error) {
+func (r *MongoDbReportRepository) InsertApplicationIncidents(ctx context.Context, reportId string, incidents []*ApplicationIncident) ([]*ApplicationIncident, error) {
 
 	ids, err := r.applicationIncidentsRepository.InsertIncidents(ctx, incidents)
 	if err != nil {
@@ -237,6 +239,30 @@ func (r *MongoDbReportRepository) InsertApplicationIncidents(ctx context.Context
 	}
 
 	insertedIncidents, err := r.applicationIncidentsRepository.GetIncidentsByIds(ctx, ids)
+
+	sources := make([]*ApplicationIncidentSource, 0, len(ids))
+
+	for idx, incident := range insertedIncidents {
+		for _, incidentSource := range incidents[idx].Sources {
+
+			incidentSource.IncidentId = incident.Id
+			incidentSource.ReportId = reportId
+
+			sources = append(sources, &incidentSource)
+		}
+
+		incidentSourceIds, repErr := r.applicationIncidentSourcesRepository.InsertIncidentSources(ctx, sources)
+		if repErr != nil {
+			r.logger.Error("Failed to insert application incident sources")
+			return nil, repErr
+		}
+
+		incident.SourceIds = incidentSourceIds
+		r.applicationIncidentsRepository.UpdateIncident(ctx, incident)
+
+		insertedIncidents[idx] = incident
+	}
+
 	if err != nil {
 		r.logger.Error("Failed to retrieve inserted node incidents", zap.Error(err))
 		return nil, err
@@ -245,7 +271,7 @@ func (r *MongoDbReportRepository) InsertApplicationIncidents(ctx context.Context
 	return insertedIncidents, nil
 }
 
-func (r *MongoDbReportRepository) InsertNodeIncidents(ctx context.Context, incidents []*NodeIncident) ([]*NodeIncident, error) {
+func (r *MongoDbReportRepository) InsertNodeIncidents(ctx context.Context, reportId string, incidents []*NodeIncident) ([]*NodeIncident, error) {
 
 	ids, err := r.nodeIncidentsRepository.InsertIncidents(ctx, incidents)
 	if err != nil {
@@ -257,6 +283,29 @@ func (r *MongoDbReportRepository) InsertNodeIncidents(ctx context.Context, incid
 	if err != nil {
 		r.logger.Error("Failed to retrieve inserted node incidents", zap.Error(err))
 		return nil, err
+	}
+
+	sources := make([]*NodeIncidentSource, 0, len(ids))
+
+	for idx, incident := range insertedIncidents {
+		for _, incidentSource := range incidents[idx].Sources {
+
+			incidentSource.IncidentId = incident.Id
+			incidentSource.ReportId = reportId
+
+			sources = append(sources, &incidentSource)
+		}
+
+		incidentSourceIds, repErr := r.nodeIncidentSourcesRepository.InsertIncidentSources(ctx, sources)
+		if repErr != nil {
+			r.logger.Error("Failed to insert node incident sources")
+			return nil, repErr
+		}
+
+		incident.SourceIds = incidentSourceIds
+		r.nodeIncidentsRepository.UpdateIncident(ctx, incident)
+
+		insertedIncidents[idx] = incident
 	}
 
 	return insertedIncidents, nil
@@ -306,19 +355,23 @@ func (r *MongoDbReportRepository) DeleteAll(ctx context.Context) error {
 
 type Params struct {
 	fx.In
-	ReportsDbMongoColl             *repositories.MongoDbCollection[*Report]
-	Logger                         *zap.Logger
-	ApplicationIncidentsRepository IncidentRepository[ApplicationIncident]
-	NodeIncidentsRepository        IncidentRepository[NodeIncident]
+	ReportsDbMongoColl                   *repositories.MongoDbCollection[*Report]
+	Logger                               *zap.Logger
+	ApplicationIncidentsRepository       IncidentRepository[*ApplicationIncident]
+	NodeIncidentsRepository              IncidentRepository[*NodeIncident]
+	ApplicationIncidentSourcesRepository IncidentSourceRepository[ApplicationIncidentSource]
+	NodeIncidentSourcesRepository        IncidentSourceRepository[NodeIncidentSource]
 }
 
 func NewMongoDbReportRepository(p Params) *MongoDbReportRepository {
 
 	return &MongoDbReportRepository{
-		mongoDbCollection:              p.ReportsDbMongoColl,
-		logger:                         p.Logger,
-		applicationIncidentsRepository: p.ApplicationIncidentsRepository,
-		nodeIncidentsRepository:        p.NodeIncidentsRepository,
+		mongoDbCollection:                    p.ReportsDbMongoColl,
+		logger:                               p.Logger,
+		applicationIncidentsRepository:       p.ApplicationIncidentsRepository,
+		nodeIncidentsRepository:              p.NodeIncidentsRepository,
+		applicationIncidentSourcesRepository: p.ApplicationIncidentSourcesRepository,
+		nodeIncidentSourcesRepository:        p.NodeIncidentSourcesRepository,
 	}
 }
 
