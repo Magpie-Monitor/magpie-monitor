@@ -15,7 +15,9 @@ export const dateFromTimestampMs = (timestamp: number): string => {
   return `${day}.${month}.${year}`;
 };
 
-export const dateTimeWithoutSecondsFromTimestampMs = (timestamp: number): string => {
+export const dateTimeWithoutSecondsFromTimestampMs = (
+  timestamp: number,
+): string => {
   const date = new Date(timestamp);
 
   const day = String(date.getDate()).padStart(2, '0');
@@ -43,4 +45,16 @@ export const getFirstAndLastDateFromTimestamps = (
 
 export const getDateFromTimestamps = (startDate: number): string => {
   return new Date(startDate).toISOString().split('T')[0];
+};
+
+export const getStartOfDay = (dateMs: number) => {
+  const date = new Date(dateMs);
+  date.setUTCHours(0, 0, 0, 0);
+  return date.getTime();
+};
+
+export const getEndOfDay = (dateMs: number) => {
+  const date = new Date(dateMs);
+  date.setUTCHours(23, 59, 59, 999);
+  return date.getTime();
 };

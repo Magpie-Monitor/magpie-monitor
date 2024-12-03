@@ -2,7 +2,7 @@ import { useState } from 'react';
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import './DateRangeSection.scss';
-import { getDateFromTimestamps } from 'lib/date.ts';
+import { getDateFromTimestamps, getEndOfDay, getStartOfDay } from 'lib/date.ts';
 
 interface DateRangeSectionProps {
     onDateChange: (startMs: number, endMs: number) => void;
@@ -11,18 +11,6 @@ interface DateRangeSectionProps {
 const DateRangeSection = ({ onDateChange }: DateRangeSectionProps) => {
     const [startDate, setStartDate] = useState(Date.now());
     const [endDate, setEndDate] = useState(Date.now());
-
-    const getStartOfDay = (dateMs: number) => {
-        const date = new Date(dateMs);
-        date.setUTCHours(0, 0, 0, 0);
-        return date.getTime();
-    };
-
-    const getEndOfDay = (dateMs: number) => {
-        const date = new Date(dateMs);
-        date.setUTCHours(23, 59, 59, 999);
-        return date.getTime();
-    };
 
     const handleStartDateChange = (event: { target: { value: string } }) => {
         const startMs = getStartOfDay(Date.parse(event.target.value));
@@ -37,7 +25,10 @@ const DateRangeSection = ({ onDateChange }: DateRangeSectionProps) => {
     };
 
     return (
-        <SectionComponent icon={<SVGIcon iconName="date-range-icon" />} title={'Date Range'}>
+        <SectionComponent
+            icon={<SVGIcon iconName="date-range-icon" />}
+            title={'Date Range'}
+        >
             <div className="date-range">
                 <label>
                     Start Date:
