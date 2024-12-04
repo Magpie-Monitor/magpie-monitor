@@ -57,7 +57,7 @@ public class GoogleOauthTokenService {
             }
             return idToken.getPayload();
         } catch (GeneralSecurityException | IOException e) {
-            throw new AuthenticationException("Token validation failed", e);
+            throw new AuthenticationException("Token validation failed");
         }
     }
 
