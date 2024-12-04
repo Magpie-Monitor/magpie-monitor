@@ -49,11 +49,14 @@ public class GoogleOauthTokenService {
         return cookieService.createAuthCookie(refreshedIdToken.getIdToken(), Instant.ofEpochSecond(refreshedIdToken.getExpiresInSeconds()));
     }
 
-    @SneakyThrows
     public GoogleIdToken.Payload decodeToken(String token) {
-        GoogleIdToken idToken = verifier.verify(token);
-        if (idToken != null) {
-            return idToken.getPayload();
+        try {
+            GoogleIdToken idToken = verifier.verify(token);
+            if (idToken != null) {
+                return idToken.getPayload();
+            }
+        } catch (GeneralSecurityException | IOException e) {
+            throw new AuthenticationException("Token validation failed");
         }
         throw new AuthenticationException("Token validation failed");
     }
