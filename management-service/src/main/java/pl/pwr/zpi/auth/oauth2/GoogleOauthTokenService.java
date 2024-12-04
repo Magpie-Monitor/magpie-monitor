@@ -52,13 +52,13 @@ public class GoogleOauthTokenService {
     public GoogleIdToken.Payload decodeToken(String token) {
         try {
             GoogleIdToken idToken = verifier.verify(token);
-            if (idToken != null) {
-                return idToken.getPayload();
+            if (idToken == null) {
+                throw new AuthenticationException("Token validation failed");
             }
+            return idToken.getPayload();
         } catch (GeneralSecurityException | IOException e) {
-            throw new AuthenticationException("Token validation failed");
+            throw new AuthenticationException("Token validation failed", e);
         }
-        throw new AuthenticationException("Token validation failed");
     }
 
     public void validateToken(String token) throws GeneralSecurityException, IOException {
