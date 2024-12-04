@@ -114,3 +114,7 @@ func (m *MongoDbCollection[T]) ReplaceDocument(ctx context.Context, id primitive
 func (m *MongoDbCollection[T]) Count(filter bson.D) (int64, error) {
 	return m.Client.Database(m.Db).Collection(m.Col).CountDocuments(context.TODO(), filter)
 }
+
+func (m *MongoDbCollection[T]) DeleteAll() (*mongo.DeleteResult, error) {
+	return m.Client.Database(m.Db).Collection(m.Col).DeleteMany(context.TODO(), bson.D{})
+}

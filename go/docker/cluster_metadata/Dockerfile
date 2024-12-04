@@ -14,6 +14,13 @@ COPY . .
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     go build -o /bin/server ./services/cluster_metadata/cmd/cluster_metadata
 
+FROM build AS tests
+
+RUN echo "go env -w GOCACHE=/go/pkg/mod/ && go test ./services/cluster_metadata/... -v -cover" > test.sh 
+RUN chmod +x test.sh
+
+ENTRYPOINT ["bash", "./test.sh"]
+
 FROM debian:latest AS final
 
 RUN apt-get update && apt-get install -y ca-certificates
