@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.Instant;
 
 @Service
@@ -15,16 +14,12 @@ public class CookieService {
     private boolean RESPONSE_COOKIE_SECURE;
 
     public ResponseCookie createAuthCookie(String token, Instant expiresAt) {
-        long maxAgeInSeconds = Duration.between(Instant.now(), expiresAt).getSeconds();
-
-        String cookieValue = token + "|" + expiresAt.toEpochMilli();
-
-        return ResponseCookie.from("authToken", cookieValue)
+        return ResponseCookie.from("authToken", token)
                 .httpOnly(true)
                 .secure(RESPONSE_COOKIE_SECURE)
                 .domain(PAGE_DOMAIN)
                 .path("/")
-                .maxAge(maxAgeInSeconds)
+                .maxAge(expiresAt.getEpochSecond())
                 .build();
     }
 
