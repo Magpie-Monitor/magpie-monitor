@@ -1,12 +1,9 @@
 package pl.pwr.zpi.security.cookie;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.Instant;
 
 @Service
@@ -33,17 +30,5 @@ public class CookieService {
                 .domain(PAGE_DOMAIN)
                 .path("/api/v1/auth/refresh-token")
                 .build();
-    }
-
-    public String getCookieValue(HttpServletRequest request, String cookieName) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookieName.equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
     }
 }

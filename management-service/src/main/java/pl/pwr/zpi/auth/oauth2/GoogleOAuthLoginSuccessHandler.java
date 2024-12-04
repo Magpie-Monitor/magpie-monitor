@@ -20,16 +20,14 @@ import pl.pwr.zpi.security.cookie.CookieService;
 import pl.pwr.zpi.user.data.User;
 import pl.pwr.zpi.user.dto.Provider;
 import pl.pwr.zpi.user.service.UserService;
-import pl.pwr.zpi.utils.jwt.JWTUtils;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class GoogleOAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     @Value("${oauth2.google.redirect-uri}")
     private String redirectUri;
@@ -37,7 +35,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     private final UserService userService;
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final CookieService cookieService;
-    private final JWTUtils jwtUtils;
+    private final GoogleOauthTokenService googleOauthTokenService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -75,7 +73,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     }
 
     private void createOrUpdateUser(DefaultOidcUser oidcUser) {
-        Payload payload = jwtUtils.decodeToken(oidcUser.getIdToken().getTokenValue());
+        Payload payload = googleOauthTokenService.decodeToken(oidcUser.getIdToken().getTokenValue());
 
         String email = payload.getEmail();
         String nickname = (String) payload.get("name");
