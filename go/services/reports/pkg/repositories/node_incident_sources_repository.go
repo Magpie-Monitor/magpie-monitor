@@ -8,13 +8,14 @@ import (
 )
 
 type NodeIncidentSource struct {
-	Id          string `bson:"_id,omitempty" json:"id"`
-	ReportId    string `bson:"reportId" json:"reportId"`
-	IncidentId  string `bson:"incidentId" json:"incidentId"`
-	Timestamp   int64  `bson:"timestamp" json:"timestamp"`
-	Filename    string `bson:"filename" json:"filename"`
-	SourceLog   string `bson:"sourceLog" json:"sourceLog"`
-	SourceLogId string `bson:"sourceLogId" json:"sourceLogId"`
+	Id            string `bson:"_id,omitempty" json:"id"`
+	CorrelationId string `bson:"correlationId" json:"correlationId"`
+	ReportId      string `bson:"reportId" json:"reportId"`
+	IncidentId    string `bson:"incidentId" json:"incidentId"`
+	Timestamp     int64  `bson:"timestamp" json:"timestamp"`
+	Filename      string `bson:"filename" json:"filename"`
+	SourceLog     string `bson:"sourceLog" json:"sourceLog"`
+	SourceLogId   string `bson:"sourceLogId" json:"sourceLogId"`
 }
 
 func NewNodeIncidentSourcesCollection(

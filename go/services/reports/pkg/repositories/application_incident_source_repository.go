@@ -11,6 +11,7 @@ type ApplicationIncidentSource struct {
 	Id            string `bson:"_id,omitempty" json:"id"`
 	ReportId      string `bson:"reportId" json:"reportId"`
 	IncidentId    string `bson:"incidentId" json:"incidentId"`
+	CorrelationId string `bson:"correlationId" json:"correlationId"`
 	Timestamp     int64  `bson:"timestamp" json:"timestamp"`
 	PodName       string `bson:"podName" json:"podName"`
 	ContainerName string `bson:"containerName" json:"containerName"`

@@ -132,10 +132,12 @@ type ReportRepository interface {
 	InsertReport(ctx context.Context, report *Report) (*Report, *ReportRepositoryError)
 	GetSingleReport(ctx context.Context, id string) (*Report, *ReportRepositoryError)
 	UpdateReport(ctx context.Context, report *Report) *ReportRepositoryError
-	InsertApplicationIncidents(ctx context.Context, reportId string, incidents []*ApplicationIncident) ([]*ApplicationIncident, error)
-	InsertNodeIncidents(ctx context.Context, reportId string, reports []*NodeIncident) ([]*NodeIncident, error)
+	InsertApplicationIncidents(ctx context.Context, report *Report, incidents []*ApplicationIncident) ([]*ApplicationIncident, error)
+	InsertNodeIncidents(ctx context.Context, report *Report, reports []*NodeIncident) ([]*NodeIncident, error)
 	GetPendingGenerationReports(ctx context.Context) ([]*Report, error)
 	GetPendingIncidentMergingReports(ctx context.Context) ([]*Report, error)
+	GetNodeIncidentSources(ctx context.Context, nodeIncident *NodeIncident) ([]*NodeIncidentSource, error)
+	GetApplicationIncidentSources(ctx context.Context, applicationIncident *ApplicationIncident) ([]*ApplicationIncidentSource, error)
 	DeleteAll(ctx context.Context) error
 }
 
@@ -230,7 +232,10 @@ func (r *MongoDbReportRepository) GetAllReports(ctx context.Context, filter Filt
 	return reports, nil
 }
 
-func (r *MongoDbReportRepository) InsertApplicationIncidents(ctx context.Context, reportId string, incidents []*ApplicationIncident) ([]*ApplicationIncident, error) {
+func (r *MongoDbReportRepository) InsertApplicationIncidents(
+	ctx context.Context,
+	report *Report,
+	incidents []*ApplicationIncident) ([]*ApplicationIncident, error) {
 
 	ids, err := r.applicationIncidentsRepository.InsertIncidents(ctx, incidents)
 	if err != nil {
@@ -243,10 +248,15 @@ func (r *MongoDbReportRepository) InsertApplicationIncidents(ctx context.Context
 	sources := make([]*ApplicationIncidentSource, 0, len(ids))
 
 	for idx, incident := range insertedIncidents {
+		if len(incidents[idx].Sources) == 0 {
+			// If there are new sources skip inserting them
+			continue
+		}
 		for _, incidentSource := range incidents[idx].Sources {
 
 			incidentSource.IncidentId = incident.Id
-			incidentSource.ReportId = reportId
+			incidentSource.ReportId = report.Id
+			incidentSource.CorrelationId = report.CorrelationId
 
 			sources = append(sources, &incidentSource)
 		}
@@ -271,7 +281,10 @@ func (r *MongoDbReportRepository) InsertApplicationIncidents(ctx context.Context
 	return insertedIncidents, nil
 }
 
-func (r *MongoDbReportRepository) InsertNodeIncidents(ctx context.Context, reportId string, incidents []*NodeIncident) ([]*NodeIncident, error) {
+func (r *MongoDbReportRepository) InsertNodeIncidents(
+	ctx context.Context,
+	report *Report,
+	incidents []*NodeIncident) ([]*NodeIncident, error) {
 
 	ids, err := r.nodeIncidentsRepository.InsertIncidents(ctx, incidents)
 	if err != nil {
@@ -288,10 +301,17 @@ func (r *MongoDbReportRepository) InsertNodeIncidents(ctx context.Context, repor
 	sources := make([]*NodeIncidentSource, 0, len(ids))
 
 	for idx, incident := range insertedIncidents {
+
+		if len(incidents[idx].Sources) == 0 {
+			// If there are new sources skip inserting them
+			continue
+		}
+
 		for _, incidentSource := range incidents[idx].Sources {
 
 			incidentSource.IncidentId = incident.Id
-			incidentSource.ReportId = reportId
+			incidentSource.ReportId = report.Id
+			incidentSource.CorrelationId = report.CorrelationId
 
 			sources = append(sources, &incidentSource)
 		}
@@ -380,6 +400,28 @@ func ProvideAsReportRepository(f any) any {
 		f,
 		fx.As(new(ReportRepository)),
 	)
+}
+
+func (r *MongoDbReportRepository) GetNodeIncidentSources(
+	ctx context.Context,
+	nodeIncident *NodeIncident) ([]*NodeIncidentSource, error) {
+	nodeIncidentSources, err := r.nodeIncidentSourcesRepository.GetIncidentSourcesByIds(ctx, nodeIncident.SourceIds)
+	if err != nil {
+		r.logger.Error("Failed to get node incident sources")
+		return nil, err
+	}
+
+	return nodeIncidentSources, nil
+}
+func (r *MongoDbReportRepository) GetApplicationIncidentSources(ctx context.Context, applicationIncident *ApplicationIncident) ([]*ApplicationIncidentSource, error) {
+
+	applicationIncidentSources, err := r.applicationIncidentSourcesRepository.GetIncidentSourcesByIds(ctx, applicationIncident.SourceIds)
+	if err != nil {
+		r.logger.Error("Failed to get application incident sources")
+		return nil, err
+	}
+
+	return applicationIncidentSources, nil
 }
 
 // Compile-time check if MongoDbReportRepository implements

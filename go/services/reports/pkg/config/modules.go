@@ -67,6 +67,14 @@ func init() {
 					brokers.NewReportRequestFailedBroker,
 				),
 
+				brokers.ProvideAsNodeIncidentSourcedBroker(
+					brokers.NewNodeIncidentSourcedBroker,
+				),
+
+				brokers.ProvideAsApplicationIncidentSourcedBroker(
+					brokers.NewApplicationIncidentSourcedBroker,
+				),
+
 				repositories.NewApplicationIncidentsCollection,
 
 				repositories.ProvideAsApplicationIncidentRepository(
@@ -151,6 +159,14 @@ func init() {
 
 				brokers.ProvideAsReportRequestFailedBroker(
 					brokers.NewReportRequestFailedBroker,
+				),
+
+				brokers.ProvideAsNodeIncidentSourcedBroker(
+					brokers.NewNodeIncidentSourcedBroker,
+				),
+
+				brokers.ProvideAsApplicationIncidentSourcedBroker(
+					brokers.NewApplicationIncidentSourcedBroker,
 				),
 
 				repositories.NewApplicationIncidentsCollection,

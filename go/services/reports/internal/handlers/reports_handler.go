@@ -30,29 +30,35 @@ func (router *ReportsRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type ReportsHandler struct {
-	logger                    *zap.Logger
-	reportsService            *services.ReportsService
-	reportRequestedBroker     messagebroker.MessageBroker[brokers.ReportRequested]
-	reportGeneratedBroker     messagebroker.MessageBroker[brokers.ReportGenerated]
-	reportRequestFailedBroker messagebroker.MessageBroker[brokers.ReportRequestFailed]
+	logger                           *zap.Logger
+	reportsService                   *services.ReportsService
+	reportRequestedBroker            messagebroker.MessageBroker[brokers.ReportRequested]
+	reportGeneratedBroker            messagebroker.MessageBroker[brokers.ReportGenerated]
+	reportRequestFailedBroker        messagebroker.MessageBroker[brokers.ReportRequestFailed]
+	nodeIncidentSourcedBroker        messagebroker.MessageBroker[brokers.NodeIncidentSourced]
+	applicationIncidentSourcedBroker messagebroker.MessageBroker[brokers.ApplicationIncidentSourced]
 }
 
 type ReportsHandlerParams struct {
 	fx.In
-	Logger                    *zap.Logger
-	ReportsService            *services.ReportsService
-	ReportRequestedBroker     messagebroker.MessageBroker[brokers.ReportRequested]
-	ReportGeneratedBroker     messagebroker.MessageBroker[brokers.ReportGenerated]
-	ReportRequestFailedBroker messagebroker.MessageBroker[brokers.ReportRequestFailed]
+	Logger                           *zap.Logger
+	ReportsService                   *services.ReportsService
+	ReportRequestedBroker            messagebroker.MessageBroker[brokers.ReportRequested]
+	ReportGeneratedBroker            messagebroker.MessageBroker[brokers.ReportGenerated]
+	ReportRequestFailedBroker        messagebroker.MessageBroker[brokers.ReportRequestFailed]
+	NodeIncidentSourcedBroker        messagebroker.MessageBroker[brokers.NodeIncidentSourced]
+	ApplicationIncidentSourcedBroker messagebroker.MessageBroker[brokers.ApplicationIncidentSourced]
 }
 
 func NewReportsHandler(p ReportsHandlerParams) *ReportsHandler {
 	return &ReportsHandler{
-		logger:                    p.Logger,
-		reportsService:            p.ReportsService,
-		reportRequestedBroker:     p.ReportRequestedBroker,
-		reportRequestFailedBroker: p.ReportRequestFailedBroker,
-		reportGeneratedBroker:     p.ReportGeneratedBroker,
+		logger:                           p.Logger,
+		reportsService:                   p.ReportsService,
+		reportRequestedBroker:            p.ReportRequestedBroker,
+		reportRequestFailedBroker:        p.ReportRequestFailedBroker,
+		reportGeneratedBroker:            p.ReportGeneratedBroker,
+		nodeIncidentSourcedBroker:        p.NodeIncidentSourcedBroker,
+		applicationIncidentSourcedBroker: p.ApplicationIncidentSourcedBroker,
 	}
 }
 
@@ -140,9 +146,17 @@ func (h *ReportsHandler) PollReports() {
 
 	errChannel := make(chan *services.ReportGenerationError)
 	reportsChannel := make(chan *repositories.Report)
+	applicationIncidentSourcesChannel := make(chan *repositories.ApplicationIncidentSource)
+
+	nodeIncidentSourcesChannel := make(chan *repositories.NodeIncidentSource)
 
 	go h.reportsService.PollReportsPendingGeneration(context.Background(), reportsChannel, errChannel)
-	go h.reportsService.PollReportsPendingIncidentMerge(context.Background(), reportsChannel, errChannel)
+	go h.reportsService.PollReportsPendingIncidentMerge(context.Background(),
+		reportsChannel,
+		errChannel,
+		nodeIncidentSourcesChannel,
+		applicationIncidentSourcesChannel,
+	)
 
 	for {
 		select {
@@ -152,6 +166,14 @@ func (h *ReportsHandler) PollReports() {
 					report,
 				))
 			}
+		case nodeIncidentSource := <-nodeIncidentSourcesChannel:
+			h.nodeIncidentSourcedBroker.Publish(nodeIncidentSource.Id,
+				*brokers.NewNodeIncidentSourced(nodeIncidentSource))
+
+		case applicationIncidentSource := <-applicationIncidentSourcesChannel:
+			h.applicationIncidentSourcedBroker.Publish(
+				applicationIncidentSource.Id,
+				*brokers.NewApplicationIncidentSourced(applicationIncidentSource))
 
 		case err := <-errChannel:
 			h.reportRequestFailedBroker.Publish(err.Report.CorrelationId, *brokers.NewReportRequestFailedInternalError(

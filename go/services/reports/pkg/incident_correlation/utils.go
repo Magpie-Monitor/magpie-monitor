@@ -18,7 +18,7 @@ func ConvertConcreteIncidentArrayIntoIncidents[T repositories.Incident](incident
 
 // Removes merged incidents from report and returns new incident as a result
 func mergeApplicationIncidents(group IncidentMergeGroup, applicationIncidents *repositories.ApplicationReport) *repositories.ApplicationIncident {
-	sourcesToBeMerged := make([]repositories.ApplicationIncidentSource, 0)
+	sourcesToBeMerged := make([]string, 0)
 	filteredIncidents := make([]*repositories.ApplicationIncident, 0)
 
 	if len(applicationIncidents.Incidents) == 0 {
@@ -31,7 +31,7 @@ func mergeApplicationIncidents(group IncidentMergeGroup, applicationIncidents *r
 			continue
 		}
 
-		sourcesToBeMerged = append(sourcesToBeMerged, incident.Sources...)
+		sourcesToBeMerged = append(sourcesToBeMerged, incident.SourceIds...)
 	}
 
 	newIncident := &repositories.ApplicationIncident{
@@ -44,7 +44,8 @@ func mergeApplicationIncidents(group IncidentMergeGroup, applicationIncidents *r
 		Accuracy:        applicationIncidents.Accuracy,
 		ApplicationName: applicationIncidents.ApplicationName,
 		ClusterId:       applicationIncidents.Incidents[0].ClusterId,
-		Sources:         sourcesToBeMerged,
+		// Sources:         sourcesToBeMerged,
+		SourceIds: sourcesToBeMerged,
 	}
 
 	applicationIncidents.Incidents = filteredIncidents
@@ -63,7 +64,7 @@ func MergeApplicationIncidentsByGroups(groups []IncidentMergeGroup, applicationI
 
 // Removes merged incidents from report and returns new incident as a result
 func mergeNodeIncidents(group IncidentMergeGroup, nodeIncidents *repositories.NodeReport) *repositories.NodeIncident {
-	sourcesToBeMerged := make([]repositories.NodeIncidentSource, 0)
+	sourcesToBeMerged := make([]string, 0)
 	filteredIncidents := make([]*repositories.NodeIncident, 0)
 
 	if len(nodeIncidents.Incidents) == 0 {
@@ -76,7 +77,7 @@ func mergeNodeIncidents(group IncidentMergeGroup, nodeIncidents *repositories.No
 			continue
 		}
 
-		sourcesToBeMerged = append(sourcesToBeMerged, incident.Sources...)
+		sourcesToBeMerged = append(sourcesToBeMerged, incident.SourceIds...)
 	}
 
 	newIncident := &repositories.NodeIncident{
@@ -89,7 +90,7 @@ func mergeNodeIncidents(group IncidentMergeGroup, nodeIncidents *repositories.No
 		Accuracy:       nodeIncidents.Accuracy,
 		NodeName:       nodeIncidents.Node,
 		ClusterId:      nodeIncidents.Incidents[0].ClusterId,
-		Sources:        sourcesToBeMerged,
+		SourceIds:      sourcesToBeMerged,
 	}
 
 	nodeIncidents.Incidents = filteredIncidents

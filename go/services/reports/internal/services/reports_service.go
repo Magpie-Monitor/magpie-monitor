@@ -238,7 +238,13 @@ type ReportGenerationError struct {
 	Report *repositories.Report
 }
 
-func (s *ReportsService) PollReportsPendingIncidentMerge(ctx context.Context, reportsChn chan<- *repositories.Report, errChn chan<- *ReportGenerationError) {
+func (s *ReportsService) PollReportsPendingIncidentMerge(
+	ctx context.Context,
+	reportsChn chan<- *repositories.Report,
+	errChn chan<- *ReportGenerationError,
+	nodeIncidentSourcesChn chan<- *repositories.NodeIncidentSource,
+	applicationIncidentSourcesChn chan<- *repositories.ApplicationIncidentSource,
+) {
 
 	for {
 		reports, err := s.reportRepository.GetPendingIncidentMergingReports(ctx)
@@ -282,6 +288,27 @@ func (s *ReportsService) PollReportsPendingIncidentMerge(ctx context.Context, re
 			}
 
 			report.Status = repositories.ReportState_Generated
+
+			applicationIncidentSources, err := s.GetAllApplicationIncidentSourcesFromReport(ctx, report)
+			if err != nil {
+				s.logger.Error("Failed to send application incident sources to channel")
+				continue
+			}
+
+			for _, applicationIncidentSource := range applicationIncidentSources {
+				applicationIncidentSourcesChn <- applicationIncidentSource
+			}
+
+			nodeIncidentSources, err := s.GetAllNodeIncidentSourcesFromReport(ctx, report)
+			if err != nil {
+				s.logger.Error("Failed to send application incident sources to channel")
+				continue
+			}
+
+			for _, nodeIncidentSource := range nodeIncidentSources {
+				nodeIncidentSourcesChn <- nodeIncidentSource
+			}
+
 			repoErr := s.reportRepository.UpdateReport(context.TODO(), report)
 			if repoErr != nil {
 				s.logger.Error("Failed to update report after incident merge")
@@ -289,10 +316,47 @@ func (s *ReportsService) PollReportsPendingIncidentMerge(ctx context.Context, re
 
 			s.logger.Info("Merged incidents of a report", zap.Any("reportId", report.Id))
 			reportsChn <- report
+
 		}
 
 		time.Sleep(time.Second * time.Duration(s.pollingIntervalSeconds))
 	}
+}
+
+func (s *ReportsService) GetAllApplicationIncidentSourcesFromReport(ctx context.Context, report *repositories.Report) ([]*repositories.ApplicationIncidentSource, error) {
+
+	sources := make([]*repositories.ApplicationIncidentSource, 0)
+	for _, applicationReport := range report.ApplicationReports {
+
+		for _, incident := range applicationReport.Incidents {
+			applicationSources, err := s.reportRepository.GetApplicationIncidentSources(ctx, incident)
+			if err != nil {
+				s.logger.Error("Failed to get application sources from report")
+				return nil, err
+			}
+			sources = append(sources, applicationSources...)
+		}
+	}
+
+	return sources, nil
+}
+
+func (s *ReportsService) GetAllNodeIncidentSourcesFromReport(ctx context.Context, report *repositories.Report) ([]*repositories.NodeIncidentSource, error) {
+
+	sources := make([]*repositories.NodeIncidentSource, 0)
+	for _, nodeReport := range report.NodeReports {
+
+		for _, incident := range nodeReport.Incidents {
+			nodeSources, err := s.reportRepository.GetNodeIncidentSources(ctx, incident)
+			if err != nil {
+				s.logger.Error("Failed to get application sources from report")
+				return nil, err
+			}
+			sources = append(sources, nodeSources...)
+		}
+	}
+
+	return sources, nil
 }
 
 func (s *ReportsService) MergeApplicationIncidents(applicationMergerJobs []*repositories.ScheduledIncidentMergerJob, report *repositories.Report) error {
@@ -313,7 +377,12 @@ func (s *ReportsService) MergeApplicationIncidents(applicationMergerJobs []*repo
 			}
 
 			newApplicationIncidents := incidentcorrelation.MergeApplicationIncidentsByGroups(mergerGroups, applicationReport)
-			insertedIncidents, err := s.reportRepository.InsertApplicationIncidents(context.TODO(), report.Id, newApplicationIncidents)
+			if len(newApplicationIncidents) == 0 {
+				// No new incidents to insert
+				continue
+			}
+
+			insertedIncidents, err := s.reportRepository.InsertApplicationIncidents(context.TODO(), report, newApplicationIncidents)
 			if err != nil {
 				s.logger.Error("Failed to insert merged application incidents", zap.Error(err))
 				return err
@@ -343,7 +412,12 @@ func (s *ReportsService) MergeNodeIncidents(nodeIncidentMergerJobs []*repositori
 			}
 
 			newNodeIncidents := incidentcorrelation.MergeNodeIncidentsByGroups(mergerGroups, nodeReport)
-			insertedIncidents, err := s.reportRepository.InsertNodeIncidents(context.TODO(), report.Id, newNodeIncidents)
+
+			if len(newNodeIncidents) == 0 {
+				// No new incidents to insert
+				continue
+			}
+			insertedIncidents, err := s.reportRepository.InsertNodeIncidents(context.TODO(), report, newNodeIncidents)
 			if err != nil {
 				s.logger.Error("Failed to insert merged application incidents", zap.Error(err))
 				return err
@@ -425,29 +499,29 @@ func (s *ReportsService) PollReportsPendingGeneration(ctx context.Context, repor
 	}
 }
 
-func (s *ReportsService) InsertNodeIncidents(reports []*repositories.NodeReport, reportId string) error {
-	for idx, report := range reports {
-		insertedIncidents, err := s.reportRepository.InsertNodeIncidents(context.TODO(), reportId, report.Incidents)
+func (s *ReportsService) InsertNodeIncidents(report *repositories.Report) error {
+	for idx, nodeReport := range report.NodeReports {
+		insertedIncidents, err := s.reportRepository.InsertNodeIncidents(context.TODO(), report, nodeReport.Incidents)
 		if err != nil {
 			s.logger.Error("Failed to insert node incidents", zap.Error(err))
 			return err
 		}
 
-		reports[idx].Incidents = insertedIncidents
+		report.NodeReports[idx].Incidents = insertedIncidents
 	}
 
 	return nil
 }
 
-func (s *ReportsService) InsertApplicationIncidents(reports []*repositories.ApplicationReport, reportId string) error {
-	for idx, report := range reports {
-		insertedIncidents, err := s.reportRepository.InsertApplicationIncidents(context.TODO(), reportId, report.Incidents)
+func (s *ReportsService) InsertApplicationIncidents(report *repositories.Report) error {
+	for idx, applicationReport := range report.ApplicationReports {
+		insertedIncidents, err := s.reportRepository.InsertApplicationIncidents(context.TODO(), report, applicationReport.Incidents)
 		if err != nil {
 			s.logger.Error("Failed to insert node incidents", zap.Error(err))
 			return err
 		}
 
-		reports[idx].Incidents = insertedIncidents
+		report.ApplicationReports[idx].Incidents = insertedIncidents
 	}
 
 	return nil
@@ -471,19 +545,23 @@ func (s *ReportsService) CompletePendingReport(reportId string, applicationInsig
 		return nil, err
 	}
 
+	scheduledReport.ApplicationReports = applicationReports
+
 	nodeReports, err := s.GetNodeReportsFromInsights(nodeInsights, scheduledReport.ScheduledNodeInsights.NodeConfiguration)
 	if err != nil {
 		s.logger.Error("Failed to build applicatin reports from insights", zap.Error(err))
 		return nil, err
 	}
 
-	err = s.InsertApplicationIncidents(applicationReports, scheduledReport.Id)
+	scheduledReport.NodeReports = nodeReports
+
+	err = s.InsertApplicationIncidents(scheduledReport)
 	if err != nil {
 		s.logger.Error("Failed to insert node incidents")
 		return nil, err
 	}
 
-	err = s.InsertNodeIncidents(nodeReports, scheduledReport.Id)
+	err = s.InsertNodeIncidents(scheduledReport)
 	if err != nil {
 		s.logger.Error("Failed to insert application incidents")
 		return nil, err
@@ -501,8 +579,8 @@ func (s *ReportsService) CompletePendingReport(reportId string, applicationInsig
 		return nil, err
 	}
 
-	scheduledReport.ApplicationReports = applicationReports
-	scheduledReport.NodeReports = nodeReports
+	// scheduledReport.ApplicationReports = applicationReports
+	// scheduledReport.NodeReports = nodeReports
 	scheduledReport.Status = repositories.ReportState_AwaitingIncidentMerging
 	scheduledReport.Urgency = s.GetReportUrgencyFromApplicationAndNodeReports(applicationReports, nodeReports)
 	scheduledReport.AnalyzedNodes = len(scheduledReport.ScheduledNodeInsights.NodeConfiguration)
