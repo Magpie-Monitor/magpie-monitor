@@ -79,14 +79,18 @@ public class GoogleOAuthLoginSuccessHandler extends SimpleUrlAuthenticationSucce
         String nickname = (String) payload.get("name");
         String fallbackNickname = nickname != null ? nickname : email.split("@")[0];
 
-        userService.findByEmail(email)
-                .ifPresentOrElse(
-                        user -> log.info("User exists: {}", email),
-                        () -> userService.saveUser(User.builder()
-                                .email(email)
-                                .nickname(fallbackNickname)
-                                .provider(Provider.GOOGLE)
-                                .build())
-                );
+        if (userService.findByEmail(email).isEmpty()) {
+            saveNewUser(email, fallbackNickname);
+        }
+    }
+
+    private void saveNewUser(String email, String nickname) {
+        userService.saveUser(
+                User.builder()
+                        .email(email)
+                        .nickname(nickname)
+                        .provider(Provider.GOOGLE)
+                        .build()
+        );
     }
 }
