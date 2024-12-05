@@ -86,6 +86,8 @@ services:
       dockerfile: Dockerfile
       target: tests
     restart: always
+    environment:
+      - INTEGRATION_TEST_WAIT_MODIFIER=${INTEGRATION_TEST_WAIT_MODIFIER}
     command:
       - "--runningMode"
       - "local"

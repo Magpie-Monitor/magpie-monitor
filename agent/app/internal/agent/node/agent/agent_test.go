@@ -6,9 +6,12 @@ import (
 	"time"
 
 	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node/data"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/pkg/envs"
 	"github.com/Magpie-Monitor/magpie-monitor/agent/pkg/tests"
 	"github.com/stretchr/testify/assert"
 )
+
+var INTEGRATION_TEST_WAIT_MODIFIER = envs.ConvertToInt("INTEGRATION_TEST_WAIT_MODIFIER")
 
 func TestLogsSplit(t *testing.T) {
 
@@ -134,19 +137,16 @@ func TestWatchFile(t *testing.T) {
 			}
 
 			go agent.watchFiles()
-			time.Sleep(3 * time.Second)
+			time.Sleep(3 * time.Second * time.Duration(INTEGRATION_TEST_WAIT_MODIFIER))
 
 			file, err := os.OpenFile(test.fileName, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
-			if err != nil {
-				t.Error("Error opening a file")
-			}
+			assert.NoError(t, err, "Error opening a file")
 
 			_, err = file.WriteString(test.logContent)
-			if err != nil {
-				t.Error("Error writing to file")
-			}
+			assert.NoError(t, err, "Error writing to file")
 
 			msg := <-results
+
 			// Add string escape character to the end of the content
 			assert.EqualValues(t, test.logContent+"\x00", msg.Content)
 			assert.Equal(t, test.clusterId, msg.ClusterId)
@@ -154,9 +154,7 @@ func TestWatchFile(t *testing.T) {
 			assert.Equal(t, test.fileName, msg.Filename)
 
 			err = os.Truncate(test.fileName, 0)
-			if err != nil {
-				t.Error("Error wiping content of the file")
-			}
+			assert.NoError(t, err, "Error wiping content of the file")
 		}
 
 		t.Run(test.name, testFunc)

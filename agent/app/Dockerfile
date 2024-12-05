@@ -19,7 +19,7 @@ FROM build AS tests
 # Used in node agent tests 
 RUN mkdir -p /files && touch /files/file && chmod 777 /files/file
 
-RUN echo "go env -w GOCACHE=/go/pkg/mod/ && go test -v -cover ./..." > test.sh 
+RUN echo "go env -w GOCACHE=/go/pkg/mod/ && go test -cover ./..." > test.sh 
 RUN chmod +x test.sh
 
 ENTRYPOINT ["bash", "./test.sh"]
