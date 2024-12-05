@@ -77,6 +77,15 @@ services:
       - LETSENCRYPT_HOST=${REPORTS_PRODUCTION_HOST}
       - VIRTUAL_PORT=${REPORTS_SERVICE_PORT}
 
+  management-service-test:
+    container_name: magpie-monitor-tests-management-service
+    build:
+      context: ./management-service
+      dockerfile: Dockerfile
+      target: tests
+    volumes:
+      - maven-repo:/root/.m2
+      
   pod-agent:
     user: "0" # Elevated permission needed for bind mount
     container_name: magpie-monitor-pod-agent
@@ -129,6 +138,7 @@ volumes:
   cache:
   es-certs:
     external: true
+  maven-repo:
 
 networks:
   default:

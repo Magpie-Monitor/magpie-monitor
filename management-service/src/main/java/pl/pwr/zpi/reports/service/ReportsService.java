@@ -56,12 +56,10 @@ public class ReportsService {
     }
 
     public Optional<ReportIncidentsDTO> getReportIncidents(String reportId) {
-        return reportRepository.findProjectedIncidentsById(reportId).map(incidentProjection -> {
-            return ReportIncidentsDTO.builder()
-                    .applicationIncidents(extractApplicationIncidents(incidentProjection))
-                    .nodeIncidents(extractNodeIncidents(incidentProjection))
-                    .build();
-        });
+        return reportRepository.findProjectedIncidentsById(reportId).map(incidentProjection -> ReportIncidentsDTO.builder()
+                .applicationIncidents(extractApplicationIncidents(incidentProjection))
+                .nodeIncidents(extractNodeIncidents(incidentProjection))
+                .build());
     }
 
     public ReportPaginatedIncidentsDTO<ApplicationIncidentDTO> getReportApplicationIncidents(
