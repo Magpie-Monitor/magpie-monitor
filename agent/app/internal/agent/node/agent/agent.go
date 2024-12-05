@@ -20,7 +20,7 @@ type IncrementalReader struct {
 	metadataScrapeIntervalSeconds int
 	results                       chan<- data.Chunk
 	metadata                      chan<- data.NodeState
-	redis                         database.Redis
+	redis                         database.RedisDatabase
 	packetSizeBytes               int
 }
 
@@ -96,6 +96,10 @@ func (r *IncrementalReader) watchFile(fileName string, cooldownSeconds int, resu
 
 		size := fi.Size()
 		byteDiff := size - currentSize
+
+		if byteDiff < 0 {
+			r.redis.Set(fileName, strconv.FormatInt(currentSize, 10), -1)
+		}
 
 		log.Println("BYTE DIFF = ", byteDiff)
 

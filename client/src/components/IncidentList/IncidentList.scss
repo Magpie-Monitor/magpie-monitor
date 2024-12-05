@@ -52,6 +52,10 @@
       word-break: break-all;
     }
 
+    &__source {
+      font-weight: 500;
+    }
+
     &__category {
       &--high-urgency {
         color: $red;

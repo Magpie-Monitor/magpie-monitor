@@ -1,15 +1,11 @@
 package pl.pwr.zpi.auth.controller;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import pl.pwr.zpi.auth.oauth2.OauthRefreshTokenService;
+import pl.pwr.zpi.auth.oauth2.GoogleOauthTokenService;
 import pl.pwr.zpi.auth.service.AuthenticationService;
 
 import java.io.IOException;
@@ -19,7 +15,7 @@ import java.io.IOException;
 public class AuthenticationController {
 
     private final AuthenticationService service;
-    private final OauthRefreshTokenService oauthRefreshTokenService;
+    private final GoogleOauthTokenService oauthRefreshTokenService;
 
     @GetMapping("/api/v1/auth/user-details")
     public ResponseEntity<?> getUser(@CookieValue("authToken") String authToken) throws IOException {

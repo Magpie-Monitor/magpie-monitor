@@ -12,7 +12,7 @@ import {
 } from 'api/managment-service';
 import LoadingTable from './LoadingTable';
 import NewSlackChannelPopup from 'pages/Notification/NewChannelPopup/NewSlackChannelPopup';
-import { dateTimeFromTimestampMs } from 'lib/date';
+import { dateTimeWithoutSecondsFromTimestampMs } from 'lib/date';
 import EditSlackChannelPopup from 'pages/Notification/EditChannelPopup/EditSlackChannelPopup';
 import './NotificationTable.scss';
 import { useToast } from 'providers/ToastProvider/ToastProvider';
@@ -28,8 +28,8 @@ const getSlackChannelTableRow = ({
   webhookUrl,
 }: SlackNotificationChannel): SlackTableRowProps => ({
   name: receiverName,
-  updatedAt: dateTimeFromTimestampMs(updatedAt),
-  createdAt: dateTimeFromTimestampMs(createdAt),
+  updatedAt: dateTimeWithoutSecondsFromTimestampMs(updatedAt),
+  createdAt: dateTimeWithoutSecondsFromTimestampMs(createdAt),
   webhookUrl,
   id,
 });

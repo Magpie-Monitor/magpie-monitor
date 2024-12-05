@@ -13,6 +13,6 @@ public class DiscordReceiverDTO {
     @Size(min = 2, max = 100, message = "The discord integration name must be from 2 to 100 characters.")
     private String name;
     @NotBlank(message = "Webhook url cannot be empty")
-    @Pattern(regexp = "https://discord.com/api/webhooks/[0-9]+/[a-zA-Z0-9\\-]+", message = "Provided webhook url is invalid")
+    @Pattern(regexp = "https://discord.com/api/webhooks/[0-9]+/[a-zA-Z0-9\\-_]+", message = "Provided webhook url is invalid")
     private String webhookUrl;
 }
