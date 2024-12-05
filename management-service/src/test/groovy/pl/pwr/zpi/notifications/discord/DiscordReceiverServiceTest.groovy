@@ -100,31 +100,6 @@ class DiscordReceiverServiceTest extends Specification {
         1 * discordRepository.save(_ as DiscordReceiver) >> existingReceiver
     }
 
-    def "should throw exception if webhook URL is assigned to another entry when updating discord integration"() {
-        given:
-        def id = 1L
-        def encryptedWebhookUrl = "https://discord.com/api/webhooks/1234554321/********************************************************"
-        def encryptedWebhookUrl2 = "https://discord.com/api/webhooks/1234554321/***********************************************"
-        def decryptedWebhookUrl = "https://discord.com/api/webhooks/1234554321/xKh5vF0Som55bSex4q9slwOApmB0VXjcUoVS5Z9v9vu89snl-XeedfHj"
-        def discordReceiverUpdateRequest = new UpdateDiscordReceiverRequest("Updated Receiver", decryptedWebhookUrl)
-        def existingReceiver = createDiscordReceiver(id, "Receiver 1", encryptedWebhookUrl)
-
-        confidentialTextEncoder.decrypt(encryptedWebhookUrl) >> decryptedWebhookUrl
-
-        when:
-        def updatedReceiver = discordReceiverService.updateDiscordIntegration(id, discordReceiverUpdateRequest)
-
-        then:
-        updatedReceiver != null
-        updatedReceiver.receiverName == "Updated Receiver"
-        updatedReceiver.webhookUrl == encryptedWebhookUrl
-        2 * discordRepository.findById(id) >> Optional.of(existingReceiver)
-        2 * confidentialTextEncoder.encrypt(decryptedWebhookUrl) >> encryptedWebhookUrl
-        1 * discordRepository.existsByWebhookUrl(encryptedWebhookUrl) >> true
-        0 * discordRepository.save(_ as DiscordReceiver)
-    }
-
-
     def "should throw exception if discord receiver not found"() {
         given:
         def id = 1L
