@@ -24,6 +24,7 @@ services:
     volumes:
       - es-certs:/usr/local/share
       - cache:/go/pkg/mod/
+
   reports-service-test:
     user: "0"
     container_name: magpie-monitor-test-reports-service
@@ -84,6 +85,54 @@ services:
       target: tests
     volumes:
       - maven-repo:/root/.m2
+      
+  pod-agent:
+    user: "0" # Elevated permission needed for bind mount
+    container_name: magpie-monitor-pod-agent
+    image: magpiemonitor/agent
+    build:
+      context: ./agent/app
+      dockerfile: Dockerfile
+      target: tests
+    restart: always
+    environment:
+      - INTEGRATION_TEST_WAIT_MODIFIER=${INTEGRATION_TEST_WAIT_MODIFIER}
+    command:
+      - "--runningMode"
+      - "local"
+      - "--clusterFriendlyName"
+      - "local-docker"
+      - "--scrape"
+      - "pods"
+      - "--remoteWriteApplicationTopic"
+      - "applications"
+      - "--logScrapeIntervalSeconds"
+      - ${POD_AGENT_LOG_SCRAPE_INTERVAL_SECONDS}
+      - "--metadataScrapeIntervalSeconds"
+      - ${POD_AGENT_METADATA_SCRAPE_INTERVAL_SECONDS}
+      - "--remoteWriteBrokerUrl"
+      - ${KAFKA_BROKER_URL}
+      - "--remoteWriteBrokerUsername"
+      - ${KAFKA_CLIENT_USERNAME}
+      - "--remoteWriteBrokerPassword"
+      - ${KAFKA_CLIENT_PASSWORD}
+      - "--remoteWriteBatchSize"
+      - ${KAFKA_CLIENT_BATCH_SIZE}
+      - "--podRemoteWriteMetadataUrl"
+      - ${POD_AGENT_METADATA_REMOTE_WRITE_URL}
+      - "--remoteWriteApplicationMetadataTopic"
+      - ${POD_AGENT_APPLICATION_METADATA_TOPIC}
+      - "--remoteWriteApplicationTopic"
+      - "applications"
+      - "--excludedNamespace"
+      - "mm"
+      - "--maxPodPacketSizeBytes"
+      - ${AGENT_MAX_POD_PACKET_SIZE_BYTES}
+      - "--maxContainerPacketSizeBytes"
+      - ${AGENT_MAX_CONTAINER_PACKET_SIZE_BYTES}
+    volumes:
+      - ${POD_AGENT_HOST_KUBECONFIG_PATH:-/.kube}:/root/.kube
+      - cache:/go/pkg/mod/
 
 volumes:
   cache:

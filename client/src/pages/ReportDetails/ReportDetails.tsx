@@ -1,5 +1,4 @@
 import PageTemplate from 'components/PageTemplate/PageTemplate';
-import Spinner from 'components/Spinner/Spinner';
 import useReportDetails, { IncidentStats } from 'hooks/useReportStats';
 import { useNavigate, useParams } from 'react-router-dom';
 import './ReportDetails.scss';
@@ -17,11 +16,13 @@ import {
   genericIncidentsFromNodeIncidents,
   urgencyIncidentCount,
 } from 'types/incident';
+import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
 
 const statItems = (
   report: ReportDetails,
   stats: IncidentStats,
-): StatItemData[] => [
+): StatItemData[] => {
+  const defaultStats: StatItemData[] = [
     {
       title: 'Analyzed apps',
       value: report.analyzedApplications,
@@ -41,13 +42,13 @@ const statItems = (
       valueColor: colors.urgency.high,
     },
     {
-      title: 'Medium incidents',
+      title: 'Medium urgency incidents',
       value: stats.mediumUrgencyIncidents,
       unit: 'incidents',
       valueColor: colors.urgency.medium,
     },
     {
-      title: 'Low incidents',
+      title: 'Low urgency incidents',
       value: stats.lowUrgencyIncidents,
       unit: 'incidents',
       valueColor: colors.urgency.low,
@@ -66,6 +67,41 @@ const statItems = (
     },
   ];
 
+  if (stats.nodeWithMostIncidents.nodeName) {
+    defaultStats.push({
+      title: 'Node with highest number of incidents',
+      value: stats.nodeWithMostIncidents.nodeName,
+      unit: '',
+      valueColor: colors.urgency.low,
+    });
+
+    defaultStats.push({
+      title: `Incidents from ${stats.nodeWithMostIncidents.nodeName}`,
+      value: stats.nodeWithMostIncidents.numberOfIncidents,
+      unit: 'incidents',
+      valueColor: colors.urgency.low,
+    });
+  }
+
+  if (stats.applicationWithMostIncidents.applicationName) {
+    defaultStats.push({
+      title: 'Application with highest number of incidents',
+      value: stats.applicationWithMostIncidents.applicationName,
+      unit: '',
+      valueColor: colors.urgency.low,
+    });
+
+    defaultStats.push({
+      title: `Incidents from ${stats.applicationWithMostIncidents.applicationName}`,
+      value: stats.applicationWithMostIncidents.numberOfIncidents,
+      unit: 'incidents',
+      valueColor: colors.urgency.low,
+    });
+  }
+
+  return defaultStats;
+};
+
 const ReportDetailsPage = () => {
   const { id } = useParams();
   const { incidents, report, incidentStats, isReportLoading } =
@@ -76,7 +112,7 @@ const ReportDetailsPage = () => {
   if (isReportLoading || !report || !incidents || !incidentStats) {
     return (
       <PageTemplate header={''}>
-        <Spinner />
+        <CenteredSpinner />
       </PageTemplate>
     );
   }

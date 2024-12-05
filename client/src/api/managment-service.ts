@@ -1,4 +1,4 @@
-import axios, {AxiosInstance} from 'axios';
+import axios, { AxiosInstance } from 'axios';
 
 export interface EmailChannelForm {
   name: string;
@@ -284,6 +284,32 @@ export interface EditEmailChannelForm {
   email: string;
 }
 
+export interface NodeIncidentSource {
+  incidentId: string;
+  timestamp: number;
+  content: string;
+  filename: string;
+}
+
+export interface ApplicationIncidentSource {
+  incidentId: string;
+  timestamp: number;
+  podName: string;
+  containerName: string;
+  image: string;
+  content: string;
+}
+
+export interface PaginatedNodeIncidentSources {
+  data: NodeIncidentSource[];
+  totalEntries: number;
+}
+
+export interface PaginatedApplicationIncidentSources {
+  data: ApplicationIncidentSource[];
+  totalEntries: number;
+}
+
 class ManagmentServiceApi {
   private axiosInstance: AxiosInstance;
 
@@ -425,6 +451,32 @@ class ManagmentServiceApi {
     // };
   }
 
+  public async getNodeIncidentSources(
+    incidentId: string,
+    page: number,
+    size: number,
+  ): Promise<PaginatedNodeIncidentSources> {
+    await this.refreshTokenIfExpired();
+    const report = await this.axiosInstance.get(
+      // eslint-disable-next-line
+      `/api/v1/reports/node-incidents/${incidentId}/sources?page=${page}&size=${size}&sort=timestamp`,
+    );
+    return report.data;
+  }
+
+  public async getApplicationIncidentSources(
+    incidentId: string,
+    page: number,
+    size: number,
+  ): Promise<PaginatedApplicationIncidentSources> {
+    await this.refreshTokenIfExpired();
+    const report = await this.axiosInstance.get(
+      // eslint-disable-next-line
+      `/api/v1/reports/application-incidents/${incidentId}/sources?page=${page}&size=${size}&sort=timestamp`,
+    );
+    return report.data;
+  }
+
   public async getReports(reportType: ReportType): Promise<ReportSummary[]> {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get('/api/v1/reports', {
@@ -446,9 +498,13 @@ class ManagmentServiceApi {
     return reports;
   }
 
-  public async getAwaitingGenerationReports(): Promise<ReportAwaitingGeneration[]> {
+  public async getAwaitingGenerationReports(): Promise<
+    ReportAwaitingGeneration[]
+  > {
     await this.refreshTokenIfExpired();
-    const response = await this.axiosInstance.get('/api/v1/reports/await-generation');
+    const response = await this.axiosInstance.get(
+      '/api/v1/reports/await-generation',
+    );
     return response.data;
   }
 

@@ -87,9 +87,9 @@
       }
 
       &:hover {
-        box-shadow: 0 2px 2px $component-border-color;
-        transform: scale(1.02);
-        background-color: $quaternary;
+        border-width: 1px;
+        transform: scale(1.01);
+        filter: brightness(1.1);
       }
 
       &__logo {
