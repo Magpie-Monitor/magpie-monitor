@@ -1,19 +1,12 @@
 import {
+  ReportDetailedWithIncidents,
+  UrgencyLevel,
   AllIncidentsFromReport,
   ManagmentServiceApiInstance,
   ReportDetails,
-  UrgencyLevel,
 } from 'api/managment-service';
 import { groupBy } from 'lib/arrays';
 import { useEffect, useState } from 'react';
-
-export interface ReportStats {
-  incidents: AllIncidentsFromReport | null;
-  report: ReportDetails | null;
-  incidentStats: IncidentStats | null;
-  areIncidentsLoading: boolean;
-  isReportLoading: boolean;
-}
 
 export interface IncidentStats {
   totalApplicationIncidents: number;
@@ -76,7 +69,53 @@ const groupIncidentsByNode = <T extends { nodeName: string }>(
   return groupBy(incidents, (incident) => incident.nodeName);
 };
 
-const useReportDetails = (reportId: string | null) => {
+export const createIncidentStats = (report: ReportDetailedWithIncidents): IncidentStats => {
+  const { applicationIncidents, nodeIncidents } = report;
+
+  const totalApplicationIncidents = applicationIncidents.length;
+  const totalNodeIncidents = nodeIncidents.length;
+
+  const allIncidents = [...applicationIncidents, ...nodeIncidents];
+  const incidentsByUrgency = groupIncidentsByUrgency(allIncidents);
+
+  const highUrgencyIncidents = incidentsByUrgency.HIGH?.length || 0;
+  const mediumUrgencyIncidents = incidentsByUrgency.MEDIUM?.length || 0;
+  const lowUrgencyIncidents = incidentsByUrgency.LOW?.length || 0;
+
+  const applicationIncidentsByCategory = groupIncidentsByCategory(applicationIncidents);
+  const [categoryWithMostIncidents, numberOfCategoryIncidents] =
+    getRecordWithLongestValueArray(applicationIncidentsByCategory);
+
+  const applicationIncidentsByApplication = groupIncidentsByApplication(applicationIncidents);
+  const [applicationWithMostIncidents, numberOfApplicationIncidents] =
+    getRecordWithLongestValueArray(applicationIncidentsByApplication);
+
+  const nodeIncidentsByNode = groupIncidentsByNode(nodeIncidents);
+  const [nodeWithMostIncidents, numberOfNodeIncidents] =
+    getRecordWithLongestValueArray(nodeIncidentsByNode);
+
+  return {
+    totalApplicationIncidents,
+    totalNodeIncidents,
+    highUrgencyIncidents,
+    mediumUrgencyIncidents,
+    lowUrgencyIncidents,
+    categoryWithMostIncidents: {
+      categoryName: categoryWithMostIncidents,
+      numberOfIncidents: numberOfCategoryIncidents,
+    },
+    applicationWithMostIncidents: {
+      applicationName: applicationWithMostIncidents,
+      numberOfIncidents: numberOfApplicationIncidents,
+    },
+    nodeWithMostIncidents: {
+      nodeName: nodeWithMostIncidents,
+      numberOfIncidents: numberOfNodeIncidents,
+    },
+  };
+};
+
+export const useReportDetails = (reportId: string | null) => {
   const [report, setReport] = useState<ReportDetails | null>(null);
   const [incidents, setIncidents] = useState<AllIncidentsFromReport | null>(
     null,
@@ -185,5 +224,3 @@ const useReportDetails = (reportId: string | null) => {
     isReportLoading,
   };
 };
-
-export default useReportDetails;

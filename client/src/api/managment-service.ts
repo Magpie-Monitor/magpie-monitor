@@ -52,6 +52,7 @@ export interface ReportAwaitingGeneration {
   reportType: ReportType;
   sinceMs: number;
   toMs: number;
+  requestedAtMs: number;
   [key: string]: string | number;
 }
 
@@ -300,6 +301,58 @@ export interface ApplicationIncidentSource {
   content: string;
 }
 
+export interface ReportDetailedWithIncidents {
+  reportDetailedSummary: ReportDetailedSummary;
+  applicationIncidents: ApplicationIncidentSimplified[];
+  nodeIncidents: NodeIncidentSimplified[];
+}
+
+export interface ReportDetailedSummary {
+  id: string;
+  clusterId: string;
+  title: string;
+  urgency: UrgencyLevel | null;
+  requestedAtMs: number;
+  sinceMs: number;
+  toMs: number;
+  totalApplicationEntries: number;
+  totalNodeEntries: number;
+  analyzedApplications: number;
+  analyzedNodes: number;
+}
+
+export interface ApplicationIncidentSimplified {
+  id: string;
+  reportId: string;
+  title: string;
+  accuracy: AccuracyLevel;
+  customPrompt: string;
+  clusterId: string;
+  applicationName: string;
+  category: string;
+  summary: string;
+  recommendation: string;
+  urgency: UrgencyLevel;
+  sinceMs: number;
+  toMs: number;
+}
+
+export interface NodeIncidentSimplified {
+  id: string;
+  reportId: string;
+  title: string;
+  accuracy: AccuracyLevel;
+  customPrompt: string;
+  clusterId: string;
+  nodeName: string;
+  category: string;
+  summary: string;
+  recommendation: string;
+  urgency: UrgencyLevel;
+  sinceMs: number;
+  toMs: number;
+}
+
 export interface PaginatedNodeIncidentSources {
   data: NodeIncidentSource[];
   totalEntries: number;
@@ -504,6 +557,16 @@ class ManagmentServiceApi {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get(
       '/api/v1/reports/await-generation',
+    );
+    return response.data;
+  }
+
+  public async getNewestReport(): Promise<
+    ReportDetailedWithIncidents
+  > {
+    await this.refreshTokenIfExpired();
+    const response = await this.axiosInstance.get(
+      '/api/v1/reports/newest',
     );
     return response.data;
   }

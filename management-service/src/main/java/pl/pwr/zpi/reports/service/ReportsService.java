@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import pl.pwr.zpi.reports.dto.report.*;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
+import pl.pwr.zpi.reports.dto.report.node.ReportDetailedWithIncidentsDTO;
+import pl.pwr.zpi.reports.entity.report.Report;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncident;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncidentSource;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
@@ -125,5 +127,10 @@ public class ReportsService {
 
     public Optional<NodeIncidentDTO> getNodeIncidentById(String incidentId) {
         return nodeIncidentRepository.findById(incidentId).map(NodeIncidentDTO::fromNodeIncident);
+    }
+
+    public Optional<ReportDetailedWithIncidentsDTO> getNewestReport() {
+        return reportRepository.findFirstByOrderByRequestedAtMsDesc()
+                .map(ReportDetailedWithIncidentsDTO::mapToReportDetailedWithIncidentsDTO);
     }
 }

@@ -18,4 +18,5 @@ public interface ReportRepository extends MongoRepository<Report, String> {
     Optional<ReportDetailedSummaryProjection> findProjectedDetailedById(String reportId);
 
     Optional<ReportIncidentsProjection> findProjectedIncidentsById(String reportId);
+    Optional<Report> findFirstByOrderByRequestedAtMsDesc();
 }

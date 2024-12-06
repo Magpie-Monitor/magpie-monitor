@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.pwr.zpi.reports.dto.report.*;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
+import pl.pwr.zpi.reports.dto.report.node.ReportDetailedWithIncidentsDTO;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
 import pl.pwr.zpi.reports.dto.request.CreateReportScheduleRequest;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncidentSource;
@@ -53,7 +54,7 @@ public class ReportsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ReportSummaryDTO>> getReportsOnDemand(@RequestParam String reportType) {
+    public ResponseEntity<List<ReportSummaryDTO>> getReportSummaries(@RequestParam String reportType) {
         return ResponseEntity.ok().body(reportsService.getReportSummaries(reportType));
     }
 
@@ -65,6 +66,11 @@ public class ReportsController {
     @GetMapping("/{id}")
     public ResponseEntity<ReportDetailedSummaryDTO> getReportById(@PathVariable String id) {
         return ResponseEntity.of(reportsService.getReportDetailedSummaryById(id));
+    }
+
+    @GetMapping("/newest")
+    public ResponseEntity<ReportDetailedWithIncidentsDTO> getNewestReport() {
+        return ResponseEntity.of(reportsService.getNewestReport());
     }
 
     @GetMapping("/{id}/incidents")

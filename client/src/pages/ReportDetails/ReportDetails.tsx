@@ -1,5 +1,5 @@
 import PageTemplate from 'components/PageTemplate/PageTemplate';
-import useReportDetails, { IncidentStats } from 'hooks/useReportStats';
+import {useReportDetails,  IncidentStats } from 'hooks/useReportStats';
 import { useNavigate, useParams } from 'react-router-dom';
 import './ReportDetails.scss';
 import SectionComponent from 'components/SectionComponent/SectionComponent';
@@ -12,8 +12,7 @@ import colors from 'global/colors';
 import IncidentList from 'components/IncidentList/IncidentList';
 import ReportHeader from './components/ReportHeader/ReportHeader';
 import {
-  genericIncidentsFromApplicationIncidents,
-  genericIncidentsFromNodeIncidents,
+  mapApplicationIncidentsToGenericFormat, mapNodeIncidentsToGenericFormat,
   urgencyIncidentCount,
 } from 'types/incident';
 import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
@@ -142,7 +141,7 @@ const ReportDetailsPage = () => {
           title={'Application incidents'}
         >
           <IncidentList
-            incidents={genericIncidentsFromApplicationIncidents(
+            incidents={mapApplicationIncidentsToGenericFormat(
               incidents.applicationIncidents,
             )}
             onClick={({ id: incidentId }) =>
@@ -156,7 +155,7 @@ const ReportDetailsPage = () => {
           title={'Node incidents'}
         >
           <IncidentList
-            incidents={genericIncidentsFromNodeIncidents(
+            incidents={mapNodeIncidentsToGenericFormat(
               incidents.nodeIncidents,
             )}
             onClick={({ id: incidentId }) =>
