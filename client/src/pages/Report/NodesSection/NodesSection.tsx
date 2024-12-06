@@ -149,7 +149,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({
 
     return (
         <SectionComponent
-            icon={<SVGIcon iconName="application-icon" />}
+            icon={<SVGIcon iconName="node-incident-metadata-icon" />}
             title={'Nodes'}
             callback={() => handleOpenModal()}
         >

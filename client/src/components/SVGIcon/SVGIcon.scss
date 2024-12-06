@@ -38,6 +38,16 @@
   mask: url('/src/assets/clusters-icon.svg') no-repeat center;
 }
 
+.cycle-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/cycle-icon.svg') no-repeat center;
+}
+
+.hive-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/hive-icon.svg') no-repeat center;
+}
+
 .clusters-icon--white {
   @extend .svg-icon;
   mask: url('/src/assets/clusters-icon.svg') no-repeat center;
