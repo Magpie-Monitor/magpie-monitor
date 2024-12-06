@@ -1,0 +1,200 @@
+asyncapi: '2.6.0'
+info:
+  title: Metadata Update API
+  version: '1.0.0'
+  description: |
+    API for sending and receiving updates about application, node, and cluster metadata. 
+    These updates include information about metadata changes in a cluster.
+
+channels:
+  ApplicationMetadataUpdated:
+    description: Channel to send and receive updates about application metadata.
+    publish:
+      summary: Publish application metadata update events
+      operationId: publishApplicationMetadataUpdated
+      message:
+        $ref: '#/components/messages/ApplicationMetadataUpdatedMessage'
+    subscribe:
+      summary: Subscribe to application metadata update events
+      operationId: onApplicationMetadataUpdated
+      message:
+        $ref: '#/components/messages/ApplicationMetadataUpdatedMessage'
+
+  NodeMetadataUpdated:
+    description: Channel to send and receive updates about node metadata.
+    publish:
+      summary: Publish node metadata update events
+      operationId: publishNodeMetadataUpdated
+      message:
+        $ref: '#/components/messages/NodeMetadataUpdatedMessage'
+    subscribe:
+      summary: Subscribe to node metadata update events
+      operationId: onNodeMetadataUpdated
+      message:
+        $ref: '#/components/messages/NodeMetadataUpdatedMessage'
+
+  ClusterMetadataUpdated:
+    description: Channel to send and receive updates about cluster metadata.
+    publish:
+      summary: Publish cluster metadata update events
+      operationId: publishClusterMetadataUpdated
+      message:
+        $ref: '#/components/messages/ClusterMetadataUpdatedMessage'
+    subscribe:
+      summary: Subscribe to cluster metadata update events
+      operationId: onClusterMetadataUpdated
+      message:
+        $ref: '#/components/messages/ClusterMetadataUpdatedMessage'
+
+components:
+  messages:
+    ApplicationMetadataUpdatedMessage:
+      name: ApplicationMetadataUpdated
+      title: Application Metadata Updated Event
+      summary: Event containing updated application metadata
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ApplicationMetadataUpdated'
+
+    NodeMetadataUpdatedMessage:
+      name: NodeMetadataUpdated
+      title: Node Metadata Updated Event
+      summary: Event containing updated node metadata
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/NodeMetadataUpdated'
+
+    ClusterMetadataUpdatedMessage:
+      name: ClusterMetadataUpdated
+      title: Cluster Metadata Updated Event
+      summary: Event containing updated cluster metadata
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ClusterMetadataUpdated'
+
+  schemas:
+    ApplicationMetadataUpdated:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          description: Unique identifier for the correlation of events.
+        metadata:
+          $ref: '#/components/schemas/AggregatedApplicationMetadata'
+      required:
+        - correlationId
+        - metadata
+
+    AggregatedApplicationMetadata:
+      type: object
+      properties:
+        collectedAtMs:
+          type: integer
+          format: int64
+          description: Timestamp when the metadata was collected, in milliseconds.
+        clusterId:
+          type: string
+          description: Identifier of the cluster where metadata was collected.
+        metadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationMetadata'
+      required:
+        - collectedAtMs
+        - clusterId
+        - metadata
+
+    ApplicationMetadata:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the application.
+        kind:
+          type: string
+          description: Kind of the application.
+      required:
+        - name
+        - kind
+
+    NodeMetadataUpdated:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          description: Unique identifier for the correlation of events.
+        metadata:
+          $ref: '#/components/schemas/AggregatedNodeMetadata'
+      required:
+        - correlationId
+        - metadata
+
+    AggregatedNodeMetadata:
+      type: object
+      properties:
+        collectedAtMs:
+          type: integer
+          format: int64
+          description: Timestamp when the metadata was collected, in milliseconds.
+        clusterId:
+          type: string
+          description: Identifier of the cluster where metadata was collected.
+        metadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/NodeMetadata'
+      required:
+        - collectedAtMs
+        - clusterId
+        - metadata
+
+    NodeMetadata:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the node.
+        files:
+          type: array
+          items:
+            type: string
+          description: List of file names associated with the node.
+      required:
+        - name
+        - files
+
+    ClusterMetadataUpdated:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          description: Unique identifier for the correlation of events.
+        metadata:
+          $ref: '#/components/schemas/AggregatedClusterMetadata'
+      required:
+        - correlationId
+        - metadata
+
+    AggregatedClusterMetadata:
+      type: object
+      properties:
+        collectedAtMs:
+          type: integer
+          format: int64
+          description: Timestamp when the metadata was collected, in milliseconds.
+        metadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClusterMetadata'
+      required:
+        - collectedAtMs
+        - metadata
+
+    ClusterMetadata:
+      type: object
+      properties:
+        clusterId:
+          type: string
+          description: Identifier of the cluster.
+      required:
+        - clusterId
