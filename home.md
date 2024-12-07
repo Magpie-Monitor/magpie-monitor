@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T18:29:27.991Z
+date: 2024-12-07T18:29:41.541Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1809,7 +1809,7 @@ Agent zbiera metadane o hoście na którym działa.
 #### 10.3.2.1 Testy jednostkowe
 
 <figure>
-    <img src="/agent/agent-pod-example-unit.png">
+    <img src="/agent/agent-pod-unit-example.png">
     <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu zbierającego metadane hostów [źródło opracowanie własne]</figcaption>
 </figure>
 
