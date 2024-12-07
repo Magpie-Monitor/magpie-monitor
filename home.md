@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:54:52.113Z
+date: 2024-12-07T17:55:15.154Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1495,6 +1495,15 @@ Powyższy obrazek przedstawia pobranie unikalnego zbioru klastrów z danego okre
     <img src="/metadata-service/metadata-compare-cluster-states.png">
     <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
 </figure>
+
+Przykład porównania, na podstawie którego w przypadku zmiany generowany jest nowy zagregowany stan.
+
+<figure>
+    <img src="/metadata-service/metadata-aggregated-cluster-metadata.png">
+    <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
+</figure>
+
+
 
 ## 9.17 Zabezpieczenia aplikacji (management service) {#zabezpieczenia-aplikacji-(management-service)}
 
