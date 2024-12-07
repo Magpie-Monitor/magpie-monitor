@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:54:26.619Z
+date: 2024-12-07T17:54:52.113Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1489,6 +1489,12 @@ Dla agregacji metadanych klastrów, proces nieco się różni. Unikalny zbiór k
     <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
 </figure>
 
+Powyższy obrazek przedstawia pobranie unikalnego zbioru klastrów z danego okresu. Proces bazuje na zebranych metadanych aplikacji oraz hostów, a jego wynik wykorzystywany jest do dalszego porównania, czy zbiór owy uległ zmianie względem ostatniego odczytu.
+
+<figure>
+    <img src="/metadata-service/metadata-compare-cluster-states.png">
+    <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
+</figure>
 
 ## 9.17 Zabezpieczenia aplikacji (management service) {#zabezpieczenia-aplikacji-(management-service)}
 
