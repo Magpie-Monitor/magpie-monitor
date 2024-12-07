@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T23:40:17.533Z
+date: 2024-12-07T23:41:13.159Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -420,7 +420,7 @@ Wdrożenie na klastrze klienta zakłada zainstalowania dwóch instancji **agent�
 4. ### Model C3 \- poziom 3 \- Agent {#model-c3---poziom-3---agent}
 
 <figure>
-    <img src="/agent/agent-components-transparent.drawio.png">
+    <img src="/agent/agent-components-transparent.png">
     <figcaption>Rysunek X: Agent: Diagram komponentów [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -457,7 +457,7 @@ Logs Ingestion Service zajmuje się zbieraniem i przetwarzaniem kolejno logów a
 ### 7.2.7. Model C3 \- poziom 3 \- Metadata Service {#model-c3---poziom-3---metadata-service}
 
 <figure>
-    <img src="/metadata-service/metadata-service-components.png">
+    <img src="/metadata-service/metadata-service-components-transparent.png">
     <figcaption>Rysunek X: Metadata Service: Diagram komponentów [źródło opracowanie własne]</figcaption>
 </figure>
 
