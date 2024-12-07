@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T18:37:36.119Z
+date: 2024-12-07T18:39:27.546Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1961,15 +1961,31 @@ Agent powinien zbierać dane o przestrzeniach nazw z klastra Kubernetes
 
 <figure>
     <img src="/agent/agent-pod-integration-tc-4.png">
-    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu pobierania logów z zasobu StatefulSet [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu pobierania danych o przestrzeniach nazw [źródło opracowanie własne]</figcaption>
 </figure>
-
-Powyższe zdjęcie przedstawia wejściowe konfiguracje testów.
 
 **Kroki testowe:**  
 1\. Utworzenie agenta z mockowym klientem Kubernetes oraz stanem wejściowym  
 2\. Pobranie danych o namespace  
 3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
+
+**Id:** TC12  
+**Tytuł:** Zbieranie metadanych o aplikacjach z klastra Kubernetes  
+**Opis:**   
+Agent powinien zbierać dane o działających aplikacjach oraz ich rodzajach z klastra Kubernetes
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/agent/agent-pod-integration-tc-5.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu pobierania metadanych o aplikacjach [źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie agenta z mockowym klientem Kubernetes oraz stanem wejściowym  
+2\. Pobranie metadanych  
+3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
+
 
 ## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
 
