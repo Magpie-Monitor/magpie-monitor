@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T19:03:23.892Z
+date: 2024-12-07T19:06:17.778Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2042,12 +2042,12 @@ Metadata service powinien generować zagregowane metadane o hostach
 
 <figure>
     <img src="/metadata-service/tests/metadata-integration-tc-3.png">
-    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu odbierania metadanych o aplikacjach [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu generowania zagregowanych metadanych o hostach[źródło opracowanie własne]</figcaption>
 </figure>
 
 <figure>
     <img src="/metadata-service/tests/metadata-integration-tc-3-1.png">
-    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty taestu odbierania metadanych o aplikacjach [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu generowania zagregowanych metadanych o hostach - część 2 [źródło opracowanie własne]</figcaption>
 </figure>
 
 **Kroki testowe:**  
@@ -2056,7 +2056,51 @@ Metadata service powinien generować zagregowane metadane o hostach
 3\. Nasłuchiwanie na wygenerowane zagregowane metadane o hostach  
 4\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
 
+**Id:** TC14  
+**Tytuł:** Generowanie zagregowanych metadanych o aplikacjach  
+**Opis:**   
+Metadata service powinien generować zagregowane metadane o aplikacjach
 
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/metadata-service/tests/metadata-integration-tc-5.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu generowania zagregowanych metadanych o hostach[źródło opracowanie własne]</figcaption>
+</figure>
+
+<figure>
+    <img src="/metadata-service/tests/metadata-integration-tc-5-1.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu generowania zagregowanych metadanych o hostach[źródło opracowanie własne]</figcaption>
+</figure>
+
+<figure>
+    <img src="/metadata-service/tests/metadata-integration-tc-5-2.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu generowania zagregowanych metadanych o hostach[źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie instancji metadata service  
+2\. Wysłanie przykładowych metadanych o hostach do brokera kafki  
+3\. Nasłuchiwanie na wygenerowane zagregowane metadane o aplikacjach  
+4\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
+
+**Id:** TC17  
+**Tytuł:** Generowanie zagregowanych metadanych o klastrach  
+**Opis:**   
+Metadata service powinien generować zagregowane metadane o klastrach
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/metadata-service/tests/metadata-integration-tc-6 .png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu generowania zagregowanych metadanych o hostach[źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie instancji metadata service  
+2\. Wysłanie przykładowych metadanych o hostach i aplikacjach do brokera kafki  
+3\. Nasłuchiwanie na wygenerowane zagregowane metadane o klastrach  
+4\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
 
 #### 10.4.2 Pokrycie testów
 
