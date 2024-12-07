@@ -70,9 +70,9 @@ public class ReportsController {
         return ResponseEntity.of(reportsService.getReportDetailedSummaryById(id));
     }
 
-    @GetMapping("/newest")
+    @GetMapping("/latest")
     public ResponseEntity<ReportDetailedWithIncidentsDTO> getNewestReport() {
-        return ResponseEntity.of(reportsService.getNewestReport());
+        return ResponseEntity.of(reportsService.getLatestReport());
     }
 
     @GetMapping("/{id}/incidents")

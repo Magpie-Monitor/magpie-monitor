@@ -303,10 +303,10 @@ export interface ApplicationIncidentSource {
   content: string;
 }
 
-export interface ReportDetailedWithIncidents {
+export interface ReportWithDetails {
   reportDetailedSummary: ReportDetailedSummary;
-  applicationIncidents: ApplicationIncidentSimplified[];
-  nodeIncidents: NodeIncidentSimplified[];
+  applicationIncidents: ApplicationIncidentSummary[];
+  nodeIncidents: NodeIncidentSummary[];
 }
 
 export interface ReportDetailedSummary {
@@ -323,7 +323,7 @@ export interface ReportDetailedSummary {
   analyzedNodes: number;
 }
 
-export interface ApplicationIncidentSimplified {
+export interface ApplicationIncidentSummary {
   id: string;
   reportId: string;
   title: string;
@@ -339,7 +339,7 @@ export interface ApplicationIncidentSimplified {
   toMs: number;
 }
 
-export interface NodeIncidentSimplified {
+export interface NodeIncidentSummary {
   id: string;
   reportId: string;
   title: string;
@@ -563,12 +563,12 @@ class ManagmentServiceApi {
     return response.data;
   }
 
-  public async getNewestReport(): Promise<
-    ReportDetailedWithIncidents
+  public async getLatestReport(): Promise<
+    ReportWithDetails
   > {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get(
-      '/api/v1/reports/newest',
+      '/api/v1/reports/latest',
     );
     return response.data;
   }

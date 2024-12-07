@@ -1,5 +1,5 @@
 import {
-  ReportDetailedWithIncidents,
+  ReportWithDetails,
   UrgencyLevel,
   AllIncidentsFromReport,
   ManagmentServiceApiInstance,
@@ -69,7 +69,7 @@ const groupIncidentsByNode = <T extends { nodeName: string }>(
   return groupBy(incidents, (incident) => incident.nodeName);
 };
 
-export const createIncidentStats = (report: ReportDetailedWithIncidents): IncidentStats => {
+export const useReportStats = (report: ReportWithDetails): IncidentStats => {
   const { applicationIncidents, nodeIncidents } = report;
 
   const totalApplicationIncidents = applicationIncidents.length;

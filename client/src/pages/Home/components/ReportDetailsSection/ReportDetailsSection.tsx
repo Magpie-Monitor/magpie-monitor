@@ -1,8 +1,8 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import ReportTitle from 'pages/Home/components/ReportTitle/ReportTitle';
-import {createIncidentStats, IncidentStats} from 'hooks/useReportStats';
-import {ReportDetailedWithIncidents} from 'api/managment-service';
+import {useReportStats, IncidentStats} from 'hooks/useReportStats';
+import {ReportWithDetails} from 'api/managment-service';
 import StatisticsDisplay, {
   StatItemData,
 } from 'components/StatisticsDisplay/StatisticsDisplay';
@@ -20,12 +20,12 @@ import {useNavigate} from 'react-router-dom';
 import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
 
 export interface ReportStats {
-  lastReport: ReportDetailedWithIncidents | null;
+  lastReport: ReportWithDetails | null;
   isReportLoading: boolean;
 }
 
 const statItems = (
-  lastReport: ReportDetailedWithIncidents,
+  lastReport: ReportWithDetails,
   stats: IncidentStats,
 ): StatItemData[] => {
   const defaultStats: StatItemData[] = [
@@ -117,7 +117,7 @@ const ReportDetailsSection = ({
   if (isReportLoading || !lastReport) {
     return <CenteredSpinner/>;
   }
-  const incidentStats = createIncidentStats(lastReport);
+  const incidentStats = useReportStats(lastReport);
 
   const handleNodeIncidentNavigation = (incident: GenericIncident) => {
     navigate(`/node-incidents/${incident.id}`);

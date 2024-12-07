@@ -136,9 +136,9 @@ const Clusters = () => {
   }, []);
 
   const header = <HeaderWithIcon
-                                title={'Clusters'}
-                                icon={<SVGIcon iconName="clusters-icon"/>}
-                              />;
+    title={'Clusters'}
+    icon={<SVGIcon iconName="clusters-icon"/>}
+  />;
 
   return (
     <PageTemplate header={header}>

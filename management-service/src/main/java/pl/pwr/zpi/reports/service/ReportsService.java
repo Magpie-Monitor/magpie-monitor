@@ -138,7 +138,7 @@ public class ReportsService {
         return nodeIncidentRepository.findById(incidentId).map(NodeIncidentSimplifiedDTO::fromNodeIncident);
     }
 
-    public Optional<ReportDetailedWithIncidentsDTO> getNewestReport() {
+    public Optional<ReportDetailedWithIncidentsDTO> getLatestReport() {
         return reportRepository.findFirstByOrderByRequestedAtMsDesc()
                 .map(ReportDetailedWithIncidentsDTO::mapToReportDetailedWithIncidentsDTO);
     }
