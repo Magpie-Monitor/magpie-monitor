@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T18:42:16.034Z
+date: 2024-12-07T18:50:32.801Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1986,6 +1986,14 @@ Agent powinien zbierać dane o działających aplikacjach oraz ich rodzajach z k
 2\. Pobranie metadanych  
 3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
 
+#### 10.3.3 Pokrycie testów
+
+| Pakiet                                                         | Pokrycie      |
+|----------------------------------------------------------------|---------------|
+| github.com/Magpie-Monitor/magpie-monitor/tree/main/agent/app/internal/agent/node/agent        | 28.5%   
+| github.com/Magpie-Monitor/magpie-monitor/tree/main/agent/app/internal/agent/pods/agent | 48.3%          |
+
+### 10.4 Testy Metadata Service
 
 ## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
 
