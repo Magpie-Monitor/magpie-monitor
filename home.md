@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:53:45.272Z
+date: 2024-12-07T17:54:10.473Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1472,7 +1472,7 @@ Powyższy obrazek przedstawia proces generowania nowego, zagregowanego stanu w p
 </figure>
 
 <figure>
-    <img src="/metadata-service/publish-application-metadata-updated-event.png">
+    <img src="/metadata-service/metadata-publish-application-metadata-updated-event.png">
     <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1482,7 +1482,12 @@ Analogiczny proces przeprowadzany jest dla agregacji metadanych hostów.
 
 ## 9.16.3 Agregacja metadanych dla klastrów
 
+Dla agregacji metadanych klastrów, proces nieco się różni. Unikalny zbiór klastrów jest odczytywany na podstawie ich identyfikatorów, zawartych w metadanych aplikacji oraz hostów, przesłanych do Metadata Service w zadanym przedziale czasowym.
 
+<figure>
+    <img src="/metadata-service/publish-application-metadata-updated-event.png">
+    <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
+</figure>
 
 
 ## 9.17 Zabezpieczenia aplikacji (management service) {#zabezpieczenia-aplikacji-(management-service)}
