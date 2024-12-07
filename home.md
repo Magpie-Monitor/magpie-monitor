@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T18:33:50.586Z
+date: 2024-12-07T18:37:36.119Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1876,7 +1876,7 @@ Logi z kontenerów powinny być dzielone na pakiety wedle zadanej konfiguracji
 
 <figure>
     <img src="/agent/agent-pod-unit-tc-4.png">
-    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty podziału logów na pakiety [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu podziału logów na pakiety [źródło opracowanie własne]</figcaption>
 </figure>
 
 **Kroki testowe:**  
@@ -1890,15 +1890,86 @@ W testach integracyjnych Pod Agenta skupiono się w głównej mierze na zbierani
 
 <figure>
     <img src="/agent/agent-pod-integration-example.png">
-    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty podziału logów na pakiety [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Przykładowy test pobierania logów z zasobu StatefulSet [źródło opracowanie własne]</figcaption>
 </figure>
 
 <figure>
     <img src="/agent/agent-pod-integration-example-1.png">
-    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty podziału logów na pakiety [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Przykładowy test pobierania logów z zasobu StatefulSet - część 2 [źródło opracowanie własne]</figcaption>
 </figure>
 
 Przykładowy test integracyjny testuje zbieranie logów dla zasobu StatefulSet.
+
+**Id:** TC8  
+**Tytuł:** Zbieranie logów z zasobu Deployment  
+**Opis:**   
+Agent powinien zbierać logi zasobu Deployment zgodnie ze stanem klastra
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/agent/agent-pod-integration-tc-1.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu pobierania logów z zasobu Deployment [źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie agenta z mockowym klientem Kubernetes oraz stanem wejściowym  
+2\. Pobranie logów dla zasobu Deployment  
+3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
+
+**Id:** TC9  
+**Tytuł:** Zbieranie logów z zasobu DaemonSet  
+**Opis:**   
+Agent powinien zbierać logi zasobu DaemonSet zgodnie ze stanem klastra
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/agent/agent-pod-integration-tc-2.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu pobierania logów z zasobu DaemonSet [źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie agenta z mockowym klientem Kubernetes oraz stanem wejściowym  
+2\. Pobranie logów dla zasobu DaemonSet  
+3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
+
+**Id:** TC10  
+**Tytuł:** Zbieranie logów z zasobu StatefulSet  
+**Opis:**   
+Agent powinien zbierać logi zasobu StatefulSet zgodnie ze stanem klastra
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/agent/agent-pod-integration-tc-3.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu pobierania logów z zasobu StatefulSet [źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie agenta z mockowym klientem Kubernetes oraz stanem wejściowym  
+2\. Pobranie logów dla zasobu StatefulSet  
+3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
+
+  
+**Id:** TC11  
+**Tytuł:** Zbieranie danych o przestrzeniach nazw z klastra Kubernetes  
+**Opis:**   
+Agent powinien zbierać dane o przestrzeniach nazw z klastra Kubernetes
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/agent/agent-pod-integration-tc-4.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu pobierania logów z zasobu StatefulSet [źródło opracowanie własne]</figcaption>
+</figure>
+
+Powyższe zdjęcie przedstawia wejściowe konfiguracje testów.
+
+**Kroki testowe:**  
+1\. Utworzenie agenta z mockowym klientem Kubernetes oraz stanem wejściowym  
+2\. Pobranie danych o namespace  
+3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
 
 ## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
 
