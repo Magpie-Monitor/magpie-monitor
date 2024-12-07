@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:31:35.561Z
+date: 2024-12-07T17:32:38.351Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1197,6 +1197,20 @@ Logi aplikacji są zbierane ze wszystkich przestrzeni nazw obecnych w klastrze K
 
 <figure>
     <img src="/agent/agent-pod-configuration.png">
+    <figcaption>Rysunek X: Pakiet danych [źródło opracowanie własne]</figcaption>
+</figure>
+
+Logi zbierane są cyklicznie, co zadany, konfigurowalny okres dla każdej z włączonych przestrzeni nazw.
+
+<figure>
+    <img src="/agent/agent-gather-logs.png">
+    <figcaption>Rysunek X: Pakiet danych [źródło opracowanie własne]</figcaption>
+</figure>
+
+W każdej z przestrzeni, agent pobiera logi z obiektów Kubernetes typu Deployment, StatefulSet oraz DaemonSet.
+
+<figure>
+    <img src="/agent/agent-fetch-logs-for-namespace.png">
     <figcaption>Rysunek X: Pakiet danych [źródło opracowanie własne]</figcaption>
 </figure>
 
