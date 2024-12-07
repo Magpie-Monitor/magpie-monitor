@@ -1,7 +1,5 @@
 import { IncidentStats } from '@hooks/useReportStats';
 import {
-  ApplicationIncidentSummary,
-  NodeIncidentSummary,
   ApplicationIncident,
   NodeIncident,
   UrgencyLevel,
@@ -24,7 +22,7 @@ export const urgencyIncidentCount = (
   HIGH: stats.highUrgencyIncidents,
 });
 
-export const mapApplicationIncidentsToGenericFormat = (
+export const genericIncidentsFromApplicationIncidents = (
   incidents: ApplicationIncident[],
 ): GenericIncident[] =>
   incidents.map((incident) => ({
@@ -36,32 +34,8 @@ export const mapApplicationIncidentsToGenericFormat = (
     timestamp: incident.sinceMs,
   }));
 
-export const mapNodeIncidentsToGenericFormat = (
+export const genericIncidentsFromNodeIncidents = (
   incidents: NodeIncident[],
-): GenericIncident[] =>
-  incidents.map((incident) => ({
-    id: incident.id,
-    source: incident.nodeName,
-    category: incident.category,
-    urgency: incident.urgency,
-    title: incident.title,
-    timestamp: incident.sinceMs,
-  }));
-
-export const mapSimplifiedApplicationIncidentsToGenericFormat = (
-  incidents: ApplicationIncidentSummary[],
-): GenericIncident[] =>
-  incidents.map((incident) => ({
-    id: incident.id,
-    source: incident.applicationName,
-    category: incident.category,
-    urgency: incident.urgency,
-    title: incident.title,
-    timestamp: incident.sinceMs,
-  }));
-
-export const mapSimplifiedNodeIncidentsToGenericFormat = (
-  incidents: NodeIncidentSummary[],
 ): GenericIncident[] =>
   incidents.map((incident) => ({
     id: incident.id,

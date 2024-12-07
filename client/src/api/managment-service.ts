@@ -71,13 +71,14 @@ export interface ReportDetails {
   id: string;
   clusterId: string;
   title: string;
-  urgency: UrgencyLevel;
+  urgency: UrgencyLevel | null;
+  requestedAtMs: number;
+  sinceMs: number;
+  toMs: number;
   totalApplicationEntries: number;
   totalNodeEntries: number;
   analyzedApplications: number;
   analyzedNodes: number;
-  sinceMs: number;
-  toMs: number;
 }
 
 export interface ClusterSummary {
@@ -303,58 +304,6 @@ export interface ApplicationIncidentSource {
   content: string;
 }
 
-export interface ReportWithDetails {
-  reportDetailedSummary: ReportDetailedSummary;
-  applicationIncidents: ApplicationIncidentSummary[];
-  nodeIncidents: NodeIncidentSummary[];
-}
-
-export interface ReportDetailedSummary {
-  id: string;
-  clusterId: string;
-  title: string;
-  urgency: UrgencyLevel | null;
-  requestedAtMs: number;
-  sinceMs: number;
-  toMs: number;
-  totalApplicationEntries: number;
-  totalNodeEntries: number;
-  analyzedApplications: number;
-  analyzedNodes: number;
-}
-
-export interface ApplicationIncidentSummary {
-  id: string;
-  reportId: string;
-  title: string;
-  accuracy: AccuracyLevel;
-  customPrompt: string;
-  clusterId: string;
-  applicationName: string;
-  category: string;
-  summary: string;
-  recommendation: string;
-  urgency: UrgencyLevel;
-  sinceMs: number;
-  toMs: number;
-}
-
-export interface NodeIncidentSummary {
-  id: string;
-  reportId: string;
-  title: string;
-  accuracy: AccuracyLevel;
-  customPrompt: string;
-  clusterId: string;
-  nodeName: string;
-  category: string;
-  summary: string;
-  recommendation: string;
-  urgency: UrgencyLevel;
-  sinceMs: number;
-  toMs: number;
-}
-
 export interface PaginatedNodeIncidentSources {
   data: NodeIncidentSource[];
   totalEntries: number;
@@ -564,7 +513,7 @@ class ManagmentServiceApi {
   }
 
   public async getLatestReport(): Promise<
-    ReportWithDetails
+    ReportDetails
   > {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get(

@@ -12,7 +12,7 @@ import colors from 'global/colors';
 import IncidentList from 'components/IncidentList/IncidentList';
 import ReportHeader from './components/ReportHeader/ReportHeader';
 import {
-  mapApplicationIncidentsToGenericFormat, mapNodeIncidentsToGenericFormat,
+  genericIncidentsFromApplicationIncidents, genericIncidentsFromNodeIncidents,
   urgencyIncidentCount,
 } from 'types/incident';
 import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
@@ -141,7 +141,7 @@ const ReportDetailsPage = () => {
           title={'Application incidents'}
         >
           <IncidentList
-            incidents={mapApplicationIncidentsToGenericFormat(
+            incidents={genericIncidentsFromApplicationIncidents(
               incidents.applicationIncidents,
             )}
             onClick={({ id: incidentId }) =>
@@ -155,7 +155,7 @@ const ReportDetailsPage = () => {
           title={'Node incidents'}
         >
           <IncidentList
-            incidents={mapNodeIncidentsToGenericFormat(
+            incidents={genericIncidentsFromNodeIncidents(
               incidents.nodeIncidents,
             )}
             onClick={({ id: incidentId }) =>

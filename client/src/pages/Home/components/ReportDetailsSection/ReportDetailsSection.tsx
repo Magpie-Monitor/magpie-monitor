@@ -1,8 +1,7 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import ReportTitle from 'pages/Home/components/ReportTitle/ReportTitle';
-import {useReportStats, IncidentStats} from 'hooks/useReportStats';
-import {ReportWithDetails} from 'api/managment-service';
+import {IncidentStats, ReportStats} from 'hooks/useReportStats';
 import StatisticsDisplay, {
   StatItemData,
 } from 'components/StatisticsDisplay/StatisticsDisplay';
@@ -11,33 +10,29 @@ import ReportDetailsSubsection from 'pages/Home/components/Subsection/Subsection
 import IncidentList from 'components/IncidentList/IncidentList';
 import {
   GenericIncident,
-  mapSimplifiedApplicationIncidentsToGenericFormat,
-  mapSimplifiedNodeIncidentsToGenericFormat,
+  genericIncidentsFromApplicationIncidents,
+  genericIncidentsFromNodeIncidents,
   urgencyIncidentCount,
 } from 'types/incident';
 import './ReportDetailsSection.scss';
 import {useNavigate} from 'react-router-dom';
 import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
-
-export interface ReportStats {
-  lastReport: ReportWithDetails | null;
-  isReportLoading: boolean;
-}
+import {ReportDetails} from 'api/managment-service.ts';
 
 const statItems = (
-  lastReport: ReportWithDetails,
+  report: ReportDetails,
   stats: IncidentStats,
 ): StatItemData[] => {
   const defaultStats: StatItemData[] = [
     {
       title: 'Analyzed apps',
-      value: lastReport.reportDetailedSummary.analyzedApplications,
+      value: report.analyzedApplications,
       unit: 'applications',
       valueColor: colors.urgency.low,
     },
     {
       title: 'Analyzed hosts',
-      value: lastReport.reportDetailedSummary.analyzedNodes,
+      value: report.analyzedNodes,
       unit: 'hosts',
       valueColor: colors.urgency.low,
     },
@@ -61,13 +56,13 @@ const statItems = (
     },
     {
       title: 'Application entries',
-      value: lastReport.reportDetailedSummary.totalApplicationEntries,
+      value: report.totalApplicationEntries,
       unit: 'entries',
       valueColor: colors.urgency.low,
     },
     {
       title: 'Node entries',
-      value: lastReport.reportDetailedSummary.totalNodeEntries,
+      value: report.totalNodeEntries,
       unit: 'entries',
       valueColor: colors.urgency.low,
     },
@@ -109,15 +104,13 @@ const statItems = (
 };
 
 const ReportDetailsSection = ({
-                                lastReport,
+                                report,
+                                incidentStats,
+                                areIncidentsLoading,
                                 isReportLoading,
+                                incidents,
                               }: ReportStats) => {
   const navigate = useNavigate();
-
-  if (isReportLoading || !lastReport) {
-    return <CenteredSpinner/>;
-  }
-  const incidentStats = useReportStats(lastReport);
 
   const handleNodeIncidentNavigation = (incident: GenericIncident) => {
     navigate(`/node-incidents/${incident.id}`);
@@ -127,46 +120,53 @@ const ReportDetailsSection = ({
     navigate(`/application-incidents/${incident.id}`);
   };
 
+  if (isReportLoading || !report) {
+    return <CenteredSpinner/>;
+  }
+
   return (
     <SectionComponent
       icon={<SVGIcon iconName="chart-icon"/>}
       title={
         <ReportTitle
-          source={lastReport.reportDetailedSummary.clusterId}
-          startTime={lastReport.reportDetailedSummary.sinceMs}
-          endTime={lastReport.reportDetailedSummary.toMs}
+          source={report.clusterId}
+          startTime={report.sinceMs}
+          endTime={report.toMs}
         />
       }
     >
       <div className="dashboard-report-details-section">
+        {areIncidentsLoading && <CenteredSpinner/>}
+        {incidents && incidentStats && (
           <div className="dashboard-report-details-section__incidents">
             <ReportDetailsSubsection title={'Statistics'}>
               <StatisticsDisplay
-                statItems={statItems(lastReport, incidentStats)}
+                statItems={statItems(report, incidentStats)}
                 urgencyIncidentCount={urgencyIncidentCount(incidentStats)}
               />
             </ReportDetailsSubsection>
-            {lastReport.applicationIncidents.length > 0 && (
+            {incidents.applicationIncidents.length > 0 && (
               <ReportDetailsSubsection title="Application incidents">
                 <IncidentList
-                  incidents={mapSimplifiedApplicationIncidentsToGenericFormat(
-                    lastReport.applicationIncidents,
+                  incidents={genericIncidentsFromApplicationIncidents(
+                    incidents.applicationIncidents,
                   )}
                   onClick={handleApplicationIncidentNavigation}
                 />
               </ReportDetailsSubsection>
             )}
-            {lastReport.nodeIncidents.length > 0 && (
+            {incidents.nodeIncidents.length > 0 && (
               <ReportDetailsSubsection title="Node incidents">
                 <IncidentList
-                  incidents={mapSimplifiedNodeIncidentsToGenericFormat(
-                    lastReport.nodeIncidents,
+                  incidents={genericIncidentsFromNodeIncidents(
+                    incidents.nodeIncidents,
                   )}
                   onClick={handleNodeIncidentNavigation}
                 />
               </ReportDetailsSubsection>
             )}
           </div>
+        )}
       </div>
     </SectionComponent>
   );
