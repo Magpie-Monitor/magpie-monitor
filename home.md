@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T21:56:10.645Z
+date: 2024-12-07T21:57:26.133Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -807,6 +807,8 @@ Wiadomość zawierająca logi z aplikacji wraz z metadanymi o aplikacji, dacie w
 
 ### Przesyłanie zagregowanych metadanych aplikacji - ApplicationMetadataUpdated (Metadata Service): 
 
+Zmiana stanu zagregowanych metadanych aplikacji jest emitowana przez Metadata Service.
+
 <figure>
     <img src="/asyncapi-screens/application-metadata-updated-pub.png">
     <figcaption>Rysunek X: ApplicationMetadataUpdated: Zrzut ekranu z AsyncAPI [źródło opracowanie własne]</figcaption>
@@ -820,6 +822,8 @@ Wiadomość zawierająca logi z aplikacji wraz z metadanymi o aplikacji, dacie w
 
 ### Przesyłanie zagregowanych metadanych hostów - NodeMetadataUpdated (Metadata Service): 
 
+Zmiana stanu zagregowanych metadanych hostów jest emitowana przez Metadata Service.
+
 <figure>
     <img src="/asyncapi-screens/node-metadata-updated-pub.png">
     <figcaption>Rysunek X: NodeMetadataUpdated: Zrzut ekranu z AsyncAPI [źródło opracowanie własne]</figcaption>
@@ -831,6 +835,8 @@ Wiadomość zawierająca logi z aplikacji wraz z metadanymi o aplikacji, dacie w
 </figure>
 
 ### Przesyłanie zagregowanych metadanych klastrów - ClusterMetadataUpdated (Metadata Service): 
+
+Zmiana stanu zagregowanych metadanych klastrów jest emitowana przez Metadata Service.
 
 <figure>
     <img src="/asyncapi-screens/cluster-metadata-updated-pub.png">
