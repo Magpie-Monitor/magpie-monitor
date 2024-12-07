@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T18:33:05.160Z
+date: 2024-12-07T18:33:43.136Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1886,6 +1886,19 @@ Logi z kontenerów powinny być dzielone na pakiety wedle zadanej konfiguracji
 
 #### 10.3.2.2 Testy integracyjne
 
+W testach integracyjnych Pod Agenta skupiono się w głównej mierze na zbieraniu logów przy pomocy API Kubernetesa, które zamockowano. Mockowanie pozwoliło na całościowe przetestowanie procesu zbierania logów z klastra bez zewnętrznych zależności oraz zmian w kodzie.
+
+<figure>
+    <img src="/agent/agent-pod-integration-example.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty podziału logów na pakiety [źródło opracowanie własne]</figcaption>
+</figure>
+
+<figure>
+    <img src="/agent/agent-pod-integration-example-1.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty podziału logów na pakiety [źródło opracowanie własne]</figcaption>
+</figure>
+
+Przykładowy test integracyjny testuje zbieranie logów dla zasobu StatefulSet.
 
 ## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
 
