@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:41:33.699Z
+date: 2024-12-07T17:41:53.235Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1260,12 +1260,12 @@ Agent cyklicznie odczytuje oraz przesyła metadane o aplikacjach aktualnie dzia�
 
 <figure>
     <img src="/agent/agent-gather-cluster-metadata.png">
-    <figcaption>Rysunek X: Pakiet danych [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Zbieranie metadanych o aplikacjach [źródło opracowanie własne]</figcaption>
 </figure>
 
 <figure>
     <img src="/agent/agent-application-metadata.png">
-    <figcaption>Rysunek X: Pakiet danych [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Pakiet metadanych [źródło opracowanie własne]</figcaption>
 </figure>
 
 ## 9.13 Zapisywanie logów (ingestion service) {#zapisywanie-logów-(ingestion-service)}
