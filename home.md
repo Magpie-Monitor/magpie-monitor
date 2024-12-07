@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T23:39:52.860Z
+date: 2024-12-07T23:40:17.533Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -420,7 +420,7 @@ Wdrożenie na klastrze klienta zakłada zainstalowania dwóch instancji **agent�
 4. ### Model C3 \- poziom 3 \- Agent {#model-c3---poziom-3---agent}
 
 <figure>
-    <img src="/agent/agent-components-transparent.png">
+    <img src="/agent/agent-components-transparent.drawio.png">
     <figcaption>Rysunek X: Agent: Diagram komponentów [źródło opracowanie własne]</figcaption>
 </figure>
 
