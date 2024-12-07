@@ -71,14 +71,14 @@ const statItems = (
       title: 'Node with highest number of incidents',
       value: stats.nodeWithMostIncidents.nodeName,
       unit: '',
-      valueColor: colors.urgency.low,
+      valueColor: colors.urgency.high,
     });
 
     defaultStats.push({
       title: `Incidents from ${stats.nodeWithMostIncidents.nodeName}`,
       value: stats.nodeWithMostIncidents.numberOfIncidents,
       unit: 'incidents',
-      valueColor: colors.urgency.low,
+      valueColor: colors.urgency.high,
     });
   }
 
@@ -87,14 +87,14 @@ const statItems = (
       title: 'Application with highest number of incidents',
       value: stats.applicationWithMostIncidents.applicationName,
       unit: '',
-      valueColor: colors.urgency.low,
+      valueColor: colors.urgency.high,
     });
 
     defaultStats.push({
       title: `Incidents from ${stats.applicationWithMostIncidents.applicationName}`,
       value: stats.applicationWithMostIncidents.numberOfIncidents,
       unit: 'incidents',
-      valueColor: colors.urgency.low,
+      valueColor: colors.urgency.high,
     });
   }
 

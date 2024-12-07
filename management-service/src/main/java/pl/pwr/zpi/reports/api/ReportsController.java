@@ -7,8 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.pwr.zpi.reports.dto.report.*;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
+import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentSimplifiedDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
-import pl.pwr.zpi.reports.dto.report.node.ReportDetailedWithIncidentsDTO;
+import pl.pwr.zpi.reports.dto.report.ReportDetailedWithIncidentsDTO;
+import pl.pwr.zpi.reports.dto.report.node.NodeIncidentSimplifiedDTO;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
 import pl.pwr.zpi.reports.dto.request.CreateReportScheduleRequest;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncidentSource;
@@ -93,7 +95,7 @@ public class ReportsController {
     }
 
     @GetMapping("/application-incidents/{id}")
-    public ResponseEntity<ApplicationIncidentDTO> getApplicationIncidentById(@PathVariable String id) {
+    public ResponseEntity<ApplicationIncidentSimplifiedDTO> getApplicationIncidentById(@PathVariable String id) {
         return ResponseEntity.of(reportsService.getApplicationIncidentById(id));
     }
 
@@ -104,7 +106,7 @@ public class ReportsController {
     }
 
     @GetMapping("/node-incidents/{id}")
-    public ResponseEntity<NodeIncidentDTO> getNodeIncidentById(@PathVariable String id) {
+    public ResponseEntity<NodeIncidentSimplifiedDTO> getNodeIncidentById(@PathVariable String id) {
         return ResponseEntity.of(reportsService.getNodeIncidentById(id));
     }
 

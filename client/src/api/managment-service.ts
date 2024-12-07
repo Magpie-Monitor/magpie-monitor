@@ -163,7 +163,8 @@ export interface ApplicationIncident {
   urgency: UrgencyLevel;
   accuracy: AccuracyLevel;
   recommendation: string;
-  sources: ApplicationIncidentSource[];
+  sinceMs: number;
+  toMs: number;
 }
 
 export interface ApplicationIncidentSource {
@@ -185,7 +186,8 @@ export interface NodeIncident {
   accuracy: AccuracyLevel;
   summary: string;
   recommendation: string;
-  sources: NodeIncidentSource[];
+  sinceMs: number;
+  toMs: number;
 }
 
 export interface AllIncidentsFromReport {

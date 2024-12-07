@@ -6,9 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.reports.dto.report.*;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
+import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentSimplifiedDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
-import pl.pwr.zpi.reports.dto.report.node.ReportDetailedWithIncidentsDTO;
-import pl.pwr.zpi.reports.entity.report.Report;
+import pl.pwr.zpi.reports.dto.report.ReportDetailedWithIncidentsDTO;
+import pl.pwr.zpi.reports.dto.report.node.NodeIncidentSimplifiedDTO;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncident;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncidentSource;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncident;
@@ -59,10 +60,18 @@ public class ReportsService {
 
     public Optional<ReportIncidentsDTO> getReportIncidents(String reportId) {
         return reportRepository.findProjectedIncidentsById(reportId).map(incidentProjection -> ReportIncidentsDTO.builder()
-                .applicationIncidents(extractApplicationIncidents(incidentProjection))
-                .nodeIncidents(extractNodeIncidents(incidentProjection))
+                .applicationIncidents(
+                        extractApplicationIncidents(incidentProjection).stream()
+                                .map(ApplicationIncidentSimplifiedDTO::fromApplicationIncident)
+                                .toList()
+                )
+                .nodeIncidents(
+                        extractNodeIncidents(incidentProjection).stream()
+                                .map(NodeIncidentSimplifiedDTO::fromNodeIncident)
+                                .toList())
                 .build());
     }
+
 
     public ReportPaginatedIncidentsDTO<ApplicationIncidentDTO> getReportApplicationIncidents(
             String reportId, Pageable pageable) {
@@ -121,12 +130,12 @@ public class ReportsService {
 
     }
 
-    public Optional<ApplicationIncidentDTO> getApplicationIncidentById(String incidentId) {
-        return applicationIncidentRepository.findById(incidentId).map(ApplicationIncidentDTO::fromApplicationIncident);
+    public Optional<ApplicationIncidentSimplifiedDTO> getApplicationIncidentById(String incidentId) {
+        return applicationIncidentRepository.findById(incidentId).map(ApplicationIncidentSimplifiedDTO::fromApplicationIncident);
     }
 
-    public Optional<NodeIncidentDTO> getNodeIncidentById(String incidentId) {
-        return nodeIncidentRepository.findById(incidentId).map(NodeIncidentDTO::fromNodeIncident);
+    public Optional<NodeIncidentSimplifiedDTO> getNodeIncidentById(String incidentId) {
+        return nodeIncidentRepository.findById(incidentId).map(NodeIncidentSimplifiedDTO::fromNodeIncident);
     }
 
     public Optional<ReportDetailedWithIncidentsDTO> getNewestReport() {

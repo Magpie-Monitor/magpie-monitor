@@ -1,12 +1,11 @@
-package pl.pwr.zpi.reports.dto.report.node;
+package pl.pwr.zpi.reports.dto.report;
 
 import lombok.Builder;
-import pl.pwr.zpi.reports.dto.report.ReportDetailedSummaryDTO;
+import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentSimplifiedDTO;
+import pl.pwr.zpi.reports.dto.report.node.NodeIncidentSimplifiedDTO;
 import pl.pwr.zpi.reports.entity.report.Report;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncidentSource;
 import pl.pwr.zpi.reports.entity.report.node.NodeIncidentSource;
-import pl.pwr.zpi.reports.enums.Accuracy;
-import pl.pwr.zpi.reports.enums.Urgency;
 
 import java.util.List;
 
@@ -16,42 +15,6 @@ public record ReportDetailedWithIncidentsDTO(
         List<ApplicationIncidentSimplifiedDTO> applicationIncidents,
         List<NodeIncidentSimplifiedDTO> nodeIncidents
 ) {
-    @Builder
-    record ApplicationIncidentSimplifiedDTO(
-            String id,
-            String reportId,
-            String title,
-            Accuracy accuracy,
-            String customPrompt,
-            String clusterId,
-            String applicationName,
-            String category,
-            String summary,
-            String recommendation,
-            Urgency urgency,
-            long sinceMs,
-            long toMs
-    ) {
-    }
-
-    @Builder
-    record NodeIncidentSimplifiedDTO(
-            String id,
-            String reportId,
-            String title,
-            Accuracy accuracy,
-            String customPrompt,
-            String clusterId,
-            String nodeName,
-            String category,
-            String summary,
-            String recommendation,
-            Urgency urgency,
-            long sinceMs,
-            long toMs
-    ) {
-    }
-
     public static ReportDetailedWithIncidentsDTO mapToReportDetailedWithIncidentsDTO(Report report) {
         return ReportDetailedWithIncidentsDTO.builder()
                 .reportDetailedSummary(
@@ -94,7 +57,7 @@ public record ReportDetailedWithIncidentsDTO(
                         .toList()
                 )
                 .nodeIncidents(report.getNodeIncidents().stream()
-                        .map(nodeIncident -> ReportDetailedWithIncidentsDTO.NodeIncidentSimplifiedDTO.builder()
+                        .map(nodeIncident -> NodeIncidentSimplifiedDTO.builder()
                                 .id(nodeIncident.getId())
                                 .reportId(nodeIncident.getReportId())
                                 .title(nodeIncident.getTitle())

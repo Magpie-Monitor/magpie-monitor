@@ -33,7 +33,7 @@ export const mapApplicationIncidentsToGenericFormat = (
     category: incident.category,
     urgency: incident.urgency,
     title: incident.title,
-    timestamp: incident.sources[0].timestamp,
+    timestamp: incident.sinceMs,
   }));
 
 export const mapNodeIncidentsToGenericFormat = (
@@ -45,7 +45,7 @@ export const mapNodeIncidentsToGenericFormat = (
     category: incident.category,
     urgency: incident.urgency,
     title: incident.title,
-    timestamp: incident.sources[0].timestamp,
+    timestamp: incident.sinceMs,
   }));
 
 export const mapSimplifiedApplicationIncidentsToGenericFormat = (
