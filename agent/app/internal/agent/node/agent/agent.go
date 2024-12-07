@@ -101,8 +101,6 @@ func (r *IncrementalReader) watchFile(fileName string, cooldownSeconds int, resu
 			r.redis.Set(fileName, strconv.FormatInt(currentSize, 10), -1)
 		}
 
-		log.Println("BYTE DIFF = ", byteDiff)
-
 		if byteDiff > 0 {
 			buf := make([]byte, byteDiff+1)
 
