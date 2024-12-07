@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T15:29:54.422Z
+date: 2024-12-07T15:32:28.546Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1155,6 +1155,11 @@ Struktura aplikacji klienckiej została zaprojektowana zgodnie z najlepszymi pra
 ## 9.12.1 Zbieranie logów z hostów
 
 Agent zbiera logi z hostów, obserwując pliki które użytkownik skonfiguruje podczas wdrożenia. 
+
+<figure>
+    <img src="/agent/agent-configuration.png">
+    <figcaption>Rysunek X: Struktura plików w aplikacji klienckiej [źródło opracowanie własne]</figcaption>
+</figure>
 
 Konfiguracja logów odbywa się w pliku values.yaml paczki wdrożeniowej Helm Chart.
 
