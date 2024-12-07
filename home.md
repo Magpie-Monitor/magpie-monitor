@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:55:15.154Z
+date: 2024-12-07T17:55:47.298Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1503,7 +1503,13 @@ Przykład porównania, na podstawie którego w przypadku zmiany generowany jest 
     <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
 </figure>
 
+<figure>
+    <img src="/metadata-service/metadata-publish-cluster-metadata-updated-event.png">
+    <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
+</figure>
 
+
+Wygenerowany stan jest następnie emitowany w postaci wydarzenia do brokera Kafki.
 
 ## 9.17 Zabezpieczenia aplikacji (management service) {#zabezpieczenia-aplikacji-(management-service)}
 
