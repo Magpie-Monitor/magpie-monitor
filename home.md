@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:41:21.169Z
+date: 2024-12-07T17:41:33.699Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1251,7 +1251,7 @@ Powyższe obrazki przedstawiają przykład zbierania logów z obiektu typu Deplo
 
 <figure>
     <img src="/agent/agent-kubernetes-api-client.png">
-    <figcaption>Rysunek X: Pakiet danych [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Klient API Kubernetes [źródło opracowanie własne]</figcaption>
 </figure>
 
 ## 9.12.3 Zbieranie metadanych z aplikacji
