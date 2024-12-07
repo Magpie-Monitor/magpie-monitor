@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:37:10.184Z
+date: 2024-12-07T17:37:23.103Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1195,6 +1195,12 @@ Dane dzielone są na mniejsze pakiety *Chunk*, które przesyłane są do brokera
     <img src="/agent/agent-gather-node-metadata.png">
     <figcaption>Rysunek X: Pakiet danych [źródło opracowanie własne]</figcaption>
 </figure>
+
+<figure>
+    <img src="/agent/agent-node-metadata.png">
+    <figcaption>Rysunek X: Pakiet danych [źródło opracowanie własne]</figcaption>
+</figure>
+
 
 Agent cyklicznie odczytuje oraz przesyła metadane o swoim działaniu, tj. id klastra na którym działa, nazwę hosta w klastrze na którym działa dana replika agenta oraz pliki obserwowane przez agenta. Odczytane metadane są następnie przesyłane do brokera Kafki.
 
