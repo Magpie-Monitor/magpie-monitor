@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T19:11:32.665Z
+date: 2024-12-07T19:12:10.526Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1823,7 +1823,7 @@ Logi aplikacyjne przez agenta są dzielone na pakiety kontenerów oraz podów, w
 **Warunki wstępne i oczekiwane rezultaty:**
 
 <figure>
-    <img src="/agent/agent-pod-unit-tc-1.png">
+    <img src="/agent/tests/agent-pod-unit-tc-1.png">
     <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu podziału logów na pakiety [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1840,7 +1840,7 @@ Agent powinien odczytywać wartość sekundy z timestampu RFC
 **Warunki wstępne i oczekiwane rezultaty:**
 
 <figure>
-    <img src="/agent/agent-pod-unit-tc-2.png">
+    <img src="/agent/tests/agent-pod-unit-tc-2.png">
     <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu wyodrębnienia sekundy z timestampu RFC [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1858,7 +1858,7 @@ Proces deduplikacji powinien usuwać logi z kolejnej sekundy, jeżeli takowe w z
 **Warunki wstępne i oczekiwane rezultaty:**
 
 <figure>
-    <img src="/agent/agent-pod-unit-tc-3.png">
+    <img src="/agent/tests/agent-pod-unit-tc-3.png">
     <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu usuwania ze zbioru logów z kolejnej sekundy [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1875,7 +1875,7 @@ Logi z kontenerów powinny być dzielone na pakiety wedle zadanej konfiguracji
 **Warunki wstępne i oczekiwane rezultaty:**
 
 <figure>
-    <img src="/agent/agent-pod-unit-tc-4.png">
+    <img src="/agent/tests/agent-pod-unit-tc-4.png">
     <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu podziału logów na pakiety [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1889,12 +1889,12 @@ Logi z kontenerów powinny być dzielone na pakiety wedle zadanej konfiguracji
 W testach integracyjnych Pod Agenta skupiono się w głównej mierze na zbieraniu logów przy pomocy API Kubernetesa, które zamockowano. Mockowanie pozwoliło na całościowe przetestowanie procesu zbierania logów z klastra bez zewnętrznych zależności oraz zmian w kodzie.
 
 <figure>
-    <img src="/agent/agent-pod-integration-example.png">
+    <img src="/agent/tests/agent-pod-integration-example.png">
     <figcaption>Rysunek X: Przykładowy test pobierania logów z zasobu StatefulSet [źródło opracowanie własne]</figcaption>
 </figure>
 
 <figure>
-    <img src="/agent/agent-pod-integration-example-1.png">
+    <img src="/agent/tests/agent-pod-integration-example-1.png">
     <figcaption>Rysunek X: Przykładowy test pobierania logów z zasobu StatefulSet - część 2 [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1908,7 +1908,7 @@ Agent powinien zbierać logi zasobu Deployment zgodnie ze stanem klastra
 **Warunki wstępne i oczekiwane rezultaty:**
 
 <figure>
-    <img src="/agent/agent-pod-integration-tc-1.png">
+    <img src="/agent/tests/agent-pod-integration-tc-1.png">
     <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu pobierania logów z zasobu Deployment [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1925,7 +1925,7 @@ Agent powinien zbierać logi zasobu DaemonSet zgodnie ze stanem klastra
 **Warunki wstępne i oczekiwane rezultaty:**
 
 <figure>
-    <img src="/agent/agent-pod-integration-tc-2.png">
+    <img src="/agent/tests/agent-pod-integration-tc-2.png">
     <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu pobierania logów z zasobu DaemonSet [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1942,7 +1942,7 @@ Agent powinien zbierać logi zasobu StatefulSet zgodnie ze stanem klastra
 **Warunki wstępne i oczekiwane rezultaty:**
 
 <figure>
-    <img src="/agent/agent-pod-integration-tc-3.png">
+    <img src="/agent/tests/agent-pod-integration-tc-3.png">
     <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu pobierania logów z zasobu StatefulSet [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1960,7 +1960,7 @@ Agent powinien zbierać dane o przestrzeniach nazw z klastra Kubernetes
 **Warunki wstępne i oczekiwane rezultaty:**
 
 <figure>
-    <img src="/agent/agent-pod-integration-tc-4.png">
+    <img src="/agent/tests/agent-pod-integration-tc-4.png">
     <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu pobierania danych o przestrzeniach nazw [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1977,7 +1977,7 @@ Agent powinien zbierać dane o działających aplikacjach oraz ich rodzajach z k
 **Warunki wstępne i oczekiwane rezultaty:**
 
 <figure>
-    <img src="/agent/agent-pod-integration-tc-5.png">
+    <img src="/agent/tests/agent-pod-integration-tc-5.png">
     <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu pobierania metadanych o aplikacjach [źródło opracowanie własne]</figcaption>
 </figure>
 
