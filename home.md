@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T23:41:13.159Z
+date: 2024-12-07T23:41:24.339Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -458,7 +458,7 @@ Logs Ingestion Service zajmuje się zbieraniem i przetwarzaniem kolejno logów a
 
 <figure>
     <img src="/metadata-service/metadata-service-components-transparent.png">
-    <figcaption>Rysunek X: Metadata Service: Diagram komponentów [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Metadata Service: Diagram komponentów  a[źródło opracowanie własne]</figcaption>
 </figure>
 
 Metadata Service jest systemem odpowiedzialnym za zbieranie, przechowywanie oraz przetwarzanie metadanych o klastrach, aplikacjach oraz hostach.
