@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T18:23:10.996Z
+date: 2024-12-07T18:28:23.132Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1729,13 +1729,13 @@ Testami były objęte głównie funkcje, które zawierają niebanalną logikę b
 
 Agent przetestowany został jednostkowo w zakresie funkcjonalności rozdzielania zebranych logów na pakiety danych oraz deduplikacji logów, czyli procesu, w którym ze zbioru zebranych danych usuwane są logi, które powinny być częścią kolejnej paczki przesyłanych danych, a ich obecność w zbiorze wynika z niedokładności API klastra Kubernetes. W testach integracyjnych skupiono się natomiast na testowaniu integracji z API Kubernetes oraz zbieraniu logów z klastra.
 
-## 10.3.1 Testy Node Agenta
+### 10.3.1 Testy Node Agenta
 
-## 10.3.1.1 Testy jednostkowe
+#### 10.3.1.1 Testy jednostkowe
 
 <figure>
     <img src="/agent/agent-node-integration-example.png">
-    <figcaption>Rysunek 2: Test odczytywania logów z pliku [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Test odczytywania logów z pliku [źródło opracowanie własne]</figcaption>
 </figure>
 
 Przykładowy test przedstawia przyjęte podejście, permutacje danych wejściowych oraz wyjściowych są przekazywane do testu, który następnie weryfikuje poprawność działania funkcji.
@@ -1749,7 +1749,7 @@ Agent rozdziela logi na pakiety danych o podanym rozmiarze.
 
 <figure>
     <img src="/agent/agent-node-unit-tc-1.png">
-    <figcaption>Rysunek 2: Test odczytywania logów z pliku [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu podziału logów na pakiety [źródło opracowanie własne]</figcaption>
 </figure>
 
 Powyższe zdjęcie przedstawia wejściowe logi, rozmiar pakietu oraz spodziewaną liczbę pakietów dla wybranych przypadków testowych.
@@ -1758,6 +1758,58 @@ Powyższe zdjęcie przedstawia wejściowe logi, rozmiar pakietu oraz spodziewan�
 1\. Pobranie logów  
 2\. Rozdzielenie logi na pakiety  
 3\. Sprawdzenie czy liczba pakietów jest prawidłowa
+
+#### 10.3.1.1 Testy integracyjne
+
+<figure>
+    <img src="/agent/agent-node-integration-example.png">
+    <figcaption>Rysunek X: Przykładowy test obserwowania pliku z logami [źródło opracowanie własne]</figcaption>
+</figure>
+
+Przykładowy test przedstawia proces testowania czytania logów z pliku. W kontenerze tworzony jest plik, do którego następnie wpisywane są dane. Plik jest obserwowany przez Node Agenta, który odczytuje zapisane dane i przesyła rezultaty odczytu. Rezultaty są następnie porównywane z oczekiwanymi wynikami.
+
+**Id:** TC2  
+**Tytuł:** Odczytywanie logów z pliku przez Agenta  
+**Opis:**   
+Agent odczytuje logi z wybranego pliku.
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/agent/agent-node-integration-tc-1.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu obserwowania pliku z logami [źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Obserwowanie pliku przez agenta  
+2\. Otworzenie pliku  
+3\. Zapisanie przykładowych danych do pliku  
+4\. Oczekiwanie na odczyt danych przez agenta  
+5\. Porównanie odczytanych danych z oczekiwaniami
+
+**Id:** TC3  
+**Tytuł:** Zbieranie metadanych z hostów.  
+**Opis:**   
+Agent zbiera metadane o hoście na którym działa.
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/agent/agent-node-integration-tc-2.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu zbierającego metadane hostów [źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie agenta z wejściową konfiguracją hosta  
+2\. Odczytanie metadanych o hoście  
+3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami  
+
+### 10.3.2 Testy Pod Agenta
+
+#### 10.3.2.1 Testy jednostkowe
+
+#### 10.3.2.2 Testy integracyjne
+
 
 ## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
 
