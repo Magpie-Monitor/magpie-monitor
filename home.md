@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:30:50.036Z
+date: 2024-12-07T17:31:35.561Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1196,7 +1196,7 @@ Dane dzielone są na mniejsze pakiety *Chunk*, które przesyłane są do brokera
 Logi aplikacji są zbierane ze wszystkich przestrzeni nazw obecnych w klastrze Kubernetes, poza przestrzeniami wykluczonymi w konfiguracji paczki wdrożeniowej Helm Chart.
 
 <figure>
-    <img src="/agent/agent-configuration.png">
+    <img src="/agent/agent-pod-configuration.png">
     <figcaption>Rysunek X: Pakiet danych [źródło opracowanie własne]</figcaption>
 </figure>
 
