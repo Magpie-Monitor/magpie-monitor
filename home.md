@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T18:30:01.252Z
+date: 2024-12-07T18:32:21.407Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1814,6 +1814,58 @@ Agent zbiera metadane o hoście na którym działa.
 </figure>
 
 Przykładowy test jednostkowy testuje rozdzielanie zebranych logów aplikacyjnych na pakiety kontenerów oraz podów wedle określonego rozmiaru. Logi są początkowo dzielone na pakiety kontenerów, które następnie grupowane są w pakiety podów o określonym rozmiarze.
+
+**Id:** TC4  
+**Tytuł:** Podział logów aplikacyjnych na pakiety kontenerów oraz podów  
+**Opis:**   
+Logi aplikacyjne przez agenta są dzielone na pakiety kontenerów oraz podów, wedle konfigurowalnego limitu rozmiaru.
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/agent/agent-pod-unit-tc-1.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu podziału logów na pakiety [źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie agenta z wejściową konfiguracją rozmiaru pakietów  
+2\. Podział logów na pakiety  
+3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
+
+**Id:** TC5  
+**Tytuł:** Odczytanie wartości sekundy z timestampu RFC  
+**Opis:**   
+Agent powinien odczytywać wartość sekundy z timestampu RFC
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/agent/agent-pod-unit-tc-2.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu wyodrębnienia sekundy z timestampu RFC [źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie agenta z wejściową konfiguracją rozmiaru pakietów  
+2\. Podział logów na pakiety  
+3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
+
+  
+**Id:** TC6  
+**Tytuł:** Usuwanie logów z kolejnej sekundy  
+**Opis:**   
+Proces deduplikacji powinien usuwać logi z kolejnej sekundy, jeżeli takowe w zbiorze występują
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/agent/agent-pod-unit-tc-3.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu usuwania ze zbioru logów z kolejnej sekundy [źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie agenta   
+2\. Przeprowadzenie procesu usuwania logów  
+3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
 
 #### 10.3.2.2 Testy integracyjne
 
