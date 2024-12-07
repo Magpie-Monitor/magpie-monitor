@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:41:53.235Z
+date: 2024-12-07T17:48:02.821Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1415,6 +1415,23 @@ W związku z ograniczeniami wielkości kontekstów, wiele z logów sugerujących
 ## 9.15 Ustawianie kanałów komunikacji (management service) {#ustawianie-kanałów-komunikacji-(management-service)}
 
 ## 9.16 Odczytywanie stanu klastra (metadata service) {#odczytywanie-stanu-klastra-(metadata-service)}
+
+Głównym zadaniem Metadata Service jest odczytywanie stanu klastra, który definiujemy jako:
+
+* zbiór działających na nim aplikacji  
+* zbiór hostów należących do klastra oraz obserwowanych przez nie plików z logami
+
+Dodatkowo, Metadata Service zajmuje się agregacją odczytanych metadanych.
+
+## 9.16.1 Odbieranie metadanych o aplikacjach oraz hostach
+
+Metadane o aplikacjach oraz hostach są odbierane z brokera Kafki, a następnie zapisywane do bazy danych MongoDB.
+
+<figure>
+    <img src="/metadata-service/metadata-application-state.png">
+    <figcaption>Rysunek 1: Test filtrowania indexów ES na podstawie daty, źródła logów oraz identyfikatora klastra [źródło opracowanie własne]</figcaption>
+</figure>
+
 
 ## 9.17 Zabezpieczenia aplikacji (management service) {#zabezpieczenia-aplikacji-(management-service)}
 
