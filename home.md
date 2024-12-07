@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T20:49:26.703Z
+date: 2024-12-07T20:54:46.150Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -820,7 +820,19 @@ Wiadomość zawierająca logi z aplikacji wraz z metadanymi o aplikacji, dacie w
 
 ### Przesyłanie zagregowanych metadanych hostów - NodeMetadataUpdated (Metadata Service): 
 
+<figure>
+    <img src="/asyncapi-screens/node-metadata-updated-pub.png">
+    <figcaption>Rysunek X: NodeMetadataUpdated: Zrzut ekranu z AsyncAPI [źródło opracowanie własne]</figcaption>
+</figure>
+
+<figure>
+    <img src="/asyncapi-screens/node-metadata-updated-sub.png">
+    <figcaption>Rysunek X: NodeMetadataUpdated: Zrzut ekranu z AsyncAPI [źródło opracowanie własne]</figcaption>
+</figure>
+
 ### Przesyłanie zagregowanych metadanych klastrów - ClusterMetadataUpdated (Metadata Service): 
+
+
 
 ### 8.1 Projekt interfejsu {#projekt-interfejsu}
 
