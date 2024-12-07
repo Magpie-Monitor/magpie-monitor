@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:38:52.432Z
+date: 2024-12-07T17:39:36.994Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1193,12 +1193,12 @@ Dane dzielone są na mniejsze pakiety *Chunk*, które przesyłane są do brokera
 
 <figure>
     <img src="/agent/agent-gather-node-metadata.png">
-    <figcaption>Rysunek X: Pakiet daaaanych [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Zbieranie metadanych o hostach [źródło opracowanie własne]</figcaption>
 </figure>
 
 <figure>
     <img src="/agent/agent-node-metadata.png">
-    <figcaption>Rysunek X: Pakiet daaaanych [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Pakiet metadanych [źródło opracowanie własne]</figcaption>
 </figure>
 
 
