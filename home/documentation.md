@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T15:55:46.345Z
+date: 2024-12-07T15:56:09.701Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1721,7 +1721,7 @@ Roszerzeniem projektu mający duży potencjał na obiniżenie kosztów i dodatko
 
 Mniej domenowym aspektem, który był kluczowy podczas realizacji Magpie Monitor, było wykorzystywanie architektury mikroserwisowej zgodnie z konceptem event-driven (zorientowanej na wydarzenia). Pozwoliło to na drastyczne zwiększenie odporności na awarie przez usunięcie powiązań pomiędzy mikroserwisami oraz zwiększenie potencjału na skalowanie zarówno horyzontalne jak i wertykalne.
 
-### 11.2.3 
+### 11.2.3 Potencjał rozwoju
 
 W świecie rosnących złożoności systemów komputerowych administratorzy nie są w stanie analizować regularnie stanu wszystkich aplikacji w kontekście logów jakie produkują, dlatego branża AiOps w coraz większym stopniu stawia na automatyzacje zadań w zakresie analizy incydentów i rozwiązanie Magpie Monitor wpisuje się w ten trend. 
  
