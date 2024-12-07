@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T15:43:14.242Z
+date: 2024-12-07T15:55:46.345Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1691,29 +1691,40 @@ Poniższy wykres przedstawia liczbę kontrybucji (commitów) do głównej gałę
 
 
 ## 11.2 Wnioski {#wnioski}
+### 11.2.1 Wnioski z konceptu projektu
 Projekt został zaplanowany jako dowód konceptu (Proof of concept) zintegrowanego systemu do zbierania i przetwarzania logów z dużych
 klastów komputerowych, i w ramach tego celu udało się zweryfikować, że rozwiązanie takie jest nie tylko możliwe
 technicznie, lecz również posiada sens biznesowy.
 
+
+### 11.2.2 Wnioski z implementacji projektu
 Podczas pracy z modelem oferowanym przez OpenAI oraz pracy z Batch API, odkryto,
 że rozwiązanie to pomimo atrakcyjnego modelu biznesowego (dostosowanego do dużej ilości danych), nie jest rowiązaniem bezproblemowych.
 
-W trakcie implementacji odkryto nieprzewidywalne odkładanie zadań przez Batch API co powodowało utrudnione
-testowanie nowych funkcjonalności end-2-end.
+W trakcie implementacji odkryto nieprzewidywalne odkładanie zadań przez Batch API co powodowało utrudnione testowanie nowych funkcjonalności end-2-end.
+Dodatkowo, na niektóre żądania były interfejs zwracał błąd z kodem **500** bez podania przyczyny.
 
-Dodatkowo, zaobserwowano jak dużą kontrole nad dokładnością obserwacji modelu ma rozmiar danych umieszczonych w jednym kontekście.
-Zmniejszając tą wartość możliwe było uzyskiwanie lepszych obserwacji kosztem większego kosztu.
+Dodatkowo, zaobserwowano jak dużą kontrole nad dokładnością obserwacji modelu ma rozmiar danych umieszczonych w jednym kontekście. Zmniejszając tą wartość możliwe było uzyskiwanie lepszych obserwacji kosztem większego kosztu.
 
-Jednym z głównych potencjałów na wartość intelektualną w tym rozwiązaniu było filtrowanie logów przed przetwarzaniem przez model językowy.
-Perfekcyjne rozwiązanie minimalizuje koszty przetwarzania logów, jednocześnie nie zmniejszając ich dokładności.
+Jednym z głównych potencjałów na wartość intelektualną w tym rozwiązaniu było filtrowanie logów przed przetwarzaniem przez model językowy. Perfekcyjne rozwiązanie minimalizuje koszty przetwarzania logów, jednocześnie nie zmniejszając ich dokładności.
 
-Wypracowanie rozwiązanie, pomimo tego że prymitywne, opierające się na bogatym,
-domenowych zbiorze słów kluczowych pozwaliło na drastyczną redukcje kosztów. W tym przypadku paramerem, który dodatkowo
-pozwalał na kontrolę zachowania filtra były maksymalne rozmiary pojedyńczych logów.
-Im wyższy maksymalny rozmiar loga tym filtr bardziej ograniczający ostateczną liczbę logów.
+Wypracowane rozwiązanie, opierające się na bogatym,
+domenowych zbiorze słów kluczowych pozwaliło na drastyczną redukcje kosztów. 
+W tym przypadku nietypowym paramerem, który dodatkowo pozwalał na kontrolę zachowania filtra były maksymalne rozmiary pojedyńczych logów.
+Im wyższy maksymalny rozmiar loga tym filtr bardziej ograniczał ostateczną liczbę logów.
 
 Filtr ma potencjał na wykorzystanie tańszego modelu do analizy istotności loga i filtrowanie go przy jego użyciu.
 Potencjalnymi rozwiązaniami są klasyfikatory lub małe modele językowe.
+
+Roszerzeniem projektu mający duży potencjał na obiniżenie kosztów i dodatkowe usprawnienia w obserwacji logów oferuje własny model językowy, który byłby mniejszy ale lepiej dotrenowany do konkretnego zadania, takiego jak wykrywanie anomalii, tworzenie podsumowań czy rekomendację rozwiązań.
+
+
+Mniej domenowym aspektem, który był kluczowy podczas realizacji Magpie Monitor, było wykorzystywanie architektury mikroserwisowej zgodnie z konceptem event-driven (zorientowanej na wydarzenia). Pozwoliło to na drastyczne zwiększenie odporności na awarie przez usunięcie powiązań pomiędzy mikroserwisami oraz zwiększenie potencjału na skalowanie zarówno horyzontalne jak i wertykalne.
+
+### 11.2.3 
+
+W świecie rosnących złożoności systemów komputerowych administratorzy nie są w stanie analizować regularnie stanu wszystkich aplikacji w kontekście logów jakie produkują, dlatego branża AiOps w coraz większym stopniu stawia na automatyzacje zadań w zakresie analizy incydentów i rozwiązanie Magpie Monitor wpisuje się w ten trend. 
+ 
 
 12. # Dokumentacja użytkownika {#dokumentacja-użytkownika}
 
