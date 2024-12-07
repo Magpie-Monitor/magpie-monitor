@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:51:42.089Z
+date: 2024-12-07T17:52:29.031Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1466,10 +1466,9 @@ Powyższy obrazek przedstawia przebieg procesu agregacji, w którym odczytywany 
 
 Powyższy obrazek przedstawia proces generowania nowego, zagregowanego stanu w przypadku zmiany względem poprzedniego.
 
-
 <figure>
-    <img src="/metadata-service/metadata-generate-aggregated-application-state-for-cluster.png">
-    <figcaption>Rysunek X: Generowanie zagregowanych metadanych dla klastra [źródło opracowanie własne]</figcaption>
+    <img src="/metadata-service/metadata-aggregated-application-metadata.png">
+    <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
 </figure>
 
 
