@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T18:29:41.541Z
+date: 2024-12-07T18:30:01.252Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1810,7 +1810,7 @@ Agent zbiera metadane o hoście na którym działa.
 
 <figure>
     <img src="/agent/agent-pod-unit-example.png">
-    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu zbierającego metadane hostów [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Przykładowy test jednostkowy Pod Agenta [źródło opracowanie własne]</figcaption>
 </figure>
 
 Przykładowy test jednostkowy testuje rozdzielanie zebranych logów aplikacyjnych na pakiety kontenerów oraz podów wedle określonego rozmiaru. Logi są początkowo dzielone na pakiety kontenerów, które następnie grupowane są w pakiety podów o określonym rozmiarze.
