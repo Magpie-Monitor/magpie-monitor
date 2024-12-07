@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:35:48.359Z
+date: 2024-12-07T17:36:35.210Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1251,7 +1251,7 @@ Agent cyklicznie odczytuje oraz przesyła metadane o aplikacjach aktualnie dzia�
 </figure>
 
 <figure>
-    <img src="/agent/agent-metadata.png">
+    <img src="/agent/agent-application-metadata.png">
     <figcaption>Rysunek X: Pakiet danych [źródło opracowanie własne]</figcaption>
 </figure>
 
