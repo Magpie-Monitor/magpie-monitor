@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:54:10.473Z
+date: 2024-12-07T17:54:26.619Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1485,7 +1485,7 @@ Analogiczny proces przeprowadzany jest dla agregacji metadanych hostów.
 Dla agregacji metadanych klastrów, proces nieco się różni. Unikalny zbiór klastrów jest odczytywany na podstawie ich identyfikatorów, zawartych w metadanych aplikacji oraz hostów, przesłanych do Metadata Service w zadanym przedziale czasowym.
 
 <figure>
-    <img src="/metadata-service/publish-application-metadata-updated-event.png">
+    <img src="/metadata-service/metadata-get-unique-cluster-ids-for-period.png">
     <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
 </figure>
 
