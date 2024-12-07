@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T15:36:50.445Z
+date: 2024-12-07T15:37:31.826Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1165,14 +1165,14 @@ Konfiguracja logów odbywa się w pliku values.yaml paczki wdrożeniowej Helm Ch
 
 <figure>
     <img src="/agent/agent-watch-files.png">
-    <figcaption>Rysunek X: Konfiguracja Agenta [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Obserwowanie plików przez Agenta [źródło opracowanie własne]</figcaption>
 </figure>
 
 Podczas uruchomienia, node Agent obserwuje wszystkie skonfigurowane pliki.
 
 <figure>
     <img src="/agent/agent-watch-file.png">
-    <figcaption>Rysunek X: Konfiguracja Agenta [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Obserwowanie pliku przez Agenta [źródło opracowanie własne]</figcaption>
 </figure>
 
 Obserwowanie pliku polega na cyklicznym sprawdzeniu jego rozmiaru i porównaniu z rozmiarem poprzedniego odczytu, który zapisany jest w bazie danych Redis. Jeśli rozmiar zmienił się względem poprzedniego odczytu, agent odczytuje nieodczytane wcześniej dane.
