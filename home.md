@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:52:29.031Z
+date: 2024-12-07T17:52:53.741Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1470,6 +1470,15 @@ Powyższy obrazek przedstawia proces generowania nowego, zagregowanego stanu w p
     <img src="/metadata-service/metadata-aggregated-application-metadata.png">
     <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
 </figure>
+
+<figure>
+    <img src="/metadata-service/publish-application-metadata-updated-event.png">
+    <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
+</figure>
+
+Wynik procesu agregacji metadanych jest emitowany w postaci wydarzenia do brokera Kafki.
+
+Analogiczny proces przeprowadzany jest dla agregacji metadanych hostów.
 
 
 ## 9.17 Zabezpieczenia aplikacji (management service) {#zabezpieczenia-aplikacji-(management-service)}
