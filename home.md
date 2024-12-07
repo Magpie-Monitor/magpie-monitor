@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T19:08:51.335Z
+date: 2024-12-07T19:09:05.550Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2093,7 +2093,7 @@ Metadata service powinien generować zagregowane metadane o klastrach
 
 <figure>
     <img src="/metadata-service/tests/metadata-integration-tc-5.png">
-    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu generowania zagregowanych metadanych o hostach[źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu generowania zagregowanych metadanych o klastrach [źródło opracowanie własne]</figcaption>
 </figure>
 
 **Kroki testowe:**  
