@@ -1,0 +1,112 @@
+asyncapi: 2.6.0
+id: "urn:asyncapi:example.com:reports-api:1.0.0"
+defaultContentType: application/json
+info:
+  title: Logs Ingestion Service API
+  version: v1
+  contact:
+    name: API Support
+    email: support@example.com
+    url: https://example.com/contact
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+tags:
+  - name: logs
+    description: Handles application and node logs.
+
+channels:
+  application/logs:
+    subscribe:
+      operationId: subscribeToApplicationLogs
+      message:
+        $ref: "#/components/messages/ApplicationLogsMessage"
+  node/logs:
+    subscribe:
+      operationId: subscribeToNodeLogs
+      message:
+        $ref: "#/components/messages/NodeLogsMessage"
+
+components:
+  schemas:
+    ApplicationLogs:
+      type: object
+      properties:
+        clusterId:
+          type: string
+          description: The ID of the cluster.
+        kind:
+          type: string
+          description: The kind of application log.
+        collectedAtMs:
+          type: integer
+          format: int64
+          description: Timestamp when the logs were collected (in milliseconds).
+        name:
+          type: string
+          description: Name of the application.
+        namespace:
+          type: string
+          description: Namespace of the application.
+        pods:
+          type: array
+          items:
+            $ref: "#/components/schemas/PodLogs"
+
+    PodLogs:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the pod.
+        containers:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContainerLogs"
+
+    ContainerLogs:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the container.
+        image:
+          type: string
+          description: Image used in the container.
+        content:
+          type: string
+          description: Log content from the container.
+
+    NodeLogs:
+      type: object
+      properties:
+        clusterId:
+          type: string
+          description: The ID of the cluster.
+        kind:
+          type: string
+          description: The kind of node log.
+        collectedAtMs:
+          type: integer
+          format: int64
+          description: Timestamp when the logs were collected (in milliseconds).
+        name:
+          type: string
+          description: Name of the node.
+        filename:
+          type: string
+          description: Name of the file containing the logs.
+        content:
+          type: string
+          description: Log content from the node.
+
+  messages:
+    ApplicationLogsMessage:
+      messageId: applicationLogsMessage
+      payload:
+        $ref: "#/components/schemas/ApplicationLogs"
+
+    NodeLogsMessage:
+      messageId: nodeLogsMessage
+      payload:
+        $ref: "#/components/schemas/NodeLogs"

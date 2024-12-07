@@ -13,7 +13,7 @@ func (l *TestLog) GetContent() *string {
 	return &l.Content
 }
 
-func TestDecode(t *testing.T) {
+func TestSplitLogsIntoPackets(t *testing.T) {
 	testsCases := []struct {
 		description string
 		rawString   *string

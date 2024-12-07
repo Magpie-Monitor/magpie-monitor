@@ -20,8 +20,6 @@ const LOGS_INGESTION_TEST_INDEX = "ingestion-test"
 
 func TestApplicationLogsStreamReader(t *testing.T) {
 
-	fmt.Println("Started a test!")
-
 	type TestDependencies struct {
 		fx.In
 		Reader                    *logsstream.KafkaApplicationLogsStreamReader
@@ -36,8 +34,6 @@ func TestApplicationLogsStreamReader(t *testing.T) {
 		if dependencies.Reader == nil {
 			t.Fatal("Failed to load reader")
 		}
-
-		dependencies.Logger.Info("Success", zap.Any("reader", dependencies.Reader))
 
 		ctx := context.Background()
 
