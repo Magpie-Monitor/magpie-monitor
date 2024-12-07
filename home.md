@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T18:32:21.407Z
+date: 2024-12-07T18:33:05.160Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1865,6 +1865,23 @@ Proces deduplikacji powinien usuwać logi z kolejnej sekundy, jeżeli takowe w z
 **Kroki testowe:**  
 1\. Utworzenie agenta   
 2\. Przeprowadzenie procesu usuwania logów  
+3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
+
+**Id:** TC7  
+**Tytuł:** Podział logów z kontenerów na pakiety danych  
+**Opis:**   
+Logi z kontenerów powinny być dzielone na pakiety wedle zadanej konfiguracji
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/agent/agent-pod-unit-tc-4.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty podziału logów na pakiety [źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie agenta   
+2\. Przeprowadzenie procesu dzielenia logów na pakiety  
 3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
 
 #### 10.3.2.2 Testy integracyjne
