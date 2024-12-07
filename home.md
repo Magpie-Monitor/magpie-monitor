@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:56:16.663Z
+date: 2024-12-07T17:57:15.472Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1486,26 +1486,26 @@ Dla agregacji metadanych klastrów, proces nieco się różni. Unikalny zbiór k
 
 <figure>
     <img src="/metadata-service/metadata-get-unique-cluster-ids-for-period.png">
-    <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Pobranie identyfikatorów wszystkich klastrów [źródło opracowanie własne]</figcaption>
 </figure>
 
 Powyższy obrazek przedstawia pobranie unikalnego zbioru klastrów z danego okresu. Proces bazuje na zebranych metadanych aplikacji oraz hostów, a jego wynik wykorzystywany jest do dalszego porównania, czy zbiór owy uległ zmianie względem ostatniego odczytu.
 
 <figure>
     <img src="/metadata-service/metadata-compare-cluster-states.png">
-    <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Porównanie poprzedniego oraz aktualnego stanu klastra [źródło opracowanie własne]</figcaption>
 </figure>
 
 Przykład porównania, na podstawie którego w przypadku zmiany generowany jest nowy zagregowany stan.
 
 <figure>
     <img src="/metadata-service/metadata-aggregated-cluster-metadata.png">
-    <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Zagregowane metadane klastrów [źródło opracowanie własne]</figcaption>
 </figure>
 
 <figure>
     <img src="/metadata-service/metadata-publish-cluster-metadata-updated-event.png">
-    <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Publikowanie wydarzenia ze zmienionym stanem [źródło opracowanie własne]</figcaption>
 </figure>
 
 
