@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:55:47.298Z
+date: 2024-12-07T17:56:16.663Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1473,7 +1473,7 @@ Powyższy obrazek przedstawia proces generowania nowego, zagregowanego stanu w p
 
 <figure>
     <img src="/metadata-service/metadata-publish-application-metadata-updated-event.png">
-    <figcaption>Rysunek X: Zagregowane metadane aplikacji [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Publikowanie wydarzenia ze zmienionym stanem [źródło opracowanie własne]</figcaption>
 </figure>
 
 Wynik procesu agregacji metadanych jest emitowany w postaci wydarzenia do brokera Kafki.
