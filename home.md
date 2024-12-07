@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T15:32:28.546Z
+date: 2024-12-07T15:33:28.669Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1158,7 +1158,7 @@ Agent zbiera logi z hostów, obserwując pliki które użytkownik skonfiguruje p
 
 <figure>
     <img src="/agent/agent-configuration.png">
-    <figcaption>Rysunek X: Struktura plików w aplikacji klienckiej [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Konfiguracja Agenta [źródło opracowanie własne]</figcaption>
 </figure>
 
 Konfiguracja logów odbywa się w pliku values.yaml paczki wdrożeniowej Helm Chart.
