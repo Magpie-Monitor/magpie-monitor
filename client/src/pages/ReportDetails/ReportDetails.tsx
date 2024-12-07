@@ -12,11 +12,12 @@ import colors from 'global/colors';
 import IncidentList from 'components/IncidentList/IncidentList';
 import ReportHeader from './components/ReportHeader/ReportHeader';
 import {
-  genericIncidentsFromApplicationIncidents, genericIncidentsFromNodeIncidents,
+  genericIncidentsFromApplicationIncidents,
+  genericIncidentsFromNodeIncidents,
   urgencyIncidentCount,
 } from 'types/incident';
 import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
-import {useEffect, useState} from "react";
+import {useEffect, useState} from 'react';
 
 const statItems = (
   report: ReportDetails,
@@ -111,19 +112,19 @@ const ReportDetailsPage = () => {
 
   useEffect(() => {
     if (!id) {
-      return
+      return;
     }
-    const fetchReport = async (id: string) => {
+    const fetchReport = async (reportId: string) => {
       try {
-        const reportData = await ManagmentServiceApiInstance.getReport(id);
+        const reportData = await ManagmentServiceApiInstance.getReport(reportId);
         setReport(reportData);
-        setIsReportLoading(false);
       } catch (e: unknown) {
         console.error('Failed to fetch report by id', id);
       }
     };
 
     fetchReport(id);
+    setIsReportLoading(false);
   }, [id]);
 
   const navigate = useNavigate();
