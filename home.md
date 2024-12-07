@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T18:55:41.527Z
+date: 2024-12-07T19:02:57.078Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1995,15 +1995,74 @@ Agent powinien zbierać dane o działających aplikacjach oraz ich rodzajach z k
 
 ### 10.4 Testy Metadata Service
 
-
+Metadata Service został przetestowany integracyjnie, w obszarze pobierania metadanych z brokera Kafki oraz generowania zagregowanych metadanych.
 
 #### 10.4.1 Testy integracyjne 
+
+**Id:** TC1  
+**Tytuł:** Odbieranie metadanych o hostach z klastra Kubernetes  
+**Opis:**   
+Metadata service powinien odbierać metadane o hostach od Agenta
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/metadata-service/tests/metadata-integration-tc-1.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu odbierania metadanych o hostach [źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie instancji metadata service  
+2\. Wysłanie przykładowych metadanych o hostach do brokera kafki  
+3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
+
+**Id:** TC2
+**Tytuł:** Odbieranie metadanych o aplikacjach z klastra Kubernetes  
+**Opis:**   
+Metadata service powinien odbierać metadane o aplikacjach od Agenta
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/metadata-service/tests/metadata-integration-tc-2.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu odbierania metadanych o aplikacjach [źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie instancji metadata service  
+2\. Wysłanie przykładowych metadanych o aplikacjach do brokera kafki  
+3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
+
+**Id:** TC3
+**Tytuł:** Generowanie zagregowanych metadanych o hostach  
+**Opis:**   
+Metadata service powinien generować zagregowane metadane o hostach
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/metadata-service/tests/metadata-integration-tc-3.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu odbierania metadanych o aplikacjach [źródło opracowanie własne]</figcaption>
+</figure>
+
+<figure>
+    <img src="/metadata-service/tests/metadata-integration-tc-3-1.png">
+    <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty taestu odbierania metadanych o aplikacjach [źródło opracowanie własne]</figcaption>
+</figure>
+
+**Kroki testowe:**  
+1\. Utworzenie instancji metadata service  
+2\. Wysłanie przykładowych metadanych o hostach do brokera kafki  
+3\. Nasłuchiwanie na wygenerowane zagregowane metadane o hostach  
+4\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
+
+
 
 #### 10.4.2 Pokrycie testów
 
 | Pakiet                                                         | Pokrycie      |
 |----------------------------------------------------------------|---------------|
-| github.com/Magpie-Monitor/magpie-monitor/blob/main/go/services/cluster_metadata/pkg/services/metadata_service.go       | 28.5%   
+| github.com/Magpie-Monitor/magpie-monitor/blob/main/go/services/cluster_metadata/pkg/services/metadata_service.go       | 76.8%   
 
 ## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
 
