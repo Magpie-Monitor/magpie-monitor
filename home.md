@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:58:53.342Z
+date: 2024-12-07T18:23:03.111Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1725,10 +1725,39 @@ Testami były objęte głównie funkcje, które zawierają niebanalną logikę b
 | github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/cmd/logs_ingestion | 0.0%          |
 | github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/logs_stream   | 59.0%         |
 
-## 10.3 Testy agenta
+## 10.3 Testy Agenta
 
+Agent przetestowany został jednostkowo w zakresie funkcjonalności rozdzielania zebranych logów na pakiety danych oraz deduplikacji logów, czyli procesu, w którym ze zbioru zebranych danych usuwane są logi, które powinny być częścią kolejnej paczki przesyłanych danych, a ich obecność w zbiorze wynika z niedokładności API klastra Kubernetes. W testach integracyjnych skupiono się natomiast na testowaniu integracji z API Kubernetes oraz zbieraniu logów z klastra.
 
+## 10.3.1 Testy Node Agenta
 
+## 10.3.1.1 Testy jednostkowe
+
+<figure>
+    <img src="/agent/agent-node-integration-example.png">
+    <figcaption>Rysunek 2: Test odczytywania logów z pliku [źródło opracowanie własne]</figcaption>
+</figure>
+
+Przykładowy test przedstawia przyjęte podejście, permutacje danych wejściowych oraz wyjściowych są przekazywane do testu, który następnie weryfikuje poprawność działania funkcji.
+
+**Id:** TC1  
+**Tytuł:** Rozdzielanie zebranych logów na pakiety o podanym rozmiarze  
+**Opis:**   
+Agent rozdziela logi na pakiety danych o podanym rozmiarze.
+
+**Warunki wstępne i oczekiwane rezultaty:**
+
+<figure>
+    <img src="/agent/agent-node-unit-tc-1.png">
+    <figcaption>Rysunek 2: Test odczytywania logów z pliku [źródło opracowanie własne]</figcaption>
+</figure>
+
+Powyższe zdjęcie przedstawia wejściowe logi, rozmiar pakietu oraz spodziewaną liczbę pakietów dla wybranych przypadków testowych.
+
+**Kroki testowe:**  
+1\. Pobranie logów  
+2\. Rozdzielenie logi na pakiety  
+3\. Sprawdzenie czy liczba pakietów jest prawidłowa
 
 ## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
 
