@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:36:35.210Z
+date: 2024-12-07T17:37:10.184Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1190,6 +1190,13 @@ Obserwowanie pliku polega na cyklicznym sprawdzeniu jego rozmiaru i porównaniu 
 Dane dzielone są na mniejsze pakiety *Chunk*, które przesyłane są do brokera Kafki.
 
 ## 9.12.2 Zbieranie metadanych z hostów
+
+<figure>
+    <img src="/agent/agent-gather-node-metadata.png">
+    <figcaption>Rysunek X: Pakiet danych [źródło opracowanie własne]</figcaption>
+</figure>
+
+Agent cyklicznie odczytuje oraz przesyła metadane o swoim działaniu, tj. id klastra na którym działa, nazwę hosta w klastrze na którym działa dana replika agenta oraz pliki obserwowane przez agenta. Odczytane metadane są następnie przesyłane do brokera Kafki.
 
 ## 9.12.3 Zbieranie logów z aplikacji
 
