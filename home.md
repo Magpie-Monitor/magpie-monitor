@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:57:15.472Z
+date: 2024-12-07T17:58:53.342Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1724,6 +1724,10 @@ Testami były objęte głównie funkcje, które zawierają niebanalną logikę b
 | github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/config        | 0.0%          |
 | github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/cmd/logs_ingestion | 0.0%          |
 | github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/logs_stream   | 59.0%         |
+
+## 10.3 Testy agenta
+
+
 
 
 ## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
