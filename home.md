@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T19:13:39.580Z
+date: 2024-12-07T20:49:26.703Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -805,17 +805,26 @@ Wiadomość zawierająca logi z aplikacji wraz z metadanymi o aplikacji, dacie w
     <figcaption>Rysunek X: ApplicationLogs: Zrzut ekranu z AsyncAPI [źródło opracowanie własne]</figcaption>
 </figure>
 
+### Przesyłanie zagregowanych metadanych aplikacji - ApplicationMetadataUpdated (Metadata Service): 
+
+<figure>
+    <img src="/asyncapi-screens/application-metadata-updated-pub.png">
+    <figcaption>Rysunek X: ApplicationMetadataUpdated: Zrzut ekranu z AsyncAPI [źródło opracowanie własne]</figcaption>
+</figure>
+
+<figure>
+    <img src="/asyncapi-screens/application-metadata-updated-sub.png">
+    <figcaption>Rysunek X: ApplicationMetadataUpdated: Zrzut ekranu z AsyncAPI  [źródło opracowanie własne]</figcaption>
+</figure>
+
+
+### Przesyłanie zagregowanych metadanych hostów - NodeMetadataUpdated (Metadata Service): 
+
+### Przesyłanie zagregowanych metadanych klastrów - ClusterMetadataUpdated (Metadata Service): 
 
 ### 8.1 Projekt interfejsu {#projekt-interfejsu}
 
 ### 8.2 Diagramy procesów {#diagramy-procesów}
-
-#### 8.2.1 Diagram procesu generowania raportu
-
-<figure>
-    <img src="/sequence-diagrams/reports-generation-sequence.svg">
-    <figcaption>Rysunek X: Diagram procesu generowania raportu [źródło opracowanie własne]</figcaption>
-</figure>
 
 Generowanie raportu jest procesem, który odbywa się na żądanie użytkownika  i zakłada  przejście przez Aplikację webową (Web Client), Management Service oraz Reports Service.   
 W ramach tego procesu użytkownik zgłasza żądanie wykorzystując aplikację webową jako klienta i definiuje tam czy raport powinien być cykliczny (wykonywać się automatycznie co jakiś czas) czy wykonany jednorazowo. Jeżeli raport jest przygotowany na działanie cykliczne to raport ten zostanie uruchomiony co przydzielony okres w przyszłości. W przeciwnym przypadku żądanie jest wysyłane natychmiast. 
