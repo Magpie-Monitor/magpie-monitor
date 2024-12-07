@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:48:02.821Z
+date: 2024-12-07T17:48:46.821Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1429,7 +1429,14 @@ Metadane o aplikacjach oraz hostach są odbierane z brokera Kafki, a następnie 
 
 <figure>
     <img src="/metadata-service/metadata-application-state.png">
-    <figcaption>Rysunek 1: Test filtrowania indexów ES na podstawie daty, źródła logów oraz identyfikatora klastra [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Odbierane metadane o aplikacjach [źródło opracowanie własne]</figcaption>
+</figure>
+
+Przykładowe metadane zbierane o aplikacjach.
+
+<figure>
+    <img src="/metadata-service/metadata-consume-application-metadata.png">
+    <figcaption>Rysunek X: Odbierane metadane o aplikacjach [źródło opracowanie własne]</figcaption>
 </figure>
 
 
