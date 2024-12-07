@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:48:46.821Z
+date: 2024-12-07T17:49:40.547Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1439,6 +1439,18 @@ Przykładowe metadane zbierane o aplikacjach.
     <figcaption>Rysunek X: Odbierane metadane o aplikacjach [źródło opracowanie własne]</figcaption>
 </figure>
 
+Powyższy obrazek przedstawia proces zbierania metadanych dla aplikacji, proces ten jest analogiczny dla hostów.
+
+## 9.16.2 Odbieranie metadanych o aplikacjach oraz hostach
+
+Zapisane do bazy metadane są następnie odczytywane przez proces agregacji. Agregacja jest procesem cyklicznym, który odbywa się co zadany, konfigurowalny przedział czasowy. Celem procesu agregacji jest przeprowadzenie procesu spłaszczenia otrzymanych metadanych dla każdego zarejestrowanego klastra. Spłaszczone metadane są następnie porównywane z ostatnim odczytem, aby w przypadku zmiany wyemitować zdarzenie zawierające najnowszy stan.
+
+<figure>
+    <img src="/metadata-service/metadata-poll-for-application-state-change.png">
+    <figcaption>Rysunek X: Cykliczne sprawdzanie zmian stanu [źródło opracowanie własne]</figcaption>
+</figure>
+
+Powyższy obrazek przedstawia cyklicznie uruchamiany proces agregacji metadanych dla aplikacji.
 
 ## 9.17 Zabezpieczenia aplikacji (management service) {#zabezpieczenia-aplikacji-(management-service)}
 
