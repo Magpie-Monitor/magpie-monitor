@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T15:56:09.701Z
+date: 2024-12-07T16:00:00.285Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
