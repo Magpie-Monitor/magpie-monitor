@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T17:40:31.734Z
+date: 2024-12-07T17:40:44.645Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1229,7 +1229,7 @@ W każdej z przestrzeni, agent pobiera logi z obiektów Kubernetes typu Deployme
 
 <figure>
     <img src="/agent/agent-fetch-deployment-logs-since-time.png">
-    <figcaption>Rysunek X: Zbieranie logów zasobu Deployment [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Zbieranie logów zasobu Pod [źródło opracowanie własne]</figcaption>
 </figure>
 
 <figure>
