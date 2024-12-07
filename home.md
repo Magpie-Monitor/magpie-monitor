@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T18:39:27.546Z
+date: 2024-12-07T18:42:16.034Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1250,7 +1250,7 @@ W każdej z przestrzeni, agent pobiera logi z obiektów Kubernetes typu Deployme
 Powyższe obrazki przedstawiają przykład zbierania logów z obiektu typu Deployment. Dla danego Deploymentu pobierane są wszystkie należące do niego pody, z których logi są pobierane oraz dzielone na pakiety Chunk. Pakiety są następnie przesyłane do brokera Kafki. Analogiczny proces zachodzi również dla obiektów typu StatefulSet oraz DaemonSet.
 
 <figure>
-    <img src="/agent/agent-kubernetes-api-client.png">
+    <img src="/agent/agent-kubernetes-client.png">
     <figcaption>Rysunek X: Klient API Kubernetes [źródło opracowanie własne]</figcaption>
 </figure>
 
