@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T15:21:15.689Z
+date: 2024-12-07T15:29:54.422Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1151,6 +1151,19 @@ Struktura aplikacji klienckiej została zaprojektowana zgodnie z najlepszymi pra
 ## 9.11. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-(scheduling-raportów,-management-service)}
 
 ## 9.12 Zbieranie logów (agent) {#zbieranie-logów-(agent)}
+
+## 9.12.1 Zbieranie logów z hostów
+
+Agent zbiera logi z hostów, obserwując pliki które użytkownik skonfiguruje podczas wdrożenia. 
+
+Konfiguracja logów odbywa się w pliku values.yaml paczki wdrożeniowej Helm Chart.
+
+Podczas uruchomienia, node Agent obserwuje wszystkie skonfigurowane pliki.
+
+Obserwowanie pliku polega na cyklicznym sprawdzeniu jego rozmiaru i porównaniu z rozmiarem poprzedniego odczytu, który zapisany jest w bazie danych Redis. Jeśli rozmiar zmienił się względem poprzedniego odczytu, agent odczytuje nieodczytane wcześniej dane.
+
+Dane dzielone są na mniejsze pakiety *Chunk*, które przesyłane są do brokera Kafki.
+
 
 ## 9.13 Zapisywanie logów (ingestion service) {#zapisywanie-logów-(ingestion-service)}
 
