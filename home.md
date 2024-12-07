@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-07T16:00:00.285Z
+date: 2024-12-07T17:28:36.281Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1188,6 +1188,12 @@ Obserwowanie pliku polega na cyklicznym sprawdzeniu jego rozmiaru i porównaniu 
 </figure>
 
 Dane dzielone są na mniejsze pakiety *Chunk*, które przesyłane są do brokera Kafki.
+
+## 9.12.2 Zbieranie metadanych z hostów
+
+## 9.12.3 Zbieranie logów z aplikacji
+
+## 9.12.3 Zbieranie logów z aplikacji
 
 
 ## 9.13 Zapisywanie logów (ingestion service) {#zapisywanie-logów-(ingestion-service)}
