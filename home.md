@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T17:17:30.460Z
+date: 2024-12-08T17:18:25.602Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -321,9 +321,9 @@ Jeśli liczba logów przekracza ograniczenia wybranego modelu, system powinien p
 
 * System powinien być w stanie obserwować dowolną aplikację, która została umieszczona na klastrze Kubernetesa.
 
-  3. ## Wymagania funkcjonalne {#wymagania-funkcjonalne}
+## 3. Wymagania funkcjonalne {#wymagania-funkcjonalne}
 
-     Wymagania funkcjonalne to specyficzne, szczegółowe opisy tego, co system, produkt lub aplikacja ma robić, aby spełnić potrzeby użytkownika i osiągnąć zamierzone cele.  
+Wymagania funkcjonalne to specyficzne, szczegółowe opisy tego, co system, produkt lub aplikacja ma robić, aby spełnić potrzeby użytkownika i osiągnąć zamierzone cele.  
      	Poniższa tabela prezentuje wszystkie wymagania funkcjonalne dla produktu Magpie Monitor:  
        
      
