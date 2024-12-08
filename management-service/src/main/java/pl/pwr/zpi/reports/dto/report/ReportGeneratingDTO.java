@@ -9,7 +9,8 @@ public record ReportGeneratingDTO(
         String clusterId,
         ReportType reportType,
         Long sinceMs,
-        Long toMs
+        Long toMs,
+        Long requestedAtMs
 
 ) {
 
@@ -20,6 +21,7 @@ public record ReportGeneratingDTO(
                 .reportType(reportGenerationRequestMetadata.getReportType())
                 .sinceMs(reportGenerationRequestMetadata.getCreateReportRequest().sinceMs())
                 .toMs(reportGenerationRequestMetadata.getCreateReportRequest().toMs())
+                .requestedAtMs(reportGenerationRequestMetadata.getRequestedAt())
                 .build();
     }
 }

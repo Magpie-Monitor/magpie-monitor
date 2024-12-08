@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.pwr.zpi.reports.dto.report.*;
 import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentDTO;
+import pl.pwr.zpi.reports.dto.report.application.ApplicationIncidentSimplifiedDTO;
 import pl.pwr.zpi.reports.dto.report.node.NodeIncidentDTO;
+import pl.pwr.zpi.reports.dto.report.node.NodeIncidentSimplifiedDTO;
 import pl.pwr.zpi.reports.dto.request.CreateReportRequest;
 import pl.pwr.zpi.reports.dto.request.CreateReportScheduleRequest;
 import pl.pwr.zpi.reports.entity.report.application.ApplicationIncidentSource;
@@ -53,7 +55,7 @@ public class ReportsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ReportSummaryDTO>> getReportsOnDemand(@RequestParam String reportType) {
+    public ResponseEntity<List<ReportSummaryDTO>> getReportSummaries(@RequestParam String reportType) {
         return ResponseEntity.ok().body(reportsService.getReportSummaries(reportType));
     }
 
@@ -65,6 +67,11 @@ public class ReportsController {
     @GetMapping("/{id}")
     public ResponseEntity<ReportDetailedSummaryDTO> getReportById(@PathVariable String id) {
         return ResponseEntity.of(reportsService.getReportDetailedSummaryById(id));
+    }
+
+    @GetMapping("/latest")
+    public ResponseEntity<ReportDetailedSummaryDTO> getNewestReport() {
+        return ResponseEntity.of(reportsService.getLatestReportDetailedSummary());
     }
 
     @GetMapping("/{id}/incidents")
@@ -87,7 +94,7 @@ public class ReportsController {
     }
 
     @GetMapping("/application-incidents/{id}")
-    public ResponseEntity<ApplicationIncidentDTO> getApplicationIncidentById(@PathVariable String id) {
+    public ResponseEntity<ApplicationIncidentSimplifiedDTO> getApplicationIncidentById(@PathVariable String id) {
         return ResponseEntity.of(reportsService.getApplicationIncidentById(id));
     }
 
@@ -98,7 +105,7 @@ public class ReportsController {
     }
 
     @GetMapping("/node-incidents/{id}")
-    public ResponseEntity<NodeIncidentDTO> getNodeIncidentById(@PathVariable String id) {
+    public ResponseEntity<NodeIncidentSimplifiedDTO> getNodeIncidentById(@PathVariable String id) {
         return ResponseEntity.of(reportsService.getNodeIncidentById(id));
     }
 

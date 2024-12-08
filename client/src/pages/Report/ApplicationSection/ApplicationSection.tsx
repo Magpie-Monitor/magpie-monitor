@@ -152,7 +152,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
 
     return (
         <SectionComponent
-            icon={<SVGIcon iconName="application-icon" />}
+            icon={<SVGIcon iconName="application-incident-metadata-icon" />}
             title="Applications"
             callback={() => handleOpenModal()}
         >

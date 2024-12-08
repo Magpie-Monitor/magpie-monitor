@@ -21,6 +21,7 @@ public class ReportGenerationRequestMetadata {
     private ReportRequestFailed error;
     private CreateReportRequest createReportRequest;
     private ReportType reportType;
+    private long requestedAt;
 
     public static ReportGenerationRequestMetadata fromCreateReportRequest(
             String correlationId,
@@ -32,6 +33,7 @@ public class ReportGenerationRequestMetadata {
                 .status(ReportGenerationStatus.GENERATING)
                 .createReportRequest(createReportRequest)
                 .reportType(reportType)
+                .requestedAt(System.currentTimeMillis())
                 .build();
     }
 

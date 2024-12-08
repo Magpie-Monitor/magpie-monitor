@@ -52,6 +52,7 @@ export interface ReportAwaitingGeneration {
   reportType: ReportType;
   sinceMs: number;
   toMs: number;
+  requestedAtMs: number;
   [key: string]: string | number;
 }
 
@@ -70,13 +71,14 @@ export interface ReportDetails {
   id: string;
   clusterId: string;
   title: string;
-  urgency: UrgencyLevel;
+  urgency: UrgencyLevel | null;
+  requestedAtMs: number;
+  sinceMs: number;
+  toMs: number;
   totalApplicationEntries: number;
   totalNodeEntries: number;
   analyzedApplications: number;
   analyzedNodes: number;
-  sinceMs: number;
-  toMs: number;
 }
 
 export interface ClusterSummary {
@@ -162,7 +164,8 @@ export interface ApplicationIncident {
   urgency: UrgencyLevel;
   accuracy: AccuracyLevel;
   recommendation: string;
-  sources: ApplicationIncidentSource[];
+  sinceMs: number;
+  toMs: number;
 }
 
 export interface ApplicationIncidentSource {
@@ -184,7 +187,8 @@ export interface NodeIncident {
   accuracy: AccuracyLevel;
   summary: string;
   recommendation: string;
-  sources: NodeIncidentSource[];
+  sinceMs: number;
+  toMs: number;
 }
 
 export interface AllIncidentsFromReport {
@@ -504,6 +508,16 @@ class ManagmentServiceApi {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get(
       '/api/v1/reports/await-generation',
+    );
+    return response.data;
+  }
+
+  public async getLatestReport(): Promise<
+    ReportDetails
+  > {
+    await this.refreshTokenIfExpired();
+    const response = await this.axiosInstance.get(
+      '/api/v1/reports/latest',
     );
     return response.data;
   }

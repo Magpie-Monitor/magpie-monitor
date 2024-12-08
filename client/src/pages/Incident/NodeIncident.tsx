@@ -12,7 +12,6 @@ import RecommendationSection from './components/RecommendationSection/Recommenda
 import IncidentHeader from './components/IncidentHeader/IncidentHeader';
 import NodeMetadataSection from './components/NodeMetadataSection/NodeMetadataSection';
 import NodeSourceSection from './components/NodeSourceSection/NodeSourceSection';
-import { getFirstAndLastDateFromTimestamps } from 'lib/date';
 import ConfigurationSection from './components/ConfigurationSection/ConfigurationSection';
 import { animated, useTransition } from '@react-spring/web';
 import usePaginatedContent from 'hooks/usePaginatedContent';
@@ -114,14 +113,10 @@ const NodeIncidentPage = () => {
     );
   }
 
-  const [startDate, endDate] = getFirstAndLastDateFromTimestamps(
-    incident.sources.map(({ timestamp }) => timestamp),
-  );
-
   return (
     <PageTemplate
       header={
-        <IncidentHeader id={id!} name={incident.title} timestamp={startDate} />
+        <IncidentHeader id={id!} name={incident.title} timestamp={incident.sinceMs} />
       }
       scrollRef={pageTemplateRef}
     >
@@ -130,8 +125,8 @@ const NodeIncidentPage = () => {
           <div className="incident__row--two-columns">
             <NodeMetadataSection
               nodeName={incident.nodeName}
-              startDateMs={startDate}
-              endDateMs={endDate}
+              startDateMs={incident.sinceMs}
+              endDateMs={incident.toMs}
             />
 
             <ConfigurationSection

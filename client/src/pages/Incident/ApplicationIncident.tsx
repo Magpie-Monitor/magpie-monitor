@@ -14,7 +14,6 @@ import RecommendationSection from './components/RecommendationSection/Recommenda
 // eslint-disable-next-line
 import ApplicationSourceSection from './components/ApplicationSourceSection/ApplicationSourceSection';
 import IncidentHeader from './components/IncidentHeader/IncidentHeader';
-import { getFirstAndLastDateFromTimestamps } from 'lib/date';
 import ConfigurationSection from './components/ConfigurationSection/ConfigurationSection';
 import { useTransition, animated } from '@react-spring/web';
 import useInfiniteScroll from 'hooks/useInfiniteScroll';
@@ -117,14 +116,10 @@ const ApplicationIncidentPage = () => {
     );
   }
 
-  const [startDate, endDate] = getFirstAndLastDateFromTimestamps(
-    incident.sources.map(({ timestamp }) => timestamp),
-  );
-
   return (
     <PageTemplate
       header={
-        <IncidentHeader id={id!} name={incident.title} timestamp={startDate} />
+        <IncidentHeader id={id!} name={incident.title} timestamp={incident.sinceMs} />
       }
       scrollRef={pageTemplateRef}
     >
@@ -134,8 +129,8 @@ const ApplicationIncidentPage = () => {
             <ApplicationMetadataSection
               clusterId={incident.clusterId}
               applicationName={incident.applicationName}
-              startDateMs={startDate}
-              endDateMs={endDate}
+              startDateMs={incident.sinceMs}
+              endDateMs={incident.toMs}
             />
             <ConfigurationSection
               accuracy={incident.accuracy}

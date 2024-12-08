@@ -1,10 +1,10 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import PageTemplate from 'components/PageTemplate/PageTemplate';
 import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/HeaderWithIcon';
-import Table, { TableColumn } from 'components/Table/Table';
+import Table, {TableColumn} from 'components/Table/Table';
 import './Clusters.scss';
 import Channels from './components/NotificationChannelsColumn/NotificationChannelsColumn';
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import {
   ClusterSummary,
   ManagmentServiceApiInstance,
@@ -15,7 +15,7 @@ import SVGIcon from 'components/SVGIcon/SVGIcon';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import ReportActionsCell from './ReportActionsCell';
 import AccuracyBadge from 'components/AccuracyBadge/AccuracyBadge.tsx';
-import { dateTimeFromTimestampMs } from 'lib/date.ts';
+import {dateTimeFromTimestampMs} from 'lib/date.ts';
 import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
 
 interface ClusterDataRow {
@@ -79,18 +79,18 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
     header: 'Notification',
     columnKey: 'notificationChannels',
     customComponent: ({
-      notificationChannels,
-    }: {
+                        notificationChannels,
+                      }: {
       notificationChannels: NotificationChannelColumn[];
     }) => {
-      return <Channels channels={notificationChannels} />;
+      return <Channels channels={notificationChannels}/>;
     },
   },
   {
     header: 'Accuracy',
     columnKey: 'accuracy',
     customComponent: (row: ClusterDataRow) => {
-      return <AccuracyBadge label={row.accuracy} />;
+      return <AccuracyBadge label={row.accuracy}/>;
     },
   },
   {
@@ -101,7 +101,7 @@ const columns: Array<TableColumn<ClusterDataRow>> = [
     header: 'Reports',
     columnKey: 'actions',
     customComponent: (row: ClusterDataRow) => {
-      return <ReportActionsCell clusterId={row.name} />;
+      return <ReportActionsCell clusterId={row.name}/>;
     },
   },
 ];
@@ -135,17 +135,20 @@ const Clusters = () => {
     fetchClusters();
   }, []);
 
-  const header = <HeaderWithIcon title={'Clusters'} />;
+  const header = <HeaderWithIcon
+    title={'Clusters'}
+    icon={<SVGIcon iconName="clusters-icon"/>}
+  />;
 
   return (
     <PageTemplate header={header}>
       <SectionComponent
         title={'Clusters'}
-        icon={<SVGIcon iconName="clusters-icon" />}
+        icon={<SVGIcon iconName="hive-icon"/>}
       >
-        {isLoading && <CenteredSpinner />}
+        {isLoading && <CenteredSpinner/>}
         {!isLoading && clusters.length > 0 && (
-          <Table columns={columns} rows={clusters} />
+          <Table columns={columns} rows={clusters}/>
         )}
         {!isLoading && clusters.length === 0 && (
           <div>No registered clusters yet</div>

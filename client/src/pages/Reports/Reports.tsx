@@ -142,8 +142,7 @@ const Reports = () => {
         startDate: dateFromTimestampMs(report.sinceMs),
         endDate: dateFromTimestampMs(report.toMs),
         urgency: null,
-        requestedAtMs: Date.now(),
-        requestedAtDate: dateTimeWithoutSecondsFromTimestampMs(Date.now()),
+        requestedAtDate: dateTimeWithoutSecondsFromTimestampMs(report.requestedAtMs),
       }));
 
       const updateRows = (

@@ -17,7 +17,7 @@ const ReportGenerationType: React.FC<ReportGenerationTypeProps> = ({ setParentGe
     };
 
     return (
-        <SectionComponent icon={<SVGIcon iconName='precision-icon' />} title={'Generation type'}>
+        <SectionComponent icon={<SVGIcon iconName='cycle-icon' />} title={'Generation type'}>
             <div className="precision-section__input-group">
                 <TagButton
                     listItems={['ON_DEMAND', 'SCHEDULED']}

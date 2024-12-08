@@ -1,8 +1,7 @@
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import SVGIcon from 'components/SVGIcon/SVGIcon';
 import ReportTitle from 'pages/Home/components/ReportTitle/ReportTitle';
-import { IncidentStats, ReportStats } from 'hooks/useReportStats';
-import { ReportDetails } from 'api/managment-service';
+import {IncidentStats, ReportStats} from 'hooks/useReportStats';
 import StatisticsDisplay, {
   StatItemData,
 } from 'components/StatisticsDisplay/StatisticsDisplay';
@@ -16,8 +15,9 @@ import {
   urgencyIncidentCount,
 } from 'types/incident';
 import './ReportDetailsSection.scss';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
+import {ReportDetails} from 'api/managment-service.ts';
 
 const statItems = (
   report: ReportDetails,
@@ -73,14 +73,14 @@ const statItems = (
       title: 'Node with highest number of incidents',
       value: stats.nodeWithMostIncidents.nodeName,
       unit: '',
-      valueColor: colors.urgency.low,
+      valueColor: colors.urgency.high,
     });
 
     defaultStats.push({
       title: `Incidents from ${stats.nodeWithMostIncidents.nodeName}`,
       value: stats.nodeWithMostIncidents.numberOfIncidents,
       unit: 'incidents',
-      valueColor: colors.urgency.low,
+      valueColor: colors.urgency.high,
     });
   }
 
@@ -89,14 +89,14 @@ const statItems = (
       title: 'Application with highest number of incidents',
       value: stats.applicationWithMostIncidents.applicationName,
       unit: '',
-      valueColor: colors.urgency.low,
+      valueColor: colors.urgency.high,
     });
 
     defaultStats.push({
       title: `Incidents from ${stats.applicationWithMostIncidents.applicationName}`,
       value: stats.applicationWithMostIncidents.numberOfIncidents,
       unit: 'incidents',
-      valueColor: colors.urgency.low,
+      valueColor: colors.urgency.high,
     });
   }
 
@@ -123,9 +123,10 @@ const ReportDetailsSection = ({
   if (isReportLoading || !report) {
     return <CenteredSpinner />;
   }
+
   return (
     <SectionComponent
-      icon={<SVGIcon iconName="chart-icon" />}
+      icon={<SVGIcon iconName="chart-icon"/>}
       title={
         <ReportTitle
           source={report.clusterId}
@@ -135,7 +136,7 @@ const ReportDetailsSection = ({
       }
     >
       <div className="dashboard-report-details-section">
-        {areIncidentsLoading && <CenteredSpinner />}
+        {areIncidentsLoading && <CenteredSpinner/>}
         {incidents && incidentStats && (
           <div className="dashboard-report-details-section__incidents">
             <ReportDetailsSubsection title={'Statistics'}>
