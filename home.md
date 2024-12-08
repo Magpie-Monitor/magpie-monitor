@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T08:46:03.063Z
+date: 2024-12-08T09:21:11.809Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -843,11 +843,120 @@ Raporty przechowywane są w schemacie lustrzanym do bazy danych Report Service, 
 #### 7.4.4.1 Baza danych metadanych
 
 Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustrzany do Metadata Service. Rozszerzeniem jest natomiast zdenormaliowana kolekcja **ClusterHistory**, zawierająca informacje o wszystkich działających w obrębie danego klastra aplikacjach oraz hostach. Dodatkowo, występuje kolekcja **ReportGenerationRequestMetadata**, przechowująca dane audytowe o zapytaniach generacji raportu oraz ich statusie.
-	
+
 <figure>
     <img src="/management-service/database/management-service-database-mongodb-metadata-configuration.svg">
-    <figcaption>Rysunek X: Management Service: Diagram bazy metadanych [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Management Service: Diagram bazy metaadanych [źródło opracowanie własne]</figcaption>
 </figure>
+
+**AggregatedApplicationMetadata**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| id | Unikalny identyfikator dokumentu w ramach danego indeksu | string |
+| clusterId | Identyfikator klastra, na którym działa aplikacja | string |
+| collectedAtMs | Czas kiedy metadane były zebrane w milisekundach od początku epoki | int64 |
+| metadata | Aplikacje wchodzące w skład metadanych | Metadata |
+
+**Metadata**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| kind | Nazwa zasobu w Kubernetesie | string |
+| name | Nazwa aplikacji | string |
+
+**AggregatedNodeMetadata**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| id | Unikalny identyfikator dokumentu w ramach danego indeksu | string |
+| clusterId | Identyfikator klastra, na którym działa aplikacja | string |
+| collectedAtMs | Czas kiedy metadane były zebrane w milisekundach od początku epoki | int64 |
+| metadata | Hosty wchodzące w skład metadanych | Metadata |
+
+**Metadata**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| name | Nazwa hosta | string |
+| files | Pliki na hoście, z których zbierane są logi | string\[\] |
+
+**AggregatedClusterState**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| id | Unikalny identyfikator dokumentu w ramach danego indeksu | string |
+| clusterId | Identyfikator klastra, na którym działa aplikacja | string |
+| collectedAtMs | Czas kiedy metadane były zebrane w milisekundach od początku epoki | int64 |
+| metadata | Klastry wchodzące w skład metadanych | Metadata |
+
+**Metadata**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| clusterId | Identyfikator klastra | string |
+
+**ReportGenerationRequestMetadata**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| id | Unikalny identyfikator | string |
+| status | Aktualny status generowanego raportu | string |
+| reportType | Typ raportu (cykliczny lub na żądanie) | string |
+| request | Zapytanie z konfiguracją generowanego raportu | CreateReportRequest |
+
+**CreateReportRequest**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| clusterId | Unikalny identyfikator klastra dla którego generowany jest raport | string |
+| accuracy | Dokładność generowanego raportu | string |
+| sinceMs | Początek przedziału logów branych pod uwagę podczas generowania raportu w milisekundach od początku epoki | int64 |
+| toMs | Koniec przedziału logów branych pod uwagę podczas generowania raportu w milisekundach od początku epoki | int64 |
+| slackReceiverIds | Identyfikatory odbiorników powiadomień Slack | \[\]int |
+| discordReceiverIds | Identyfikatory odbiorników powiadomień Discord | \[\]int |
+| emailReceiverIds | Identyfikatory odbiorników powiadomień Email | \[\]int |
+| nodeConfigurations | Konfiguracje hostów dla generowanego raportu | \[\]NodeConfiguration |
+| applicationConfigurations | Konfiguracje aplikacji dla generowanego raportu | \[\]ApplicationConfiguration |
+
+**ApplicationConfiguration**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| applicationName | Unikalny identyfikator | string |
+| customPrompt | Własne dodatkowe wejście do modelu językowego podczas interpretacji logów z aplikacji w ramach raportu | string |
+| accuracy | Typ raportu (cykliczny lub na żądanie) | string |
+
+**NodeConfiguration**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| nodeName | Unikalny identyfikator | string |
+| customPrompt | Własne dodatkowe wejście do modelu językowego podczas interpretacji logów z aplikacji w ramach raportu | string |
+| accuracy | Typ raportu (cykliczny lub na żądanie) | string |
+
+**ClusterHistory**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| id | Unikalny identyfikator klastra | string |
+| applications | Aplikacje które działają lub działały na klastrze | Application |
+| nodes | Hosty które należą lub należały do klastra | Node |
+
+**Application**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| name | Nazwa aplikacji | string |
+| kind | Rodzaj zasobu w Kubernetes | string |
+| running | Wskazuje czy aplikacja aktualnie działa na klastrze | boolean |
+
+**Node**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| name | Nazwa hosta | string |
+| running | Wskazuje czy host jest aktualnie częścią klastra | boolean |
 
 ### 7.4.5 Baza danych użytkowników {#baza-danych-użytkowników}
 
