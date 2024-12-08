@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T17:04:34.385Z
+date: 2024-12-08T17:08:06.061Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -230,12 +230,15 @@ Warto również wspomnieć, że dziedzina analizy semantycznej logów przy pomoc
 
 Podsumowując, dziedzina analizy logów z użyciem dużych modeli językowych jest stosunkowo nowym obszarem, którego komercyjne pokrycie jest niewielkie. Obszar ten wydaje się jednak być obiecujący, co min. potwierdza spore zainteresowanie wśród naukowców. Osobiście wierzymy, że przyszłość dąży do automatyzacji, w szczególności w dziedzinie analizy logów oraz detekcji anomalii, gdzie wolumen danych niejednokrotnie przekracza ludzkie możliwości analizy. Jednocześnie sądzimy, że zbierane dane często są marnowane, ponieważ nie wyciąga się z nich wniosków, które mogą być wysoce pomocne. Wysoki potencjał pokrywanego przez Magpie Monitor obszaru rynkowego oraz jego stosunkowo niskie zaspokojenie przez aktualne narzędzia sprawia, że projekt oraz uzyskany przez nas rezultat ma realny sens w kontekście dziedziny, w której jest osadzony.
 
-5. #  Założenia wstępne {#założenia-wstępne}
+#  5. Założenia wstępne {#założenia-wstępne}
 ## 1. Przeznaczenie {#przeznaczenie}
 
-Przeznaczeniem systemu Magpie Monitor jest wspieranie administratorów IT w monitorowaniu usług webowych, które muszą być dostępne przez całą dobę. Każda awaria może generować poważne straty finansowe dla firmy, dlatego system został zaprojektowany, aby pomagać w zapobieganiu potencjalnym przestojom oraz przyspieszać proces monitorowania aplikacji. Rozwiązanie to nie tylko identyfikuje problemy, ale również proaktywnie wspiera działania prewencyjne, minimalizując ryzyko awarii.  
-      Warto jednak zaznaczyć, że wykorzystanie zewnętrznego modelu, w celu generowania raportów w języku naturalnym, wiąże się z określonymi kosztami operacyjnymi. Potencjalni klienci muszą więc przeanalizować, czy koszty wdrożenia i utrzymania Magpie Monitora będą niższe od strat wynikających z ewentualnych przestojów.   
-      Większość konkurencyjnych rozwiązań skupia się na tzw. podejściu „slice and dice”. Polega ono na podzieleniu danych na mniejsze fragmenty i prezentowaniu ich w sposób umożliwiający analizę trendów w zbiorze danych. Magpie Monitor działa w sposób bardziej zautomatyzowany, pokazując nie tylko trendy w danych, ale także ich konsekwencje oraz potencjalne sposoby rozwiązania problemów. Jest to nowatorskie rozwiązaniem, które wyróżnia się w segmencie narzędzi do monitorowania usług webowych.
+Celem systemu Magpie Monitor jest wsparcie administratorów IT w monitorowaniu usług webowych, które muszą być dostępne przez całą dobę. Każda awaria może generować poważne straty finansowe dla firmy, dlatego system został zaprojektowany, aby pomagać w zapobieganiu potencjalnym przestojom oraz przyspieszać proces monitorowania aplikacji. Rozwiązanie to nie tylko identyfikuje problemy, ale również proaktywnie wspiera działania prewencyjne, minimalizując ryzyko awarii.  
+
+Warto jednak zaznaczyć, że wykorzystanie zewnętrznego modelu, w celu generowania raportów w języku naturalnym, wiąże się z określonymi kosztami operacyjnymi. Potencjalni klienci muszą więc przeanalizować, czy koszty wdrożenia i utrzymania Magpie Monitora będą niższe od strat wynikających z ewentualnych przestojów.   
+
+Większość konkurencyjnych rozwiązań skupia się na tzw. podejściu „slice and dice”. Polega ono na 
+podzieleniu danych na mniejsze fragmenty i prezentowaniu ich w sposób umożliwiający analizę trendów w zbiorze danych. Magpie Monitor działa w sposób bardziej zautomatyzowany, pokazując nie tylko trendy w danych, ale także ich konsekwencje oraz potencjalne sposoby rozwiązania problemów. Jest to nowatorskie rozwiązaniem, które wyróżnia się w segmencie narzędzi do monitorowania usług webowych.
 
 ## 2. Nazwa i logo projektu {#nazwa-i-logo-projektu}
 
