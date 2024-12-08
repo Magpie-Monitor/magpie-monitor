@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T08:44:35.039Z
+date: 2024-12-08T08:45:05.971Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -833,7 +833,7 @@ Management Service przechowuje swoją kopię wygenerowanych raportów oraz otrzy
 
 #### 7.4.4.1 Baza danych raportów
 
-Raporty przechowywane są w schemacie lustrzanym do bazy danych Report Service, różnicą są kolekcje ApplicationIncident, NodeIncident, ApplicationIncidentSource oraz NodeIncidentSource, które denormalizują schemat raportu w celu szybszego dostępu do danych.
+Raporty przechowywane są w schemacie lustrzanym do bazy danych Report Service, różnicą są kolekcje **ApplicationIncident**, **NodeIncident**, **ApplicationIncidentSource** oraz **NodeIncidentSource**, które denormalizują schemat raportu w celu szybszego dostępu do danych.
 
 <figure>
     <img src="/management-service/database/management-service-database-mongodb-reports.svg">
@@ -842,7 +842,7 @@ Raporty przechowywane są w schemacie lustrzanym do bazy danych Report Service, 
 
 #### 7.4.4.1 Baza danych metadanych
 
-Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustrzany do Metadata Service. Rozszerzeniem jest natomiast zdenormaliowana kolekcja ClusterHistory, zawierająca informacje o wszystkich działających w obrębie danego klastra aplikacjach oraz hostach. Dodatkowo, występuje kolekcja ReportGenerationRequestMetadata, przechowująca dane audytowe o zapytaniach generacji raportu oraz ich statusie.
+Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustrzany do Metadata Service. Rozszerzeniem jest natomiast zdenormaliowana kolekcja **ClusterHistory**, zawierająca informacje o wszystkich działających w obrębie danego klastra aplikacjach oraz hostach. Dodatkowo, występuje kolekcja **ReportGenerationRequestMetadata**, przechowująca dane audytowe o zapytaniach generacji raportu oraz ich statusie.
 	
 <figure>
     <img src="/management-service/database/management-service-database-mongodb-metadata-configuration.svg">
