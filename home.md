@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T17:16:51.238Z
+date: 2024-12-08T17:17:30.460Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -309,20 +309,15 @@ Chociaż przewiduje się, że Magpie Monitor będzie głównie używany na kompu
 * System nie może utracić więcej zebranych logów niż 0.5% w skali miesiąca.
 Utracenie większej liczby logów będzie skutkować raportami, które nie opisują rzeczywistego stanu monitorowanej aplikacji.
 
-
 * System po awarii musi wznowić generacje raportu 
+Każdy zaplanowany raport musi zostać wykonany, jeśli Magpie Monitor oraz używany model językowy jest sprawny.
 
-  Każdy zaplanowany raport musi zostać wykonany, jeśli Magpie Monitor oraz używany model językowy jest sprawny.
-
-  4. Wydajność  
+**4. Wydajność**  
 * System powinien nie mieć ograniczeń w liczbie analizowanych logów. 
+Jeśli liczba logów przekracza ograniczenia wybranego modelu, system powinien podzielić je na mniejsze partie logów, które będą wysłane osobno do modelu.
 
-  Jeśli liczba logów przekracza ograniczenia wybranego modelu, system powinien podzielić je na mniejsze partie logów, które będą wysłane osobno do modelu.
-
-
-  5. Wsparcie  
+**5. Wsparcie**  
 * System powinien wspierać popularne przeglądarki internetowe takie jak: Google Chrome, Safari, Edge, Firefox.
-
 
 * System powinien być w stanie obserwować dowolną aplikację, która została umieszczona na klastrze Kubernetesa.
 
