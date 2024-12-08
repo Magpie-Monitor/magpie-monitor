@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T21:25:44.328Z
+date: 2024-12-08T21:59:00.682Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -545,11 +545,27 @@ Zależność między wymaganiami funkcjonalnymi, a historyjkami użytkownika prz
 
 ### 7.2.1 Model C4 \- poziom 1 {#model-c4---poziom-1}
 
+Diagram kontekstu (C1) przedstawia ogólny obraz interakcji pomiędzy kluczowymi elementami systemu i jego otoczeniem. W skład diagramu C1 dla Magpie Monitora wchodzą następujące elementy:
+
+**Monitorowany system** \- obserwowane oprogramowanie, którego logi mają zostać przeanalizowane i na którego stabilności zależy klientowi. 
+
+**Magpie Monitor** \- główny system zapewniający mechanizm zbierania oraz analizy logów. Oferuje użytkownikowi klienta webowego, za pomocą, którego może zobaczyć uzyskane wyniki \- raporty.
+
+**Duży model językowy** \- zewnętrzny model, który jest używany przez Magpie Monitor do generowania raportów na podstawie logów.
+
+**Slack**, **Discord, Email**\- zewnętrzne usługi internetowe służące m.in. do komunikacji między członkami danej organizacji. W systemie Magpie Monitor są wykorzystywane jako dostępne kanały powiadomień.
+
+<figure>
+    <img src="/container-diagram-latest.svg">
+    <figcaption>Rysunek X: Diagram kontekstu [źródło opracowanie własne]</figcaption>
+</figure>
+
+
 ### 7.2.2 Model C4 \- poziom 2  {#model-c4---poziom-2}
 
 <figure>
     <img src="/container-diagram-latest.svg">
-    <figcaption>Rysunek X: Diagaaram kontenerów [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Diagram kontenerów [źródło opracowanie własne]</figcaption>
 </figure>
 
 Poziom 2 w modelu C4 oznacza diagram kontenerów i przedstawia on wszystkie mikroserwisy, ich zewnętrze zależności oraz kanały komunikacji.
