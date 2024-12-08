@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T09:30:27.521Z
+date: 2024-12-08T09:32:37.754Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1199,12 +1199,13 @@ Management service zbiera taką odpowiedź z brokera i aktualizuje rekord w bazi
 
 
 
-#### 8.2.2 Diagram procesu zbierania metadanych
-TODO \- lepsze wykadrowanie
+#### 8.2.2 Diagram procesu zbierania oraz emitowania zmian w metadanych
+
+Metadane są zbierane z klastra Kubernetes przez Agenta, który następnie wysyła je do Metadata Service. Metadata Service zapisuje otrzymane dane w bazie, po czym cyklicznie sprawdza, czy najnowszy stan metadanych aplikacji, hostów lub klastrów uległ zmianie. Jeśli zmiana zostanie wykryta, generowany jest nowy stan, który przesyłany jest bezpośrednio do Management Service.
 
 <figure>
     <img src="/sequence-diagrams/metadata-collection-sequence-diagram.svg">
-    <figcaption>Rysunek X: ClusterMetadataUpdated: Zrzut ekranu z AsyncAPI [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Diagram sekwencji zbierania oraz emitowania zmian w metadanych [źródło opracowanie własne]</figcaption>
 </figure>
 
 
