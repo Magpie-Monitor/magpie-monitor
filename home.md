@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T09:21:49.017Z
+date: 2024-12-08T09:25:30.782Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -839,6 +839,135 @@ Raporty przechowywane są w schemacie lustrzanym do bazy danych Report Service, 
     <img src="/management-service/database/management-service-database-mongodb-reports.svg">
     <figcaption>Rysunek X: Management Service: Diagram bazy raportów [źródło opracowanie własne]</figcaption>
 </figure>
+
+**Report**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| id | Unikalny identyfikator raportu | string |
+| correlationId | Identyfikator korelacji (z żądania na podstawie, którego został wygenerowany raport) | string |
+| status | Aktualny status raportu.  | string |
+| sinceMs | Data określająca początek okresu analizowanego przez raport. Wyrażona w milisekundach od początku epoki | number |
+| toMs | Data określająca koniec okresu analizowanego przez raport. Wyrażona w milisekundach od początku epoki | number |
+| requestedAt | Data zażądania raportu. Wyrażona w milisekundach od początku epoki | number |
+| scheduledGenerationAtMs | Data wygenerowania raportu. Wyrażona w milisekundach od początku epoki  | number |
+| title | Tytuł raportu.  | string |
+| nodeReports | Incydenty z hostów pogrupowane po hostcie i konfiguracji z jakimi został wygenerowany. | NodeReport\[\] |
+| applicationReports | Incydenty z aplikacji pogrupowane po aplikacji  i konfiguracji z jakimi został wygenerowany. | ApplicationReport\[\] |
+| totalApplicationEntries | Liczba logów z aplikacji, uwzględnionych podczas generowani raportu | number |
+| totalNodeEntries | Liczba logów z hostów, uwzględnionych podczas generowani raportu | number |
+| urgency | Poziom “krytyczności” całego raportu | string |
+| scheduledApplicationInsights | Zaplanowane do przetworzania (w ramach raportu) logi i konfiguracje aplikacji | ScheduledApplicationInsights\[\] |
+| scheduledNodeInsights | Zaplanowane do przetworzania (w ramach raportu) logi i konfiguracje hostów | ScheduledNodeInsights\[\] |
+| analyzedApplications | Liczba aplikacji, przeanalizowanych w ramach raportu | number |
+| analyzedNodes | Liczba hostów, przeanalizowanych w ramach raportu | number |
+| scheduledApplicationIncidentMergerJobs | Zaplanowane zadania związane ze scalaniem zduplikowanych incydentów aplikacji  | ScheduledApplicationIncidentMergerJob\[\] |
+| scheduledNodeIncidentMergerJobs | Zaplanowane zadania związane ze scalaniem zduplikowanych incydentów hostów  | ScheduledNodeIncidentMergerJob\[\] |
+
+**ApplicationReport**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| applicationName | Nazwa aplikacji | string |
+| accuracy | Dokładność raportu aplikacji | string |
+| customPrompt | Własne dodatkowe wejście do modelu językowego podczas interpretacji logów z aplikacji w ramach raportu | string |
+| incidents | Lista incidentów z aplikacji | ApplicationIncidents\[\] |
+
+**ApplicationIncident**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| id | Unikalny identyfikator incydentu | string |
+| title | Tytuł incydentu | string |
+| customPrompt | Własne dodatkowe wejście do modelu językowego podczas interpretacji logów z aplikacji w ramach raportu | string |
+| clusterId | Identyfikator klastra na którym wystąpił dany incydent | string |
+| applicationName | Nazwa aplikacji dla której wystąpił dany incydent | string |
+| category | Kategoria incydentu | string |
+| summary | Podsumowanie incydentu | string |
+| recommendation | Rekomendacja odnośnie rozwiązania incydentu | string |
+| urgency | Krytyczność incydentu | string |
+| sources | Źródła na podstawie, których dany incydent był wykryty | ApplicationIncidentSource\[\] |
+
+**ScheduledApplicationInsights**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| scheduledJobIds | Identyfikatory zadań związanych z wykrywaniem incydentów z aplikacji | string\[\] |
+| sinceMs | Data określająca początek okresu analizowanego przez raport. Wyrażona w milisekundach od początku epoki | number |
+| toMs | Data określająca koniec okresu analizowanego przez raport. Wyrażona w milisekundach od początku epoki | number |
+| clusterId | Identyfikator klastra, z którego generowana jest **obserwacja** | string |
+| applicationConfiguration | Lista konfiguracji aplikacji, na podstawie których ma być wygenerowany raport | ApplicationInsightConfiguration\[\] |
+
+**ApplicationInsightConfiguration**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| applicationName | Nazwa aplikacji | string |
+| accuracy  | Dokładność analizy | string |
+| customPrompt | Własne wejście do modelu językowego przy generowaniu **obserwacji** dla danej aplikacji | string |
+
+**ApplicationIncidentSource**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| timestamp | Czas zebrania źródła incydentu | string |
+| podName  | Nazwa poda w której znajdowała się aplikacja | string |
+| containerName | Nazwa kontenera w którym znajdowała się aplikacja | string |
+| content | Zawartość loga | string |
+| image | Identyfikator obrazu kontenera | string |
+
+**NodeReport**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| node | Nazwa hosta | string |
+| accuracy | Dokładność raportu aplikacji | string |
+| customPrompt | Własne dodatkowe wejście do modelu językowego podczas interpretacji logów z aplikacji w ramach raportu | string |
+| incidents | Lista incidentów z hostów | NodeIncidents\[\] |
+
+**NodeIncident**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| id | Unikalny identyfikator incydentu | string |
+| title | Tytuł incydentu | string |
+| customPrompt | Własne dodatkowe wejście do modelu językowego podczas interpretacji logów z aplikacji w ramach raportu | string |
+| clusterId | Identyfikator klastra na którym wystąpił dany incydent | string |
+| nodeName | Nazwa hosta dla któregoj wystąpił dany incydent | string |
+| category | Kategoria incydentu | string |
+| summary | Podsumowanie incydentu | string |
+| recommendation | Rekomendacja odnośnie rozwiązania incydentu | string |
+| urgency | Krytyczność incydentu | string |
+| sources | Źródła na podstawie, których dany incydent był wykryty | NodeIncidentSource\[\] |
+
+**ScheduledNodeInsights**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| scheduledJobIds | Identyfikatory zadań związanych z wykrywaniem incydentów z hosta | string\[\] |
+| sinceMs | Data określająca początek okresu analizowanego przez raport. Wyrażona w milisekundach od początku epoki | number |
+| toMs | Data określająca koniec okresu analizowanego przez raport. Wyrażona w milisekundach od początku epoki | number |
+| clusterId | Identyfikator klastra, z którego generowany jest raport | string |
+| nodeConfiguration | Lista konfiguracji aplikacji, na podstawie których ma być wygenerowany raport | NodeInsightConfiguration\[\] |
+
+**NodeInsightConfiguration**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| nodeName | Nazwa aplikacji | string |
+| accuracy  | Dokładność analizy | string |
+| customPrompt | Własne wejście do modelu językowego przy generowaniu **obserwacji** dla danego hosta | string |
+
+**NodeIncidentSource**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| timestamp | Czas zebrania źródła incydentu | string |
+| filename  | Nazwa pliku, z którego zebrany był log | string |
+| content | Zawartość loga | string |
+| image | Identyfikator obrazu kontenera | string |
+
+
 
 #### 7.4.4.1 Baza danych metadanych
 
