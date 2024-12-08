@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T22:12:04.715Z
+date: 2024-12-08T22:13:34.051Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1440,6 +1440,45 @@ Na podstawie wymagań funkcjonalnych oraz historyjek użytkownika zaprojektowano
 Pierwszym widokiem wyświetlanym po wejściu na witrynę Magpie Monitor jest ekran logowania. Jego celem jest spełnienie wymogu uwierzytelnienia użytkownika przed uzyskaniem dostępu do funkcji systemu. Po wybraniu opcji „Sign in with Google” użytkownik zostaje przekierowany na ekran logowania dostarczany przez firmę Google, gdzie może wybrać konto, które chce wykorzystać do zalogowania się do systemu.
 
 ### 8.1.2 Widok główny
+
+<figure>
+    <img src="/asyncapi-screens/cluster-metadata-updated-sub.png">
+    <figcaption>Rysunek X: Widok główny [źródło opracowanie własne]</figcaption>
+</figure>
+
+Po zalogowaniu się do systemu użytkownik zostaje przeniesiony na stronę główną. Wyświetla ona ostatnio wygenerowany raport, wraz z informacją o klastrze Kubernetes, z którego pochodzi, oraz przedziałem czasowym, w którym zebrano logi wykorzystane do jego stworzenia.
+
+W sekcji **“Statistics”** prezentowane są użytkownikowi kluczowe dane opisane w historyjkach użytkownika, takie jak:
+
+* liczba przeanalizowanych aplikacji,  
+* liczba przeanalizowanych hostów,  
+* liczba incydentów z podziałem według pilności, dodatkowo wizualizowana na wykresie kołowym,  
+* liczba przeanalizowanych logów pochodzących z aplikacji,  
+* liczba przeanalizowanych logów pochodzących z hostów,  
+* nazwa hosta z największą liczbą wykrytych incydentów oraz ich liczba,  
+* nazwa aplikacji z największą liczbą wykrytych incydentów oraz ich liczba.
+
+Po lewej stronie znajduje się pionowy pasek nawigacyjny. W jego górnej części umieszczono logo systemu oraz jego nazwę. Kliknięcie logo z dowolnej podstrony przenosi użytkownika na stronę główną. Poniżej znajdują się sekcje ułatwiające nawigację po systemie. Obecnie aktywny widok jest wyróżniony kolorem zielonym, co zgodnie z pierwszą heurystyką Nielsena zapewnia użytkownikowi jasność dotyczącą aktualnego stanu systemu.
+
+Na samym dole paska nawigacyjnego znajduje się opcja **wylogowania**, która przenosi użytkownika z powrotem na ekran logowania oraz odbiera mu uprawnienia do korzystania z systemu.
+
+Po przewinięciu strony głównej w dół użytkownik zobaczy kolejny widok:
+
+<figure>
+    <img src="">
+    <figcaption>Rysunek X: Widok główny kontynuacja [źródło opracowanie własne]</figcaption>
+</figure>
+
+Sekcje **“Application Incidents”** oraz **“Node Incidents”** zawierają listy incydentów wykrytych odpowiednio w aplikacjach i hostach. Każdy wiersz na liście przedstawia następujące informacje:
+
+* nazwę hosta lub aplikacji, z której pochodzi incydent,  
+* kategorię incydentu,  
+* tytuł incydentu,  
+* datę wystąpienia incydentu.
+
+Kliknięcie dowolnego wiersza z obu list przenosi użytkownika na stronę szczegółową, dedykowaną wybranemu incydentowi.
+
+W wersji zoptymalizowanej dla urządzeń mobilnych strona jest odpowiednio dostosowana do mniejszych ekranów i prezentuje się w sposób przyjazny dla użytkownika:
 
 ### 8.2 Diagramy procesów {#diagramy-procesów}
 
