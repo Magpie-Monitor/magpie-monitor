@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T08:18:05.163Z
+date: 2024-12-08T08:19:31.882Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -745,7 +745,11 @@ Jest tworzony w momencie otrzymania żądania od Management Service w którym zn
 
 ### 7.4.3 Baza danych metadata service
 
-**![][image7]**
+	
+<figure>
+    <img src="/metadata-service/database/metadata-service-database.svg">
+    <figcaption>Rysunek X: Management Service: Diagram bazy raportów [źródło opracowanie własne]</figcaption>
+</figure>
 
 ### 7.4.4 Baza danych management-service
 
