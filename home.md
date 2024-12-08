@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T09:21:25.032Z
+date: 2024-12-08T09:21:49.017Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -845,7 +845,7 @@ Raporty przechowywane są w schemacie lustrzanym do bazy danych Report Service, 
 Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustrzany do Metadata Service. Rozszerzeniem jest natomiast zdenormaliowana kolekcja **ClusterHistory**, zawierająca informacje o wszystkich działających w obrębie danego klastra aplikacjach oraz hostach. Dodatkowo, występuje kolekcja **ReportGenerationRequestMetadata**, przechowująca dane audytowe o zapytaniach generacji raportu oraz ich statusie.
 
 <figure>
-    <img src="/management-service/database/management-service-database-mongodb-metadata-configuration.svg">
+    <img src="/management-service/database/management-service-database-mongodb-metadata-configuration-transparent.svg">
     <figcaption>Rysunek X: Management Service: Diagram bazy metadanych [źródło opracowanie własne]</figcaption>
 </figure>
 
