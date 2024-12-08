@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T08:02:36.593Z
+date: 2024-12-08T08:02:48.902Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -370,7 +370,7 @@ System nie może tracić
 ### 7.2.2 Model C4 \- poziom 2  {#model-c4---poziom-2}
 
 <figure>
-    <img src="/container-diagram-transparent.svg">
+    <img src="/container-diagram.svg">
     <figcaption>Rysunek X: Diagram kontenerów [źródło opracowanie własne]</figcaption>
 </figure>
 
