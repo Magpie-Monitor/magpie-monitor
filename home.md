@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T22:32:12.832Z
+date: 2024-12-08T22:44:14.349Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2917,7 +2917,487 @@ Metadata service powinien generować zagregowane metadane o klastrach
 
 ## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
 
-## 10.4 Testy użyteczności {#testy-użyteczności}
+W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariusze testowe: 
+
+1. **Logowanie użytkownika**
+
+   
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik może pomyślnie zalogować się do systemu, aby uzyskać dostęp do jego funkcjonalności.  
+**Warunki wstępne**: 
+
+* Użytkownik posiada konto w systemie.
+
+**Dane testowe**:
+
+* Konto Google.
+
+**Kroki testowe**:
+
+* Użytkownik uruchamia aplikację Magpie Monitor.  
+* Użytkownik naciska przycisk “Sign in with Google”   
+* Użytkownik wybiera poprawne konto Google  
+* Użytkownik zostaje przekierowany na stronę główną systemu.
+
+**Oczekiwany wynik**:
+
+* Użytkownik pomyślnie loguje się do systemu i zostaje przeniesiony na stronę główną.
+
+2. **Próba dostępu przez nieuwierzytelnionego użytkownika**
+
+   
+
+**Opis**: Test ma na celu sprawdzenie, czy nieuwierzytelniony użytkownik może uzyskać dostęp do funkcjonalności systemu.  
+**Warunki wstępne**: 
+
+* Użytkownik nie jest zalogowany w systemie.  
+* Użytkownik zna adres URL podstrony konfiguracji raportu
+
+**Dane testowe**:
+
+* Brak
+
+**Kroki testowe**:
+
+* Użytkownik wpisuje w przeglądarce adres URL strony z raportami
+
+**Oczekiwany wynik**:
+
+* Użytkownik nie otrzymuje dostępu do strony z raportami.  
+* Użytkownik zostaje przekierowany na stronę logowania
+
+3. **Wylogowanie użytkownika**
+
+   
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik może poprawnie wylogować się z systemu.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.
+
+**Dane testowe**:
+
+* Brak
+
+**Kroki testowe**:
+
+* Użytkownik jest zalogowany do systemu.  
+* Użytkownik klika przycisk "Wyloguj" w lewym dolnym rogu ekranu.  
+* Użytkownik zostaje przekierowany na stronę logowania.
+
+**Oczekiwany wynik**:
+
+* Użytkownik zostaje pomyślnie wylogowany i przekierowany na stronę logowania.
+
+4. **Wyświetlenie raportu**
+
+   
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik może wyświetlić szczegóły raportu.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.  
+* Istnieje wygenerowany raport z incydentami.  
+* Istnieje podłączony klaster do aplikacji
+
+**Dane testowe**:
+
+* Raport zawierający co najmniej jeden incydent.
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Reports".  
+* Użytkownik klika na wybrany raport, aby zobaczyć szczegóły.  
+* Użytkownik przegląda stronę raportu.
+
+**Oczekiwany wynik**:
+
+* System wyświetla raport z nazwą klastra na podstawie, którego wygenerowano raport, przedział czasu, z którego zebrane zostały logi, statystyki, takie jak liczba przeanalizowanych aplikacji, hostów, liczba krytycznych, średnich oraz mało krytycznych incydentów, liczba przeanalizowanych logów z aplikacji, liczba przeanalizowanych logów z hostów.  
+    
+5. **Przeglądanie incydentów**  
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik może wyświetlić listę incydentów wykrytych w wygenerowanym raporcie.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.  
+* Istnieje wygenerowany raport z incydentami.  
+* Istnieje podłączony do systemu klaster z aplikacją.
+
+**Dane testowe**:
+
+* Raport zawierający co najmniej jeden incydent.
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Reports".  
+* Użytkownik klika na wybrany raport, aby zobaczyć szczegóły.  
+* Użytkownik przegląda listę incydentów w raporcie.
+
+**Oczekiwany wynik**:
+
+* System wyświetla listę incydentów, zawierającą nazwę aplikacji/hosta, kategorię i tytuł incydentu, oraz datę wykrycia.
+
+6.  **Generacja raportu na żądanie**
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik może wyświetlić listę incydentów wykrytych w wygenerowanym raporcie.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.  
+* Istnieje wygenerowany raport z incydentami.  
+* Istnieje podłączony do systemu klaster z aplikacją.
+
+**Dane testowe**:
+
+* Raport zawierający co najmniej jeden incydent.
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Reports".  
+* Użytkownik klika na wybrany raport, aby zobaczyć szczegóły.  
+* Użytkownik przegląda listę incydentów w raporcie.
+
+**Oczekiwany wynik**:
+
+* System wyświetla listę incydentów, zawierającą nazwę aplikacji/hosta, kategorię i tytuł incydentu, oraz datę wykrycia.
+
+7. **Konfiguracja dokładności aplikacji i hostów**
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik może dostosować poziomy dokładności osobno dla każdej aplikacji i hosta w raporcie.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.  
+* Istnieje klaster podłączony do systemu.  
+* Na istniejącym klastrze występują przynajmniej dwa aplikacje  
+* Na istniejącym klastrze występują przynajmniej dwa hosty
+
+**Dane testowe**:
+
+* Klaster, zawierający co najmniej dwie aplikacje oraz dwóch hostów.
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Clusters".  
+* Użytkownik naciska przycisk “Report configuration”  
+* Użytkownik dodaje dwie aplikacje  
+* Użytkownik zmienia dokładność pierwszej z nich na “low”  
+* Użytkownik dodaje dwóch hostów  
+* Użytkownik zmienia dokładność pierwszego z nich na “high”, a drugiego na “medium”
+
+**Oczekiwany wynik**:
+
+* System wyświetla listę dodanych aplikacji oraz hostów do raportu z różnymi wartościami pola dokładność
+
+8. **Planowanie raportów**
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik może zaplanować cykliczne generowanie raportów w określonych przedziałach czasu.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.  
+* Istnieje klaster podłączony do systemu.
+
+**Dane testowe**:
+* Brak
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Clusters".  
+* Użytkownik naciska przycisk “Report configuration”  
+* Użytkownik ustawia wartość ”Generation type” na “Scheduled”  
+* Użytkownik ustawia “Schedule period” na “1 week”  
+* Użytkownik naciska przycisk “Generate”  
+* Użytkownik odczekuje tydzień
+
+**Oczekiwany wynik**:
+
+* System wygenerował raport z ostatniego tygodnia  
+* W zakładce “Reports” pojawił się nowy zaplanowany raport na przyszły tydzień
+
+9. **Generacja raportu na żądanie**
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik może generować raport na żądanie z wybranego przedziału czasu.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.  
+* Istnieje klaster podłączony do systemu.
+
+**Dane testowe**:
+
+* Data początkowa przedziału czasu, z którego ma powstać raport  
+* Data końcowa przedziału czasu, z którego ma powstać raport
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Clusters".  
+* Użytkownik naciska przycisk “Report configuration”  
+* Użytkownik ustawia wartość ”Generation type” na “ON\_DEMAND”  
+* Użytkownik ustawia “Data Range” na daty z danych testowych  
+* Użytkownik naciska przycisk “Generate”  
+* Użytkownik odczekuje aż raport zostanie przygotowany
+
+**Oczekiwany wynik**:
+
+* System wygenerował raport z wybranego przedziału  
+* Utworzony raport nie zawiera incydentu spoza wybranego zakresu czasu
+
+10. **Personalizacja interpretacji logów**
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik może dodać własne instrukcje dla modelu językowego, aby raporty były dostosowane do specyfiki aplikacji i hostów.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.  
+* Istnieje klaster podłączony do systemu, zawierający minimum jedną aplikację i jednego hosta.
+
+**Dane testowe**:
+
+* Instrukcja dostosowująca interpretację logów w raporcie.
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Clusters".  
+* Użytkownik naciska przycisk “Report configuration”  
+* Użytkownik ustawia wartość ”Generation type” na “ON\_DEMAND”  
+* Użytkownik dodaje aplikację do raportu  
+* Użytkownik dodaje hosta do raportu  
+* Użytkownik dodaje własną interpretacje logów do aplikacji  
+* Użytkownik naciska przycisk “Generate”  
+* Użytkownik odczekuje aż raport zostanie przygotowany
+
+**Oczekiwany wynik**:
+
+* System wygenerował raport   
+* Incydenty aplikacji zawierają informacje o wprowadzonej instrukcji do interpretacji logów
+
+11. **Wybór analizowanych hostów**
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik może wskazać konkretne hosty, które będą źródłem danych do raportu.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.  
+* Istnieje klaster podłączony do systemu, zawierający minimum dwa hosty.
+
+**Dane testowe**:
+
+* Lista dostępnych hostów dla istniejącego klastra
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Clusters".  
+* Użytkownik naciska przycisk “Report configuration”  
+* Użytkownik ustawia wartość ”Generation type” na “ON\_DEMAND”  
+* Użytkownik dodaje pierwszego hosta do raportu  
+* Użytkownik naciska przycisk “Generate”  
+* Użytkownik odczekuje aż raport zostanie przygotowany
+
+**Oczekiwany wynik**:
+
+* System wygenerował raport   
+* Każdy znaleziony incydent dotyczy tylko wybranego hosta
+
+12. **Wybór analizowanych aplikacji**
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik może wskazać konkretne aplikacje, które będą źródłem danych do raportu.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.  
+* Istnieje klaster podłączony do systemu, zawierający minimum dwie aplikacje.
+
+**Dane testowe**:
+
+* Lista dostępnych aplikacji dla istniejącego klastra
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Clusters".  
+* Użytkownik naciska przycisk “Report configuration”  
+* Użytkownik ustawia wartość ”Generation type” na “ON\_DEMAND”  
+* Użytkownik dodaje pierwszą aplikację do raportu
+
+* Użytkownik naciska przycisk “Generate”  
+* Użytkownik odczekuje aż raport zostanie przygotowany
+
+**Oczekiwany wynik**:
+
+* System wygenerował raport   
+* Każdy znaleziony incydent dotyczy tylko wybranej aplikacji
+
+13. **Dodanie kanału powiadomień do raportu**
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik może przypisać kanał powiadomień (Slack, Discord lub email) do raportu.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.  
+* Istnieje klaster podłączony do systemu, zawierający minimum dwie aplikacje.
+
+**Dane testowe**:
+
+* Dostępny kanał powiadomień
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Clusters".  
+* Użytkownik naciska przycisk “Report configuration”  
+* Użytkownik ustawia wartość ”Generation type” na “ON\_DEMAND”  
+* Użytkownik dodaje do dostępny kanał powiadomień do raportu  
+* Użytkownik naciska przycisk “Generate”  
+* Użytkownik odczekuje aż raport zostanie przygotowany
+
+**Oczekiwany wynik**:
+
+* System wygenerował raport  
+* W momencie wygenerowania raportu, wiadomość o zakończeniu pracy przychodzi na przypisany kanał powiadomień  
+    
+14. **Dodanie nowego kanału powiadomień**
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik dodać nowy kanał powiadomień (Slack, Discord lub email) do raportu.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.
+
+**Dane testowe**:
+
+* Dostępny kanał powiadomień
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Notifications".  
+* Użytkownik dodaje kanał powiadomień do odpowiedniej kategorii
+
+**Oczekiwany wynik**:
+
+* Do systemu został dodany nowy kanał powiadomień  
+* Kanał powiadomień zostaje wyświetlany na stronie “Notifications” z poprawną nazwą, webhookiem oraz datami dodania oraz modyfikacji 
+
+15. **Usuwanie kanału powiadomień**
+
+**Opis**: Test ma na celu sprawdzenie, czy użytkownik może usunąć kanał powiadomień.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.
+
+**Dane testowe**:
+
+* Dodany wcześniej kanał powiadomień, który zostanie usunięty
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Notifications".  
+* Użytkownik wybiera kanał powiadomień do usunięcia.  
+* Użytkownik wybiera ikonkę “Kosz”, aby usunąć kanał
+
+**Oczekiwany wynik**:
+
+* Z systemu zostaje usunięty kanał powiadomień
+
+16. **Edytowanie kanału powiadomień**
+
+**Opis:** Test ma na celu sprawdzenie, czy użytkownik może edytować dodany kanał powiadomień.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.
+
+**Dane testowe**:
+
+* Dodany wcześniej kanał powiadomień (np. adres email lub kanał Slack) do edycji.  
+* Nowa nazwa kanału powiadomień
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Notifications".  
+* Użytkownik wybiera kanał powiadomień do edycji.  
+* Użytkownik wybiera ikonkę “Ołówka”, aby usunąć kanał.  
+* W nowo otwartym okienku użytkownik zmienia nazwę kanału.  
+* Użytkownik naciska przycisk “Save”.
+
+**Oczekiwany wynik**:
+
+* Kanał powiadomień zmienia nazwę na nową.
+
+17. **Testowanie powiadomień**
+
+**Opis:** Test ma na celu sprawdzenie, czy użytkownik może przetestować dodany kanał powiadomień.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.  
+* Użytkownik ma uprawnienia do wyświetlania wiadomości na wybranym kanale powiadomień.
+
+**Dane testowe**:
+
+* Dodany wcześniej kanał powiadomień (np. adres email lub kanał Slack).
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Notifications".  
+* Użytkownik wybiera kanał powiadomień do przetestowania.  
+* Użytkownik wybiera ikonę “Wysłania wiadomości”.
+
+**Oczekiwany wynik**:
+
+* Na kanale powiadomień pojawia się nowa wiadomość testowa wysłana przez Magpie Monitor.
+
+18. **Wyświetlenie danych o incydencie** 
+
+**Opis:** Test ma na celu sprawdzenie, czy użytkownik może wyświetlić dane o incydencie.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.  
+* Istnieje wygenerowany raport z co najmniej jednym incydentem.
+
+**Dane testowe**:
+
+* Raport, zawierający co najmniej jeden incydent.
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Reports".  
+* Użytkownik wybiera raport z incydentem.  
+* Użytkownik przechodzi na stronę incydentu.  
+* Użytkownik znajduję wszystkie dane dotyczące incydentu.
+
+**Oczekiwany wynik**:
+
+* Użytkownik powinien móc wyświetlić: nazwę aplikacji lub hosta; rekomendację działań opis; czas; w jakim doszło do incydentu.
+
+19. **Wyświetlenie listy raportów**
+
+**Opis:** Test ma na celu sprawdzenie, czy użytkownik może wyświetlić listę raportów.  
+**Warunki wstępne**: 
+
+* Użytkownik jest zalogowany do systemu.  
+* Istnieje wygenerowany raport na żądanie.  
+* Istnieje wygenerowany raport cykliczny.  
+* Istnieją zaplanowane raporty do generacji.
+
+**Dane testowe**:
+
+* Wygenerowany raport na żądanie.  
+* Wygenerowany raport cykliczny.  
+* Raport, który jest w trakcie generacji.
+
+**Kroki testowe**:
+
+* Użytkownik loguje się do systemu.  
+* Użytkownik przechodzi do zakładki "Reports".
+
+**Oczekiwany wynik**:
+
+* Użytkownik powinien móc zobaczyć listę raportów, z podziałem na raporty cykliczne oraz na żądanie.  
+* Wśród raportów powinien widnieć generowany raport wraz z informacją, że proces jego generowania jest w toku.  
+  
 
 ### 10.4.1 Procedura testowa {#procedura-testowa}
 
