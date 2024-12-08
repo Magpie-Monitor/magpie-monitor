@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T22:31:14.094Z
+date: 2024-12-08T22:32:12.832Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1439,7 +1439,7 @@ Zmiana stanu zagregowanych metadanych klastrów jest emitowana przez Metadata Se
 
 Na podstawie wymagań funkcjonalnych oraz historyjek użytkownika zaprojektowano interfejs, który odpowiada oczekiwaniom użytkowników podczas korzystania z systemu. Szczególną uwagę poświęcono zapewnieniu pozytywnych doświadczeń użytkownika z Magpie Monitorem. W tym celu skupiono się na prostocie, czytelności oraz estetycznym wyglądzie interfejsu. Dodatkowym wyzwaniem było zapewnienie pełnej responsywności, aby użytkownicy mogli wygodnie korzystać z systemu także na urządzeniach mobilnych za pośrednictwem przeglądarki.
 
-#### 8.1.1 Widok logowania {#widok-logowania}
+### 8.1.1 Widok logowania {#widok-logowania}
 
 <figure>
     <img src="/">
@@ -1579,7 +1579,7 @@ Widok konfiguracji raportu zawiera następujące sekcje:
 * “Date Range” – w przypadku raportu na żądanie pozwala określić przedział czasu, z którego logi będą analizowane. Dla raportów cyklicznych umożliwia wybór częstotliwości ich generowania.  
 * “Notification Channels” – definiuje kanały powiadomień, na które mają być wysyłane informacje dotyczące raportu. Po kliknięciu ikony „plus” wyświetla się okienko z listą skonfigurowanych kanałów, które można dodać.  
 * “Application” – zawiera listę aplikacji uwzględnionych w raporcie. Użytkownik może zmieniać dokładność dla każdej z nich oraz dodawać indywidualne instrukcje wejściowe. Kliknięcie ikony „plus” otwiera okienko z listą dostępnych aplikacji do wyboru.  
-* “Nodes” – zawiera listę hostów uwzględnionych w raporcie. Funkcjonalność tej sekcji jest identyczna jak w przypadku sekcji „Application”.
+* “Nodes” – zawiera listę hostów uwzględnionych w raporcie. Funkcjonalność tej sekcji jest identyczna jak w przypadku sekcji "Application”.
 
 W prawym dolnym rogu znajdują się dwa przyciski: jeden odpowiada za wygenerowanie raportu, a drugi za anulowanie zmian, co powoduje powrót do widoku głównego.  
 W wersji mobilnej sekcje są ułożone w jednej kolumnie, co poprawia czytelność i ułatwia nawigację po stronie.
