@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T10:29:36.783Z
+date: 2024-12-08T15:55:54.983Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1930,6 +1930,23 @@ Przykład porównania, na podstawie którego w przypadku zmiany generowany jest 
 Wygenerowany stan jest następnie emitowany w postaci wydarzenia do brokera Kafki.
 
 ## 9.17 Zabezpieczenia aplikacji (management service) {#zabezpieczenia-aplikacji-(management-service)}
+
+Aplikacja wykorzystuje protokół OAuth2 do uwierzytelniania użytkowników. Wybrano dostawcę Google, który odpowiada za autoryzację i generowanie tokenów uwierzytelniających. Po zakończonym procesie autoryzacji użytkownik otrzymuje dwa tokeny:
+
+**ID Token (authToken)** - jest to token w formacie JWT, który zawiera podstawowe informacje o użytkowniku oraz potwierdza jego tożsamość. Ten token jest przechowywany w ciasteczku i wysyłany z każdym zapytaniem do serwera aplikacji w celu uwierzytelnienia użytkownika i udostępnienia żądanych zasobów. Czas ważności tego tokena to 1h.
+
+**Refresh Token (refreshToken)** - jest przechowywany w ciasteczku i wykorzystywany wyłącznie w procesie odświeżania sesji. Umożliwia on generowanie nowego ID Tokenu, gdy poprzedni wygasa, bez konieczności ponownego logowania użytkownika. Token ten jest ważny bezterminowo.
+
+Aplikacja nie implementuje podziału użytkowników na role. Wszyscy użytkownicy, którzy przejdą proces uwierzytelnienia, mają jednakowy poziom dostępu do zasobów i funkcjonalności aplikacji.
+
+Proces uwierzytelniania przebiega w następujący sposób:
+1. Użytkownik przekierowywany jest na stronę logowania Google, gdzie podaje swoje dane logowania.
+2. Po pomyślnym uwierzytelnieniu Google zwraca ID Token i Refresh Token.
+3. ID Token zapisywany jest w ciasteczku jako `authToken` i wysyłany w nagłówku każdego zapytania HTTP, aby serwer aplikacji mógł uwierzytelnić użytkownika.
+4. Refresh Token przechowywany jest w ciasteczku jako `refreshToken` i wykorzystywany wyłącznie przy odświeżaniu tokenu (np. po jego wygaśnięciu).
+
+Mechanizm ten zapewnia prostotę implementacji uwierzytelniania, przy jednoczesnym wykorzystaniu standardowych rozwiązań OAuth2 i Google Identity Platform.
+
 
 ## 10. Testy produktu programowego/Wyniki i analiza badań {#testy-produktu-programowego/wyniki-i-analiza-badań}
 
