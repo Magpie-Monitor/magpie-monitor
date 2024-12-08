@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T08:10:38.686Z
+date: 2024-12-08T08:10:55.777Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -371,7 +371,7 @@ System nie może tracić
 
 <figure>
     <img src="/container-diagram.svg">
-    <figcaption>Rysunek X: Diagram kontenerów [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Diagaaram kontenerów [źródło opracowanie własne]</figcaption>
 </figure>
 
 Poziom 2 w modelu C4 oznacza diagram kontenerów i przedstawia on wszystkie mikroserwisy, ich zewnętrze zależności oraz kanały komunikacji.
