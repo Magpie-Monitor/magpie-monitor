@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T09:21:11.809Z
+date: 2024-12-08T09:21:25.032Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -846,7 +846,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 <figure>
     <img src="/management-service/database/management-service-database-mongodb-metadata-configuration.svg">
-    <figcaption>Rysunek X: Management Service: Diagram bazy metaadanych [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Management Service: Diagram bazy metadanych [źródło opracowanie własne]</figcaption>
 </figure>
 
 **AggregatedApplicationMetadata**
