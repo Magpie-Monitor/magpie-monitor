@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T07:58:23.555Z
+date: 2024-12-08T08:00:56.538Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -399,8 +399,8 @@ Jednocześnie, serwis w jakim utworzony został dany rekord/informacja oryginaln
 ### 7.2.3 Diagram wdrożenia    {#diagram-wdrożenia}
 
 <figure>
-    <img src="/deployment-diagram-transparent.svg">
-    <figcaption>Rysunek X: Diagram wdrożenia a[źródło opracowanie własne]</figcaption>
+    <img src="/deployment-diagram.svg">
+    <figcaption>Rysunek X: Diagram wdrożenia [źródło opracowanie własne]</figcaption>
 </figure>
 
 Wdrożenie systemu zakłada dwa podsystemy: “Magpie Monitor Cloud”, który oznacza infrastrukturę, na której wdrażane są wszystkie mikroserwisy oraz serwera klienta webowego. Drugim podsystemem jest system klienta, w którym musi zostać zainstalowany **agent** zbierający logi z klastra Kubernetesa będącego częścią jego infrastruktury. 
