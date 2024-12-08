@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T17:08:06.061Z
+date: 2024-12-08T17:15:19.854Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -253,14 +253,11 @@ Projekt nosi nazwę *Magpie Monitor*, a oba człony tej nazwy zostały dobrane n
 Logo jest minimalistyczne i przedstawia czarno-białą srokę na szarym tle. Subtelnie zaokrąglone krawędzie dodają obrazowi delikatności, a poziome czarne linie w tle podkreślają czujną, wypatrującą pozę ptaka. Taka forma graficzna odzwierciedla główną ideę systemu: uważne monitorowanie oraz zbieranie danych.
 
 Głównym celem logotypu jest ścisłe powiązanie go z nazwą systemu. Użycie maskotki w postaci sroki skutecznie realizuje ten zamysł, tworząc czytelne skojarzenie wizualne i jednocześnie dodając projektowi charakteru.
-
       
 
-      
+## 3. Analiza funkcjonalna {#analiza-funkcjonalna}
 
-   3. ## Analiza funkcjonalna {#analiza-funkcjonalna}
-
-	System będzie oferował funkcjonalność uwierzytelniania w celu identyfikacji użytkowników i weryfikacji, czy osoby próbujące uzyskać dostęp do systemu posiadają odpowiednie uprawnienia. Funkcja ta jest kluczowa dla zapewnienia bezpieczeństwa działania aplikacji.  
+System będzie oferował funkcjonalność uwierzytelniania w celu identyfikacji użytkowników i weryfikacji, czy osoby próbujące uzyskać dostęp do systemu posiadają odpowiednie uprawnienia. Funkcja ta jest kluczowa dla zapewnienia bezpieczeństwa działania aplikacji.  
 Po zalogowaniu użytkownik powinien ocenić interfejs aplikacji jako intuicyjny i estetyczny. Z tego względu raporty generowane przez system nie mogą być przedstawiane w formie surowego tekstu. Informacje w raportach zostaną podzielone na czytelne sekcje, a niektóre dane dotyczące przeanalizowanych logów będą prezentowane w formie wykresów, co zwiększy ich przejrzystość.  
 Zakres przedstawionych danych w raporcie będzie zależny od opcji wybranych przez użytkownika. Przewidywane są następujące parametry konfiguracji:
 
@@ -281,45 +278,55 @@ W realizowanym projekcie przyjęto następujące ograniczenia:
 * System ogranicza dostępne kanały powiadomień do e-maila, Slacka oraz Discorda. Inne formy powiadomień nie są obsługiwane w bieżącej wersji.  
 * System logowania zostanie zaimplementowany w oparciu o logowanie jednokrotne (ang. Single Sign-On, SSO) firmy Google. W obecnym etapie projektu nie przewiduje się wsparcia dla alternatywnych metod logowania.
 
-6. #  Specyfikacja i analiza wymagań na produkt programowy {#specyfikacja-i-analiza-wymagań-na-produkt-programowy}
+#  6. Specyfikacja i analiza wymagań na produkt programowy {#specyfikacja-i-analiza-wymagań-na-produkt-programowy}
 
    1. ## Użytkownicy systemu {#użytkownicy-systemu}
 
-	System przewiduje dwie role użytkowników:
+| Nazwa  | Opis  | Zakres funkcjonalności |
+| :---- | :---- | :---- |
+| Gość | Osoba niezalogowana w systemie. | Logowanie się w systemie. |
+| Użytkownik | Administrator lub osoba odpowiedzialna za monitorowanie stanu aplikacji. | Wylogowywanie się z systemu, przeglądanie raportów, generowanie raportów, konfigurowanie raportów, ustawianie kanałów powiadomień. |
 
-* Gość \- użytkownik niezalogowany \- nie będzie posiadał żadnych funkcjonalności, poza zalogowaniem oraz zgłoszeniem błędu do administratora  
-* Użytkownik \- gość po zalogowaniu \- będzie posiadał wszystkie uprawniania oraz będzie mógł skorzystać z każdej funkcjonalności systemu  
-    
-  System nie przewiduje systemu ról, który podzieliłby funkcjonalności dla zalogowanych użytkowników w zależności od pełnionej roli.  
+## 2. Wymagania niefunkcjonalne {#wymagania-niefunkcjonalne}
 
-  2. ## Wymagania niefunkcjonalne {#wymagania-niefunkcjonalne}
+Wymagania funkcjonalne zostały podzielone według modelu FURPS. Pozwala on skategoryzować wszystkie wymagania według pięciu klas (Funkcjonalności, Użyteczności, Niezawodności, Wydajności, Wsparcia).
 
-	Wymagania funkcjonalne zostały podzielone według modelu FURPS:
+**1. Funkcjonalność**   
+	* System musi uniemożliwiać dostęp nieautoryzowanym użytkownikom, aby zapewnić bezpieczeństwo danych klientów.
 
-* Funkcjonalność (ang. Functionality):
-
-
-  System będzie uniemożliwiał dostęp nieuwierzytelnionym użytkownikom, zapewniając bezpieczeństwo danych klienta.
-
-
-* Użyteczność (ang. Usability):
+**2. Użyteczność**  
+		* System powinien oferować intuicyjny i wygodny interfejs użytkownika.
+Pozytywne doświadczenia użytkowników z korzystania z Magpie Monitora mają na celu zwiększenie zaangażowania i zachęcenie do dalszego korzystania z systemu.
 
 
-  System zaoferuje intuicyjny oraz wygodny interfejs użytkownika.
+* System musi być dostępny na urządzeniach mobilnych, tabletach i komputerach stacjonarnych, zapewniając pełną responsywność interfejsu użytkownika (UI).
+
+  Chociaż przewiduje się, że Magpie Monitor będzie głównie używany na komputerach stacjonarnych, system powinien być równie funkcjonalny na innych urządzeniach, aby poszerzyć grono potencjalnych użytkowników.
 
 
-  System musi być dostępny na urządzeniach mobilnych, tabletach i komputerach stacjonarnych, z zapewnieniem pełnej responsywności UI.
+  3. Niezawodność  
+* System musi być dostępny dla użytkowników przez co najmniej 99% czasu w ciągu miesiąca, co zapewni wysoką niezawodność usług.  
+* Magpie Monitor musi być bardziej niezawodny niż aplikacje, które monitoruje, aby jego wyniki były wiarygodne i wartościowe.  
+* System nie może utracić więcej zebranych logów niż 0.5% w skali miesiąca.
+
+  Utracenie większej liczby logów będzie skutkować raportami, które nie opisują rzeczywistego stanu monitorowanej aplikacji.
 
 
-* Niezawodność (ang. Reliability):
+* System po awarii musi wznowić generacje raportu 
 
-		  
-		System musi być dostępny dla użytkowników przez co najmniej 99%  
-czasu miesięcznie.
+  Każdy zaplanowany raport musi zostać wykonany, jeśli Magpie Monitor oraz używany model językowy jest sprawny.
 
-System nie może tracić 
+  4. Wydajność  
+* System powinien nie mieć ograniczeń w liczbie analizowanych logów. 
 
-* Wydajność (Performance):
+  Jeśli liczba logów przekracza ograniczenia wybranego modelu, system powinien podzielić je na mniejsze partie logów, które będą wysłane osobno do modelu.
+
+
+  5. Wsparcie  
+* System powinien wspierać popularne przeglądarki internetowe takie jak: Google Chrome, Safari, Edge, Firefox.
+
+
+* System powinien być w stanie obserwować dowolną aplikację, która została umieszczona na klastrze Kubernetesa.
 
   3. ## Wymagania funkcjonalne {#wymagania-funkcjonalne}
 
