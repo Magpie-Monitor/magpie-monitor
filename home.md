@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T09:32:37.754Z
+date: 2024-12-08T10:18:26.569Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -457,7 +457,7 @@ Logs Ingestion Service zajmuje się zbieraniem i przetwarzaniem kolejno logów a
 ### 7.2.7. Model C3 \- poziom 3 \- Metadata Service {#model-c3---poziom-3---metadata-service}
 
 <figure>
-    <img src="/metadata-service/metadata-service-components-transparent.png">
+    <img src="/metadata-service/metadata-service-components.svg">
     <figcaption>Rysunek X: Metadata Service: Diagram komponentów [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -479,6 +479,38 @@ Serwis składa się z pięciu głównych komponentów, których diagramy zapreze
 * podsystem powiadomień  
 * podsystem klastrów  
 * podsystem uwierzytelniania, autoryzacji oraz danych o użytkowniku
+
+<figure>
+    <img src="/management-service/management-service-reports.svg">
+    <figcaption>Rysunek X: Metadata Service: Diagram komponentów [źródło opracowanie własne]</figcaption>
+</figure>
+
+Podsystem raportów jest odpowiedzialny za komunikacje z  **Report Service,** z którym komunikuje się za pośrednictwem brokera Kafki, przez którego przesyłane są dane konfiguracyjne do generowania raportu, a następnie zwracany jest wygenerowany raport bądź odpowiedni błąd generacji, które przechowywane są w dokumentowej bazie danych MongoDB. Zapisywanie raportów w bazie sprawia, że serwis może zwracać użytkownikowi dane o raportach nawet w przypadku awarii **Report Service**.
+
+Podsystem ten przechowuje również metadane o wykonanych generacjach raportów, które mogą służyć jako dane audytowe. 
+
+Wygenerowane raporty udostępniane są przez interfejs API, z którego może skorzystać aplikacja kliencka.
+
+<figure>
+    <img src="/management-service/management-service-metadata.svg">
+    <figcaption>Rysunek X: Metadata Service: Diagram komponentów [źródło opracowanie własne]</figcaption>
+</figure>
+
+Podsystem metadanych odpowiada za odbieranie wydarzeń sygnalizujących zmianę stanu klastrów, aplikacji oraz hostów. Zagregowane dane są przechowywane w dokumentowej bazie MongoDB, a następnie są udostępniane innym podsystemom przez interfejs programistyczny.
+
+<figure>
+    <img src="/management-service/management-service-notifications.svg">
+    <figcaption>Rysunek X: Metadata Service: Diagram komponentów [źródło opracowanie własne]</figcaption>
+</figure>
+
+Podsystem powiadomień odpowiada za konfigurację odbiorników powiadomień (ang. receivers) oraz komunikację z zewnętrznymi API w celu wysyłania powiadomień. Podsystem powiadomień udostępnia interfejs programistyczny dla podsystemu raportów, pozwalając mu na przesyłanie powiadomień dot. generacji raportu zgodnie ze skonfigurowanymi przez użytkownika odbiornikami.
+
+
+<figure>
+    <img src="/management-service/management-service-clusters.svg">
+    <figcaption>Rysunek X: Metadata Service: Diagram komponentów [źródło opracowanie własne]</figcaption>
+</figure>
+
 
 ### 7.2.9. Model C3 \- poziom 3 \- Client {#model-c3---poziom-3---client}
 
