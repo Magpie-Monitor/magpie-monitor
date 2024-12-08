@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T08:12:08.808Z
+date: 2024-12-08T08:15:49.620Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -748,6 +748,12 @@ Jest tworzony w momencie otrzymania żądania od Management Service w którym zn
 **![][image7]**
 
 ### 7.4.4 Baza danych management-service**  
+
+	
+ <figure>
+    <img src="/management-service/database/management-service-database-mongodb-reports.svg">
+    <figcaption>Rysunek X: Reports Service: Diagram bazy raportów [źródło opracowanie własne]</figcaption>
+</figure>
 
 **![][image8]**  
 **![][image9]**
