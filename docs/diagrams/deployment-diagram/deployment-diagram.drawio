@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:132.0) Gecko/20100101 Firefox/132.0" version="24.9.0">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0" version="25.0.3">
   <diagram name="Page-1" id="GbYRbNNyDbhooDil0Co5">
-    <mxGraphModel dx="2129" dy="2237" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="3000" math="0" shadow="0">
+    <mxGraphModel dx="3287" dy="1967" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2000" pageHeight="3000" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -15,12 +15,12 @@
           </mxCell>
         </object>
         <object placeholders="1" c4Name="Cluster metadata database" c4Type="Container" c4Technology="MongoDB" c4Description="Stores cluster metadata from clients cluster" label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%:&amp;nbsp;%c4Technology%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px&quot;&gt;&lt;font&gt;%c4Description%&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;" id="VblmflZQPWKM-_h5zKfY-3">
-          <mxCell style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#e1d5e7;fontSize=12;align=center;strokeColor=#9673a6;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;fontColor=default;" parent="1" vertex="1">
+          <mxCell style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#f8cecc;fontSize=12;align=center;strokeColor=#b85450;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;" parent="1" vertex="1">
             <mxGeometry x="1651" y="1630" width="240" height="120" as="geometry" />
           </mxCell>
         </object>
         <object placeholders="1" c4Name="Cluster metadata service" c4Type="Container" c4Technology="Go" c4Description="Provides metadata of connected clusters" label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%: %c4Technology%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px&quot;&gt;&lt;font&gt;%c4Description%&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;" id="VblmflZQPWKM-_h5zKfY-4">
-          <mxCell style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#e1d5e7;align=center;arcSize=10;strokeColor=#9673a6;metaEdit=1;resizable=0;points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];fontColor=default;" parent="1" vertex="1">
+          <mxCell style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#f8cecc;align=center;arcSize=10;strokeColor=#b85450;metaEdit=1;resizable=0;points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];" parent="1" vertex="1">
             <mxGeometry x="1651" y="1470" width="240" height="120" as="geometry" />
           </mxCell>
         </object>
@@ -55,12 +55,12 @@
           </mxCell>
         </object>
         <object placeholders="1" c4Name="Reports database" c4Type="Container" c4Technology="MongoDB" c4Description="Stores generated reports" label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%:&amp;nbsp;%c4Technology%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px&quot;&gt;&lt;font&gt;%c4Description%&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;" id="VblmflZQPWKM-_h5zKfY-11">
-          <mxCell style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#ffe6cc;fontSize=12;align=center;strokeColor=#d79b00;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;fontColor=default;" parent="1" vertex="1">
+          <mxCell style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#ffe6cc;fontSize=12;align=center;strokeColor=#d79b00;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;" parent="1" vertex="1">
             <mxGeometry x="1668.25" y="820" width="240" height="120" as="geometry" />
           </mxCell>
         </object>
         <object placeholders="1" c4Name="Management Service" c4Type="Container" c4Technology="Java SpringBoot" c4Description="Handles user/cluster settings and notifications. Exposes API for web client to interact with the system" label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%: %c4Technology%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px&quot;&gt;&lt;font&gt;%c4Description%&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;" id="VblmflZQPWKM-_h5zKfY-12">
-          <mxCell style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#ffe6cc;align=center;arcSize=10;strokeColor=#d79b00;metaEdit=1;resizable=0;points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];fontColor=default;" parent="1" vertex="1">
+          <mxCell style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#ffe6cc;align=center;arcSize=10;strokeColor=#d79b00;metaEdit=1;resizable=0;points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];" parent="1" vertex="1">
             <mxGeometry x="1668.75" y="660" width="240" height="120" as="geometry" />
           </mxCell>
         </object>
@@ -75,7 +75,7 @@
           </mxCell>
         </object>
         <object placeholders="1" c4Name="Logs Storage" c4Type="Container" c4Technology="Elasticsearch" c4Description="Stores application and node log" label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%:&amp;nbsp;%c4Technology%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px&quot;&gt;&lt;font&gt;%c4Description%&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;" id="VblmflZQPWKM-_h5zKfY-15">
-          <mxCell style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#dae8fc;fontSize=12;align=center;strokeColor=#6c8ebf;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;fontColor=default;" parent="1" vertex="1">
+          <mxCell style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#dae8fc;fontSize=12;align=center;strokeColor=#6c8ebf;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;" parent="1" vertex="1">
             <mxGeometry x="909.75" y="1260" width="240" height="120" as="geometry" />
           </mxCell>
         </object>
@@ -110,7 +110,7 @@
           </mxCell>
         </object>
         <object placeholders="1" c4Name="Pod Collector Agent" c4Type="Container" c4Technology="Go" c4Description="Collects logs from applications installed in the cluster" label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%: %c4Technology%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px&quot;&gt;&lt;font&gt;%c4Description%&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;" id="VblmflZQPWKM-_h5zKfY-25">
-          <mxCell style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#bac8d3;align=center;arcSize=10;strokeColor=#23445d;metaEdit=1;resizable=0;points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];" parent="1" vertex="1">
+          <mxCell style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#fff2cc;align=center;arcSize=10;strokeColor=#d6b656;metaEdit=1;resizable=0;points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];" parent="1" vertex="1">
             <mxGeometry x="1318.5" y="2570" width="240" height="120" as="geometry" />
           </mxCell>
         </object>
@@ -120,7 +120,7 @@
           </mxCell>
         </object>
         <object placeholders="1" c4Name="Node Collector Agent" c4Type="Container" c4Technology="Go" c4Description="Collects logs from nodes in the cluster" label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%: %c4Technology%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px&quot;&gt;&lt;font&gt;%c4Description%&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;" id="VblmflZQPWKM-_h5zKfY-27">
-          <mxCell style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#bac8d3;align=center;arcSize=10;strokeColor=#23445d;metaEdit=1;resizable=0;points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];" parent="1" vertex="1">
+          <mxCell style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;fillColor=#fff2cc;align=center;arcSize=10;strokeColor=#d6b656;metaEdit=1;resizable=0;points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];" parent="1" vertex="1">
             <mxGeometry x="1318.5" y="2420" width="240" height="120" as="geometry" />
           </mxCell>
         </object>
@@ -237,12 +237,12 @@
           </mxCell>
         </object>
         <object placeholders="1" c4Name="Cluster metadata database" c4Type="Container" c4Technology="MongoDB" c4Description="Stores current cluster metadata" label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%:&amp;nbsp;%c4Technology%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px&quot;&gt;&lt;font&gt;%c4Description%&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;" id="VblmflZQPWKM-_h5zKfY-48">
-          <mxCell style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#ffe6cc;fontSize=12;align=center;strokeColor=#d79b00;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;fontColor=default;" parent="1" vertex="1">
+          <mxCell style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#ffe6cc;fontSize=12;align=center;strokeColor=#d79b00;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;" parent="1" vertex="1">
             <mxGeometry x="1668.75" y="960" width="240" height="120" as="geometry" />
           </mxCell>
         </object>
         <object placeholders="1" c4Name="User settings database" c4Type="Container" c4Technology="PostgreSQL" c4Description="Stores user settings" label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%:&amp;nbsp;%c4Technology%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px&quot;&gt;&lt;font&gt;%c4Description%&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;" id="VblmflZQPWKM-_h5zKfY-49">
-          <mxCell style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#ffe6cc;fontSize=12;align=center;strokeColor=#d79b00;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;fontColor=default;" parent="1" vertex="1">
+          <mxCell style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#ffe6cc;fontSize=12;align=center;strokeColor=#d79b00;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;" parent="1" vertex="1">
             <mxGeometry x="1668.75" y="1090" width="240" height="120" as="geometry" />
           </mxCell>
         </object>
@@ -475,44 +475,47 @@
           <mxGeometry x="850" y="1100" width="100" height="30" as="geometry" />
         </mxCell>
         <object placeholders="1" c4Name="Cluster metadata storage" c4Type="Container" c4Technology="Redis" c4Description="Stores cluster metadata" label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%:&amp;nbsp;%c4Technology%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px&quot;&gt;&lt;font&gt;%c4Description%&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;" id="O4s0kgF8oqvcocRECzot-1">
-          <mxCell style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#bac8d3;fontSize=12;align=center;strokeColor=#23445d;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;fontColor=default;" vertex="1" parent="1">
+          <mxCell style="shape=cylinder3;size=15;whiteSpace=wrap;html=1;boundedLbl=1;rounded=0;labelBackgroundColor=none;fillColor=#fff2cc;fontSize=12;align=center;strokeColor=#d6b656;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;" parent="1" vertex="1">
             <mxGeometry x="1600" y="2500" width="240" height="120" as="geometry" />
           </mxCell>
         </object>
-        <mxCell id="O4s0kgF8oqvcocRECzot-2" value="Legend" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fontSize=16;align=left;verticalAlign=top;fillColor=none;strokeColor=none;fontColor=#4D4D4D;fontStyle=1;spacingLeft=6;spacing=0;resizable=0;" vertex="1" parent="1">
+        <mxCell id="O4s0kgF8oqvcocRECzot-2" value="Legend" style="shape=table;startSize=30;container=1;collapsible=0;childLayout=tableLayout;fontSize=16;align=left;verticalAlign=top;fillColor=none;strokeColor=none;fontColor=#4D4D4D;fontStyle=1;spacingLeft=6;spacing=0;resizable=0;" parent="1" vertex="1">
           <mxGeometry x="850" y="2290" width="180" height="170" as="geometry" />
         </mxCell>
-        <mxCell id="O4s0kgF8oqvcocRECzot-3" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;strokeColor=inherit;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" vertex="1" parent="O4s0kgF8oqvcocRECzot-2">
+        <mxCell id="O4s0kgF8oqvcocRECzot-3" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;strokeColor=inherit;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" parent="O4s0kgF8oqvcocRECzot-2" vertex="1">
           <mxGeometry y="30" width="180" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="O4s0kgF8oqvcocRECzot-4" value="Logs ingestion service" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=#10739e;overflow=hidden;fillColor=#b1ddf0;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontSize=12;align=left;spacingLeft=10;spacingRight=4;" vertex="1" parent="O4s0kgF8oqvcocRECzot-3">
+        <mxCell id="O4s0kgF8oqvcocRECzot-4" value="Logs ingestion service" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=#10739e;overflow=hidden;fillColor=#b1ddf0;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontSize=12;align=left;spacingLeft=10;spacingRight=4;" parent="O4s0kgF8oqvcocRECzot-3" vertex="1">
           <mxGeometry width="180" height="30" as="geometry">
             <mxRectangle width="180" height="30" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O4s0kgF8oqvcocRECzot-5" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;strokeColor=inherit;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" vertex="1" parent="O4s0kgF8oqvcocRECzot-2">
+        <mxCell id="O4s0kgF8oqvcocRECzot-5" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;strokeColor=inherit;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" parent="O4s0kgF8oqvcocRECzot-2" vertex="1">
           <mxGeometry y="60" width="180" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="O4s0kgF8oqvcocRECzot-6" value="Cluster metadta service" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=#56517e;overflow=hidden;fillColor=#d0cee2;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontSize=12;align=left;spacingLeft=10;spacingRight=4;" vertex="1" parent="O4s0kgF8oqvcocRECzot-5">
+        <mxCell id="O4s0kgF8oqvcocRECzot-6" value="Cluster metadta service" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=#b85450;overflow=hidden;fillColor=#f8cecc;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontSize=12;align=left;spacingLeft=10;spacingRight=4;" parent="O4s0kgF8oqvcocRECzot-5" vertex="1">
           <mxGeometry width="180" height="30" as="geometry">
             <mxRectangle width="180" height="30" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O4s0kgF8oqvcocRECzot-7" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;strokeColor=inherit;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" vertex="1" parent="O4s0kgF8oqvcocRECzot-2">
+        <mxCell id="O4s0kgF8oqvcocRECzot-7" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;strokeColor=inherit;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" parent="O4s0kgF8oqvcocRECzot-2" vertex="1">
           <mxGeometry y="90" width="180" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="O4s0kgF8oqvcocRECzot-8" value="Reports service" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=#0e8088;overflow=hidden;fillColor=#b0e3e6;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontSize=12;align=left;spacingLeft=10;spacingRight=4;" vertex="1" parent="O4s0kgF8oqvcocRECzot-7">
+        <mxCell id="O4s0kgF8oqvcocRECzot-8" value="Reports service" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=#0e8088;overflow=hidden;fillColor=#b0e3e6;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontSize=12;align=left;spacingLeft=10;spacingRight=4;" parent="O4s0kgF8oqvcocRECzot-7" vertex="1">
           <mxGeometry width="180" height="40" as="geometry">
             <mxRectangle width="180" height="40" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O4s0kgF8oqvcocRECzot-9" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;strokeColor=inherit;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" vertex="1" parent="O4s0kgF8oqvcocRECzot-2">
+        <mxCell id="O4s0kgF8oqvcocRECzot-9" value="" style="shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;strokeColor=inherit;top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=12;" parent="O4s0kgF8oqvcocRECzot-2" vertex="1">
           <mxGeometry y="130" width="180" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="O4s0kgF8oqvcocRECzot-10" value="Management service" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=#b46504;overflow=hidden;fillColor=#fad7ac;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontSize=12;align=left;spacingLeft=10;spacingRight=4;" vertex="1" parent="O4s0kgF8oqvcocRECzot-9">
+        <mxCell id="O4s0kgF8oqvcocRECzot-10" value="Management service" style="shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=#d79b00;overflow=hidden;fillColor=#ffe6cc;top=0;left=0;bottom=0;right=0;pointerEvents=1;fontSize=12;align=left;spacingLeft=10;spacingRight=4;" parent="O4s0kgF8oqvcocRECzot-9" vertex="1">
           <mxGeometry width="180" height="40" as="geometry">
             <mxRectangle width="180" height="40" as="alternateBounds" />
           </mxGeometry>
+        </mxCell>
+        <mxCell id="D7xy1kiBADzD360u8Bj0-1" value="&amp;nbsp;" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="30" width="40" height="40" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
