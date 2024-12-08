@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T21:59:23.089Z
+date: 2024-12-08T22:12:04.715Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -50,27 +50,27 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [7.1. Projekt domenowy](#projekt-domenowy)
 
-[7.2. Architektura systemu](#architektura-systemu)
+[7.2. Wykorzystane technologie i narzędzia](#wykorzystane-technologie-i-narzędzia)
 
-[7.2.1. Model C4 \- poziom 1](#model-c4---poziom-1)
+[7.3. Architektura systemu](#architektura-systemu)
 
-[7.2.2. Model C4 \- poziom 2](#model-c4---poziom-2)
+[7.3.1. Model C4 \- poziom 1](#model-c4---poziom-1)
 
-[7.2.3. Diagram wdrożenia](#diagram-wdrożenia)
+[7.3.2. Model C4 \- poziom 2](#model-c4---poziom-2)
 
-[7.2.4. Model C3 \- poziom 3 \- Agent](#model-c3---poziom-3---agent)
+[7.3.3. Diagram wdrożenia](#diagram-wdrożenia)
 
-[7.2.5. Model C3 \- poziom 3 \- Logs Ingestion Service](#model-c3---poziom-3---logs-ingestion-service)
+[7.3.4. Model C3 \- poziom 3 \- Agent](#model-c3---poziom-3---agent)
 
-[7.2.6. Model C3 \- poziom 3 \- Report Service](#model-c3---poziom-3---report-service)
+[7.3.5. Model C3 \- poziom 3 \- Logs Ingestion Service](#model-c3---poziom-3---logs-ingestion-service)
 
-[7.2.7. Model C3 \- poziom 3 \- Metadata Service](#model-c3---poziom-3---metadata-service)
+[7.3.6. Model C3 \- poziom 3 \- Report Service](#model-c3---poziom-3---report-service)
 
-[7.2.8. Model C3 \- poziom 3 \- Management API](#model-c3---poziom-3---management-api)
+[7.3.7. Model C3 \- poziom 3 \- Metadata Service](#model-c3---poziom-3---metadata-service)
 
-[7.2.9. Model C3 \- poziom 3 \- Client](#model-c3---poziom-3---client)
+[7.3.8. Model C3 \- poziom 3 \- Management API](#model-c3---poziom-3---management-api)
 
-[7.3. Wykorzystane technologie i narzędzia](#wykorzystane-technologie-i-narzędzia)
+[7.3.9. Model C3 \- poziom 3 \- Client](#model-c3---poziom-3---client)
 
 [7.4. Bazy danych mikroserwisów](#bazy-danych-mikroserwisów)
 
@@ -541,9 +541,45 @@ Zależność między wymaganiami funkcjonalnymi, a historyjkami użytkownika prz
 
 ## 7.1 Projekt domenowy {#projekt-domenowy}
 
-## 7.2 Architektura systemu {#architektura-systemu}
+## 7.2. Wykorzystane technologie i narzędzia {#wykorzystane-technologie-i-narzędzia}
 
-### 7.2.1 Model C4 \- poziom 1 {#model-c4---poziom-1}
+W celu realizacji projektu zdecydowano się użyć następujące technologie:
+
+**Kubernetes** – najbardziej dojrzały i powszechnie stosowany orkiestrator rozproszonych systemów opartych na kontenerach, szeroko wykorzystywany w zastosowaniach komercyjnych.
+
+**Docker** – najpopularniejsze narzędzie i ekosystem do budowania oraz uruchamiania kontenerów aplikacji.
+
+**Golang** – język programowania umożliwiający tworzenie szybkich, odpornych na wycieki pamięci i wielowątkowych mikroserwisów bez konieczności używania dodatkowych frameworków do budowy aplikacji webowych. Dodatkowo, ekosystem Go zapewnia skuteczną integrację z interfejsem Kubernetesa, co jest kluczowe przy zbieraniu logów z klastra komputerowego zarządzanego przez Kubernetes.
+
+**Fx** – biblioteka, która dostarcza funkcjonalność wstrzykiwania zależności do aplikacji w Go. Pozwala na standaryzację struktury mikroserwisów oraz większą reużywalność kodu.
+
+**Java** – dojrzały i popularny język programowania, który dzięki bogatej dokumentacji i licznej społeczności znacząco przyspiesza proces rozwoju oprogramowania.
+
+**Spring Boot** – popularny framework backendowy przeznaczony do budowy aplikacji webowych w architekturze REST. Oferuje sprawdzone rozwiązania w zakresie bezpieczeństwa, routingu oraz mapowania obiektowo-relacyjnego (ORM).
+
+**Typescript** – język programowania, rozwijający język JavaScript o dodatkową składnie. Wprowadzone modyfikacje pozwalają na uniknięcie błędów związanych z brakiem silnego typowania.
+
+**React** \- framework frontendowy użyty do stworzenia klienta aplikacji. React jest najszerzej wspieranym frameworkiem do tworzenia aplikacji w architekturze SPA. To pozwala na znacznie łatwiejsze zarządzanie stanem aplikacji.  
+    
+**Sass** \- rozszerzenie klasycznego CSS, które ubogaca podstawową składnie o funkcjonalności minimalizujące duplikacje kodu, poprawiając przy tym czytelność pliku.
+
+**Vite** – nowoczesny narzędzie do budowania frontendowych aplikacji webowych, które oferuje szybkie ładowanie modułów podczas rozwoju oraz efektywne budowanie w środowiskach produkcyjnych.
+
+**PostgreSQL** \- relacyjna baza danych, która została użyta do przechowywania informacji związanych z ustawieniami użytkownika oraz informacji o monitorowanym systemie, które cechują się możliwości ich normalizacji. 
+
+**MongoDB** \- dokumentowa baza danych, w której zostaną przechowywane wygenerowane raporty w języku naturalnym. Raporty takie są długimi dokumentami, które nie wymagają spójności w każdym momencie oraz które ciężko byłoby efektywnie przechowywać i przetwarzać w niedokumentowej bazie danych.
+
+**Kafka** \- jedna z najpopularniejszych platform do strumieniowego przetwarzania danych i kolejkowania zdarzeń. Jej zastosowanie pozwala na uniezależnienie działania mikroserwisów od siebie, zapewniając efektywną komunikację pomiędzy nimi.
+
+**ElasticSearch** \- czyli nierelacyjna, łatwo skalowalna baza danych, która stała się biznesowym standardem do przechowywania logów.
+
+**Redis** – szybka, nierelacyjna baza danych typu klucz-wartość, używana w projekcie jako mechanizm pamięci podręcznej, co przyspiesza dostęp do często wykorzystywanych danych oraz zmniejsza obciążenie głównych baz danych.
+
+**Nginx** – reverse proxy i serwer webowy, który wspiera aplikację w obsłudze ruchu sieciowego, zwiększając jej skalowalność i wydajność.
+
+## 7.3 Architektura systemu {#architektura-systemu}
+
+### 7.3.1 Model C4 \- poziom 1 {#model-c4---poziom-1}
 
 Diagram kontekstu (C1) przedstawia ogólny obraz interakcji pomiędzy kluczowymi elementami systemu i jego otoczeniem. W skład diagramu C1 dla Magpie Monitora wchodzą następujące elementy:
 
@@ -561,7 +597,7 @@ Diagram kontekstu (C1) przedstawia ogólny obraz interakcji pomiędzy kluczowymi
 </figure>
 
 
-### 7.2.2 Model C4 \- poziom 2  {#model-c4---poziom-2}
+### 7.3.2 Model C4 \- poziom 2  {#model-c4---poziom-2}
 
 <figure>
     <img src="/container-diagram-latest.svg">
@@ -590,7 +626,7 @@ Ze względu na zorientowanie serwisów na wydarzenia, każdy z nich musi mieć b
 Jednocześnie, serwis w jakim utworzony został dany rekord/informacja oryginalnie jest odpowiedzialny za zachowanie spójności nadając unikalne identyfikatory, które są powielane w innych serwisach wykorzystujących te dane.
 
 
-### 7.2.3 Diagram wdrożenia    {#diagram-wdrożenia}
+### 7.3.3 Diagram wdrożenia    {#diagram-wdrożenia}
 
 <figure>
     <img src="/deployment-diagram-latest.svg">
@@ -611,7 +647,7 @@ Przez dużą objętość tych danych nieopłacalne było je przesyłać za pomoc
 
 Wdrożenie na klastrze klienta zakłada zainstalowania dwóch instancji **agentów** skonfigurowanych odpowiednio do zbierania logów i metadanych z aplikacji oraz hostów w klastrze Kubernetesa. Aby zachować trwałość danych w przypadku chwilowej awarii dodatkowym serwisem, który musi być zainstalowany razem z agentami jest baza danych służąca do utrzymywania metadanych z klastra, która w tym przypadku jest instancją Redisa. Redis został wybrany ze względu na szybki dostęp do danych oraz niskie zużycie zasobów, co jest kluczowe w systemie klienta.
 
-4. ### Model C3 \- poziom 3 \- Agent {#model-c3---poziom-3---agent}
+### 7.3.4 Model C3 \- poziom 3 \- Agent {#model-c3---poziom-3---agent}
 
 <figure>
     <img src="/agent/agent-components-transparent.png">
@@ -620,7 +656,7 @@ Wdrożenie na klastrze klienta zakłada zainstalowania dwóch instancji **agent�
 
 Agent instalowany jest na klastrze Kubernetes klienta i odpowiada za zbieranie metadanych i logów aplikacji oraz hostów, które następnie przesyła do brokera Kafki. Implementacyjnie Agent składa się z dwóch modułów podrzędnych, tj. Pod Agent oraz Node Agent. Pod Agent zbiera logi oraz metadane aplikacji, wykorzystując przy tym API klastra Kubernetes. Node Agent zbiera metadane oraz logi z hostów, wykorzystując przy tym API dostępowe systemu plików Linux. Postęp czytania logów hostów dla danego pliku jest zapisywany w zewnętrznej bazie danych Redis, dzięki czemu przesyłane dane nie są powtarzane nawet w przypadku tymczasowej awarii mechanizmu zbierania danych.
 
-### 7.2.5. Model C3 \- poziom 3 \- Logs Ingestion Service {#model-c3---poziom-3---logs-ingestion-service}
+### 7.3.5. Model C3 \- poziom 3 \- Logs Ingestion Service {#model-c3---poziom-3---logs-ingestion-service}
 
 <figure>
     <img src="/logs-ingestion/logs-ingestion-components.svg">
@@ -629,7 +665,7 @@ Agent instalowany jest na klastrze Kubernetes klienta i odpowiada za zbieranie m
 
 Logs Ingestion Service zajmuje się zbieraniem i przetwarzaniem kolejno logów aplikacji i hostów w Application Logs Queue i Node Logs Queue. Logi te są spłaszczone do formy, którą można efektywnie zapisać w bazie logów wykorzystując kolejno Application Logs Repository oraz Node Logs Repository. Wymienione powyżej serwisy pełnią funkcje abstrakcji (wystawiają interfejs) konkretnych technologii użytych pod spodem, w tym przypadku Kafki oraz ElasticSearch. Takie rozwiązanie pozwala na łatwą podmianę użytego brokera wiadomości lub bazy danych jeżeli zajdzie taka potrzeba. 
 
-### 7.2.6. Model C3 \- poziom 3 \- Report Service {#model-c3---poziom-3---report-service}
+### 7.3.6. Model C3 \- poziom 3 \- Report Service {#model-c3---poziom-3---report-service}
 
 <figure>
     <img src="/reports/reports-components.svg">
@@ -648,7 +684,7 @@ Logs Ingestion Service zajmuje się zbieraniem i przetwarzaniem kolejno logów a
 
 **Application Insights Generator** oraz **Node Insights Generator** stanowią interfejsy wystawiane innym serwisom i pozwalają one na implementacje abstrakcji nad modelem językowym użytym do generowania raportów. 
 
-### 7.2.7. Model C3 \- poziom 3 \- Metadata Service {#model-c3---poziom-3---metadata-service}
+### 7.3.7. Model C3 \- poziom 3 \- Metadata Service {#model-c3---poziom-3---metadata-service}
 
 <figure>
     <img src="/metadata-service/metadata-service-components.svg">
@@ -663,7 +699,7 @@ Kluczowe funkcjonalności serwisu to:
 * pobieranie metadanych z brokera Kafki, aby następnie zapisać je w dokumentowej bazie MongoDB  
 * wsadowe przetwarzanie zebranych danych, mające na celu wykrycie zmian w metadanych aplikacji, hostów oraz klastrów. Jeśli zmiana stanu zostanie wykryta, emitowane jest wydarzenie, którego treścią jest nowy stan. Podejście takie znacznie zmniejsza obciążenie serwisu który korzysta z metadanych, ponieważ dyskretyzuje dane ciągłe bez straty informacji, jednocześnie ograniczając liczbę próbek. Przeszukiwanie oraz scalanie danych jest wtedy znacznie szybsze niż w przypadku danych ciągłych.
 
-### 7.2.8. Model C3 \- poziom 3 \- Management Service {#model-c3---poziom-3---management-api}
+### 7.3.8. Model C3 \- poziom 3 \- Management Service {#model-c3---poziom-3---management-api}
 
 Management Service jest bramą wejściową do **Magpie Monitor Cloud**, jego zadaniem jest integracja systemu generowania raportów oraz metadanych, aby następnie wystawić przesyłane przez nie dane w formie API, z którego korzysta warstwa prezentacji zawarta w aplikacji klienckiej.
 
@@ -714,43 +750,8 @@ Podsystem klastrów odpowiada za konfigurowanie ustawień raportu oraz odbiornik
 
 Podsystem uwierzytelniania odpowiedzialny jest za uwierzytelnianie użytkownika przy pomocy protokołu OAuth, gdzie dostawcą uwierzytelniania jest firma Google.
 
-### 7.2.9. Model C3 \- poziom 3 \- Client {#model-c3---poziom-3---client}
+### 7.3.9. Model C3 \- poziom 3 \- Client {#model-c3---poziom-3---client}
 
-## 7.3. Wykorzystane technologie i narzędzia {#wykorzystane-technologie-i-narzędzia}
-
-W celu realizacji projektu zdecydowano się użyć następujące technologie:
-
-**Kubernetes** – najbardziej dojrzały i powszechnie stosowany orkiestrator rozproszonych systemów opartych na kontenerach, szeroko wykorzystywany w zastosowaniach komercyjnych.
-
-**Docker** – najpopularniejsze narzędzie i ekosystem do budowania oraz uruchamiania kontenerów aplikacji.
-
-**Golang** – język programowania umożliwiający tworzenie szybkich, odpornych na wycieki pamięci i wielowątkowych mikroserwisów bez konieczności używania dodatkowych frameworków do budowy aplikacji webowych. Dodatkowo, ekosystem Go zapewnia skuteczną integrację z interfejsem Kubernetesa, co jest kluczowe przy zbieraniu logów z klastra komputerowego zarządzanego przez Kubernetes.
-
-**Fx** – biblioteka, która dostarcza funkcjonalność wstrzykiwania zależności do aplikacji w Go. Pozwala na standaryzację struktury mikroserwisów oraz większą reużywalność kodu.
-
-**Java** – dojrzały i popularny język programowania, który dzięki bogatej dokumentacji i licznej społeczności znacząco przyspiesza proces rozwoju oprogramowania.
-
-**Spring Boot** – popularny framework backendowy przeznaczony do budowy aplikacji webowych w architekturze REST. Oferuje sprawdzone rozwiązania w zakresie bezpieczeństwa, routingu oraz mapowania obiektowo-relacyjnego (ORM).
-
-**Typescript** – język programowania, rozwijający język JavaScript o dodatkową składnie. Wprowadzone modyfikacje pozwalają na uniknięcie błędów związanych z brakiem silnego typowania.
-
-**React** \- framework frontendowy użyty do stworzenia klienta aplikacji. React jest najszerzej wspieranym frameworkiem do tworzenia aplikacji w architekturze SPA. To pozwala na znacznie łatwiejsze zarządzanie stanem aplikacji.  
-    
-**Sass** \- rozszerzenie klasycznego CSS, które ubogaca podstawową składnie o funkcjonalności minimalizujące duplikacje kodu, poprawiając przy tym czytelność pliku.
-
-**Vite** – nowoczesny narzędzie do budowania frontendowych aplikacji webowych, które oferuje szybkie ładowanie modułów podczas rozwoju oraz efektywne budowanie w środowiskach produkcyjnych.
-
-**PostgreSQL** \- relacyjna baza danych, która została użyta do przechowywania informacji związanych z ustawieniami użytkownika oraz informacji o monitorowanym systemie, które cechują się możliwości ich normalizacji. 
-
-**MongoDB** \- dokumentowa baza danych, w której zostaną przechowywane wygenerowane raporty w języku naturalnym. Raporty takie są długimi dokumentami, które nie wymagają spójności w każdym momencie oraz które ciężko byłoby efektywnie przechowywać i przetwarzać w niedokumentowej bazie danych.
-
-**Kafka** \- jedna z najpopularniejszych platform do strumieniowego przetwarzania danych i kolejkowania zdarzeń. Jej zastosowanie pozwala na uniezależnienie działania mikroserwisów od siebie, zapewniając efektywną komunikację pomiędzy nimi.
-
-**ElasticSearch** \- czyli nierelacyjna, łatwo skalowalna baza danych, która stała się biznesowym standardem do przechowywania logów.
-
-**Redis** – szybka, nierelacyjna baza danych typu klucz-wartość, używana w projekcie jako mechanizm pamięci podręcznej, co przyspiesza dostęp do często wykorzystywanych danych oraz zmniejsza obciążenie głównych baz danych.
-
-**Nginx** – reverse proxy i serwer webowy, który wspiera aplikację w obsłudze ruchu sieciowego, zwiększając jej skalowalność i wydajność.
 
 ## 7.4. Bazy danych mikroserwisów {#bazy-danych-mikroserwisów}
 
@@ -1420,7 +1421,25 @@ Zmiana stanu zagregowanych metadanych klastrów jest emitowana przez Metadata Se
 </figure>
 
 
-### 8.1 Projekt interfejsu {#projekt-interfejsu}
+## 8.1 Projekt interfejsu {#projekt-interfejsu}
+
+Na podstawie wymagań funkcjonalnych oraz historyjek użytkownika zaprojektowano interfejs, który odpowiada oczekiwaniom użytkowników podczas korzystania z systemu. Szczególną uwagę poświęcono zapewnieniu pozytywnych doświadczeń użytkownika z Magpie Monitorem. W tym celu skupiono się na prostocie, czytelności oraz estetycznym wyglądzie interfejsu. Dodatkowym wyzwaniem było zapewnienie pełnej responsywności, aby użytkownicy mogli wygodnie korzystać z systemu także na urządzeniach mobilnych za pośrednictwem przeglądarki.
+
+#### 8.1.1 Widok logowania
+
+<figure>
+    <img src="/asyncapi-screens/cluster-metadata-updated-sub.png">
+    <figcaption>Rysunek X: Widok logowania [źródło opracowanie własne]</figcaption>
+</figure>
+
+<figure>
+    <img src="/asyncapi-screens/cluster-metadata-updated-sub.png">
+    <figcaption>Rysunek X: Widok logowania na urządzeniu mobilnym [źródło opracowanie własne]</figcaption>
+</figure>
+
+Pierwszym widokiem wyświetlanym po wejściu na witrynę Magpie Monitor jest ekran logowania. Jego celem jest spełnienie wymogu uwierzytelnienia użytkownika przed uzyskaniem dostępu do funkcji systemu. Po wybraniu opcji „Sign in with Google” użytkownik zostaje przekierowany na ekran logowania dostarczany przez firmę Google, gdzie może wybrać konto, które chce wykorzystać do zalogowania się do systemu.
+
+### 8.1.2 Widok główny
 
 ### 8.2 Diagramy procesów {#diagramy-procesów}
 
