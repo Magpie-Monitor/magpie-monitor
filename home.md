@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T08:19:31.882Z
+date: 2024-12-08T08:21:31.344Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -750,6 +750,81 @@ Jest tworzony w momencie otrzymania żądania od Management Service w którym zn
     <img src="/metadata-service/database/metadata-service-database.svg">
     <figcaption>Rysunek X: Management Service: Diagram bazy raportów [źródło opracowanie własne]</figcaption>
 </figure>
+
+**ApplicationMetadata**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| id | Unikalny identyfikator dokumentu w ramach danego indeksu | string |
+| clusterId | Identyfikator klastra, na którym działa aplikacja | string |
+| collectedAtMs | Czas kiedy metadane były zebrane w milisekundach od początku epoki | int64 |
+| applications | Aplikacje wchodzące w skład metadanych | Application |
+
+**Application**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| kind | Identyfikator zasobu w Kubernetesie | string |
+| name | Nazwa aplikacji | string |
+
+**NodeMetadata**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| id | Unikalny identyfikator dokumentu w ramach danego indeksu | string |
+| nodeName | Nazwa hosta | string |
+| clusterId | Identyfikator klastra, na którym działa aplikacja | string |
+| collectedAtMs | Czas kiedy metadane były zebrane w milisekundach od początku epoki | int64 |
+| watchedFiles | Pliki na hoście, z których zbierane są logi | string\[\] |
+
+**AggregatedApplicationMetadata**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| id | Unikalny identyfikator dokumentu w ramach danego indeksu | string |
+| clusterId | Identyfikator klastra, na którym działa aplikacja | string |
+| collectedAtMs | Czas kiedy metadane były zebrane w milisekundach od początku epoki | int64 |
+| metadata | Aplikacje wchodzące w skład metadanych | Metadata |
+
+**Metadata**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| kind | Nazwa zasobu w Kubernetesie | string |
+| name | Nazwa aplikacji | string |
+
+**AggregatedNodeMetadata**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| id | Unikalny identyfikator dokumentu w ramach danego indeksu | string |
+| clusterId | Identyfikator klastra, na którym działa aplikacja | string |
+| collectedAtMs | Czas kiedy metadane były zebrane w milisekundach od początku epoki | int64 |
+| metadata | Hosty wchodzące w skład metadanych | Metadata |
+
+**Metadata**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| name | Nazwa hosta | string |
+| files | Pliki na hoście, z których zbierane są logi | string\[\] |
+
+**AggregatedClusterState**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| id | Unikalny identyfikator dokumentu w ramach danego indeksu | string |
+| clusterId | Identyfikator klastra, na którym działa aplikacja | string |
+| collectedAtMs | Czas kiedy metadane były zebrane w milisekundach od początku epoki | int64 |
+| metadata | Klastry wchodzące w skład metadanych | Metadata |
+
+**Metadata**
+
+| Nazwa atrybutu | Znaczenie | Dziedzina |
+| :---- | :---- | :---- |
+| clusterId | Identyfikator klastra | string |
+
+
 
 ### 7.4.4 Baza danych management-service
 
