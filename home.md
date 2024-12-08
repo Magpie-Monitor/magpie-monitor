@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T22:13:34.051Z
+date: 2024-12-08T22:31:14.094Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -85,6 +85,20 @@ dateCreated: 2024-12-02T23:31:18.691Z
 [8. Interfejsy programistyczne](#interfejsy-programistyczne)
 
 [8.1. Projekt interfejsu](#projekt-interfejsu)
+
+[8.1.1. Widok logowania](#widok-logowania)
+
+[8.1.2. Widok główny](#widok-główny)
+
+[8.1.3. Widok incydentu](#widok-incydentu)
+
+[8.1.4. Widok raportów](#widok-raportów)
+
+[8.1.5. Widok klastrów](#widok-klastrów)
+
+[8.1.6. Widok konfiguracji raportów](#widok-konfiguracji-raportów)
+
+[8.1.7. Widok konfiguracji powiadomień](#projekt-interfejsu)
 
 [8.2. Diagramy procesów](#diagramy-procesów)
 
@@ -1425,24 +1439,24 @@ Zmiana stanu zagregowanych metadanych klastrów jest emitowana przez Metadata Se
 
 Na podstawie wymagań funkcjonalnych oraz historyjek użytkownika zaprojektowano interfejs, który odpowiada oczekiwaniom użytkowników podczas korzystania z systemu. Szczególną uwagę poświęcono zapewnieniu pozytywnych doświadczeń użytkownika z Magpie Monitorem. W tym celu skupiono się na prostocie, czytelności oraz estetycznym wyglądzie interfejsu. Dodatkowym wyzwaniem było zapewnienie pełnej responsywności, aby użytkownicy mogli wygodnie korzystać z systemu także na urządzeniach mobilnych za pośrednictwem przeglądarki.
 
-#### 8.1.1 Widok logowania
+#### 8.1.1 Widok logowania {#widok-logowania}
 
 <figure>
-    <img src="/asyncapi-screens/cluster-metadata-updated-sub.png">
+    <img src="/">
     <figcaption>Rysunek X: Widok logowania [źródło opracowanie własne]</figcaption>
 </figure>
 
 <figure>
-    <img src="/asyncapi-screens/cluster-metadata-updated-sub.png">
+    <img src="/">
     <figcaption>Rysunek X: Widok logowania na urządzeniu mobilnym [źródło opracowanie własne]</figcaption>
 </figure>
 
 Pierwszym widokiem wyświetlanym po wejściu na witrynę Magpie Monitor jest ekran logowania. Jego celem jest spełnienie wymogu uwierzytelnienia użytkownika przed uzyskaniem dostępu do funkcji systemu. Po wybraniu opcji „Sign in with Google” użytkownik zostaje przekierowany na ekran logowania dostarczany przez firmę Google, gdzie może wybrać konto, które chce wykorzystać do zalogowania się do systemu.
 
-### 8.1.2 Widok główny
+### 8.1.2 Widok główny {#widok-główny}
 
 <figure>
-    <img src="/asyncapi-screens/cluster-metadata-updated-sub.png">
+    <img src="/">
     <figcaption>Rysunek X: Widok główny [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1465,7 +1479,7 @@ Na samym dole paska nawigacyjnego znajduje się opcja **wylogowania**, która pr
 Po przewinięciu strony głównej w dół użytkownik zobaczy kolejny widok:
 
 <figure>
-    <img src="">
+    <img src="/">
     <figcaption>Rysunek X: Widok główny kontynuacja [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1479,6 +1493,112 @@ Sekcje **“Application Incidents”** oraz **“Node Incidents”** zawierają 
 Kliknięcie dowolnego wiersza z obu list przenosi użytkownika na stronę szczegółową, dedykowaną wybranemu incydentowi.
 
 W wersji zoptymalizowanej dla urządzeń mobilnych strona jest odpowiednio dostosowana do mniejszych ekranów i prezentuje się w sposób przyjazny dla użytkownika:
+
+<figure>
+    <img src="/">
+    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+</figure>
+
+
+Pasek nawigacji został przeniesiony na górę strony, a zakładki są prezentowane wyłącznie za pomocą ikon. Ta zmiana ma na celu ułatwienie nawigacji w wersji mobilnej, zapewniając większą czytelność i oszczędność miejsca na mniejszych ekranach.
+Oprócz tej modyfikacji układ strony pozostał w dużej mierze niezmieniony. Główną różnicą jest zwiększenie liczby wierszy, w których prezentowane są statystyki, co pozwala na bardziej efektywne wykorzystanie przestrzeni ekranu. Pozostałe elementy interfejsu nie zostały zmienione.
+
+### 8.1.3 Widok incydentu {#widok-incydentu}
+
+<figure>
+    <img src="/">
+    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+</figure>
+
+Widok incydentu ma na celu dostarczenie użytkownikowi szczegółowych informacji na temat wykrytego problemu. Górną część strony zajmuje nazwa incydentu, którą nadał model językowy, służąca jako zwięzłe określenie charakteru problemu. Obok znajduje się data, która wskazuje moment wystąpienia incydentu.
+
+Bezpośrednio pod nazwą umieszczona jest sekcja **"Application"**, prezentująca informacje o nazwie aplikacji oraz klastrze, w którym wykryto problem. Sekcja ta zawiera również przedział czasowy, w którym system zebrał logi sugerujące opisywany incydent.
+
+Po prawej stronie widoczna jest sekcja **"Configuration"**, przedstawiająca szczegóły konfiguracji raportu wybrane przez użytkownika.
+
+W dolnej części strony znajdują się kolejne sekcje:
+
+* **"Summary"** – zwięzły opis incydentu, ułatwiający użytkownikowi szybkie zrozumienie istoty problemu.  
+* **"Recommendation"** – zestaw sugerowanych działań mających na celu rozwiązanie wykrytego problemu.
+
+Na samym dole użytkownik ma dostęp do logów, które wskazywały na wystąpienie incydentu, co umożliwia szczegółową analizę danych źródłowych.
+
+<figure>
+    <img src="/">
+    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+</figure>
+
+W wersji mobilnej widok został dostosowany w sposób analogiczny do wersji desktopowej. Dla wygody użytkownika sekcje zostały ułożone w układ kolumnowy, co pozwala na przewijanie ekranu wyłącznie w pionie. Dzięki temu nawigacja staje się bardziej intuicyjna i dostosowana do korzystania na urządzeniach z mniejszym ekranem.
+
+### 8.1.4 Widok raportów
+
+<figure>
+    <img src="/">
+    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+</figure>
+
+Widok raportów składa się z listy raportów posortowanej malejąco według daty. Raporty są podzielone na dwie sekcje: **“Scheduled Reports”** i **“Reports on Demand”**. Każdy wiersz w liście zawiera następujące informacje:
+
+* nazwę klastra, z którego pochodzi raport,  
+* tytuł raportu,  
+* poziom pilności,  
+* zakres czasu, w którym zebrano logi wykorzystane w raporcie,  
+* datę zatwierdzenia generacji raportu.
+
+Kliknięcie nazwy klastra lub przycisku w kolumnie **“Actions”** przenosi użytkownika na szczegółowy widok raportu, który jest analogiczny do widoku głównego.
+
+<figure>
+    <img src="/">
+    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+</figure>
+
+Widok w wersji mobilnej nie różni się znacząco od wersji na komputery stacjonarne. Ze względu na ograniczoną szerokość ekranu, użytkownik musi przesuwać wiersz w lewo, aby zobaczyć pozostałe kolumny. Choć sprawia to, że korzystanie z widoku mobilnego jest mniej wygodne niż w przypadku wersji desktopowej, interfejs nadal pozostaje funkcjonalny i intuicyjny.
+
+### 8.1.5 Widok klastrów {#widok-klastrów}
+
+<figure>
+    <img src="/">
+    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+</figure>
+
+Widok klastrów przedstawia listę klastrów, które mogą być monitorowane przez Magpie Monitor. Tabela zawiera kolumny opisujące konfigurację raportów dla danego wiersza. Kliknięcie nazwy lub przycisku „Reports Configuration” przenosi użytkownika do widoku konfiguracji raportów.
+
+Widok ten na urządzeniach mobilnych jest analogiczny do widoku raportów. Ze względu na ograniczenia ekranu, użytkownik może przesuwać tabelę w poziomie, aby zobaczyć wszystkie kolumny, co zapewnia pełną funkcjonalność również na urządzeniach mobilnych.
+
+### 8.1.6 Widok konfiguracji raportów {#widok-kanałów-raportów}
+
+<figure>
+    <img src="/">
+    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+</figure>
+
+Widok konfiguracji raportu zawiera następujące sekcje:
+
+* “Default Accuracy” – określa domyślną dokładność, jaką będą miały nowo dodane aplikacje i hosty w raporcie.  
+* “Generation Type” – umożliwia wybór, czy raport ma być generowany na żądanie (dla wybranego przedziału czasu), czy cyklicznie (w określonych odstępach czasu, np. co tydzień lub co miesiąc).  
+* “Date Range” – w przypadku raportu na żądanie pozwala określić przedział czasu, z którego logi będą analizowane. Dla raportów cyklicznych umożliwia wybór częstotliwości ich generowania.  
+* “Notification Channels” – definiuje kanały powiadomień, na które mają być wysyłane informacje dotyczące raportu. Po kliknięciu ikony „plus” wyświetla się okienko z listą skonfigurowanych kanałów, które można dodać.  
+* “Application” – zawiera listę aplikacji uwzględnionych w raporcie. Użytkownik może zmieniać dokładność dla każdej z nich oraz dodawać indywidualne instrukcje wejściowe. Kliknięcie ikony „plus” otwiera okienko z listą dostępnych aplikacji do wyboru.  
+* “Nodes” – zawiera listę hostów uwzględnionych w raporcie. Funkcjonalność tej sekcji jest identyczna jak w przypadku sekcji „Application”.
+
+W prawym dolnym rogu znajdują się dwa przyciski: jeden odpowiada za wygenerowanie raportu, a drugi za anulowanie zmian, co powoduje powrót do widoku głównego.  
+W wersji mobilnej sekcje są ułożone w jednej kolumnie, co poprawia czytelność i ułatwia nawigację po stronie.
+
+### 8.1.7 Widok kanałów powiadomień {#widok-kanałów-powiadomień}
+
+<figure>
+    <img src="/">
+    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+</figure>
+
+Widok składa się z trzech sekcji: “Slack”, “Discord” oraz “Email”. W każdej z nich znajduje się lista dodanych kanałów. Poszczególne pola w wierszach zawierają:
+
+* nazwę kanału, która umożliwia łatwe rozróżnienie kanałów,  
+* webhook powiązany z kanałem (lub adres e-mail w przypadku wiadomości e-mail),  
+* datę dodania kanału,  
+* datę ostatniej modyfikacji.
+
+Dodatkowo, każdy wiersz umożliwia użytkownikowi edycję, przetestowanie działania kanału lub jego usunięcie, zgodnie z historyjkami użytkownika. Podobnie jak w innych widokach, ikona „plus” umożliwia dodanie nowego kanału powiadomień.
 
 ### 8.2 Diagramy procesów {#diagramy-procesów}
 
