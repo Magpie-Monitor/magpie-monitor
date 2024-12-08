@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T15:55:54.983Z
+date: 2024-12-08T17:01:46.866Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -191,23 +191,21 @@ Projektowany system ma wspierać użytkowników w kluczowych obszarach, takich j
 * rozwiązywanie zidentyfikowanych zagrożeń,  
 * podejmowanie decyzji opartych na przejrzystych i klarownych raportach.
 
-Ostatecznym celem projektu jest znaczące podniesienie jakości monitorowania aplikacji oraz uproszczenie procesów analizy i zarządzania danymi logów w sposób intuicyjny, skuteczny i dostosowany do potrzeb użytkowników.
+W założeniu efektem projektu powinno być znaczące podniesienie jakości monitorowania aplikacji oraz uproszczenie procesów analizy i zarządzania danymi logów w sposób intuicyjny, skuteczny i dostosowany do potrzeb użytkowników.
 
 Z uwagi na nowatorskie podejście do monitorowania aplikacji, dodatkowym celem projektu będzie ocena skuteczności przyjętego rozwiązania. Pozwoli to określić jego wartość biznesową w porównaniu do bardziej standardowych metod, a także wskazać potencjalne kierunki dalszego rozwoju systemu.
 
 2. ## Zakres
 
-   
-
 Zakres projektu prezentuje się następująco:
 
-* Badanie potrzeb rynku oraz dostępnych rozwiązań analizujących logi systemowe,   
+* Badanie potrzeb rynku oraz dostępnych rozwiązań analizujących logi systemowe,  
 * Sformułowanie wymagań koniecznych do osiągnięcia zaplanowanego celu  
-* Zaprojektowanie skalowalnej architektury systemu,  
-* Zaprojektowanie wyglądu aplikacji  
-* Implementacja  
-* Testowanie  
-* Analiza osiągniętych rezultatów
+* Zaprojektowanie skalowalnej architektury systemu, opartej na niezależnych od siebie mikroserwisach.  
+* Zaprojektowanie intuicyjnego oraz estetycznego wyglądu aplikacji  
+* Implementacja oraz wdrożenie systemu na chmurowej platformie Linode.  
+* Testowanie systemu, zarówno z użyciem testów automatycznych oraz manualnych.  
+* Analiza osiągniętych rezultatów względem tradycyjnych rozwiązań monitorowania logów.
 
 
 4. #  Stan wiedzy w obszarze przedsięwzięcia  {#stan-wiedzy-w-obszarze-przedsięwzięcia}
