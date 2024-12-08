@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T21:59:00.682Z
+date: 2024-12-08T21:59:23.089Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -556,7 +556,7 @@ Diagram kontekstu (C1) przedstawia ogólny obraz interakcji pomiędzy kluczowymi
 **Slack**, **Discord, Email**\- zewnętrzne usługi internetowe służące m.in. do komunikacji między członkami danej organizacji. W systemie Magpie Monitor są wykorzystywane jako dostępne kanały powiadomień.
 
 <figure>
-    <img src="/container-diagram-latest.svg">
+    <img src="/magpie-monitor-c4-context.drawio.svg">
     <figcaption>Rysunek X: Diagram kontekstu [źródło opracowanie własne]</figcaption>
 </figure>
 
