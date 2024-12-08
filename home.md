@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T09:30:12.744Z
+date: 2024-12-08T09:30:27.521Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1203,7 +1203,7 @@ Management service zbiera taką odpowiedź z brokera i aktualizuje rekord w bazi
 TODO \- lepsze wykadrowanie
 
 <figure>
-    <img src="/asyncapi-screens/metadata-collection-sequence-diagram.svg">
+    <img src="/sequence-diagrams/metadata-collection-sequence-diagram.svg">
     <figcaption>Rysunek X: ClusterMetadataUpdated: Zrzut ekranu z AsyncAPI [źródło opracowanie własne]</figcaption>
 </figure>
 
