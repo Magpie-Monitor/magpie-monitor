@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T10:21:44.332Z
+date: 2024-12-08T10:21:58.087Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -518,7 +518,7 @@ Podsystem klastrów odpowiada za konfigurowanie ustawień raportu oraz odbiornik
     <figcaption>Rysunek X: Management Service: Diagram komponentów podsystemu uwierzytelniania [źródło opracowanie własne]</figcaption>
 </figure>
 
-Podsystem uwierzytelniania odpowiedzialny jest za uwierzytelnianie użytkownika przy pomocy protokołu OAuth, gdzie dostawcą uwierzytelniania jest Google.
+Podsystem uwierzytelniania odpowiedzialny jest za uwierzytelnianie użytkownika przy pomocy protokołu OAuth, gdzie dostawcą uwierzytelniania jest firma Google.
 
 ### 7.2.9. Model C3 \- poziom 3 \- Client {#model-c3---poziom-3---client}
 
