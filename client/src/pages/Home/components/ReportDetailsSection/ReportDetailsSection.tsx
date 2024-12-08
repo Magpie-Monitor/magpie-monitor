@@ -104,12 +104,12 @@ const statItems = (
 };
 
 const ReportDetailsSection = ({
-                                report,
-                                incidentStats,
-                                areIncidentsLoading,
-                                isReportLoading,
-                                incidents,
-                              }: ReportStats) => {
+  report,
+  incidentStats,
+  areIncidentsLoading,
+  isReportLoading,
+  incidents,
+}: ReportStats) => {
   const navigate = useNavigate();
 
   const handleNodeIncidentNavigation = (incident: GenericIncident) => {
@@ -121,7 +121,7 @@ const ReportDetailsSection = ({
   };
 
   if (isReportLoading || !report) {
-    return <CenteredSpinner/>;
+    return <CenteredSpinner />;
   }
 
   return (
