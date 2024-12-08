@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T17:15:19.854Z
+date: 2024-12-08T17:16:51.238Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -292,24 +292,22 @@ W realizowanym projekcie przyjęto następujące ograniczenia:
 Wymagania funkcjonalne zostały podzielone według modelu FURPS. Pozwala on skategoryzować wszystkie wymagania według pięciu klas (Funkcjonalności, Użyteczności, Niezawodności, Wydajności, Wsparcia).
 
 **1. Funkcjonalność**   
-	* System musi uniemożliwiać dostęp nieautoryzowanym użytkownikom, aby zapewnić bezpieczeństwo danych klientów.
+* System musi uniemożliwiać dostęp nieautoryzowanym użytkownikom, aby zapewnić bezpieczeństwo danych klientów.
 
 **2. Użyteczność**  
-		* System powinien oferować intuicyjny i wygodny interfejs użytkownika.
+* System powinien oferować intuicyjny i wygodny interfejs użytkownika.
 Pozytywne doświadczenia użytkowników z korzystania z Magpie Monitora mają na celu zwiększenie zaangażowania i zachęcenie do dalszego korzystania z systemu.
 
-
 * System musi być dostępny na urządzeniach mobilnych, tabletach i komputerach stacjonarnych, zapewniając pełną responsywność interfejsu użytkownika (UI).
+Chociaż przewiduje się, że Magpie Monitor będzie głównie używany na komputerach stacjonarnych, system powinien być równie funkcjonalny na innych urządzeniach, aby poszerzyć grono potencjalnych użytkowników.
 
-  Chociaż przewiduje się, że Magpie Monitor będzie głównie używany na komputerach stacjonarnych, system powinien być równie funkcjonalny na innych urządzeniach, aby poszerzyć grono potencjalnych użytkowników.
-
-
-  3. Niezawodność  
+**3. Niezawodność**  
 * System musi być dostępny dla użytkowników przez co najmniej 99% czasu w ciągu miesiąca, co zapewni wysoką niezawodność usług.  
-* Magpie Monitor musi być bardziej niezawodny niż aplikacje, które monitoruje, aby jego wyniki były wiarygodne i wartościowe.  
-* System nie może utracić więcej zebranych logów niż 0.5% w skali miesiąca.
 
-  Utracenie większej liczby logów będzie skutkować raportami, które nie opisują rzeczywistego stanu monitorowanej aplikacji.
+* Magpie Monitor musi być bardziej niezawodny niż aplikacje, które monitoruje, aby jego wyniki były wiarygodne i wartościowe.  
+
+* System nie może utracić więcej zebranych logów niż 0.5% w skali miesiąca.
+Utracenie większej liczby logów będzie skutkować raportami, które nie opisują rzeczywistego stanu monitorowanej aplikacji.
 
 
 * System po awarii musi wznowić generacje raportu 
