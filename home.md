@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T10:18:26.569Z
+date: 2024-12-08T10:20:47.332Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -482,7 +482,7 @@ Serwis składa się z pięciu głównych komponentów, których diagramy zapreze
 
 <figure>
     <img src="/management-service/management-service-reports.svg">
-    <figcaption>Rysunek X: Metadata Service: Diagram komponentów [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Management Service: Diagram komponentów podsystemu raportów [źródło opracowanie własne]</figcaption>
 </figure>
 
 Podsystem raportów jest odpowiedzialny za komunikacje z  **Report Service,** z którym komunikuje się za pośrednictwem brokera Kafki, przez którego przesyłane są dane konfiguracyjne do generowania raportu, a następnie zwracany jest wygenerowany raport bądź odpowiedni błąd generacji, które przechowywane są w dokumentowej bazie danych MongoDB. Zapisywanie raportów w bazie sprawia, że serwis może zwracać użytkownikowi dane o raportach nawet w przypadku awarii **Report Service**.
@@ -493,14 +493,14 @@ Wygenerowane raporty udostępniane są przez interfejs API, z którego może sko
 
 <figure>
     <img src="/management-service/management-service-metadata.svg">
-    <figcaption>Rysunek X: Metadata Service: Diagram komponentów [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Management Service: Diagram komponentów podsystemu metadanych [źródło opracowanie własne]</figcaption>
 </figure>
 
 Podsystem metadanych odpowiada za odbieranie wydarzeń sygnalizujących zmianę stanu klastrów, aplikacji oraz hostów. Zagregowane dane są przechowywane w dokumentowej bazie MongoDB, a następnie są udostępniane innym podsystemom przez interfejs programistyczny.
 
 <figure>
     <img src="/management-service/management-service-notifications.svg">
-    <figcaption>Rysunek X: Metadata Service: Diagram komponentów [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Management Service: Diagram komponentów podsystemu powiadomień [źródło opracowanie własne]</figcaption>
 </figure>
 
 Podsystem powiadomień odpowiada za konfigurację odbiorników powiadomień (ang. receivers) oraz komunikację z zewnętrznymi API w celu wysyłania powiadomień. Podsystem powiadomień udostępnia interfejs programistyczny dla podsystemu raportów, pozwalając mu na przesyłanie powiadomień dot. generacji raportu zgodnie ze skonfigurowanymi przez użytkownika odbiornikami.
@@ -508,7 +508,14 @@ Podsystem powiadomień odpowiada za konfigurację odbiorników powiadomień (ang
 
 <figure>
     <img src="/management-service/management-service-clusters.svg">
-    <figcaption>Rysunek X: Metadata Service: Diagram komponentów [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Management Service: Diagram komponentów podsystemu klastrów [źródło opracowanie własne]</figcaption>
+</figure>
+
+Podsystem klastrów odpowiada za konfigurowanie ustawień raportu oraz odbiorników powiadomień dla wybranego klastra. Podsystem ten komunikuje się również z podsystemem metadanych, pobierając metadane o klastrach, które są udostępniane w formie API.
+
+<figure>
+    <img src="/management-service/management-service-authentication.svg">
+    <figcaption>Rysunek X: Management Service: Diagram komponentów podsystemu uwierzytelniania [źródło opracowanie własne]</figcaption>
 </figure>
 
 
