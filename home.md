@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:10:57.451Z
+date: 2024-12-09T17:12:41.190Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3657,11 +3657,17 @@ W świecie rosnących złożoności systemów komputerowych administratorzy nie 
    ### 12.2.1 Instalacja aplikacji {#instalacja-aplikacji}
    
    Aby zacząć korzystać z systemu Magpie Monitor, należy zainstalować na swoim klastrze komputerowym Kubernetes i odpowiednio skonfigurować agenta, który zbiera logi z aplikacji oraz hostów. 
-   
+
+<figure>
+    <img src="/agent/agent-helm-values.png">
+    <figcaption>Rysunek X: Widok logowania [źródło opracowanie własne]</figcaption>
+</figure>
+
    Agent dostarczany jest w paczce wdrożeniowej Helm, której konfiguracja zawiera się w pliku values.yaml. Klient może skonfigurować agenta wedle swoich potrzeb, dostępne opcje konfiguracyjne to min.:
    * przyjazna nazwa klastra, będąca jego identyfikatorem
    * wyłączone ze zbierania logów przestrzenie nazw klastra
 	 * pliki, z których zbierane są logi
+
 
 
 
