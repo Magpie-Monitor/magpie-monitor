@@ -1,12 +1,7 @@
 @import '@/variables';
 
 .tag-button {
-  /* position: relative; */
-  /* width: 100%; */
   max-width: 8rem;
-
-  /* transform: translate(0, 0); */
-  /* z-index: 9999; */
 
   &__toggle {
     cursor: pointer;
@@ -59,15 +54,12 @@
     background-color: $component-background;
     color: $green;
 
-    /* height: 20px; */
-    /* width: 100%; */
     border-radius: 4px;
     transition: opacity 0.2s ease;
     opacity: 0;
     animation: fadeIn 0.15s forwards;
 
     &__element {
-      /* position: absolute; */
       padding: 0.4rem 0.8rem;
       font-size: 0.85rem;
       height: 20px;

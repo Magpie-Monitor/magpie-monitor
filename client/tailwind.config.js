@@ -7,16 +7,6 @@ export default {
     './src/**/*.{js,ts,jsx,tsx,mdx}',
     './node_modules/@nextui-org/theme/dist/components/(date-picker|button|ripple|spinner|calendar|date-input|form|popover).js',
   ],
-  // theme: {
-  //   colors: {
-  //     nextuiForeground: 'white',
-  //     nextuiBackground: '#07111b',
-  //   },
-  //   extend: {
-  //     textColor: 'white',
-  //     backgroundColor: '#07111b',
-  //   },
-  // },
   darkMode: 'class',
   plugins: [
     nextui({

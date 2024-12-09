@@ -6,7 +6,7 @@ import { RouterProvider } from 'react-router-dom';
 import ChartJS from 'chart.js/auto';
 import { LinearScale, TimeScale } from 'chart.js';
 import { ToastProvider } from 'providers/ToastProvider/ToastProvider';
-import './output.css';
+import './input.css';
 import { NextUIProvider } from '@nextui-org/system';
 
 ChartJS.register(TimeScale, LinearScale);
