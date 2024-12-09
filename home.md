@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:53:13.182Z
+date: 2024-12-09T16:05:53.146Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2278,7 +2278,21 @@ Wymagany schemat odpowiedzi modelu zawiera listę wykrytych incydent, a w każdy
 
 ### 9.13.8 **Scalanie incydentów**   
 
-W związku z ograniczeniami wielkości kontekstów, wiele z logów sugerujących incydent znajdowało się w różnych kontekstach, co skutkowało zduplikowanymi incydentami. Sugerowane incydenty posiadają podobne opisy, ale są ciężkie do połącznie bez semantycznej analizy podsumowania incydentu. Aby rozwiązać ten problem, po stworzeniu raportu kolejkowane jest kolejne żądanie do modelu językowego polegające na przekazaniu tytułu, podsumowania i rekomendacji wszystkich incydentów i pogrupowaniu ich na podstawie podobnego przekazu. Podczas scalania incydentów, tworzony jest nowy incydent posiadający źródła (logi i ich metadane) incydentów z jakich był stworzony.          
+W związku z ograniczeniami wielkości kontekstów, wiele z logów sugerujących incydent znajdowało się w różnych kontekstach, co skutkowało zduplikowanymi incydentami. Sugerowane incydenty posiadają podobne opisy, ale są ciężkie do połącznie bez semantycznej analizy podsumowania incydentu. Aby rozwiązać ten problem, po stworzeniu raportu kolejkowane jest kolejne żądanie do modelu językowego polegające na przekazaniu tytułu, podsumowania i rekomendacji wszystkich incydentów i pogrupowaniu ich na podstawie podobnego przekazu. Podczas scalania incydentów, tworzony jest nowy incydent posiadający źródła (logi i ich metadane) incydentów z jakich był stworzony.
+
+Tak jak wcześniej wspomniano ograniczony rozmiar kontekstu modelu językowego powoduje, że wiele incydentów zostanie powielonych ze względu na to, że logi należące do tego samego **wydarzenia** mogą być analizowane w ramach wielu kontekstów (tak aby nie przekroczyć jego maksymalnego rozmiaru). 
+
+Aby uniknąć zduplikowanych incydentów (takich, które odnoszą się faktycznie do tego samego wydarzenia, ale zawierające logi należące do różnych kontekstów), konieczne było ich scalanie.
+
+Incydenty odnoszące się do tego samego **wydarzenia** posiadają podobne tytuły oraz podsumownia, ale przez to, że były one generowane przez model językowe,to nie są identyczne.
+
+W związku z tym konieczne było scalanie incydentów na podstawie rozumienia ich treści. Podejściem pozwalajacym na rozumienie tekstu i łączenie incydentów na podstawie ich treści jest wykorzystanie modelu językowego. 
+
+Zadanie scalania incydentów polega na przekazaniu do modelu językowego wyłącznie listy incydentów uproszczonych do identyfikatora, tytułu oraz podsumowania. Na podstawie tej treści model grupuje incydenty ze względu na ich podobieństwa. 
+
+Przez mały rozmiar przekazywanych parametrów, możliwe jest aby przekazać wszystkie incydenty w ramach pojedycznego kontekstu modelu. To pozwala na  scalania incydentów należących do różnych kontekstów (tego samego problemu, do którego rozwiązania konieczne było scalanie incydentów)
+
+          
 
 ## 9.14 Ustawianie kanałów komunikacji (management service) {#ustawianie-kanałów-komunikacji-(management-service)}
 
