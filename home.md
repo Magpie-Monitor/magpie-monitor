@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:43:29.139Z
+date: 2024-12-09T17:46:21.075Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3755,7 +3755,7 @@ Proces generacji raportu jest analogiczny do opisywanego procesu generacji rapor
 Po zmianie wartości wspomnianego pola pojawi się sekcja „Data Range”, w której użytkownik może określić okres, z którego mają pochodzić logi wykorzystane do generacji raportu. Pozostała konfiguracja nie różni się od konfiguracji raportów cyklicznych. Po zakończeniu wszystkich ustawień wystarczy kliknąć przycisk „Generate”.
 
 
-   ### 12.2.2.5 Zmiana ustawień raportów {#zmiana-ustawień-raportów}
+   ### 12.2.2.5 Konfiguracja kanałów powiadomień {#konfiguracja-kanałów-powiadomień}
    
    Konfiguracja kanałów powiadomień jest dostępna z poziomu widoku „Notifications”. Aby przejść do tego widoku, użytkownik musi zalogować się do systemu, a następnie wybrać zakładkę „Notifications”.
 
@@ -3774,26 +3774,26 @@ Załóżmy, że użytkownik chce dodać nowy adres e-mail, na który będzie otr
 Po kliknięciu ikony na ekranie wyświetli się okno dialogowe, w którym użytkownik powinien wprowadzić nazwę oraz adres e-mail. Po uzupełnieniu tych danych należy zatwierdzić dodanie adresu e-mail, klikając przycisk „Submit”.
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/email-section.png">
     <figcaption>Rysunek X: Sekcja e-mail [źródło opracowanie własne]</figcaption>
 </figure>
 
 Po zatwierdzeniu użytkownik powinien zobaczyć nowo dodany adres e-mail na liście kanałów powiadomień. Aby przetestować działanie kanału, użytkownik może kliknąć ikonę „Wysyłania wiadomości” w odpowiednim wierszu. Po wykonaniu tej operacji na ekranie powinna pojawić się informacja o pomyślnym wysłaniu wiadomości, a na skrzynkę elektroniczną użytkownika powinien zostać dostarczony e-mail testowy.
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/email-section-with-message.png">
     <figcaption>Rysunek X: Sekcja “Email” z wiadomością o pomyślnym wysłaniu wiadomości [źródło opracowanie własne]</figcaption>
 </figure>
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/test-email.png">
     <figcaption>Rysunek X: Otrzymany e-mail testowy [źródło opracowanie własne]</figcaption>
 </figure>
 
 Jeśli użytkownik chce zmodyfikować dane kanału, powinien kliknąć ikonę „Ołówek”. Po jej wybraniu na ekranie pojawi się okno umożliwiające wprowadzenie nowych danych.
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/edit-email.png">
     <figcaption>Rysunek X: Okno do edycji e-maila [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -3801,7 +3801,7 @@ Aby zatwierdzić wprowadzone zmiany, należy kliknąć przycisk „Save”. W pr
 Możliwość usunięcia kanału powiadomień dostępna jest poprzez kliknięcie ikony „Kosz” w wierszu danego kanału. Po pomyślnym usunięciu kanału na ekranie pojawi się odpowiedni komunikat potwierdzający operację.
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/delete-email-message.png">
     <figcaption>Rysunek X: Komunikat o usunięciu kanału powiadomień [źródło opracowanie własne]</figcaption>
 </figure>
 
