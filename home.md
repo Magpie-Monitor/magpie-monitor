@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T16:57:47.485Z
+date: 2024-12-09T17:04:01.382Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2630,7 +2630,7 @@ Agent przetestowany został jednostkowo w zakresie funkcjonalności rozdzielania
 #### 10.3.1.1 Testy jednostkowe
 
 <figure>
-    <img src="/agent/agent-node-integration-example.png">
+    <img src="/agent/tests/agent-node-integration-example.png">
     <figcaption>Rysunek X: Test odczytywania logów z pliku [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -2644,7 +2644,7 @@ Agent rozdziela logi na pakiety danych o podanym rozmiarze.
 **Warunki wstępne i oczekiwane rezultaty:**
 
 <figure>
-    <img src="/agent/agent-node-unit-tc-1.png">
+    <img src="/agent/tests/agent-node-unit-tc-1.png">
     <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu podziału logów na pakiety [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -2658,7 +2658,7 @@ Powyższe zdjęcie przedstawia wejściowe logi, rozmiar pakietu oraz spodziewan�
 #### 10.3.1.1 Testy integracyjne
 
 <figure>
-    <img src="/agent/agent-node-integration-example.png">
+    <img src="/agent/tests/agent-node-integration-example.png">
     <figcaption>Rysunek X: Przykładowy test obserwowania pliku z logami [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -2672,7 +2672,7 @@ Agent odczytuje logi z wybranego pliku.
 **Warunki wstępne i oczekiwane rezultaty:**
 
 <figure>
-    <img src="/agent/agent-node-integration-tc-1.png">
+    <img src="/agent/tests/agent-node-integration-tc-1.png">
     <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu obserwowania pliku z logami [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -2691,7 +2691,7 @@ Agent zbiera metadane o hoście na którym działa.
 **Warunki wstępne i oczekiwane rezultaty:**
 
 <figure>
-    <img src="/agent/agent-node-integration-tc-2.png">
+    <img src="/agent/tests/agent-node-integration-tc-2.png">
     <figcaption>Rysunek X: Dane wejściowe oraz oczekiwane rezultaty testu zbierającego metadane hostów [źródło opracowanie własne]</figcaption>
 </figure>
 
