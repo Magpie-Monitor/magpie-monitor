@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:51:30.799Z
+date: 2024-12-09T15:51:44.824Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2266,9 +2266,10 @@ Podczas uruchamiania serwisu, uruchamiany jest również wątek, którego odpowi
 
 Generowanie raportu z użyciem modelu językowego, polega na przekazaniu modelowi logów wraz z informacjami o ich źródle (aplikacja/host i ich metadane), oraz wskazanie na wejściu do modelu polecenia precyzującego kontekts przesyłanych logów oraz polecenia odnoczące się do sposobu ich analizy oraz formatu odpowiedzi. 
 
+Dodatkowym parametrem przekazywanym do wejścia modelu jest konfigurowalny **customPrompt**, który pozwala dostosować interpretacje logów do poszczególnych aplikacji lub hostów. 
+
 Wymagany schemat odpowiedzi modelu zawiera listę wykrytych incydent, a w każdym z nich: jego tytuł, podsumowanie, rekomendację dotyczącą rozwiązania oraz identyfikatory logów, z których dany incydent został wydedukowany.
 
-Dodatkowym parametrem przekazywanym do wejścia modelu jest konfigurowalny **customPrompt**, który pozwala dostosować interpretacje logów do poszczególnych aplikacji lub hostów. 
 
 <figure>
     <img src="/reports/implementation/reports-implementation-generation-prompt.png">
