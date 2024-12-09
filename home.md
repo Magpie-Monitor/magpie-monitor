@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:42:21.109Z
+date: 2024-12-09T15:43:31.348Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2252,7 +2252,9 @@ Oferowany przez OpenAI Batch API posiada ograniczenie na liczbę obecnie przetwa
 
 
 
-Kolejka ta przechowywana jest w bazie i pozwala to na zachowanie stanu oczekujących zadań, nawet po awarii systemu.           Podczas uruchamiania serwisu, uruchamiany jest również wątek, którego odpowiedzialnością jest sprawdzanie oczekujących zadań z bazy, i wykonywanie zadań jeżeli tokeny obecnie wykonywanych prac i oczekującej pracy są poniżej limitu. 
+Kolejka ta przechowywana jest w bazie. Pozwala to na zachowanie stanu oczekujących zadań, nawet po awarii systemu. 
+
+Podczas uruchamiania serwisu, uruchamiany jest również wątek, którego odpowiedzialnością jest sprawdzanie oczekujących zadań z bazy, i wykonywanie następnych zadań jeżeli tokeny obecnie wykonywanych żądań i oczekującego żądania są poniżej limitu. 
 
  <figure>
     <img src="/reports/implementation/reports-implementation-splittiong-batches.png">
