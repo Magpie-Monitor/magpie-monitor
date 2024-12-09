@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:34:37.453Z
+date: 2024-12-09T17:37:32.541Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3704,21 +3704,21 @@ Po wybraniu odpowiedniego konta zostaniemy zalogowani i przeniesieni na widok g�
 Po zalogowaniu do systemu widok główny zawsze zawiera ostatni wygenerowany raport:
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/main-page.png">
     <figcaption>Rysunek X: Widok główny [źródło opracowanie własne]</figcaption>
 </figure>
 
 Alternatywnie możemy również otworzyć ostatni raport z widoku raportów. Po kliknięciu zakładki “Reports”, użytkownik zostanie przeniesiony do tego widoku:
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/reports-page.png">
     <figcaption>Rysunek X: Widok raportów [źródło opracowanie własne]</figcaption>
 </figure>
 
 Raporty są posortowane malejąco według daty rozpoczęcia procesu generacji. Na powyższym obrazku najnowszy raport pochodzi z dnia 06.12.2024. Po wyborze przycisku w sekcji “Actions” użytkownik zostaje przeniesiony do strony raportu:
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/report-page.png">
     <figcaption>Rysunek X: Widok raportu [źródło opracowanie własne]</figcaption>
 </figure>
 
