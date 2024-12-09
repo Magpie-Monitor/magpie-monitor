@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:22:23.177Z
+date: 2024-12-09T15:22:46.752Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2186,13 +2186,14 @@ Do modelu przesyłana była zserializowana w formacie **JSONL** lista struktur  
 Element taki posiada identyfikator przypisywany przez klienta **CustomId**, który pozwala powiązać żądanie z odpowiedzią będącą w formacie listy struktur  **BatchFileCompletionResponseEntry**. 
 
 **JSONL** to format przeznaczony do kodowania listy jsonów, gdzie każdy kolejny JSON jest rozdzielony znakiem nowej linii.
+
+Ten format również wymagał napisania własnościowego enkodera wykorzystującego mechanizmy refleksji obecne w Go.
     
 <figure>
     <img src="/reports/implementation/reports-implementation-batch-api-interface.png">
     <figcaption>Rysunek X: Reports Service: Interfejs Batch API [źródło opracowanie własne]</figcaption>
 </figure>
 
-Ten format również wymagał napisania własnościowego enkodera wykorzystującego mechanizmy refleksji obecne w Go.
 
 ### 9.13.4 Ograniczenia BatchAPI  
 Batch API nie gwarantuje zachowania takiej samej kolejności odpowiedzi w jakiej zostały zakodowane zapytania.  
