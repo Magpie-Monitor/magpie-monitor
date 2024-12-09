@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:40:50.220Z
+date: 2024-12-09T15:41:58.690Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2247,7 +2247,7 @@ Oferowany przez OpenAI Batch API posiada ograniczenie na liczbę obecnie przetwa
  W ten sposób powstała kolejka, która posiada obiekty typu OpenAiJob, o określonym statusie: 
  - **ENQUEUED**: Żądanie oczekuje na przesłanie do Batch API
  - **IN\_PROGRESS**: Żądanie jest obecnie przetwarzanie przez OpenAI
- - **COMPLETED**: Żądanie zostało zakończone i rezultaty oczekują są dostępne OpenAI
+ - **COMPLETED**: Żądanie zostało zakończone i rezultaty są dostępne za pośrednictwem Batch API od OpenAI
  - **FAILED**: Żądanie zostało odrzucone przez OpenAI  
 
 
