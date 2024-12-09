@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:43:31.348Z
+date: 2024-12-09T15:44:01.093Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2235,7 +2235,7 @@ Abstrakcje nad jednostką pracą stanowią obiekty ScheduledJob, który posiada 
     <figcaption>Rysunek X: Reports Service: Dzielenie logów do wielu zapytań [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 9.13.6 Rate-limiting zapytań do modelu 
+### 9.13.6 Kolejkowanie zapytań do modelu 
 
 Oferowany przez OpenAI Batch API posiada ograniczenie na liczbę obecnie przetwarzanych tokenów (około 2 miliony tokenów). Każdy batch przekraczający ten limit jest automatycznie odrzucany. W związku z tym wymagane było stworzenie rate-limitera sprawdzającego ile tokenów jest obecnie przetwarzanych przed przesłaniem kolejnego batcha.
 
