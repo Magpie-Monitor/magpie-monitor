@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:03:25.957Z
+date: 2024-12-09T15:04:27.361Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2143,7 +2143,7 @@ W ten sposób możliwe jest operowanie wyłącznie na paczkach danych, i zdejmow
 </figure>
 
 ### 9.13.2 Przygotowywanie logów do generowania raportu 
-Tak jak wcześniej wspomniano, logi przetwarzane są po jednej paczce jednocześnie (co sprowadza się w obecnej konfiguracji do 10 000 rekordów)  Przed przesłaniem żądania, logi są grupowane oraz filtrowane, tak aby zminimalizować koszta wygenerowania raportu i zmniejszenie zbędnego obciążenia.  
+Logi przetwarzane są po jednej paczce w danym momencie (co sprowadza się w obecnej konfiguracji do 10 000 rekordów)  Przed przesłaniem żądania, logi są grupowane oraz filtrowane, tak aby zminimalizować koszta wygenerowania raportu i zmniejszenie zbędnego obciążenia.  
 
 <figure>
     <img src="/reports/implementation/reports-implementation-baching-logs.png">
