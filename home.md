@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T13:52:29.394Z
+date: 2024-12-09T13:55:14.530Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -682,7 +682,7 @@ Agent instalowany jest na klastrze Kubernetes klienta i odpowiada za zbieranie m
     <figcaption>Rysunek X: Logs Ingestion: Diagram komponentów [źródło opracowanie własne]</figcaption>
 </figure>
 
-Logs Ingestion Service zajmuje się zbieraniem i przetwarzaniem kolejno logów aplikacji i hostów w Application Logs Queue i Node Logs Queue. Logi te są spłaszczone do formy, którą można efektywnie zapisać w bazie logów wykorzystując kolejno Application Logs Repository oraz Node Logs Repository. Wymienione powyżej serwisy pełnią funkcje abstrakcji (wystawiają interfejs) konkretnych technologii użytych pod spodem, w tym przypadku Kafki oraz ElasticSearch. Takie rozwiązanie pozwala na łatwą podmianę użytego brokera wiadomości lub bazy danych jeżeli zajdzie taka potrzeba. 
+Logs Ingestion Service zajmuje się zbieraniem i przetwarzaniem kolejno logów aplikacji i hostów w Application Logs Queue i Node Logs Queue. Logi te są spłaszczone do formy, którą można efektywnie zapisać w bazie logów wykorzystując kolejno Application Logs Repository oraz Node Logs Repository. Wymienione powyżej serwisy pełnią funkcje abstrakcji (udostępniają interfejs) dla konkretnych technologii, które były wykorzystane w ramach Magpie Monitor. Takie rozwiązanie pozwala na łatwą podmianę użytego brokera wiadomości lub bazy danych jeżeli zajdzie taka potrzeba.  
 
 ### 7.3.6. Model C3 \- poziom 3 \- Report Service {#model-c3---poziom-3---report-service}
 
