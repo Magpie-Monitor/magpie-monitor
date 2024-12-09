@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:29:28.810Z
+date: 2024-12-09T14:30:05.257Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -932,7 +932,7 @@ Przechowuje incydenty występujące dla konkretnego hosta w ramach **Report**. P
 | :---- | :---- | :---- |
 | node | Nazwa hosta | string |
 | accuracy | Dokładność raportu aplikacji | string |
-| customPrompt | Własne dodatkowe wejście do modelu językowego podczas interpretacji logów z aplikacji w ramach raportu | string |
+| customPrompt | Własne dodatkowe wejście do modelu językowego podczas interpretacji logów z hostów w ramach raportu | string |
 | incidents | Lista incidentów z hostów | NodeIncidents\[\] |
 
    
