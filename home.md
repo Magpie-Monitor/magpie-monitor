@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T13:51:23.007Z
+date: 2024-12-09T13:52:29.394Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -664,7 +664,7 @@ Tak jak wspomniano przy Diagramie C2, prawie każdy z serwisów ma swoją bazę,
 
 Przez duży wolumen danych nieopłacalnym było przesyłanie ich za pomocą brokera wiadomości, więc zdecydowano się wykorzystać mechanizm dostarczany przez ElasticSearch. W tym przypadku ElasticSearch umożliwia stworzenie klastra swoich instancji, poprzez dodanie replik oraz jednej instancji do której można zapisywać nowe dane. Rozwiązanie to jest idealne w przypadku Magpie Monitor, ponieważ dwoma serwisami, które wykorzystują bazę logów są **Logs Ingestion service** oraz **Reports service.** Gdzie **Logs Ingestion service** jedynie zapisuje logi do bazy, a **Reports service**   jedynie je odczytuje (bez ich modyfikacji). Takie rozwiązanie oferuje separacje odpowiedzialności utrzymywania spójności przez Logs Ingestion, jednocześnie nie powodując zwiększonego obciążenia na instancji wykorzystywanej do odczytu przez **Reports service.**
 
-Wdrożenie na klastrze klienta zakłada zainstalowania dwóch instancji agentów skonfigurowanych odpowiednio do zbierania logów i metadanych z aplikacji oraz hostów w klastrze Kubernetesa. Aby zachować trwałość danych w przypadku chwilowej awarii dodatkowym serwisem, który musi być zainstalowany razem z agentami jest baza danych służąca do utrzymywania metadanych z klastra, która w tym przypadku jest instancją Redisa. Redis został wybrany ze względu na szybki dostęp do danych oraz niskie zużycie zasobów, co jest kluczowe w systemie klienta.
+Wdrożenie na klastrze klienta zakłada zainstalowania agentów skonfigurowanych odpowiednio do zbierania logów i metadanych z aplikacji oraz hostów w klastrze Kubernetesa. Aby zachować trwałość danych w przypadku chwilowej awarii, dodatkowym serwisem, który musi być zainstalowany razem z agentami jest baza danych służąca do utrzymywania metadanych z klastra, która w tym przypadku jest instancją Redisa. Redis został wybrany ze względu na szybki dostęp do danych oraz niskie zużycie zasobów, co jest kluczowe w systemie klienta.
 
 ### 7.3.4 Model C3 \- poziom 3 \- Agent {#model-c3---poziom-3---agent}
 
