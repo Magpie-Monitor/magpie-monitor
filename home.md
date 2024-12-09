@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:36:02.437Z
+date: 2024-12-09T15:38:42.381Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2222,9 +2222,11 @@ Dzięki temu uzyskujemy konteksty, które dotyczą logów z wyłącznie jednej a
     <figcaption>Rysunek X: Reports Service: Dzielenie logów do wielu zapytań [źródło opracowanie własne]</figcaption>
 </figure>
 
-Dodatkowym napotkanym ograniczeniem był maksymalny rozmiar Batcha od OpenAI (Batch API), który wynosił około 2MB. 
+Dodatkowym ograniczeniem jest maksymalny rozmiar Batcha od OpenAI (Batch API), który wynosi około 2MB. 
 
-Aby to obejść zapytania były dodatkowo dzielone na paczki zapytań nieprzekraczające tej wielkości. Tak stworzona jednostka pracy była zapisywana do bazy, gdzie była wykrywana przez inny serwis i przekształcana na **obserwacje** przy użyciu modelu od OpenAI.
+Aby to obejść zapytania są dzielone na paczki zapytań nieprzekraczające tej wielkości. 
+
+Tak stworzona paczka stanowi jednostkę pracy i jest zapisywana do bazy, gdzie jest ona wykrywana przez inny serwis i przekształcana na **obserwacje** przy użyciu modelu jęzkykowego od OpenAI.
 
 Abstrakcje nad jednostką pracą stanowią obiekty ScheduledJob, który posiada zserializowane żądanie do modelu językowego.  
  
@@ -2235,7 +2237,7 @@ Abstrakcje nad jednostką pracą stanowią obiekty ScheduledJob, który posiada 
 
 ### 9.13.6 Rate-limiting zapytań do modelu 
 
- Oferowany przez OpenAI Batch API posiada ograniczenie na liczbę obecnie przetwarzanych tokenów (około 2 miliony tokenów). Każdy batch przekraczający ten limit jest automatycznie odrzucany. W związku z tym wymagane było stworzenie rate-limitera sprawdzającego ile tokenów jest obecnie przetwarzanych przed przesłaniem kolejnego batcha.
+Oferowany przez OpenAI Batch API posiada ograniczenie na liczbę obecnie przetwarzanych tokenów (około 2 miliony tokenów). Każdy batch przekraczający ten limit jest automatycznie odrzucany. W związku z tym wymagane było stworzenie rate-limitera sprawdzającego ile tokenów jest obecnie przetwarzanych przed przesłaniem kolejnego batcha.
 
  <figure>
     <img src="/reports/implementation/reports-implementation-openaijob.png">
