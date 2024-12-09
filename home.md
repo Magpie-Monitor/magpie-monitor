@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:28:38.983Z
+date: 2024-12-09T14:29:28.810Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -938,6 +938,8 @@ Przechowuje incydenty występujące dla konkretnego hosta w ramach **Report**. P
    
 
 #### NodeIncident
+
+Incydent hosta wraz z metadanymi pozwalającymi na stwierdzenie na podstawie których logów dany incydent został wykryty. Dokument ten został zdenormalizowany (posiada źródła incydentu (**NodeIncidentSources**) oraz nazwę hosta i konfigurację hosta, ponieważ pobieranie pojedyneczego incydentu wraz z jego metadanymi jest typowym zapytaniem, a denormalizacja pozwala na uniknięcie częstej operacji złączania dokumentów. 
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
