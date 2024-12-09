@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:24:57.146Z
+date: 2024-12-09T14:26:11.015Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -886,6 +886,8 @@ Incydent aplikacji wraz z metadanymi pozwalającymi na stwierdzenie na podstawie
    
 
 #### ScheduledApplicationInsights
+
+Reprezentuje wykonywane zadanie generowania **obserwacji** z aplikacji. 
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
