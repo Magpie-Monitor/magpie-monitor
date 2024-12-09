@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:11:08.030Z
+date: 2024-12-09T14:13:14.210Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -777,6 +777,7 @@ Podsystem uwierzytelniania odpowiedzialny jest za uwierzytelnianie użytkownika 
 ### 7.4.1 Baza logów (Logs Ingestion Service)  {#baza-logów}
 
 **ApplicationLogsDocument**
+Dokument zawierający logi i metadane aplikacji z jakiej zostały zebrane.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
@@ -791,6 +792,7 @@ Podsystem uwierzytelniania odpowiedzialny jest za uwierzytelnianie użytkownika 
 | content | Treść loga | string |
 
 **NodeLogsDocument**
+Dokument zawierający logi i metadane hosta z jakiego zostały zebrane.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
