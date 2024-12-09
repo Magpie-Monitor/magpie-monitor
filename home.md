@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T22:20:05.938Z
+date: 2024-12-09T23:13:34.807Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1763,11 +1763,6 @@ W celu utrzymania wspólnego stylu oraz unikania powszechnych błędów związan
 Podczas rozwoju oprogramowania użyto wielu środowisk deweloperskich w zależności od dewelopra. Od **NeoVim'a**, przez **VSCode**, po **Jetbrains IDEA**. Dzięki wykorzystanie zewnętrznych narzędzi deweloperzy nie byli związani z konkretnym środowiskiem i mogli rozwijać oprogramowanie w takim, który im osobiście najbardziej odpowiadał. 
 
 Do wygenerowania interfejsów między mikroserwisami został wykorzystany schemat **AsyncAPI**.
-
-> Model implementacyjny chyba do usunięcia
-{.is-warning}
-
-## 9.2 Model implementacyjny {#model-implementacyjny}
 
 ## 9.2 Struktura plików projektu
 
