@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:37:32.541Z
+date: 2024-12-09T17:43:29.139Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3727,7 +3727,7 @@ Raporty są posortowane malejąco według daty rozpoczęcia procesu generacji. N
 Po zalogowaniu należy przejść do zakładki “Clusters”:
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/clusters-page.png">
     <figcaption>Rysunek X: Widok klastrów [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -3735,19 +3735,19 @@ Po wybraniu klastra, dla którego chcemy wygenerować raport cykliczny, należy 
 
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/report-config-scheduled.png">
     <figcaption>Rysunek X: Widok konfiguracji raportu dla raportów cyklicznych [źródło opracowanie własne]</figcaption>
 </figure>
 
 Aby wygenerować raport cykliczny, w sekcji „Generation type” należy wybrać opcję „Scheduled”. Po jej zaznaczeniu pojawi się sekcja „Schedule period”, w której można określić, w jakich odstępach czasu raport ma być generowany. Następnie należy skonfigurować pozostałe elementy raportu, takie jak kanały powiadomień, które mają informować o zakończeniu procesu generacji, oraz wybrać aplikacje i hosty, których logi mają zostać uwzględnione. Dla każdej aplikacji i hosta można również precyzyjnie dostosować instrukcje do modelu, klikając ikonę w kolumnie „Custom prompt”, oraz zmienić poziom dokładności w kolumnie „Accuracy”. Na końcu wystarczy nacisnąć przycisk „Generate”.
 
 
-   ### 12.2.2.4 Zmiana ustawień kanałów notyfikacji {#zmiana-ustawień-kanałów-notyfikacji}
+   ### 12.2.2.4 Generacja raportu na życzenie {#generacja-raportu-na-życzenie}
    
 Proces generacji raportu jest analogiczny do opisywanego procesu generacji raportu na żądanie. W momencie widoku konfiguracji raportu należy zmienić wartość w sekcji “Generation type” na “ON_DEMAND”:
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/report-config-on-demand.png">
     <figcaption>Rysunek X: Widok konfiguracji raportu dla raportów na życzenie [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -3760,15 +3760,15 @@ Po zmianie wartości wspomnianego pola pojawi się sekcja „Data Range”, w kt
    Konfiguracja kanałów powiadomień jest dostępna z poziomu widoku „Notifications”. Aby przejść do tego widoku, użytkownik musi zalogować się do systemu, a następnie wybrać zakładkę „Notifications”.
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/notification-page.png">
     <figcaption>Rysunek X: Widok konfiguracji powiadomień [źródło opracowanie własne]</figcaption>
 </figure>
 
 Załóżmy, że użytkownik chce dodać nowy adres e-mail, na który będzie otrzymywał powiadomienia z systemu. W tym celu powinien kliknąć ikonę „plusa” znajdującą się w prawym górnym rogu sekcji „Email”.
 
 <figure>
-    <img src="/">
-    <figcaption>Rysunek X: ![screenshot_from_2024-12-08_15-05-36.png](/user-interface/screenshot_from_2024-12-08_15-05-36.png)Okno służące dodania nowego adresu e-mail  [źródło opracowanie własne]</figcaption>
+    <img src="/user-interface/window-for-new-email-address.png">
+    <figcaption>Rysunek X: Okno służące dodaniu nowego adresu e-mail </figcaption>
 </figure>
 
 Po kliknięciu ikony na ekranie wyświetli się okno dialogowe, w którym użytkownik powinien wprowadzić nazwę oraz adres e-mail. Po uzupełnieniu tych danych należy zatwierdzić dodanie adresu e-mail, klikając przycisk „Submit”.
