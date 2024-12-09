@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T23:24:05.981Z
+date: 2024-12-09T23:25:41.799Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3641,26 +3641,21 @@ Poniższy wykres przedstawia liczbę kontrybucji (commitów) do głównej gałę
 
 ## 11.2 Wnioski {#wnioski}
 ### 11.2.1 Wnioski z konceptu projektu
-Projekt został zaplanowany jako dowód konceptu (Proof of concept) zintegrowanego systemu do zbierania i przetwarzania logów z dużych
-klastów komputerowych, i w ramach tego celu udało się zweryfikować, że rozwiązanie takie jest nie tylko możliwe
-technicznie, lecz również posiada sens biznesowy.
+Projekt został zaplanowany jako dowód konceptu (Proof of concept) zintegrowanego systemu do zbierania i przetwarzania logów z dużych klastów komputerowych, i w ramach tego celu udało się zweryfikować, że rozwiązanie takie jest nie tylko możliwe technicznie, lecz również posiada sens biznesowy.
 
 
 ### 11.2.2 Wnioski z implementacji projektu
 Podczas pracy z modelem oferowanym przez OpenAI oraz pracy z Batch API, odkryto,
 że rozwiązanie to pomimo atrakcyjnego modelu biznesowego (dostosowanego do dużej ilości danych), nie jest rowiązaniem bezproblemowych.
 
-W trakcie implementacji odkryto nieprzewidywalne odkładanie zadań przez Batch API co powodowało utrudnione testowanie nowych funkcjonalności end-2-end.
-Dodatkowo, na niektóre żądania Batch API od OpenAI zwracał błąd z kodem **500** bez podania przyczyny.
+W trakcie implementacji odkryto nieprzewidywalne odkładanie zadań przez Batch API co powodowało utrudnione testowanie nowych funkcjonalności end-2-end. Dodatkowo, na niektóre żądania Batch API od OpenAI zwracał błąd z kodem **500** bez podania przyczyny.
 
-Dodatkowo, zaobserwowano jak dużą kontrole nad dokładnością obserwacji modelu ma rozmiar danych umieszczonych w jednym kontekście. Zmniejszając tą wartość możliwe było uzyskiwanie lepszych obserwacji kosztem większego kosztu.
+
+Zaobserwowano również jak dużą kontrole nad dokładnością obserwacji modelu ma rozmiar danych umieszczonych w jednym kontekście. Zmniejszając tą wartość możliwe było uzyskiwanie lepszych obserwacji kosztem większego kosztu.
 
 Jednym z głównych potencjałów na wartość intelektualną w tym rozwiązaniu było filtrowanie logów przed przetwarzaniem przez model językowy. Perfekcyjne rozwiązanie minimalizuje koszty przetwarzania logów, jednocześnie nie zmniejszając ich dokładności.
 
-Wypracowane rozwiązanie, opierające się na bogatym,
-domenowych zbiorze słów kluczowych pozwaliło na drastyczną redukcje kosztów. 
-W tym przypadku nietypowym paramerem, który dodatkowo pozwalał na kontrolę zachowania filtra były maksymalne rozmiary pojedyńczych logów.
-Im wyższy maksymalny rozmiar loga tym filtr bardziej ograniczał ostateczną liczbę logów.
+Wypracowane rozwiązanie, opierające się na bogatym, domenowych zbiorze słów kluczowych pozwaliło na drastyczną redukcje kosztów.  W tym przypadku nietypowym paramerem, który dodatkowo pozwalał na kontrolę zachowania filtra były maksymalne rozmiary pojedyńczych logów. Im wyższy maksymalny rozmiar loga tym filtr bardziej ograniczał ostateczną liczbę logów.
 
 Filtr ma potencjał na wykorzystanie tańszego modelu do analizy istotności loga i filtrowanie go przy jego użyciu. Potencjalnymi rozwiązaniami tego problemu są również klasyfikatory lub analizatory sentymentu.
 
