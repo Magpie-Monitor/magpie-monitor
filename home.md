@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:22:46.752Z
+date: 2024-12-09T15:27:37.888Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2183,7 +2183,7 @@ Tak jak wcześniej wspomniano, zrealizowanie komunikacji z Batch API od OpenAI w
 
 Do modelu przesyłana była zserializowana w formacie **JSONL** lista struktur  **BatchFileCompletionRequestEntry**. 
 
-Element taki posiada identyfikator przypisywany przez klienta **CustomId**, który pozwala powiązać żądanie z odpowiedzią będącą w formacie listy struktur  **BatchFileCompletionResponseEntry**. 
+Element taki posiada identyfikator przypisywany przez klienta **CustomId**, który pozwala powiązać żądanie z odpowiedzią będącą w formacie listy struktur  **BatchFileCompletionResponseEntry**. Jest to konieczne, ponieważ Batch API nie gwarantuje zachowania takiej samej kolejności odpowiedzi w jakiej zostały zakodowane zapytania. 
 
 **JSONL** to format przeznaczony do kodowania listy jsonów, gdzie każdy kolejny JSON jest rozdzielony znakiem nowej linii.
 
@@ -2195,9 +2195,9 @@ Ten format również wymagał napisania własnościowego enkodera wykorzystując
 </figure>
 
 
-### 9.13.4 Ograniczenia BatchAPI  
-Batch API nie gwarantuje zachowania takiej samej kolejności odpowiedzi w jakiej zostały zakodowane zapytania.  
-W związku z tym wykorzystany został parametr CustomId do mapowania zapytań do odpowiedzi z modelu.   Drugim etapem jest przesłanie tak zakodowanego pliku do FIles API od OpenAI a następnie “aktywowania” batcha wykonując żądanie do Batch API, precyzując przesłany plik jako wejściowy i definiując okno wykonania, czyli maksymalny czas w jakim ma być wykonane dane żądanie. Niestety w momencie realizacji tego projektu jedyną wspieraną wartością dla okna wykonania były 24 godziny.  
+### 9.13.4 Wykorzystanie FilesAPI razem z BatchAPI  
+
+Przed przesłaniem żądania przetworzenia batcha przez BatchAPI, konieczne jest przesłanie treści żądań (w formacie **JSONL**), jako plik do Filed API od OpenAI. Po przesłaniu pliku, możliwe jest rozpoczęcie przetwarzania batcha odwołując się do identyfikatora pliku z zapytaniami. Dodatkowym parametrem wymagającym sprecyzowania jest okno wykonania, czyli maksymalny czas w jakim ma być wykonane dane żądanie. Niestety w momencie realizacji tego projektu jedyną wspieraną wartością dla okna wykonania były 24 godziny.  
 <figure>
     <img src="/reports/implementation/reports-implementation-batch-api-process.png">
     <figcaption>Rysunek X: Reports Service: Wykorzystanie Batch API [źródło opracowanie własne]</figcaption>
