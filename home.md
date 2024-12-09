@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:38:15.551Z
+date: 2024-12-09T14:44:11.688Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1631,12 +1631,16 @@ Dodatkowo, każdy wiersz umożliwia użytkownikowi edycję, przetestowanie dzia�
 
 ### 8.2 Diagramy procesów {#diagramy-procesów}
 
-Generowanie raportu jest procesem, który odbywa się na żądanie użytkownika  i zakłada  przejście przez Aplikację webową (Web Client), Management Service oraz Reports Service.   
-W ramach tego procesu użytkownik zgłasza żądanie wykorzystując aplikację webową jako klienta i definiuje tam czy raport powinien być cykliczny (wykonywać się automatycznie co jakiś czas) czy wykonany jednorazowo. Jeżeli raport jest przygotowany na działanie cykliczne to raport ten zostanie uruchomiony co przydzielony okres w przyszłości. W przeciwnym przypadku żądanie jest wysyłane natychmiast. 
+#### 8.2.1 Diagram procesu generowania raportu
 
-Żądania raportów są przekazywane na przeznaczone dla tych komunikatów brokery. Reports Service zbiera takie żądanie z brokera i rozpoczyna tworzenie raportu z wykorzystaniem zewnętrznego modelu językowego (OpenAI model). Po otrzymaniu rezultatów publikuje raport na odpowiednim brokerze, lub publikuje błąd w przypadku błędu podczas generacji. 
 
-Management service zbiera taką odpowiedź z brokera i aktualizuje rekord w bazie odpowiadający raportowi oczekującemu na generowanie. 
+Generowanie raportu jest procesem, który odbywa się na żądanie użytkownika i zakłada  przejście przez Aplikację webową (Web Client), Management Service oraz Reports Service. 
+
+W ramach tego procesu użytkownik zgłasza żądanie, wykorzystując aplikację webową jako klienta, definiując w niej czy raport powinien być cykliczny (wykonywać się automatycznie co jakiś czas) czy wykonany jednorazowo. Jeżeli raport jest przygotowany na działanie cykliczne, zostanie on wygenerowany co skonfigurowany przez użytkownika okres.. W przeciwnym przypadku, żądanie jest wysyłane natychmiast. 
+
+Żądania raportów są przekazywane do przeznaczonych dla tych komunikatów brokerów. Reports Service pobiera żądanie z brokera i rozpoczyna tworzenie raportu z wykorzystaniem zewnętrznego modelu językowego (OpenAI model). Po otrzymaniu rezultatów publikuje raport na odpowiednim brokerze, lub publikuje błąd w przypadku błędu podczas generacji. 
+
+Management service pobiera  taką odpowiedź z brokera i aktualizuje rekord w bazie odpowiadający raportowi oczekującemu na generowanie. 
 
 
 
