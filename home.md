@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:37:17.360Z
+date: 2024-12-09T14:37:32.609Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1005,7 +1005,7 @@ Reprezentuje wykonywaną operacje scalania incydentów. Kolekcja ta jest obstrak
 
 ####   ScheduledOpenAiJob
 
-Kolekcja odpowiadająza za przechowywanie zadań przekazywanych do modelu językowego od OpenAI. 
+Kolekcja odpowiadająca za przechowywanie zadań przekazywanych do modelu językowego od OpenAI. 
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
