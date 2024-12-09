@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T16:16:50.310Z
+date: 2024-12-09T16:21:43.038Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -168,23 +168,23 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [12\. Dokumentacja użytkownika](#dokumentacja-użytkownika)
 
-[1\. Wprowadzenie	19](#wprowadzenie)
+[12.1\. Wprowadzenie	19](#wprowadzenie)
 
-[2\. Użytkowanie produktu programowego](#użytkowanie-produktu-programowego)
+[12.1.2 Użytkowanie produktu programowego](#użytkowanie-produktu-programowego)
 
-[2.1. Instalacja aplikacji](#instalacja-aplikacji)
+[12.1.2. Instalacja aplikacji](#instalacja-aplikacji)
 
-[2.2. Najczęściej wykonywane operacje](#najczęściej-wykonywane-operacje)
+[12.2.2 Najczęściej wykonywane operacje](#najczęściej-wykonywane-operacje)
 
-[2.2.1. Logowanie do aplikacji](#logowanie-do-aplikacji)
+[12.2.2.1. Logowanie do aplikacji](#logowanie-do-aplikacji)
 
-[2.2.2. Otworzenie ostatniego raportu](#otworzenie-ostatniego-raportu)
+[12.2.2.2 Otworzenie ostatniego raportu](#otworzenie-ostatniego-raportu)
 
-[2.2.3. Planowanie generowania raportów](#planowanie-generowania-raportów)
+[12.2.2.3. Planowanie generowania raportów](#planowanie-generowania-raportów)
 
-[2.2.4. Zmiana ustawień kanałów notyfikacji](#zmiana-ustawień-kanałów-notyfikacji)
+[12.2.2.4. Zmiana ustawień kanałów notyfikacji](#zmiana-ustawień-kanałów-notyfikacji)
 
-[2.2.5. Zmiana ustawień raportów](#zmiana-ustawień-raportów)
+[12.2.2.5. Zmiana ustawień raportów](#zmiana-ustawień-raportów)
 
 # 1.  Wykaz symboli, oznaczeń i akronimów {#wykaz-symboli,-oznaczeń-i-akronimów}
 # 2. Słownik pojęć {#słownik-pojęć}
