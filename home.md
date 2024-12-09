@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:49:03.377Z
+date: 2024-12-09T14:49:52.986Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1971,11 +1971,11 @@ Struktura aplikacji klienckiej została zaprojektowana zgodnie z najlepszymi pra
 ## 9.9 Uwierzytelnienie użytkownika {#uwierzytelnienie-użytkownika}
             
 
-## 9.11. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-(scheduling-raportów,-management-service)}
+## 9.10. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-(scheduling-raportów,-management-service)}
 
-## 9.12 Zbieranie logów (agent) {#zbieranie-logów-(agent)}
+## 9.11 Zbieranie logów (agent) {#zbieranie-logów-(agent)}
 
-## 9.12.1 Zbieranie logów z hostów
+## 9.11.1 Zbieranie logów z hostów
 
 Agent zbiera logi z hostów, obserwując pliki które użytkownik skonfiguruje podczas wdrożenia. 
 
@@ -2012,7 +2012,7 @@ Obserwowanie pliku polega na cyklicznym sprawdzeniu jego rozmiaru i porównaniu 
 
 Dane dzielone są na mniejsze pakiety *Chunk*, które przesyłane są do brokera Kafki.
 
-## 9.12.2 Zbieranie metadanych z hostów
+## 9.11.2 Zbieranie metadanych z hostów
 
 <figure>
     <img src="/agent/agent-gather-node-metadata.png">
@@ -2027,7 +2027,7 @@ Dane dzielone są na mniejsze pakiety *Chunk*, które przesyłane są do brokera
 
 Agent cyklicznie odczytuje oraz przesyła metadane o swoim działaniu, tj. id klastra na którym działa, nazwę hosta w klastrze na którym działa dana replika agenta oraz pliki obserwowane przez agenta. Odczytane metadane są następnie przesyłane do brokera Kafki.
 
-## 9.12.3 Zbieranie logów z aplikacji
+## 9.11.3 Zbieranie logów z aplikacji
 
 Logi aplikacji są zbierane ze wszystkich przestrzeni nazw obecnych w klastrze Kubernetes, poza przestrzeniami wykluczonymi w konfiguracji paczki wdrożeniowej Helm Chart.
 
