@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:21:42.690Z
+date: 2024-12-09T15:22:23.177Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2182,6 +2182,7 @@ Dodatkowym kluczowym mechanizmem oferowanym przez OpenAI jest Batch API. Jest to
 Tak jak wcześniej wspomniano, zrealizowanie komunikacji z Batch API od OpenAI wymagało implementacji własnościowego klienta, a w ramach niego metod na serializacje wielu zapytań do jednego żądania.  
 
 Do modelu przesyłana była zserializowana w formacie **JSONL** lista struktur  **BatchFileCompletionRequestEntry**. 
+
 Element taki posiada identyfikator przypisywany przez klienta **CustomId**, który pozwala powiązać żądanie z odpowiedzią będącą w formacie listy struktur  **BatchFileCompletionResponseEntry**. 
 
 **JSONL** to format przeznaczony do kodowania listy jsonów, gdzie każdy kolejny JSON jest rozdzielony znakiem nowej linii.
