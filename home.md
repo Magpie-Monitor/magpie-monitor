@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:39:03.510Z
+date: 2024-12-09T15:40:09.861Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2226,7 +2226,7 @@ Dodatkowym ograniczeniem jest maksymalny rozmiar Batcha od OpenAI (Batch API), k
 
 Aby to obejść zapytania są dzielone na paczki zapytań nieprzekraczające tej wielkości. 
 
-Tak stworzona paczka stanowi jednostkę pracy i jest zapisywana do bazy, gdzie jest ona następnie wykrywana przez inny serwis i przekształcana na **obserwacje** przy użyciu modelu jęzkykowego od OpenAI.
+Tak stworzona paczka stanowi jednostkę pracy i jest zapisywana do bazy, gdzie jest ona następnie wykrywana przez **BatchPoller** (komponent serwisu **Reports Service**) i przekształcana na **obserwacje** przy użyciu modelu jęzkykowego od OpenAI.
 
 Abstrakcje nad jednostką pracą stanowią obiekty ScheduledJob, który posiada zserializowane żądanie do modelu językowego.  
  
