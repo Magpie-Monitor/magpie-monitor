@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:35:42.253Z
+date: 2024-12-09T15:36:02.437Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2224,7 +2224,7 @@ Dzięki temu uzyskujemy konteksty, które dotyczą logów z wyłącznie jednej a
 
 Dodatkowym napotkanym ograniczeniem był maksymalny rozmiar Batcha od OpenAI (Batch API), który wynosił około 2MB. 
 
-Aby to obejść zapytania były dodatkowo dzielone na paczki zapytań nieprzekraczające tej wielkości. Tak stworzona jednostka pracy była zapisywana do bazy, gdzie była wykrywana przez inny serwis i była przekształcana na **obserwacje** przy użyciu modelu od OpenAI.
+Aby to obejść zapytania były dodatkowo dzielone na paczki zapytań nieprzekraczające tej wielkości. Tak stworzona jednostka pracy była zapisywana do bazy, gdzie była wykrywana przez inny serwis i przekształcana na **obserwacje** przy użyciu modelu od OpenAI.
 
 Abstrakcje nad jednostką pracą stanowią obiekty ScheduledJob, który posiada zserializowane żądanie do modelu językowego.  
  
