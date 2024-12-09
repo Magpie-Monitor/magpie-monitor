@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T16:14:22.281Z
+date: 2024-12-09T16:15:49.102Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2282,9 +2282,9 @@ Wymagany schemat odpowiedzi modelu zawiera listę wykrytych incydent, a w każdy
 
 Tak jak wcześniej wspomniano ograniczony rozmiar kontekstu modelu językowego powoduje, że wiele incydentów zostanie powielonych ze względu na to, że logi należące do tego samego **wydarzenia** mogą być analizowane w ramach wielu kontekstów (tak aby nie przekroczyć jego maksymalnego rozmiaru). 
 
-Aby uniknąć zduplikowanych incydentów (takich, które odnoszą się faktycznie do tego samego **wydarzenia**, ale zawierają logi należące do różnych kontekstów), konieczne było ich scalanie.
+Aby uniknąć zduplikowanych incydentów (takich, które odnoszą się faktycznie do tego samego problemu, ale zawierają logi należące do różnych kontekstów), konieczne było ich scalanie.
 
-Incydenty odnoszące się do tego samego **wydarzenia** posiadają podobne tytuły oraz podsumownia, ale przez to, że były one generowane przez model językowe, który działa niederministycznie, to nie są one identyczne.
+Incydenty odnoszące się do tego samego problemu posiadają podobne tytuły oraz podsumownia, ale przez to, że były one generowane przez model językowe, który działa niederministycznie, to nie są one identyczne.
 
 W związku z tym konieczne było scalanie incydentów na podstawie rozumienia ich treści. Podejściem pozwalajacym na rozumienie tekstu i łączenie incydentów na podstawie ich treści jest wykorzystanie modelu językowego. 
 
