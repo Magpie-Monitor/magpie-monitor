@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-08T23:11:08.691Z
+date: 2024-12-09T13:51:23.007Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -619,25 +619,32 @@ Diagram kontekstu (C1) przedstawia ogólny obraz interakcji pomiędzy kluczowymi
 </figure>
 
 Poziom 2 w modelu C4 oznacza diagram kontenerów i przedstawia on wszystkie mikroserwisy, ich zewnętrze zależności oraz kanały komunikacji.
+
+
+
+
 System został zaprojektowany wokół wydarzeń, w związku z tym mikroserwisy są zorientowane na wydarzenia/procesy. W ramach tego podziału wydzielone zostały następujące serwisy:
 
-**Logs Ingestion service**: Odpowiedzialny za agregowanie logów dostarczonych przez agenta zbierającego je z klastra klienta. 
+Logs Ingestion service: Odpowiada za agregowanie logów dostarczonych przez agenta zbierającego je z klastra klienta. 
 
-**Reports service**: Odpowiedzialny za generowanie raportów na podstawie logów zebranych przez **Logs Ingestion service** oraz konfiguracji dostarczonych przez **Management Service.**
 
-**Metadata service:** Odpowiedzialny za zbieranie i przetwarzanie bieżącego stanu klastra (aplikacji i hostów będących częścią klastra) na podstawie danych dostarczanych przez agenta zainstalowanego w systemie klienta.
+Reports service: Odpowiada za generowanie raportów na podstawie logów zebranych przez Logs Ingestion service oraz konfiguracji dostarczonych przez Management Service.
 
-**Management Service:** Odpowiedzialny za uwierzytelnianie użytkownika, wysyłanie powiadomień, konfigurację raportów (wykorzystująć stan klastra z **Metadata service**) oraz cykliczne żądanie generowania raportów od **Reports service.** Serwis ten **również pełni** rolę “Backend For Frontend” (BFF), który wystawie wygodne i zoptymalizowane RESTowe API dla klienta webowego.
+Metadata service: Odpowiedzialny za zbieranie i przetwarzanie bieżącego stanu klastra (aplikacji i hostów będących częścią klastra) na podstawie danych dostarczanych przez agenta zainstalowanego w systemie klienta.
 
-Dodatkowo, aby nie naruszać zasad bezpieczeństwa, które klient może mieć w swoim systeme, wykorzystujemy **agenta,** który będąc częścią klastra klienta wysyła logi do zewnętrznej sieci, w której znajdują się mikroserwisy Magpie Monitor. Stosując takie podejście klient nie musi otwierać portów w swoim systemie, ponieważ logi są “pushowane”, a nie “pullowane”. 
+Management Service: Odpowiedzialny za uwierzytelnianie użytkownika, wysyłanie powiadomień, konfigurację raportów (wykorzystująć stan klastra z Metadata service) oraz cykliczne żądanie generowania raportów od Reports service. Serwis ten również pełni rolę “Backend For Frontend” (BFF), który wystawie wygodne i zoptymalizowane RESTowe API dla klienta webowego.
 
-Komunikacja pomiędzy mikroserwisami odbywa się za pomocą brokerów wiadomości (Apache Kafka). Podejście to znacząco zwiększa niezawodność i identyfikowalność (traceability) w systemie. Aby dostarczać większość funkcjonalności w dowolnym momencie wystarczy aby działał wyłącznie **Management Service,** inne serwisy wykonają jego żądania w momencie zakończenia ich awarii, ale same wiadomości nie zostaną utracone lub nie spowodują awarii samego **Management Service.**
+Dodatkowo, aby nie naruszać zasad bezpieczeństwa, które klient może mieć w swoim systemie, wykorzystujemy agenta, który będąc częścią klastra klienta wysyła logi do zewnętrznej sieci, w której znajdują się mikroserwisy Magpie Monitor. Stosując takie podejście klient nie musi otwierać dodatkowych portów sieciowych w swoim systemie. Dzięki temu tylko kanał komunikacji z Logs Ingestion Service (w tym przypadku Apache Kafka) musi mieć globalnie routowalny adres (i tym samym otwarty port.)
+
+
+Komunikacja pomiędzy mikroserwisami odbywa się za pomocą brokerów wiadomości (Apache Kafka). Podejście to znacząco zwiększa niezawodność i identyfikowalność (traceability) w systemie. Aby dostarczać większość funkcjonalności w dowolnym momencie wystarczy aby działał wyłącznie Management Service, inne serwisy wykonają jego żądania w momencie zakończenia ich awarii, ale same wiadomości nie zostaną utracone lub nie spowodują awarii samego Management Service.
 
 Identyfikowalność w ramach komunikacji między serwisami została zrealizowana z wykorzystaniem identyfikatora korelacji (correlation id), który służy do śledzenia całego procesu, w ramach którego przesyłane są wiadomości z tym samym identyfikatorem pomiędzy wieloma serwisami. Dzięki temu serwisy są w stanie rozpoznać które żądanie zostało zaktualizowane, lub jaki jest stan danego procesu.
 
 Ze względu na zorientowanie serwisów na wydarzenia, każdy z nich musi mieć bezpośredni dostęp do wszystkich danych wymaganych do realizacji zadań danego serwisu. Oznacza to, że każdy z nich ma swoje bazy danych, które są tworzone oraz aktualizowane na podstawie wydarzeń, które dany serwis otrzymał. 
 
 Jednocześnie, serwis w jakim utworzony został dany rekord/informacja oryginalnie jest odpowiedzialny za zachowanie spójności nadając unikalne identyfikatory, które są powielane w innych serwisach wykorzystujących te dane.
+
 
 
 ### 7.3.3 Diagram wdrożenia    {#diagram-wdrożenia}
@@ -647,19 +654,17 @@ Jednocześnie, serwis w jakim utworzony został dany rekord/informacja oryginaln
     <figcaption>Rysunek X: Diagram wdrożenia [źródło opracowanie własne]</figcaption>
 </figure>
 
-Wdrożenie systemu zakłada dwa podsystemy: “Magpie Monitor Cloud”, który oznacza infrastrukturę, na której wdrażane są wszystkie mikroserwisy oraz serwera klienta webowego. Drugim podsystemem jest system klienta, w którym musi zostać zainstalowany **agent** zbierający logi z klastra Kubernetesa będącego częścią jego infrastruktury. 
+Wdrożenie systemu zakłada dwa podsystemy: “Magpie Monitor Cloud”, który oznacza infrastrukturę, na której wdrażane są wszystkie mikroserwisy oraz serwer klienta webowego. Drugim podsystemem jest system klienta, w którym musi zostać zainstalowany **agent** zbierający logi z klastra Kubernetesa będącego częścią jego infrastruktury. 
 
-W ramach systemu “Mapgie Monitor Cloud” mikroserwisy oraz ich bazy danych zostały wydzielone na osobne hosty aby zminimalizować ryzyko awarii wielu serwisów jednocześnie. Serwisy takie jak **Logs Ingestion service** oraz **Cluster Metadata service**   
-przetwarzają nieprzerwanie duże ilości danych w związku z tym ich obciążenie jest niezależne od obciążenia innych serwisów, gdzie obciążenie jest związane z obecnym ruchem sieciowym. 
+W ramach systemu “Mapgie Monitor Cloud” mikroserwisy oraz ich bazy danych zostały wydzielone do osobnych hostów aby zminimalizować ryzyko awarii wielu serwisów jednocześnie. Serwisy takie jak **Logs Ingestion service** oraz **Cluster Metadata service** nieprzerwanie przetwarzają duże ilości danych, w związku z czym ich obciążenie jest niezależne od obciążenia innych serwisów, w których obciążenie jest związane z obecnym ruchem sieciowym. 
 
-Wiadomości dostarczane do **Logs ingestion service** i **Cluster metadata service** są również realizowane poprzez zewnętrznego brokera, który pozwoli zmniejszyć obciążenie na brokerze odpowiedzialnym za wewnętrzną komunikację oraz zastosować osobne reguły bezpieczeństwa tak aby mógł być bezpiecznie wystawiona do internetu (tak aby agent mógł się z nim komunikować)
+Wiadomości dostarczane do **Logs ingestion service** i **Cluster metadata service** również są realizowane poprzez zewnętrznego brokera, który pozwala na zmniejszenie obciążenia brokera odpowiedzialnego za wewnętrzną komunikację oraz zastosowanie osobnych reguł bezpieczeństwa, tak, aby mógł być on bezpiecznie wystawiona do internetu (aby agent mógł się z nim komunikować)
 
-Tak jak wspomniano przy Diagramie C2, prawie każdy z serwisów ma swoją bazę, którą populuje i aktualizuje na podstawie własnych działań oraz wydarzeń, które otrzymuje od innych serwisów. Wyjątkiem jest baza danych odpowiedzialna za przechowywanie logów. 
+Tak jak wspomniano przy Diagramie C2, prawie każdy z serwisów ma swoją bazę, którą populuje i aktualizuje na podstawie własnych działań oraz wydarzeń otrzymywanych od innych serwisów. Wyjątkiem jest baza danych odpowiedzialna za przechowywanie logów. 
 
-Przez dużą objętość tych danych nieopłacalne było je przesyłać za pomocą brokera wiadomości, więc w tym przypadku zdecydowano się wykorzystać mechanizm dostarczany przez ElasticSearch. W tym przypadku ElasticSearch umożliwia stworzenie klastra swoich instancji, poprzez dodanie replik oraz jednej instancji do której można zapisywać nowe dane. To rozwiązanie jest idealne w przypadku Magpie Monitor, ponieważ dwoma serwisami, które wykorzystują bazę logów są **Logs Ingestion service** oraz **Reports service.** Gdzie **Logs Ingestion service** jedynie zapisuje logi do bazy, a **Reports service**   jedynie je odczytuje (bez ich modyfikacji). Takie rozwiązanie oferuje separacje odpowiedzialności utrzymywania spójności przez Logs Ingestion, jednocześnie nie powodując zwiększonego obciążenia na instancji wykorzystywanej do odczytu przez **Reports service.** 
+Przez duży wolumen danych nieopłacalnym było przesyłanie ich za pomocą brokera wiadomości, więc zdecydowano się wykorzystać mechanizm dostarczany przez ElasticSearch. W tym przypadku ElasticSearch umożliwia stworzenie klastra swoich instancji, poprzez dodanie replik oraz jednej instancji do której można zapisywać nowe dane. Rozwiązanie to jest idealne w przypadku Magpie Monitor, ponieważ dwoma serwisami, które wykorzystują bazę logów są **Logs Ingestion service** oraz **Reports service.** Gdzie **Logs Ingestion service** jedynie zapisuje logi do bazy, a **Reports service**   jedynie je odczytuje (bez ich modyfikacji). Takie rozwiązanie oferuje separacje odpowiedzialności utrzymywania spójności przez Logs Ingestion, jednocześnie nie powodując zwiększonego obciążenia na instancji wykorzystywanej do odczytu przez **Reports service.**
 
-
-Wdrożenie na klastrze klienta zakłada zainstalowania dwóch instancji **agentów** skonfigurowanych odpowiednio do zbierania logów i metadanych z aplikacji oraz hostów w klastrze Kubernetesa. Aby zachować trwałość danych w przypadku chwilowej awarii dodatkowym serwisem, który musi być zainstalowany razem z agentami jest baza danych służąca do utrzymywania metadanych z klastra, która w tym przypadku jest instancją Redisa. Redis został wybrany ze względu na szybki dostęp do danych oraz niskie zużycie zasobów, co jest kluczowe w systemie klienta.
+Wdrożenie na klastrze klienta zakłada zainstalowania dwóch instancji agentów skonfigurowanych odpowiednio do zbierania logów i metadanych z aplikacji oraz hostów w klastrze Kubernetesa. Aby zachować trwałość danych w przypadku chwilowej awarii dodatkowym serwisem, który musi być zainstalowany razem z agentami jest baza danych służąca do utrzymywania metadanych z klastra, która w tym przypadku jest instancją Redisa. Redis został wybrany ze względu na szybki dostęp do danych oraz niskie zużycie zasobów, co jest kluczowe w systemie klienta.
 
 ### 7.3.4 Model C3 \- poziom 3 \- Agent {#model-c3---poziom-3---agent}
 
