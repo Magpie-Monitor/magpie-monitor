@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:32:30.469Z
+date: 2024-12-09T15:33:53.069Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2222,7 +2222,7 @@ Dzięki temu uzyskujemy konteksty, które dotyczą logów z wyłącznie jednej a
     <figcaption>Rysunek X: Reports Service: Dzielenie logów do wielu zapytań [źródło opracowanie własne]</figcaption>
 </figure>
 
-Dodatkowym napotkanym ograniczeniem był maksymalny rozmiar batcha od OpenAI, który wynosił około 2MB, aby to obejść zapytania były dodatkowo dzielone na paczki zapytań nieprzekraczających tej wielkości. Tak stworzona jednostka pracy jest zapisywana do bazy, gdzie zostanie wychwycona przez inny serwis i zostanie przekształcona na wnioski z logów z użyciem modelu od OpenAI. Abstrakcje nad pracą stanowią obiekty ScheduledJob, który posiada zserializowane żądanie do modelu językowego.  
+Dodatkowym napotkanym ograniczeniem był maksymalny rozmiar Batcha od OpenAI, który wynosił około 2MB, aby to obejść zapytania były dodatkowo dzielone na paczki zapytań nieprzekraczające tej wielkości. Tak stworzona jednostka pracy była zapisywana do bazy, gdzie była wykrywana przez inny serwis i była przekształcona na wnioski z logów z użyciem modelu od OpenAI. Abstrakcje nad pracą stanowią obiekty ScheduledJob, który posiada zserializowane żądanie do modelu językowego.  
  
  <figure>
     <img src="/reports/implementation/reports-implementation-split-completion-requests.png">
