@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:26:11.015Z
+date: 2024-12-09T14:27:40.960Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -900,6 +900,7 @@ Reprezentuje wykonywane zadanie generowania **obserwacji** z aplikacji.
    
 
 #### ApplicationInsightConfiguration
+Reprezentuje konfiguracje aplikacji wykorzystywaną podczas generowania raportu.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
@@ -910,6 +911,8 @@ Reprezentuje wykonywane zadanie generowania **obserwacji** z aplikacji.
    
 
 #### ApplicationIncidentSource
+
+Reprezentuje źródło incydentu aplikacji. Zawiera metadane o klastrze oraz zawartość loga, na podstawie którego został wykryty incydent.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
