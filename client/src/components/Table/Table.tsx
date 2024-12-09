@@ -57,11 +57,11 @@ function TableBodyRow<Row extends TableRow>({
   alignLeft,
 }: TableRowProps<Row>): React.ReactNode {
   return (
-    <div className="table__row">
+    <div className="grid-table__row">
       {columns.map((column: TableColumn<Row>, index) => (
         <div
           key={index}
-          className={'table__cell'}
+          className={'grid-table__cell'}
           style={getCellRowSpan(columns, alignLeft)}
         >
           {column.customComponent
@@ -82,19 +82,19 @@ function Table<T extends TableRow>({
   const tableStyle = maxHeight ? getTableStyle(maxHeight) : {};
 
   return (
-    <div className="table">
-      <div className="table__headers">
+    <div className="grid-table">
+      <div className="grid-table__headers">
         {columns.map((column: TableColumn<T>, index: number) => (
           <div
             key={index}
-            className="table__header"
+            className="grid-table__header"
             style={getCellRowSpan(columns, alignLeft)}
           >
             {column.header}
           </div>
         ))}
       </div>
-      <div className="table__body" style={tableStyle}>
+      <div className="grid-table__body" style={tableStyle}>
         {rows.map((row: T, index: number) => (
           <TableBodyRow
             key={index}

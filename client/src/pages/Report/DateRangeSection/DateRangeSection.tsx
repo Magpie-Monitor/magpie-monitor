@@ -2,53 +2,70 @@ import { useState } from 'react';
 import SectionComponent from 'components/SectionComponent/SectionComponent';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import './DateRangeSection.scss';
-import { getDateFromTimestamps, getEndOfDay, getStartOfDay } from 'lib/date.ts';
+import { DateRangePicker } from '@nextui-org/date-picker';
+import './DateRangeSection.scss';
+import {
+  AnyCalendarDate,
+  getLocalTimeZone,
+  today,
+} from '@internationalized/date';
 
 interface DateRangeSectionProps {
-    onDateChange: (startMs: number, endMs: number) => void;
+  onDateChange: (startMs: number, endMs: number) => void;
 }
 
-const DateRangeSection = ({ onDateChange }: DateRangeSectionProps) => {
-    const [startDate, setStartDate] = useState(Date.now());
-    const [endDate, setEndDate] = useState(Date.now());
-
-    const handleStartDateChange = (event: { target: { value: string } }) => {
-        const startMs = getStartOfDay(Date.parse(event.target.value));
-        setStartDate(startMs);
-        onDateChange(startMs, getEndOfDay(endDate));
-    };
-
-    const handleEndDateChange = (event: { target: { value: string } }) => {
-        const endMs = getEndOfDay(Date.parse(event.target.value));
-        setEndDate(endMs);
-        onDateChange(getStartOfDay(startDate), endMs);
-    };
-
-    return (
-        <SectionComponent
-            icon={<SVGIcon iconName="date-range-icon" />}
-            title={'Date Range'}
-        >
-            <div className="date-range">
-                <label>
-                    Start Date:
-                    <input
-                        type="date"
-                        value={getDateFromTimestamps(startDate)}
-                        onChange={handleStartDateChange}
-                    />
-                </label>
-                <label>
-                    End Date:
-                    <input
-                        type="date"
-                        value={getDateFromTimestamps(endDate)}
-                        onChange={handleEndDateChange}
-                    />
-                </label>
-            </div>
-        </SectionComponent>
-    );
+const startOfDayFromCalendarDate = (calendarDate: AnyCalendarDate): number => {
+  return new Date(
+    calendarDate.year,
+    calendarDate.month - 1,
+    calendarDate.day,
+    0,
+    0,
+    0,
+    0,
+  ).getTime();
 };
 
+const endOfDayFromCalendarDate = (calendarDate: AnyCalendarDate): number => {
+  return new Date(
+    calendarDate.year,
+    calendarDate.month - 1,
+    calendarDate.day,
+    23,
+    59,
+    59,
+    999,
+  ).getTime();
+};
+
+const DateRangeSection = ({ onDateChange }: DateRangeSectionProps) => {
+  const [startDate, setStartDate] = useState(today(getLocalTimeZone()));
+  const [endDate, setEndDate] = useState(today(getLocalTimeZone()));
+
+  return (
+    <SectionComponent
+      icon={<SVGIcon iconName="date-range-icon" />}
+      title={'Date Range'}
+    >
+      <DateRangePicker
+        className="date-range"
+        value={{
+          start: startDate,
+          end: endDate,
+        }}
+        onChange={(dates) => {
+          if (!dates) {
+            return;
+          }
+          setStartDate(dates.start);
+          setEndDate(dates.end);
+          onDateChange(
+            startOfDayFromCalendarDate(dates.start),
+            endOfDayFromCalendarDate(dates.end),
+          );
+        }}
+      />
+    </SectionComponent>
+  );
+};
 export default DateRangeSection;
