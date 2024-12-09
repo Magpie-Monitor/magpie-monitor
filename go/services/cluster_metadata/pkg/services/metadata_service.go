@@ -63,8 +63,8 @@ type MetadataServiceParams struct {
 	NodeAggregatedRepo        *sharedrepo.MongoDbCollection[repositories.AggregatedNodeMetadata]
 	ClusterAggregatedRepo     *sharedrepo.MongoDbCollection[repositories.AggregatedClusterMetadata]
 	EventEmitter              *MetadataEventPublisher
-	ApplicationMetadataBroker *messagebroker.KafkaJsonMessageBroker[repositories.ApplicationState]
-	NodeMetadataBroker        *messagebroker.KafkaJsonMessageBroker[repositories.NodeState]
+	ApplicationMetadataBroker messagebroker.MessageBroker[repositories.ApplicationState]
+	NodeMetadataBroker        messagebroker.MessageBroker[repositories.NodeState]
 }
 
 func NewMetadataService(params MetadataServiceParams) *MetadataService {
@@ -88,11 +88,7 @@ func NewMetadataService(params MetadataServiceParams) *MetadataService {
 
 	params.Lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			go metadataService.pollForClusterStateChange()
-			go metadataService.pollForApplicationStateChange()
-			go metadataService.pollForNodeStateChange()
-			go metadataService.consumeApplicationMetadata()
-			go metadataService.consumeNodeMetadata()
+			metadataService.Init()
 			return nil
 		},
 	})
@@ -115,8 +111,16 @@ type MetadataService struct {
 	clusterAggregatedStateChangePollIntervalSeconds     int
 	nodeAggregatedStateChangePollIntervalSeconds        int
 	applicationAggregatedStateChangePollIntervalSeconds int
-	applicationMetadataBroker                           *messagebroker.KafkaJsonMessageBroker[repositories.ApplicationState]
-	nodeMetadataBroker                                  *messagebroker.KafkaJsonMessageBroker[repositories.NodeState]
+	applicationMetadataBroker                           messagebroker.MessageBroker[repositories.ApplicationState]
+	nodeMetadataBroker                                  messagebroker.MessageBroker[repositories.NodeState]
+}
+
+func (m *MetadataService) Init() {
+	go m.pollForClusterStateChange()
+	go m.pollForApplicationStateChange()
+	go m.pollForNodeStateChange()
+	go m.consumeApplicationMetadata()
+	go m.consumeNodeMetadata()
 }
 
 func (m *MetadataService) consumeApplicationMetadata() {
@@ -125,15 +129,18 @@ func (m *MetadataService) consumeApplicationMetadata() {
 		err = make(chan error)
 	)
 
-	defer close(msg)
-	defer close(err)
+	ctx := context.Background()
+	defer ctx.Done()
 
-	go m.applicationMetadataBroker.Subscribe(context.TODO(), msg, err)
+	go m.applicationMetadataBroker.Subscribe(ctx, msg, err)
 
 	for {
 		select {
 		case metadata := <-msg:
-			m.clusterRepo.InsertDocuments([]interface{}{metadata})
+			_, err := m.clusterRepo.InsertDocuments([]interface{}{metadata})
+			if err != nil {
+				m.log.Error("Error inserting consumed application metadata", zap.Error(err))
+			}
 		case error := <-err:
 			m.log.Error("Error consuming application metadata", zap.Error(error))
 		}
@@ -146,15 +153,17 @@ func (m *MetadataService) consumeNodeMetadata() {
 		err = make(chan error)
 	)
 
-	defer close(msg)
-	defer close(err)
+	ctx := context.Background()
 
-	go m.nodeMetadataBroker.Subscribe(context.TODO(), msg, err)
+	go m.nodeMetadataBroker.Subscribe(ctx, msg, err)
 
 	for {
 		select {
 		case metadata := <-msg:
-			m.nodeRepo.InsertDocuments([]interface{}{metadata})
+			_, err := m.nodeRepo.InsertDocuments([]interface{}{metadata})
+			if err != nil {
+				m.log.Error("Error inserting consumed node metadata", zap.Error(err))
+			}
 		case error := <-err:
 			m.log.Error("Error consuming node metadata", zap.Error(error))
 		}

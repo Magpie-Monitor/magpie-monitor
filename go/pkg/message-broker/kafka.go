@@ -125,6 +125,7 @@ func (b *KafkaMessageBroker) Subscribe(ctx context.Context, messages chan<- []by
 		messages <- msg.Value
 	}
 }
+
 func (b *KafkaMessageBroker) CloseReader() error {
 	return b.reader.Close()
 }
