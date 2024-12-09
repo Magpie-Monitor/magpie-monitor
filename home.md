@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:30:36.079Z
+date: 2024-12-09T14:31:00.164Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -957,6 +957,8 @@ Incydent hosta wraz z metadanymi pozwalającymi na stwierdzenie na podstawie kt�
    
 
 ####  ScheduledNodeInsights
+
+Reprezentuje wykonywane zadanie generowania **obserwacji** z hostów. 
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
