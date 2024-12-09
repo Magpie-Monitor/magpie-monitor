@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:55:53.762Z
+date: 2024-12-09T14:57:21.852Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2123,7 +2123,9 @@ W związku z tym, że w jednej wiadomości może być wiele dokumentów, to aby 
 ## 9.13. Generowanie raportów (reports service)  {#generowanie-raportów-(reports-service)}
 
 ### 9.13.1 **Wczytywanie logów do pamięci**   
-Istotnym problemem, występującym podczas pracy z dużej ilością danych jest unikanie sytuacji, w których musimy mieć wszystkie dane w pamięci jednocześnie. W związku na wysoką wagę logów, z których użytkownik może sobie zażyczyć raportu, kluczowe było aby przetwarzać je w paczkach, później nazywanych batchami.  Proces ten rozpoczyna się przez pobieranie logów z instancji ElasticSearch w batchach wykorzystując dostarczone Scroll API. Interfejs ten pozwala na stworzenie zapytania na który zostanie zwrócony identyfikator scrolla, który może służyć do pobierania kolejnych paczek z zapytania, realizując w ten sposób paginacje zapytań.  Wykorzystując ten mechanizm możliwe było stworzenie interfejsu obejmującego pobieranie logów w paczkach z dowolnej bazy danych.
+Istotnym problemem, występującym podczas pracy z dużej ilością danych jest unikanie sytuacji, w których musimy mieć wszystkie dane w pamięci jednocześnie. Ze względu na wysoki rozmiar logów, z których użytkownik może sobie zażyczyć raportu, kluczowe było aby przetwarzać je w paczkach, później nazywanych batchami.  
+
+Proces ten rozpoczyna się przez pobieranie logów z instancji ElasticSearch w batchach wykorzystując dostarczone Scroll API. Interfejs ten pozwala na stworzenie zapytania na który zostanie zwrócony identyfikator scrolla, który może służyć do pobierania kolejnych paczek z zapytania, realizując w ten sposób paginacje zapytań.  Wykorzystując ten mechanizm możliwe było stworzenie interfejsu obejmującego pobieranie logów w paczkach z dowolnej bazy danych.
 
 <figure>
     <img src="/reports/implementation/reports-implementation-batched-document-retriever.png">
