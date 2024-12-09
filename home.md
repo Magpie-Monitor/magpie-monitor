@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T16:57:03.938Z
+date: 2024-12-09T16:57:47.485Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3664,7 +3664,7 @@ W świecie rosnących złożoności systemów komputerowych administratorzy nie 
 W celu zalogowania się do systemu należy otworzyć stronę Magpie Monitor. Następnie wybrać opcję “Sign in with Google”:
 
 <figure>
-    <img src="/user-interface/screenshot_from_2024-12-08_15-05-36.png">
+    <img src="/user-interface/screenshot_from_2024-12-08_15-07-55.png">
     <figcaption>Rysunek X: Widok logowania [źródło opracowanie własne]</figcaption>
 </figure>
 
