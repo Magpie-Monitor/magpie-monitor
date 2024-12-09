@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:51:44.824Z
+date: 2024-12-09T15:53:13.182Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2268,7 +2268,7 @@ Generowanie raportu z użyciem modelu językowego, polega na przekazaniu modelow
 
 Dodatkowym parametrem przekazywanym do wejścia modelu jest konfigurowalny **customPrompt**, który pozwala dostosować interpretacje logów do poszczególnych aplikacji lub hostów. 
 
-Wymagany schemat odpowiedzi modelu zawiera listę wykrytych incydent, a w każdym z nich: jego tytuł, podsumowanie, rekomendację dotyczącą rozwiązania oraz identyfikatory logów, z których dany incydent został wydedukowany.
+Wymagany schemat odpowiedzi modelu zawiera listę wykrytych incydent, a w każdym z nich, między innymi: jego tytuł, podsumowanie, rekomendację dotyczącą rozwiązania oraz identyfikatory logów, z których dany incydent został wydedukowany.
 
 
 <figure>
