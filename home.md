@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:32:59.725Z
+date: 2024-12-09T17:33:21.213Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1593,7 +1593,7 @@ Widok ten na urządzeniach mobilnych jest analogiczny do widoku raportów. Ze wz
 ### 8.1.6 Widok konfiguracji raportów {#widok-kanałów-raportów}
 
 <figure>
-    <img src="/user-interface/report-config-page-on-demand.png">
+    <img src="/user-interface/report-config-on-demand.png">
     <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
 </figure>
 
