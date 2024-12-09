@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T23:13:54.957Z
+date: 2024-12-09T23:18:25.737Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3658,7 +3658,7 @@ Podczas pracy z modelem oferowanym przez OpenAI oraz pracy z Batch API, odkryto,
 że rozwiązanie to pomimo atrakcyjnego modelu biznesowego (dostosowanego do dużej ilości danych), nie jest rowiązaniem bezproblemowych.
 
 W trakcie implementacji odkryto nieprzewidywalne odkładanie zadań przez Batch API co powodowało utrudnione testowanie nowych funkcjonalności end-2-end.
-Dodatkowo, na niektóre żądania były interfejs zwracał błąd z kodem **500** bez podania przyczyny.
+Dodatkowo, na niektóre żądania Batch API od OpenAI zwracał błąd z kodem **500** bez podania przyczyny.
 
 Dodatkowo, zaobserwowano jak dużą kontrole nad dokładnością obserwacji modelu ma rozmiar danych umieszczonych w jednym kontekście. Zmniejszając tą wartość możliwe było uzyskiwanie lepszych obserwacji kosztem większego kosztu.
 
@@ -3676,10 +3676,7 @@ Roszerzeniem projektu mający duży potencjał na obiniżenie kosztów i dodatko
 
 
 Mniej domenowym aspektem, który był kluczowy podczas realizacji Magpie Monitor, było wykorzystywanie architektury mikroserwisowej zgodnie z konceptem event-driven (zorientowanej na wydarzenia). Pozwoliło to na drastyczne zwiększenie odporności na awarie przez usunięcie powiązań pomiędzy mikroserwisami oraz zwiększenie potencjału na skalowanie zarówno horyzontalne jak i wertykalne.
-
-### 11.2.3 Potencjał rozwoju
-
-W świecie rosnących złożoności systemów komputerowych administratorzy nie są w stanie analizować regularnie stanu wszystkich aplikacji w kontekście logów jakie produkują, dlatego branża AiOps w coraz większym stopniu stawia na automatyzacje zadań w zakresie analizy incydentów i rozwiązanie Magpie Monitor wpisuje się w ten trend. 
+ 
  
 
 # 12. Dokumentacja użytkownika {#dokumentacja-użytkownika}
