@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:45:47.797Z
+date: 2024-12-09T14:49:03.377Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1969,10 +1969,6 @@ Struktura aplikacji klienckiej została zaprojektowana zgodnie z najlepszymi pra
 
 
 ## 9.9 Uwierzytelnienie użytkownika {#uwierzytelnienie-użytkownika}
-
-## 9.10 Komunikacja mikroserwisów z pośrednictwem Kafki     {#komunikacja-mikroserwisów-z-pośrednictwem-kafki}
->Do usunięcia ? 
-{.is-warning}
             
 
 ## 9.11. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-(scheduling-raportów,-management-service)}
