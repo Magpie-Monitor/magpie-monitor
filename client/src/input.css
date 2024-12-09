@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .bg-custom-light {
+    background-color: #f5f5f5;
+  }
+
+  .bg-custom-dark {
+    background-color: #2d2d2d;
+  }
+
+  .bg-custom-gradient {
+    background-image: linear-gradient(to right, #ff7e5f, #feb47b);
+  }
+
+  /* Dark mode variant */
+  .dark .bg-custom-light {
+    background-color: #2d2d2d;
+    /* Dark background when dark mode is enabled */
+  }
+
+  .dark .bg-custom-dark {
+    background-color: #f5f5f5;
+    /* Light background when dark mode is enabled */
+  }
+
+  .bg-default-100 {
+    background-color: transparent;
+  }
+
+  .bg-default-200:hover {
+    background-color: transparent;
+    filter: brightness(1.1);
+  }
+
+  *,
+  ::before,
+  ::after {
+    box-sizing: unset;
+    /* 1 */
+    border-width: 0;
+    /* 2 */
+    border-style: unset;
+    /* 2 */
+    border-color: unset;
+    /* 2 */
+
+    color: unset;
+  }
+}
