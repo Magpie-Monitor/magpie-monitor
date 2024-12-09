@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:20:45.110Z
+date: 2024-12-09T14:24:57.146Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -867,6 +867,8 @@ Przechowuje incydenty występujące dla konkretnej aplikacji w ramach **Report**
    
 
 ####   ApplicationIncident
+
+Incydent aplikacji wraz z metadanymi pozwalającymi na stwierdzenie na podstawie których logów dany incydent został wykryty. Dokument ten został zdenormalizowany (posiada źródła incydentu (**ApplicationIncidentSources**) oraz nazwę aplikacji i konfigurację aplikacji, ponieważ pobieranie pojedyneczego incydentu wraz z jego metadanymi jest typowym zapytaniem, a denormalizacja pozwala na uniknięcie częstej operacji złączania dokumentów. 
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
