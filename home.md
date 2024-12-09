@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T23:23:29.082Z
+date: 2024-12-09T23:24:05.981Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3623,14 +3623,7 @@ W trakcie realizacji projektu zostały zamknięte **137 pull requesty**. Pull re
 
 #### 11.1.4.2 Przebieg projektu według liczby kontrybucji
 
-Na poniższym wykresie można zobaczyć liczbę liń kodu dodanych do głównej gałęzi w trakcie realizacji projektu przez każdego z członków zespołu.
-
-
-Psedonimi z systemu kontroli wersji odpowiadają następującym członkom zespołu:
-- Woojciech: Wojciech Suszko
-- MDybek: Marcel Dybek
-- nswierkowski: Nikodem Świerkowski
-- XxRoloxX: Adam Lamers
+Na poniższym wykresie można zobaczyć liczbę liń kodu dodanych do głównej gałęzi w trakcie realizacji projektu.
 
 <figure>
     <img src="/przebieg-projektu/additions-graph.png">
