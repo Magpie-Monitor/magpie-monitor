@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T23:18:25.737Z
+date: 2024-12-09T23:20:40.337Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3669,8 +3669,7 @@ domenowych zbiorze słów kluczowych pozwaliło na drastyczną redukcje kosztów
 W tym przypadku nietypowym paramerem, który dodatkowo pozwalał na kontrolę zachowania filtra były maksymalne rozmiary pojedyńczych logów.
 Im wyższy maksymalny rozmiar loga tym filtr bardziej ograniczał ostateczną liczbę logów.
 
-Filtr ma potencjał na wykorzystanie tańszego modelu do analizy istotności loga i filtrowanie go przy jego użyciu.
-Potencjalnymi rozwiązaniami są klasyfikatory lub małe modele językowe.
+Filtr ma potencjał na wykorzystanie tańszego modelu do analizy istotności loga i filtrowanie go przy jego użyciu. Potencjalnymi rozwiązaniami tego problemu są również klasyfikatory lub analizatory sentymentu.
 
 Roszerzeniem projektu mający duży potencjał na obiniżenie kosztów i dodatkowe usprawnienia w obserwacji logów oferuje własny model językowy, który byłby mniejszy ale lepiej dotrenowany do konkretnego zadania, takiego jak wykrywanie anomalii, tworzenie podsumowań czy rekomendację rozwiązań.
 
