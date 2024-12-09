@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T16:15:49.102Z
+date: 2024-12-09T16:16:50.310Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2280,7 +2280,7 @@ Wymagany schemat odpowiedzi modelu zawiera listę wykrytych incydent, a w każdy
 
 ### 9.13.8 **Scalanie incydentów**   
 
-Tak jak wcześniej wspomniano ograniczony rozmiar kontekstu modelu językowego powoduje, że wiele incydentów zostanie powielonych ze względu na to, że logi należące do tego samego **wydarzenia** mogą być analizowane w ramach wielu kontekstów (tak aby nie przekroczyć jego maksymalnego rozmiaru). 
+Tak jak wcześniej wspomniano ograniczony rozmiar kontekstu modelu językowego powoduje, że wiele incydentów zostanie powielonych ze względu na to, że logi wyprodukowane na skutek tego samego problemu mogą być analizowane w ramach wielu kontekstów (tak aby nie przekroczyć jego maksymalnego rozmiaru). 
 
 Aby uniknąć zduplikowanych incydentów (takich, które odnoszą się faktycznie do tego samego problemu, ale zawierają logi należące do różnych kontekstów), konieczne było ich scalanie.
 
