@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T13:55:14.530Z
+date: 2024-12-09T14:11:08.030Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -693,15 +693,15 @@ Logs Ingestion Service zajmuje się zbieraniem i przetwarzaniem kolejno logów a
 
 **Reports Service** pełni 4 podstawowe funkcjonalności. 
 
-1. Zbieranie zgłoszeń o wygenerowanie raportów i wysyłanie komunikatów o gotowym raporcie lub błędzie w trakcie generowania raportu wykorzystując **ReportsHandler**.  
-2. **Przygotowanie logów do raportu.** W ramach każdego z raportów można sprecyzować źródła logów i ich dokładność. Aby wykonać to zadanie serwis wykorzystuje **Node Logs Repository** oraz **Application Logs Repository** aby pobrać logi z bazy oraz **Accuracy Filter** aby przefiltrować logi dla każdej aplikacji i hosta na podstawie sprecyzowanych konfiguracji.   
-3. **Stworzenie raportu z wykorzystaniem modelu językowego**. To zadanie wymaga spakowania logów w paczki, które model może jednocześnie przetworzyć. Serwis musi również obserwować kiedy te paczki zostały wykonane. To jest osiągnięte z użyciem **Batch Pollera**, który przechowuje stan wszystkich paczek za pomocą **Scheduled Jobs Repository.**  
-4. Stworzenie raportu polega również na zebraniu wszystkich rezultatów z modelu, transformacji ich do dokumentów zawierających odpowiednie metadane wykorzystując **Node Insights Generator** i **Application Insights Generator** oraz scalenie zduplikowanych incydentów z użyciem **Incident Merger**. Ostatecznie wystarczy zapisać raport wykorzystując **Reports Repository**  
+1. Zbieranie zgłoszeń o wygenerowanie raportów i wysyłanie komunikatów o gotowym raporcie, lub błędzie w trakcie generowania raportu wykorzystując **ReportsHandler**.  
+2. **Przygotowanie logów do raportu.** W ramach każdego z raportów można sprecyzować źródła logów i ich dokładność. Aby wykonać to zadanie, serwis wykorzystuje **Node Logs Repository** oraz **Application Logs Repository** aby pobrać logi z bazy, a także Accuracy **Filter,** aby przefiltrować logi dla każdej aplikacji i hosta na podstawie sprecyzowanych konfiguracji.   
+3. **Stworzenie raportu z wykorzystaniem modelu językowego**. To zadanie wymaga spakowania logów w paczki, które model może jednocześnie przetworzyć. Po przesłaniu logów do modelu, serwis wykorzystuje **Batch Pollera** aby obserwować, kiedy określona paczka była przetworzona. Batch Poller przechowuje wszystkie wykonywane zadania przetwarzania paczek logów przy użyciu **Scheduled Jobs Repository.**  
+4. Sformułowanie raportu polega na zebraniu wszystkich rezultatów z modelu, transformacji ich do dokumentów zawierających odpowiednie metadane wykorzystując **Node Insights Generator** i **Application Insights Generator** oraz scalenie zduplikowanych incydentów z użyciem **Incident Merger**. Następnie raport jest zapisywany przy użyciu **Reports Repository**  
    
 
 **Reports Service** posiada wysokopoziomową logikę odpowiedzialną za generowanie raportów, ale jest niezależny od kanałów komunikacji, ponieważ za komunikację z innymi mikroserwisami odpowiedzialny jest **ReportsHandler.** 
 
-**Application Insights Generator** oraz **Node Insights Generator** stanowią interfejsy wystawiane innym serwisom i pozwalają one na implementacje abstrakcji nad modelem językowym użytym do generowania raportów. 
+**Application Insights Generator** oraz **Node Insights Generator** stanowią interfejsy wystawiane innym serwisom i pozwalają na implementację abstrakcji nad modelem językowym użytym do generowania raportów. 
 
 ### 7.3.7. Model C3 \- poziom 3 \- Metadata Service {#model-c3---poziom-3---metadata-service}
 
