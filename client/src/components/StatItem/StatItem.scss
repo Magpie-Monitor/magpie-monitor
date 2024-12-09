@@ -14,11 +14,13 @@
     font-size: 15px;
     font-weight: bold;
     color: $font-color;
+    word-break: break-all;
   }
 
   &__value {
     display: flex;
     align-items: baseline;
+    word-break: break-all;
   }
 
   &__number {
