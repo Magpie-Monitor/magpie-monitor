@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:17:07.604Z
+date: 2024-12-09T14:20:45.110Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -854,6 +854,8 @@ Jest tworzony w momencie otrzymania żądania od Management Service w którym zn
    
 
 #### ApplicationReport
+
+Przechowuje incydenty występujące dla konkretnej aplikacji w ramach **Report**. Pozwala na połączenie informacji dotyczącej konfiguracji aplikacji przy generowaniu raportu wraz z incydentami z danej aplikacji. 
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
