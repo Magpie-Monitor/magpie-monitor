@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:27:40.960Z
+date: 2024-12-09T14:28:38.983Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -925,6 +925,8 @@ Reprezentuje źródło incydentu aplikacji. Zawiera metadane o klastrze oraz zaw
    
 
 #### NodeReport
+
+Przechowuje incydenty występujące dla konkretnego hosta w ramach **Report**. Pozwala na połączenie informacji dotyczącej konfiguracji hosta przy generowaniu raportu wraz z incydentami z danego hosta. 
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
