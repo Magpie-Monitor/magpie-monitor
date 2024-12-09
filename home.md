@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:12:41.190Z
+date: 2024-12-09T17:13:16.820Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3660,7 +3660,7 @@ W świecie rosnących złożoności systemów komputerowych administratorzy nie 
 
 <figure>
     <img src="/agent/agent-helm-values.png">
-    <figcaption>Rysunek X: Widok logowania [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Konfiguracja paczki wdrożeniowej Helm Agenta [źródło opracowanie własne]</figcaption>
 </figure>
 
    Agent dostarczany jest w paczce wdrożeniowej Helm, której konfiguracja zawiera się w pliku values.yaml. Klient może skonfigurować agenta wedle swoich potrzeb, dostępne opcje konfiguracyjne to min.:
