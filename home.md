@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:02:36.768Z
+date: 2024-12-09T15:03:25.957Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2135,7 +2135,7 @@ Wykorzystując ten mechanizm możliwe było stworzenie interfejsu obejmującego 
 </figure>
 
 
-W ten sposób możliwe jest operowanie na wyłącznie paczkach danych, i zdejmowanie ich z pamięci wraz z rozpoczęciem działania na następnej paczce.  
+W ten sposób możliwe jest operowanie wyłącznie na paczkach danych, i zdejmowanie ich z pamięci wraz z rozpoczęciem działania na następnej paczce.  
  		
 <figure>
     <img src="/reports/implementation/reports-implementation-next-batch.png">
