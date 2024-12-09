@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T16:21:43.038Z
+date: 2024-12-09T16:56:54.445Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -153,12 +153,6 @@ dateCreated: 2024-12-02T23:31:18.691Z
 [10.2.2 Testy integracyjne Logs Ingestion Service](#testy-integracyjne-logs-ingestion-service)
 
 [10.3. Testy funkcjonalne](#testy-funkcjonalne)
-
-[10.4. Testy użyteczności](#testy-użyteczności)
-
-[10.4.1. Procedura testowa](#procedura-testowa)
-
-[10.4.2. Podsumowanie wyników](#podsumowanie-wyników)
 
 [11\. Podsumowanie](#podsumowanie)
 
@@ -3493,15 +3487,6 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 * Użytkownik powinien móc zobaczyć listę raportów, z podziałem na raporty cykliczne oraz na żądanie.  
 * Wśród raportów powinien widnieć generowany raport wraz z informacją, że proces jego generowania jest w toku.  
   
-
-### 10.4.1 Procedura testowa {#procedura-testowa}
-
-### 10.4.2 Podsumowanie wyników {#podsumowanie-wyników}
-
-
-
-
-
 # 11. Podsumowanie {#podsumowanie}
 
 ## 11.1 Przebieg projektu {#przebieg-projektu}
@@ -3679,7 +3664,7 @@ W świecie rosnących złożoności systemów komputerowych administratorzy nie 
 W celu zalogowania się do systemu należy otworzyć stronę Magpie Monitor. Następnie wybrać opcję “Sign in with Google”:
 
 <figure>
-    <img src="/">
+    <img src="user-interface/screenshot_from_2024-12-08_15-05-36.png">
     <figcaption>Rysunek X: Widok logowania [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -3762,7 +3747,7 @@ Załóżmy, że użytkownik chce dodać nowy adres e-mail, na który będzie otr
 
 <figure>
     <img src="/">
-    <figcaption>Rysunek X: Okno służące dodaniu nowego adresu e-mail  [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: ![screenshot_from_2024-12-08_15-05-36.png](/user-interface/screenshot_from_2024-12-08_15-05-36.png)Okno służące dodania nowego adresu e-mail  [źródło opracowanie własne]</figcaption>
 </figure>
 
 Po kliknięciu ikony na ekranie wyświetli się okno dialogowe, w którym użytkownik powinien wprowadzić nazwę oraz adres e-mail. Po uzupełnieniu tych danych należy zatwierdzić dodanie adresu e-mail, klikając przycisk „Submit”.
