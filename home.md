@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T23:20:40.337Z
+date: 2024-12-09T23:23:29.082Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3633,14 +3633,14 @@ Psedonimi z systemu kontroli wersji odpowiadają następującym członkom zespo�
 - XxRoloxX: Adam Lamers
 
 <figure>
-    <img src="/przebieg-projektu/github-additions.png">
+    <img src="/przebieg-projektu/additions-graph.png">
     <figcaption>Rysunek 2: Wykres dodanych linii kodu w projekcie [źródło opracowanie własne]</figcaption>
 </figure>
 
 Poniższy wykres przedstawia liczbę kontrybucji (commitów) do głównej gałęzi repozytorium przez każdego członka zespołu.
 
 <figure>
-    <img src="/przebieg-projektu/github-commits.png">
+    <img src="/przebieg-projektu/commits-graph.png">
     <figcaption>Rysunek 2:  Wykres kontrybucji w projekcie [źródło opracowanie własne]</figcaption>
 </figure>
 
