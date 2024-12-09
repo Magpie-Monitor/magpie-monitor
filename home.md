@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:17:02.745Z
+date: 2024-12-09T17:26:31.306Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1467,12 +1467,12 @@ Na podstawie wymagań funkcjonalnych oraz historyjek użytkownika zaprojektowano
 ### 8.1.1 Widok logowania {#widok-logowania}
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/login-page.png">
     <figcaption>Rysunek X: Widok logowania [źródło opracowanie własne]</figcaption>
 </figure>
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/login-page-mobile.png">
     <figcaption>Rysunek X: Widok logowania na urządzeniu mobilnym [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1481,7 +1481,7 @@ Pierwszym widokiem wyświetlanym po wejściu na witrynę Magpie Monitor jest ekr
 ### 8.1.2 Widok główny {#widok-główny}
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/main-page.png">
     <figcaption>Rysunek X: Widok główny [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -3685,14 +3685,14 @@ Po zainstalowaniu, agent zacznie wysyłać logi oraz metadane do chmury Magpie M
 W celu zalogowania się do systemu należy otworzyć stronę Magpie Monitor. Następnie wybrać opcję “Sign in with Google”:
 
 <figure>
-    <img src="/user-interface/screenshot_from_2024-12-08_15-07-55.png">
+    <img src="/user-interface/login-page.png">
     <figcaption>Rysunek X: Widok logowania [źródło opracowanie własne]</figcaption>
 </figure>
 
 Po naciśnięciu przycisku użytkownik zostaje przeniesiony na stronę dostarczoną przez firmę Google:
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/google-sign-in-page.png">
     <figcaption>Rysunek X: Widok logowania dostarczony przez Google  [źródło opracowanie własne]</figcaption>
 </figure>
 
