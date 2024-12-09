@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:33:21.213Z
+date: 2024-12-09T17:34:37.453Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1583,7 +1583,7 @@ Widok w wersji mobilnej nie różni się znacząco od wersji na komputery stacjo
 
 <figure>
     <img src="/user-interface/clusters-page.png">
-    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Widok klastrów [źródło opracowanie własne]</figcaption>
 </figure>
 
 Widok klastrów przedstawia listę klastrów, które mogą być monitorowane przez Magpie Monitor. Tabela zawiera kolumny opisujące konfigurację raportów dla danego wiersza. Kliknięcie nazwy lub przycisku „Reports Configuration” przenosi użytkownika do widoku konfiguracji raportów.
@@ -1594,7 +1594,7 @@ Widok ten na urządzeniach mobilnych jest analogiczny do widoku raportów. Ze wz
 
 <figure>
     <img src="/user-interface/report-config-on-demand.png">
-    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Widok konfiguracji raportów [źródło opracowanie własne]</figcaption>
 </figure>
 
 Widok konfiguracji raportu zawiera następujące sekcje:
@@ -1612,8 +1612,8 @@ W wersji mobilnej sekcje są ułożone w jednej kolumnie, co poprawia czytelnoś
 ### 8.1.7 Widok kanałów powiadomień {#widok-kanałów-powiadomień}
 
 <figure>
-    <img src="/">
-    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+    <img src="/user-interface/notification-page.png">
+    <figcaption>Rysunek X: Widok kanałów powiadomień [źródło opracowanie własne]</figcaption>
 </figure>
 
 Widok składa się z trzech sekcji: “Slack”, “Discord” oraz “Email”. W każdej z nich znajduje się lista dodanych kanałów. Poszczególne pola w wierszach zawierają:
