@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:28:16.946Z
+date: 2024-12-09T15:32:30.469Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2209,7 +2209,13 @@ Dodatkowym parametrem wymagającym sprecyzowania jest okno wykonania, czyli maks
 
 
 ### 9.13.5 Dzielenie zapytań do modelu na konteksty i batche
- Podstawowym problemem podczas interpretacji logów jest ograniczenie wielkości logów przekazanych w ramach jednego kontekstu. Zmniejszenie ilości logów na kontekst pozwoliła zaobserwować poprawę jakości wykrywanych incydentów i rekomendacji ich rozwiązania. Dodatkowym twardym ograniczeniem jest maksymalna wielkość kontekstu, która wynosi około 100 000 tokenów, który przekazując logi można bardzo łatwo przekroczyć.   Aby utrzymać wysoką jakość odpowiedzi od modelu, zdecydowano się pogrupować logi w grupy logów od tych samych aplikacji / hostów, oraz następnie podzielenić je dodatkowo tak aby jedna paczka logów nie przekraczała z góry określonej wielkości, która jest mniejsza od maksymalnego ograniczenia wielkości kontekstu. Dzięki temu uzyskujemy konteksty, które dotyczą logów z wyłącznie jednej aplikacji / hosta. To pozwala uniknąć halucynacji i niskiej jakości rekomendacji.
+Podstawowym problemem podczas interpretacji logów jest ograniczenie wielkości logów przekazanych w ramach jednego kontekstu. Zmniejszenie ilości logów wewnątrz pojedyńczego kontekstu pozwoliła zaobserwować poprawę jakości wykrywanych incydentów i rekomendacji ich rozwiązania. 
+
+Dodatkowym twardym ograniczeniem jest maksymalna wielkość kontekstu, która wynosi około 100 000 tokenów, który przekazując logi można bardzo łatwo przekroczyć.  
+
+Aby utrzymać wysoką jakość odpowiedzi, zdecydowano się pogrupować logi na podstawie aplikacji / hostów, przez, które zostały wyprodukowane oraz następnie podzielenić je dodatkowo tak aby jedna paczka logów nie przekraczała z góry określonej wielkości, która jest mniejsza od maksymalnej wielkości kontekstu. 
+
+Dzięki temu uzyskujemy konteksty, które dotyczą logów z wyłącznie jednej aplikacji / hosta, a jednocześnie są na tyle małe, że model nie zapomina pojedyńczych elementów loga. To pozwala uniknąć halucynacji i niskiej jakości rekomendacji.
 
 <figure>
     <img src="/reports/implementation/reports-implementation-splitting-logs.png">
