@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T16:05:53.146Z
+date: 2024-12-09T16:07:52.973Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2290,9 +2290,7 @@ W związku z tym konieczne było scalanie incydentów na podstawie rozumienia ic
 
 Zadanie scalania incydentów polega na przekazaniu do modelu językowego wyłącznie listy incydentów uproszczonych do identyfikatora, tytułu oraz podsumowania. Na podstawie tej treści model grupuje incydenty ze względu na ich podobieństwa. 
 
-Przez mały rozmiar przekazywanych parametrów, możliwe jest aby przekazać wszystkie incydenty w ramach pojedycznego kontekstu modelu. To pozwala na  scalania incydentów należących do różnych kontekstów (tego samego problemu, do którego rozwiązania konieczne było scalanie incydentów)
-
-          
+Przez mały rozmiar przekazywanych parametrów, możliwe jest aby przekazać wszystkie incydenty w ramach pojedycznego kontekstu modelu. To pozwala na uniknięcie pomijania scalania incydentów należących do różnych kontekstów modelu językowego (analogiczny problem do tego który wymuszał scalanie incydentów).
 
 ## 9.14 Ustawianie kanałów komunikacji (management service) {#ustawianie-kanałów-komunikacji-(management-service)}
 
