@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T16:11:40.194Z
+date: 2024-12-09T16:13:02.113Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2282,13 +2282,13 @@ Tak jak wcześniej wspomniano ograniczony rozmiar kontekstu modelu językowego p
 
 Aby uniknąć zduplikowanych incydentów (takich, które odnoszą się faktycznie do tego samego **wydarzenia**, ale zawierają logi należące do różnych kontekstów), konieczne było ich scalanie.
 
-Incydenty odnoszące się do tego samego **wydarzenia** posiadają podobne tytuły oraz podsumownia, ale przez to, że były one generowane przez model językowe który działa niederministycznie, to nie są one identyczne.
+Incydenty odnoszące się do tego samego **wydarzenia** posiadają podobne tytuły oraz podsumownia, ale przez to, że były one generowane przez model językowe, który działa niederministycznie, to nie są one identyczne.
 
 W związku z tym konieczne było scalanie incydentów na podstawie rozumienia ich treści. Podejściem pozwalajacym na rozumienie tekstu i łączenie incydentów na podstawie ich treści jest wykorzystanie modelu językowego. 
 
 Zadanie scalania incydentów polega na przekazaniu do modelu językowego wyłącznie listy incydentów uproszczonych do identyfikatora, tytułu oraz podsumowania. Na podstawie tej treści model grupuje incydenty ze względu na ich podobieństwa. 
 
-Przez mały rozmiar przekazywanych parametrów, możliwe jest aby przekazać wszystkie incydenty w ramach pojedycznego kontekstu modelu. To pozwala na uniknięcie pomijania scalania incydentów należących do różnych kontekstów modelu językowego (analogiczny problem do tego który wymuszał scalanie incydentów).
+Przez mały rozmiar przekazywanych parametrów, możliwe jest aby przekazać wszystkie incydenty z danej aplikacji/hosta w ramach pojedycznego kontekstu modelu. To pozwala na uniknięcie pomijania scalania incydentów należących do różnych kontekstów (analogiczny problem do tego który wymuszał scalanie incydentów).
 
 <figure>
     <img src="/reports/reports-service-merged-incidents.png">
