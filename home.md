@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:40:09.861Z
+date: 2024-12-09T15:40:50.220Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2222,7 +2222,7 @@ Dzięki temu uzyskujemy konteksty, które dotyczą logów z wyłącznie jednej a
     <figcaption>Rysunek X: Reports Service: Dzielenie logów do wielu zapytań [źródło opracowanie własne]</figcaption>
 </figure>
 
-Dodatkowym ograniczeniem jest maksymalny rozmiar Batcha od OpenAI (Batch API), który wynosi około 2MB. 
+Dodatkowym ograniczeniem jest maksymalny rozmiar Batcha do OpenAI (Batch API), który wynosi 2MB. 
 
 Aby to obejść zapytania są dzielone na paczki zapytań nieprzekraczające tej wielkości. 
 
