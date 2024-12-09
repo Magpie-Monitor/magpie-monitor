@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:11:01.440Z
+date: 2024-12-09T15:13:42.083Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2160,7 +2160,7 @@ Ze względu na łatwą integrację i wszechstronność wykorzystany został mode
 Dodatkowym czynnikiem było wsparcie dla ustrukturyzowanej odpowiedzi. Jest to funkcjonalność oferowana przez modele od OpenAI (gpt-4-mini to najtańszy model wspierający tą funkcjonalność), gwarantująca, że odpowiedź modelu będzie miała formę konkretnego schematu (np. JSON). Było to kluczowe ze względu na identyfikatory logów na podstawie których wykryty został incident. Wymagane było aby znajdowały się one w odpowiedzi od modelu. Ustrukturyzowane odpowiedzi to jedyny pewny sposób na ich otrzymanie w przewidywalnym formacie.
 
 
-Ze względu na brak oficjalnego klienta do API OpenAI w Go, napisany został własnościowy klient wspierający serializację “structów” do schematów definiujących w jaki sposób model może odpowiedzieć za pomocą mechanizmów refleksji dostępnych w języku Go. 
+Ze względu na brak oficjalnego klienta do API OpenAI w Go, napisany został własnościowy klient wspierający serializację strukur z Go do schematów definiujących w jaki sposób model może odpowiedzieć za pomocą mechanizmów refleksji dostępnych w języku Go. 
 
 <figure>
     <img src="/reports/implementation/reports-implementation-structured-output.png">
