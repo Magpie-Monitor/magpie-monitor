@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:27:37.888Z
+date: 2024-12-09T15:28:16.946Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2197,7 +2197,10 @@ Ten format również wymagał napisania własnościowego enkodera wykorzystując
 
 ### 9.13.4 Wykorzystanie FilesAPI razem z BatchAPI  
 
-Przed przesłaniem żądania przetworzenia batcha przez BatchAPI, konieczne jest przesłanie treści żądań (w formacie **JSONL**), jako plik do Filed API od OpenAI. Po przesłaniu pliku, możliwe jest rozpoczęcie przetwarzania batcha odwołując się do identyfikatora pliku z zapytaniami. Dodatkowym parametrem wymagającym sprecyzowania jest okno wykonania, czyli maksymalny czas w jakim ma być wykonane dane żądanie. Niestety w momencie realizacji tego projektu jedyną wspieraną wartością dla okna wykonania były 24 godziny.  
+Przed przesłaniem żądania przetworzenia batcha przez BatchAPI, konieczne jest przesłanie treści żądań (w formacie **JSONL**), jako plik do Files API od OpenAI. Po przesłaniu pliku, możliwe jest rozpoczęcie przetwarzania batcha odwołując się do identyfikatora pliku z zapytaniami. 
+
+Dodatkowym parametrem wymagającym sprecyzowania jest okno wykonania, czyli maksymalny czas w jakim ma być wykonane dane żądanie. Niestety w momencie realizacji tego projektu jedyną wspieraną wartością dla okna wykonania były 24 godziny.  
+
 <figure>
     <img src="/reports/implementation/reports-implementation-batch-api-process.png">
     <figcaption>Rysunek X: Reports Service: Wykorzystanie Batch API [źródło opracowanie własne]</figcaption>
