@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T16:13:02.113Z
+date: 2024-12-09T16:14:22.281Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -196,6 +196,8 @@ dateCreated: 2024-12-02T23:31:18.691Z
 | Obserwacja | Insight | Wykryty problem z logów aplikacji/hostów. Obserwacja zawiera zarówno źródła obserwacji (na podstawie czego obserwacja była wysunięta) oraz podsumowanie i rekomendacje rozwiązania danego problemu |
 | Incydent | Incident | Obserwacja uzupełniona o dokładniejsze metadane z jej źródła. Zawiera między innymi czas wystąpienia incydentu, metadane hosta/aplikacji, z którego pochodzi oraz konfiguracje z jaką została wygenerowana |
 | Pilność | Urgency | Używana w kontekście raportu i incydentu, określa jak bardzo dany problem (określany przez incydent lub raport) wymaga natychmiastowej naprawy |
+
+
 
 # 3.  Cel i zakres przedsięwzięcia {#cel-i-zakres-przedsięwzięcia}
 
