@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T23:13:34.807Z
+date: 2024-12-09T23:13:54.957Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1792,7 +1792,7 @@ Sprawiło to również, że rozwijanie jakiejkolwiej części projektu stało si
 - **/docker-compose.es.yml**: Plik docker-compose zawierający konfiguracje ElasticSearch i automatyczne generowanie dla niego certyfikatów kryptograficznych
 - **/docker-compose.dev.yml** Plik docker-compose nadpisujący wybrane ustawienia z /docker-compose.yml. Pozwala na efektywniejszy rozwój projektu lokalnie.
 
-### 9.2.3 Struktura katalogu w /go
+### 9.2.3 Struktura plików w katalogu /go
 
 W ramach tego katalogu umieszczono kod wszystkich mikroserwisów napisanych w Go. 
 
