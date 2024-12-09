@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:10:39.772Z
+date: 2024-12-09T15:11:01.440Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2155,7 +2155,7 @@ Logi przetwarzane są po jednej paczce w danym momencie (co sprowadza się w obe
 
 Stąd, bardzo istotny był odpowiedni sposób na komunikację z modelem pozwalający na utrzymanie niskich kosztów, uwzględniając ilość logów, którą model musiałby przetworzyć.
 
-Ze względu na łatwą integrację i wszechstronność wykorzystaliśmy model gpt-4-mini od OpenAI. Model ten został wybrany ze względu na niską cenę zapytań: $1.25 na milion tokenów.  
+Ze względu na łatwą integrację i wszechstronność wykorzystany został model gpt-4-mini od OpenAI. Model ten został wybrany ze względu na niską cenę zapytań: $1.25 na milion tokenów.  
 
 Dodatkowym czynnikiem było wsparcie dla ustrukturyzowanej odpowiedzi. Jest to funkcjonalność oferowana przez modele od OpenAI (gpt-4-mini to najtańszy model wspierający tą funkcjonalność), gwarantująca, że odpowiedź modelu będzie miała formę konkretnego schematu (np. JSON). Było to kluczowe ze względu na identyfikatory logów na podstawie których wykryty został incident. Wymagane było aby znajdowały się one w odpowiedzi od modelu. Ustrukturyzowane odpowiedzi to jedyny pewny sposób na ich otrzymanie w przewidywalnym formacie.
 
