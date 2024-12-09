@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:44:11.688Z
+date: 2024-12-09T14:45:47.797Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1633,6 +1633,10 @@ Dodatkowo, każdy wiersz umożliwia użytkownikowi edycję, przetestowanie dzia�
 
 #### 8.2.1 Diagram procesu generowania raportu
 
+<figure>
+    <img src="/sequence-diagrams/reports-generation-sequence.svg">
+    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+</figure>
 
 Generowanie raportu jest procesem, który odbywa się na żądanie użytkownika i zakłada  przejście przez Aplikację webową (Web Client), Management Service oraz Reports Service. 
 
