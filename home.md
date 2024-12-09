@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:16:27.089Z
+date: 2024-12-09T17:17:02.745Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3668,7 +3668,7 @@ W świecie rosnących złożoności systemów komputerowych administratorzy nie 
 * wyłączone ze zbierania logów przestrzenie nazw klastra
 * pliki, z których zbierane są logi
 
-   Skonfigurowaną paczkę wdrożeniową instaluje sie przy pomocy komendy *helm install*, zgodnie z dokumentacją narzędzia Helm (https://helm.sh/docs/helm/helm_install/). 
+Skonfigurowaną paczkę wdrożeniową instaluje sie przy pomocy komendy *helm install*, zgodnie z dokumentacją narzędzia Helm (https://helm.sh/docs/helm/helm_install/). 
    
    <figure>
     <img src="/agent/agent-installed-view.png">
