@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:51:38.618Z
+date: 2024-12-09T14:55:53.762Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2095,9 +2095,7 @@ Agent cyklicznie odczytuje oraz przesyła metadane o aplikacjach aktualnie dzia�
 
 ### 9.12.1 Dynamiczne tworzenie indeksów
 
-Dynamiczne tworzenie indeksów Podstawowym działaniem Logs Ingestion service jest przetwarzanie i agregacja logów w taki sposób aby umożliwić skalowalne składowanie i przeszukiwanie logów z wielu klastrów przez nieograniczony czas. 
-
-W związku z tym kluczowe było dynamiczne tworzenie indeksów na podstawie logów, które się pojawiają w systemie.  Gdy otrzymany jest log, którego indeks jeszcze nie istnieje, to musi on zostać utworzony na podstawie poniższej funkcji. 
+Wiadomość z logami może posiadać parę poziomów zagnieżdżenie, grupujących logi na podstawie określonych metadanych. W związku z tym kluczowe jest przetworzenie tej wiadomości w taki sposób, aby dokument nie miał zagnieżdżonych pół, ponieważ utrudnia to przeszukiwania i indeksowanie. W ramach takiego procesu, z jednej wiadomości może powstać wiele dokumentów. 
 
 <figure>
     <img src="/logs-ingestion/implementation/logs-ingestion-implementation-index-name.png">
