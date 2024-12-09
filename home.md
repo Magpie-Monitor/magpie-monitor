@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:32:33.784Z
+date: 2024-12-09T14:37:17.360Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -995,6 +995,8 @@ Reprezentuje źródło incydentu hosta. Zawiera metadane i zawartość loga, na 
 
 ####   ScheduledIncidentMergerJob
 
+Reprezentuje wykonywaną operacje scalania incydentów. Kolekcja ta jest obstrakcją pozwalająca na powiązanie tego zadania z kolekcjami powiązanymi bezpośrednio z dostawcą rozwiązania oferującego na scalanie incydentów (np. model językowy od OpenAI i **ScheduledOpenAiJob**). Identyfikator dokumentu tej kolekcji odpowiada identyfikatorowi dokumentu posiadającego dane o bezpośredniej implementacji zadania scalania incydentów w innej kolekcji.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | id | Unikalny identyfikator zadania scalania incydentów | string |
@@ -1002,6 +1004,8 @@ Reprezentuje źródło incydentu hosta. Zawiera metadane i zawartość loga, na 
    
 
 ####   ScheduledOpenAiJob
+
+Kolekcja odpowiadająza za przechowywanie zadań przekazywanych do modelu językowego od OpenAI. 
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
