@@ -31,7 +31,7 @@ export const genericIncidentsFromApplicationIncidents = (
     category: incident.category,
     urgency: incident.urgency,
     title: incident.title,
-    timestamp: incident.sources[0].timestamp,
+    timestamp: incident.sinceMs,
   }));
 
 export const genericIncidentsFromNodeIncidents = (
@@ -43,5 +43,5 @@ export const genericIncidentsFromNodeIncidents = (
     category: incident.category,
     urgency: incident.urgency,
     title: incident.title,
-    timestamp: incident.sources[0].timestamp,
+    timestamp: incident.sinceMs,
   }));

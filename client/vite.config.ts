@@ -17,6 +17,7 @@ export default defineConfig({
       global: '/src/global',
       types: '/src/types',
       messages: '/src/messages',
+      links: '/src/links',
     },
   },
 });

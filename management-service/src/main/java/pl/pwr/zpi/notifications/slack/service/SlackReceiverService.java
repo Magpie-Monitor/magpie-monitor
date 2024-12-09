@@ -130,6 +130,13 @@ public class SlackReceiverService {
     }
 
     public void deleteSlackReceiver(Long receiverId) {
+        checkIfReceiverExist(receiverId);
         slackRepository.deleteById(receiverId);
+    }
+
+    private void checkIfReceiverExist(Long receiverId) {
+        if (!slackRepository.existsById(receiverId)) {
+            throw new IllegalArgumentException("Webhook with given Id not found");
+        }
     }
 }

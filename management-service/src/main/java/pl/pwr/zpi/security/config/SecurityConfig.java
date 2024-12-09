@@ -8,19 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import pl.pwr.zpi.auth.CustomAccessDeniedHandler;
-import pl.pwr.zpi.auth.oauth2.CustomCookieClearingLogoutHandler;
-import pl.pwr.zpi.auth.oauth2.CustomOAuth2UserService;
-import pl.pwr.zpi.auth.oauth2.OAuthLoginSuccessHandler;
-import pl.pwr.zpi.auth.oauth2.OauthAuthenticator;
+import pl.pwr.zpi.auth.oauth2.*;
 
 import java.util.Arrays;
 
@@ -29,10 +24,9 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final OAuthLoginSuccessHandler oAuth2LoginSuccessHandler;
-    private final CustomOAuth2UserService oauthUserService;
-    private final OAuth2AuthorizedClientService authorizedClientService;
+    private final GoogleOAuthLoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomCookieClearingLogoutHandler customLogoutHandler;
+    private final GoogleOauthTokenService googleOauthTokenService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
@@ -50,17 +44,16 @@ public class SecurityConfig {
                     ).permitAll();
                     request.anyRequest().authenticated();
                 })
+                .addFilterBefore(new OauthAuthenticationFilter(googleOauthTokenService), UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(oauthUserService))
-                        .successHandler(oAuth2LoginSuccessHandler))
+                        .successHandler(oAuth2LoginSuccessHandler)
+                        .loginPage("/oauth2/authorization/google"))
                 .logout((logout) -> logout
                         .logoutUrl("/api/v1/auth/logout")
                         .addLogoutHandler(customLogoutHandler)
                         .clearAuthentication(true)
                         .invalidateHttpSession(true)
                         .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)))
-                .addFilterBefore(new OauthAuthenticator(authorizedClientService), AuthorizationFilter.class)
                 .exceptionHandling(exception ->
                         exception.accessDeniedHandler(accessDeniedHandler())
                 );

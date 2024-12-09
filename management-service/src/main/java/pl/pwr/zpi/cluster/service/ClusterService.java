@@ -99,7 +99,6 @@ public class ClusterService {
             return isRunning
                     .map(running -> ClusterConfigurationDTO.ofCluster(clusterConfiguration, running))
                     .orElse(ClusterConfigurationDTO.ofCluster(clusterConfiguration, false));
-
         }).orElse(ClusterConfigurationDTO.defaultConfiguration());
     }
 

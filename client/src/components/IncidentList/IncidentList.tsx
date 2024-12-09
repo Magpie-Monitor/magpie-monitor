@@ -1,8 +1,9 @@
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import './IncidentList.scss';
-import { dateFromTimestampMs } from 'lib/date';
+import { dateTimeFromTimestampMs } from 'lib/date';
 import { GenericIncident } from 'types/incident';
 import { UrgencyLevel } from '@api/managment-service';
+import { useTransition, animated } from '@react-spring/web';
 
 interface IncidentListProps {
   incidents: GenericIncident[];
@@ -16,9 +17,19 @@ const categoryUrgencyClass: Record<UrgencyLevel, string> = {
 };
 
 const IncidentList = ({ incidents, onClick }: IncidentListProps) => {
+  const transitions = useTransition(incidents, {
+    from: { opacity: 0, transform: 'translateY(20px)' },
+    enter: { opacity: 1, transform: 'translateY(0)' },
+    leave: { opacity: 0, transform: 'translateY(20px)' },
+    config: { duration: 100 }, // Animation duration
+    keys: incidents.map((incident) => incident.id), // Ensure unique keys
+    trail: 200,
+  });
+
   if (incidents.length === 0) {
     return <div className="incident-list--no-incidents">No incidents</div>;
   }
+
   return (
     <div className="incident-list">
       <div className="incident-list__headers">
@@ -27,11 +38,12 @@ const IncidentList = ({ incidents, onClick }: IncidentListProps) => {
         <div className="incident-list__header">Title</div>
         <div className="incident-list__header">Date</div>
       </div>
-      {incidents.map((incident, index) => (
-        <div
+      {transitions((style, incident) => (
+        <animated.div
+          style={style}
           className="incident-list__entry"
-          key={index}
-          onClick={onClick ? () => onClick(incident) : () => { }}
+          key={incident.id}
+          onClick={onClick ? () => onClick(incident) : () => {}}
         >
           <div className="incident-list__entry__source">{incident.source}</div>
           <div
@@ -44,9 +56,9 @@ const IncidentList = ({ incidents, onClick }: IncidentListProps) => {
           </div>
           <div className="incident-list__entry__summary">{incident.title}</div>
           <div className="incident-list__entry__date">
-            {dateFromTimestampMs(incident.timestamp)}
+            {dateTimeFromTimestampMs(incident.timestamp)}
           </div>
-        </div>
+        </animated.div>
       ))}
     </div>
   );

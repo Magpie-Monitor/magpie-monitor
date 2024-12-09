@@ -1,25 +1,42 @@
 import './Incident.scss';
 import PageTemplate from 'components/PageTemplate/PageTemplate';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   ManagmentServiceApiInstance,
   NodeIncident,
+  NodeIncidentSource,
 } from 'api/managment-service';
 import SummarySection from './components/SummarySection/SummarySection';
 import RecommendationSection from './components/RecommendationSection/RecommendationSection';
 import IncidentHeader from './components/IncidentHeader/IncidentHeader';
 import NodeMetadataSection from './components/NodeMetadataSection/NodeMetadataSection';
 import NodeSourceSection from './components/NodeSourceSection/NodeSourceSection';
-import { getFirstAndLastDateFromTimestamps } from 'lib/date';
-import Spinner from 'components/Spinner/Spinner';
 import ConfigurationSection from './components/ConfigurationSection/ConfigurationSection';
+import { animated, useTransition } from '@react-spring/web';
+import usePaginatedContent from 'hooks/usePaginatedContent';
+import { FadeInTransition } from 'hooks/TransitionParams';
+import useInfiniteScroll from 'hooks/useInfiniteScroll';
+import CenteredSpinner from 'components/CenteredSpinner/CenteredSpinner';
+
+const NODE_SOURCE_PAGE_SIZE = 5;
 
 const NodeIncidentPage = () => {
   const [incident, setIncident] = useState<NodeIncident>();
   const [isLoading, setIsLoading] = useState(true);
-
   const { id } = useParams();
+  const {
+    content,
+    contentPage,
+    setTotalContentCount,
+    addContent,
+    isAllContentFetched,
+  } = usePaginatedContent<NodeIncidentSource>();
+
+  const [isFetchingSources, setIsFetchingSources] = useState(true);
+
+  const transitions = useTransition(content, FadeInTransition);
+  const pageTemplateRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchNodeIncident = async () => {
@@ -37,52 +54,106 @@ const NodeIncidentPage = () => {
     fetchNodeIncident();
   }, [id]);
 
-  if (isLoading || !incident) {
-    return <PageTemplate header={''}> <Spinner /> </PageTemplate>;
-  }
+  const handleScroll = async () => {
+    if (isAllContentFetched()) {
+      return;
+    }
 
-  const [startDate, endDate] = getFirstAndLastDateFromTimestamps(
-    incident.sources.map(({ timestamp }) => timestamp),
-  );
+    if (!incident) {
+      return;
+    }
+
+    setIsFetchingSources(true);
+    const newSources = await ManagmentServiceApiInstance.getNodeIncidentSources(
+      incident!.id,
+      contentPage,
+      NODE_SOURCE_PAGE_SIZE,
+    );
+
+    addContent(newSources.data);
+    setTotalContentCount(newSources.totalEntries);
+    setIsFetchingSources(false);
+  };
+
+  useInfiniteScroll({ handleScroll, scrollTargetRef: pageTemplateRef });
+
+  useEffect(() => {
+    const fetchSources = async () => {
+      if (!incident) {
+        return;
+      }
+      try {
+        setIsFetchingSources(true);
+        const newSources =
+          await ManagmentServiceApiInstance.getNodeIncidentSources(
+            incident!.id,
+            contentPage,
+            NODE_SOURCE_PAGE_SIZE,
+          );
+
+        setIsFetchingSources(false);
+
+        addContent(newSources.data);
+        setTotalContentCount(newSources.totalEntries);
+      } catch (err) {
+        // eslint-disable-next-line
+        console.error('Failed to fetch sources');
+      }
+    };
+    fetchSources();
+
+    // eslint-disable-next-line
+  }, [incident]);
+
+  if (isLoading || !incident) {
+    return (
+      <PageTemplate header={''}>
+        <CenteredSpinner />
+      </PageTemplate>
+    );
+  }
 
   return (
     <PageTemplate
       header={
-        <IncidentHeader id={id!} name={incident.title} timestamp={startDate} />
+        <IncidentHeader id={id!} name={incident.title} timestamp={incident.sinceMs} />
       }
+      scrollRef={pageTemplateRef}
     >
       <div className="incident">
         <div>
           <div className="incident__row--two-columns">
             <NodeMetadataSection
-                nodeName={incident.nodeName}
-                startDateMs={startDate}
-                endDateMs={endDate}
+              nodeName={incident.nodeName}
+              startDateMs={incident.sinceMs}
+              endDateMs={incident.toMs}
             />
 
             <ConfigurationSection
-                accuracy={incident.accuracy}
-                customPrompt={incident.customPrompt}
+              accuracy={incident.accuracy}
+              customPrompt={incident.customPrompt}
             />
           </div>
         </div>
-        <div>
-            <div className="incident__row--two-columns">
-              <SummarySection summary={incident.summary}/>
-              <RecommendationSection recommendation={incident.recommendation}/>
-            </div>
+        <div className="incident__row--two-columns">
+          <SummarySection summary={incident.summary} />
+          <RecommendationSection recommendation={incident.recommendation} />
         </div>
-        {incident.sources.map((source, index) => (
-          <NodeSourceSection
-            content={source.content}
-            key={index}
-            timestamp={source.timestamp}
-            filename={source.filename}
-          />
+
+        {transitions((style, source) => (
+          <animated.div style={style}>
+            <NodeSourceSection
+              content={source.content}
+              filename={source.filename}
+              timestamp={source.timestamp}
+            />
+          </animated.div>
         ))}
+
+        {isFetchingSources && <CenteredSpinner />}
       </div>
     </PageTemplate>
-);
+  );
 };
 
 export default NodeIncidentPage;

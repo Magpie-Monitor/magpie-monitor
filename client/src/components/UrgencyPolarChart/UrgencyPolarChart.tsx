@@ -1,5 +1,6 @@
 import { UrgencyLevel } from '@api/managment-service';
-import PolarChart, { PolarChartEntry } from 'components/PolarChart/PolarChart';
+import PieChart from 'components/PieChart/PieChart';
+import { PolarChartEntry } from 'components/PolarChart/PolarChart';
 import colors from 'global/colors';
 
 interface UrgancyPolarChartProps {
@@ -12,6 +13,8 @@ const urgencyToChartColor: Record<UrgencyLevel, string> = {
   HIGH: colors.urgency.high,
 };
 
+const CHART_COLOR_TRANSPARENCY = 'd0';
+
 const UrgencyPolarChart = ({
   urgencyIncidentCount,
 }: UrgancyPolarChartProps) => {
@@ -19,11 +22,12 @@ const UrgencyPolarChart = ({
     ([urgency, count]) => ({
       value: count,
       label: urgency,
-      color: urgencyToChartColor[urgency as UrgencyLevel],
+      color:
+        urgencyToChartColor[urgency as UrgencyLevel] + CHART_COLOR_TRANSPARENCY,
     }),
   );
 
-  return <PolarChart label="Incidents by Urgency" data={chartData} />;
+  return <PieChart label="Incidents by Urgency" data={chartData} />;
 };
 
 export default UrgencyPolarChart;

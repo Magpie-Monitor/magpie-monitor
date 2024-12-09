@@ -10,7 +10,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 999;
 }
 
 .modal-content {
@@ -21,4 +21,17 @@
   border: 2px solid $component-border-color;
   overflow-x: auto;
   margin: 0 5px;
+  animation: slideIn 0.1s linear;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

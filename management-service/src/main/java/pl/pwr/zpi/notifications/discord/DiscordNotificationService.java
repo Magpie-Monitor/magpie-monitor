@@ -26,8 +26,7 @@ public class DiscordNotificationService implements ReportNotifier {
 
     public void sendTestMessage(Long receiverDiscordId) {
         var receiver = discordReceiverService.getDiscordReceiver(receiverDiscordId);
-        String decodedWebhookUrl = confidentialTextEncoder.decrypt(receiver.getWebhookUrl());
-        sendTestMessage(decodedWebhookUrl);
+        sendTestMessage(receiver.getWebhookUrl());
     }
 
     private void sendTestMessage(String webhookUrl) {

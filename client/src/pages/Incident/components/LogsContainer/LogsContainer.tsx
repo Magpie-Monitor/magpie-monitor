@@ -14,7 +14,7 @@ const LogsBox = ({ logs }: LogsBoxParams) => {
         className={isLogBoxExpanded ? 'logs-box--expanded' : 'logs-box'}
         onClick={() => setIsLogBoxExpanded((prev) => !prev)}
       >
-        {logs}
+        {logs.trim()}
       </div>
     </>
   );

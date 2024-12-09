@@ -1,4 +1,4 @@
-package pl.pwr.zpi.auth;
+package pl.pwr.zpi.auth.oauth2;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

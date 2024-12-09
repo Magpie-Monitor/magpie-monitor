@@ -103,7 +103,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({
             header: 'Name',
             columnKey: 'name',
             customComponent: (node: NodeDataRow) => (
-                <LinkComponent to="" isRunning={node.running}>
+                <LinkComponent isRunning={node.running}>
                     {node.name}
                 </LinkComponent>
             ),
@@ -130,10 +130,12 @@ const NodesSection: React.FC<NodesSectionProps> = ({
             ),
         },
         {
-            header: '',
+            header: 'Kind',
             columnKey: '',
             customComponent: () => (
-                <KindTag/>
+              <KindTag
+                name={'Node'}
+              />
             ),
         },
         {
@@ -147,7 +149,7 @@ const NodesSection: React.FC<NodesSectionProps> = ({
 
     return (
         <SectionComponent
-            icon={<SVGIcon iconName="application-icon" />}
+            icon={<SVGIcon iconName="node-incident-metadata-icon" />}
             title={'Nodes'}
             callback={() => handleOpenModal()}
         >

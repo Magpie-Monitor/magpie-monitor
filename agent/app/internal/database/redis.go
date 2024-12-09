@@ -2,10 +2,16 @@ package database
 
 import (
 	"context"
-	redis "github.com/redis/go-redis/v9"
 	"log"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
+
+type RedisDatabase interface {
+	Set(key, value string, ttl int) error
+	Get(key string) string
+}
 
 type Redis struct {
 	url      string
@@ -14,7 +20,7 @@ type Redis struct {
 	client   *redis.Client
 }
 
-func NewRedis(url, password string, db int) Redis {
+func NewRedis(url, password string, db int) RedisDatabase {
 	client := redis.NewClient(&redis.Options{
 		Addr:     url,
 		Password: password,
@@ -27,7 +33,7 @@ func NewRedis(url, password string, db int) Redis {
 		panic(err)
 	}
 
-	return Redis{url: url, password: password, db: db, client: client}
+	return &Redis{url: url, password: password, db: db, client: client}
 }
 
 func (r *Redis) Set(key, value string, ttl int) error {
@@ -37,3 +43,5 @@ func (r *Redis) Set(key, value string, ttl int) error {
 func (r *Redis) Get(key string) string {
 	return r.client.Get(context.Background(), key).Val()
 }
+
+var db RedisDatabase = &Redis{}

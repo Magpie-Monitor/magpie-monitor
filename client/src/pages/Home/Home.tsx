@@ -1,46 +1,40 @@
-import { ManagmentServiceApiInstance } from 'api/managment-service';
+import {ManagmentServiceApiInstance, ReportDetails} from 'api/managment-service';
 import PageTemplate from 'components/PageTemplate/PageTemplate';
 import HeaderWithIcon from 'components/PageTemplate/components/HeaderWithIcon/HeaderWithIcon';
-import useReportDetails from 'hooks/useReportStats';
-
 import { useEffect, useState } from 'react';
 import ReportDetailsSection from './components/ReportDetailsSection/ReportDetailsSection';
+import useReportDetails from 'hooks/useReportStats';
 
 const Home = () => {
-  const [lastReportId, setLastReportId] = useState<string | null>(null);
+  const [lastReport, setLastReport] = useState<ReportDetails | null>(null);
+  const [isReportLoading, setIsReportLoading] = useState(true);
 
   useEffect(() => {
-    const fetchReports = async () => {
+    const getLatestReport = async () => {
       try {
-        const [onDemandReports, scheduledReports] = await Promise.all([
-          ManagmentServiceApiInstance.getReports('ON-DEMAND'),
-          ManagmentServiceApiInstance.getReports('SCHEDULED'),
-        ]);
-        const reports = [...onDemandReports, ...scheduledReports];
-        if (reports.length > 0) {
-          reports.sort((a, b) => b.requestedAtMs - a.requestedAtMs);
-          setLastReportId(reports[0].id);
+        const latestReport = await ManagmentServiceApiInstance.getLatestReport();
+        if (latestReport) {
+          setLastReport(latestReport);
         }
       } catch (e: unknown) {
-        console.error('Failed to fetch reports');
+        console.error('Failed to fetch the latest report', e);
       }
     };
 
-    fetchReports();
+    getLatestReport();
+    setIsReportLoading(false);
   }, []);
 
   const {
     incidents,
-    report,
     incidentStats,
     areIncidentsLoading,
-    isReportLoading,
-  } = useReportDetails(lastReportId);
+  } = useReportDetails(lastReport);
 
   return (
     <PageTemplate header={<HeaderWithIcon title={'Dashboard'} />}>
       <ReportDetailsSection
-        report={report}
+        report={lastReport}
         incidents={incidents}
         incidentStats={incidentStats}
         areIncidentsLoading={areIncidentsLoading}

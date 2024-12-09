@@ -106,7 +106,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
             header: 'Name',
             columnKey: 'name',
             customComponent: (app: ApplicationDataRow) => (
-                <LinkComponent to="" isRunning={app.running}>
+                <LinkComponent isRunning={app.running}>
                     {app.name}
                 </LinkComponent>
             ),
@@ -152,7 +152,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
 
     return (
         <SectionComponent
-            icon={<SVGIcon iconName="application-icon" />}
+            icon={<SVGIcon iconName="application-incident-metadata-icon" />}
             title="Applications"
             callback={() => handleOpenModal()}
         >

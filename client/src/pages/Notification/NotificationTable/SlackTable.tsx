@@ -12,9 +12,10 @@ import {
 } from 'api/managment-service';
 import LoadingTable from './LoadingTable';
 import NewSlackChannelPopup from 'pages/Notification/NewChannelPopup/NewSlackChannelPopup';
-import { dateFromTimestampMs } from 'lib/date';
+import { dateTimeWithoutSecondsFromTimestampMs } from 'lib/date';
 import EditSlackChannelPopup from 'pages/Notification/EditChannelPopup/EditSlackChannelPopup';
 import './NotificationTable.scss';
+import { useToast } from 'providers/ToastProvider/ToastProvider';
 interface SlackTableRowProps extends NotificationTableRowProps {
   webhookUrl: string;
 }
@@ -27,8 +28,8 @@ const getSlackChannelTableRow = ({
   webhookUrl,
 }: SlackNotificationChannel): SlackTableRowProps => ({
   name: receiverName,
-  updatedAt: dateFromTimestampMs(updatedAt),
-  createdAt: dateFromTimestampMs(createdAt),
+  updatedAt: dateTimeWithoutSecondsFromTimestampMs(updatedAt),
+  createdAt: dateTimeWithoutSecondsFromTimestampMs(createdAt),
   webhookUrl,
   id,
 });
@@ -42,6 +43,8 @@ const SlackTable = () => {
     useState<boolean>(false);
   const [editChannelPopupData, setEditChannelPopupData] =
     useState<SlackTableRowProps | null>(null);
+
+  const { showMessage } = useToast();
 
   const fetchSlackChannels = async () => {
     try {
@@ -91,11 +94,33 @@ const SlackTable = () => {
             setIsEditChannelPopupDisplayed(true);
             setEditChannelPopupData(props);
           }}
-          onTest={() => {
-            ManagmentServiceApiInstance.testSlackChannel(props.id);
+          onTest={async () => {
+            try {
+              await ManagmentServiceApiInstance.testSlackChannel(props.id);
+              showMessage({
+                message: 'Successfully sent a test notification',
+                type: 'INFO',
+              });
+            } catch (e: unknown) {
+              showMessage({
+                message: `Failed to send notification: ${e}`,
+                type: 'ERROR',
+              });
+            }
           }}
           onDelete={async () => {
-            await ManagmentServiceApiInstance.deleteSlackChannel(props.id);
+            try {
+              await ManagmentServiceApiInstance.deleteSlackChannel(props.id);
+              showMessage({
+                message: 'Slack channel was deleted',
+                type: 'WARNING',
+              });
+            } catch (e: unknown) {
+              showMessage({
+                message: `Failed to delete slack channel: ${e}`,
+                type: 'ERROR',
+              });
+            }
             setLoading(true);
           }}
         />

@@ -1,54 +1,162 @@
 package agent
 
 import (
+	"os"
 	"testing"
+	"time"
+
+	"github.com/Magpie-Monitor/magpie-monitor/agent/internal/agent/node/data"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/pkg/envs"
+	"github.com/Magpie-Monitor/magpie-monitor/agent/pkg/tests"
+	"github.com/stretchr/testify/assert"
 )
 
-func Test_Logs_Packet_Split(t *testing.T) {
-	testLogsSplit(
-		logsPacketSplitParams{
-			PacketSizeBytes: 80,
-			ExpectedPackets: 2,
-			Logs:            "111111111111111111 \n 222222222222222222 \n 3333333333333333333 \n 4444444444444444444",
+var INTEGRATION_TEST_WAIT_MODIFIER = envs.ConvertToInt("INTEGRATION_TEST_WAIT_MODIFIER")
+
+func TestLogsSplit(t *testing.T) {
+
+	testCases := []struct {
+		name            string
+		logs            string
+		packetSizeBytes int
+		expectedPackets int
+	}{
+		{
+			name:            "Test logs packet split",
+			logs:            "111111111111111111 \n 222222222222222222 \n 3333333333333333333 \n 4444444444444444444",
+			packetSizeBytes: 80,
+			expectedPackets: 2,
 		},
-		t,
-	)
-}
-
-func Test_Logs_Packet_Split_Single(t *testing.T) {
-	testLogsSplit(
-		logsPacketSplitParams{
-			PacketSizeBytes: 200,
-			ExpectedPackets: 1,
-			Logs:            "111111111111111111 \n 222222222222222222 \n 3333333333333333333 \n 4444444444444444444",
+		{
+			name:            "Test logs packet split single",
+			logs:            "111111111111111111 \n 222222222222222222 \n 3333333333333333333 \n 4444444444444444444",
+			packetSizeBytes: 200,
+			expectedPackets: 1,
 		},
-		t,
-	)
-}
-
-func Test_Logs_Packet_Split_None(t *testing.T) {
-	testLogsSplit(
-		logsPacketSplitParams{
-			PacketSizeBytes: 200,
-			ExpectedPackets: 1,
-			Logs:            "",
+		{
+			name:            "Test logs packet split none",
+			logs:            "",
+			packetSizeBytes: 200,
+			expectedPackets: 1,
 		},
-		t,
-	)
+	}
+
+	for _, test := range testCases {
+		testFunc := func(t *testing.T) {
+			agent := IncrementalReader{packetSizeBytes: test.packetSizeBytes}
+
+			packets := agent.splitLogsIntoPackets("test", "test", "test", test.logs)
+
+			assert.Equal(t, test.expectedPackets, len(packets))
+		}
+
+		t.Run(test.name, testFunc)
+	}
 }
 
-type logsPacketSplitParams struct {
-	PacketSizeBytes int
-	ExpectedPackets int
-	Logs            string
+func TestGatherNodeMatadata(t *testing.T) {
+
+	testCases := []struct {
+		name         string
+		clusterId    string
+		nodeName     string
+		watchedFiles []string
+	}{
+		{
+			name:         "Test gather metadata with multiple files",
+			clusterId:    "cluster",
+			nodeName:     "node",
+			watchedFiles: []string{"file1", "file2", "file3"},
+		},
+		{
+			name:         "Test gather metadata without files",
+			clusterId:    "cluster",
+			nodeName:     "node",
+			watchedFiles: []string{},
+		},
+	}
+
+	for _, test := range testCases {
+		testFunc := func(t *testing.T) {
+			metadata := make(chan data.NodeState)
+
+			agent := IncrementalReader{metadata: metadata, nodeName: test.nodeName, clusterId: test.clusterId, files: test.watchedFiles}
+
+			go agent.gatherNodeMetadata()
+
+			msg := <-metadata
+
+			assert.Equal(t, test.clusterId, msg.ClusterId)
+			assert.Equal(t, test.nodeName, msg.NodeName)
+			assert.Equal(t, test.watchedFiles, msg.WatchedFiles)
+		}
+
+		t.Run(test.name, testFunc)
+	}
 }
 
-func testLogsSplit(params logsPacketSplitParams, t *testing.T) {
-	agent := IncrementalReader{packetSizeBytes: params.PacketSizeBytes}
+func TestWatchFile(t *testing.T) {
 
-	packets := agent.splitLogsIntoPackets("test", "test", "test", params.Logs)
+	testCases := []struct {
+		name       string
+		fileName   string
+		clusterId  string
+		nodeName   string
+		logContent string
+	}{
+		{
+			name: "Test gather metadata with multiple files",
+			// /files/file is created as part of Dockerfile "test"
+			fileName:   "/files/file",
+			clusterId:  "cluster",
+			nodeName:   "node",
+			logContent: "Test line",
+		},
+		{
+			name:      "Test gather metadata without files",
+			clusterId: "cluster",
+			nodeName:  "node",
+			// /files/file is created as part of Dockerfile "test"
+			fileName:   "/files/file",
+			logContent: "Test line\nTest line\nTest line\nTest line\nTest line\nTest line\n",
+		},
+	}
 
-	if len(packets) != params.ExpectedPackets {
-		t.Fatalf("Number of packets: %d doesn't match expected packets: %d", len(packets), params.ExpectedPackets)
+	for _, test := range testCases {
+		testFunc := func(t *testing.T) {
+			results := make(chan data.Chunk)
+
+			agent := IncrementalReader{
+				results:               results,
+				nodeName:              test.nodeName,
+				clusterId:             test.clusterId,
+				redis:                 tests.NewMockRedis(),
+				scrapeIntervalSeconds: 3,
+				packetSizeBytes:       200,
+				files:                 []string{test.fileName},
+			}
+
+			go agent.watchFiles()
+			time.Sleep(3 * time.Second * time.Duration(INTEGRATION_TEST_WAIT_MODIFIER))
+
+			file, err := os.OpenFile(test.fileName, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+			assert.NoError(t, err, "Error opening a file")
+
+			_, err = file.WriteString(test.logContent)
+			assert.NoError(t, err, "Error writing to file")
+
+			msg := <-results
+
+			// Add string escape character to the end of the content
+			assert.EqualValues(t, test.logContent+"\x00", msg.Content)
+			assert.Equal(t, test.clusterId, msg.ClusterId)
+			assert.Equal(t, test.nodeName, msg.Name)
+			assert.Equal(t, test.fileName, msg.Filename)
+
+			err = os.Truncate(test.fileName, 0)
+			assert.NoError(t, err, "Error wiping content of the file")
+		}
+
+		t.Run(test.name, testFunc)
 	}
 }

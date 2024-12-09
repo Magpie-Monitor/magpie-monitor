@@ -1,7 +1,5 @@
-import ActionButton, {
-  ActionButtonColor,
-} from 'components/ActionButton/ActionButton';
 import './NotificationButtons.scss';
+import SVGIcon from 'components/SVGIcon/SVGIcon';
 
 export interface NotificationButtonsProps {
   onUpdate: () => void;
@@ -16,21 +14,15 @@ const NotificationButtons = ({
 }: NotificationButtonsProps) => {
   return (
     <div className="notification-buttons">
-      <ActionButton
-        onClick={onUpdate}
-        description="UPDATE"
-        color={ActionButtonColor.GREEN}
-      />
-      <ActionButton
-        onClick={onTest}
-        description="TEST"
-        color={ActionButtonColor.OLIVE}
-      />
-      <ActionButton
-        onClick={onDelete}
-        description="DELETE"
-        color={ActionButtonColor.RED}
-      />
+      <div onClick={onUpdate}>
+        <SVGIcon iconName="edit-icon" />
+      </div>
+      <div onClick={onTest}>
+        <SVGIcon iconName="send-notification-icon" />
+      </div>
+      <div onClick={onDelete}>
+        <SVGIcon iconName="delete-icon" />
+      </div>
     </div>
   );
 };

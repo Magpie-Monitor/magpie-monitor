@@ -258,6 +258,7 @@ func (r *ElasticSearchApplicationLogsRepository) InsertLogs(ctx context.Context,
 	insertedLogs, err := bulk.Do(ctx)
 	if err != nil {
 		r.logger.Error("Failed to insert application logs", zap.Error(err))
+		return nil, err
 	}
 
 	ids := make([]string, 0, 0)

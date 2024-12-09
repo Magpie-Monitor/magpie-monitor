@@ -1,8 +1,8 @@
 import {
+  UrgencyLevel,
   AllIncidentsFromReport,
   ManagmentServiceApiInstance,
   ReportDetails,
-  UrgencyLevel,
 } from 'api/managment-service';
 import { groupBy } from 'lib/arrays';
 import { useEffect, useState } from 'react';
@@ -76,43 +76,25 @@ const groupIncidentsByNode = <T extends { nodeName: string }>(
   return groupBy(incidents, (incident) => incident.nodeName);
 };
 
-const useReportDetails = (reportId: string | null) => {
-  const [report, setReport] = useState<ReportDetails | null>(null);
+export const useReportDetails = (report: ReportDetails | null) => {
   const [incidents, setIncidents] = useState<AllIncidentsFromReport | null>(
     null,
   );
-  const [isReportLoading, setIsReportLoading] = useState(true);
   const [areIncidentsLoading, setAreIncidentsLoading] = useState(true);
   const [incidentStats, setIncidentStats] = useState<IncidentStats | null>(
     null,
   );
 
   useEffect(() => {
-    if (!reportId) return;
-
-    const fetchReport = async (id: string) => {
-      try {
-        const reportData = await ManagmentServiceApiInstance.getReport(id);
-        setReport(reportData);
-        setIsReportLoading(false);
-      } catch (e: unknown) {
-        console.error('Failed to fetch report by id', id);
-      }
-    };
-
-    fetchReport(reportId);
-  }, [reportId]);
-
-  useEffect(() => {
-    if (!report || !reportId) return;
+    if (!report) return;
     const fetchIncidents = async () => {
       try {
         const incidentsData =
-          await ManagmentServiceApiInstance.getIncidentsFromReport(reportId);
+          await ManagmentServiceApiInstance.getIncidentsFromReport(report.id);
         setIncidents(incidentsData);
         setAreIncidentsLoading(false);
       } catch (e: unknown) {
-        console.error('Failed to fetch report by id', reportId);
+        console.error('Failed to fetch report by id', report.id);
       }
     };
 
@@ -121,7 +103,7 @@ const useReportDetails = (reportId: string | null) => {
     }
 
     fetchIncidents();
-  }, [reportId, report]);
+  }, [report]);
 
   useEffect(() => {
     if (!incidents) return;
@@ -179,10 +161,8 @@ const useReportDetails = (reportId: string | null) => {
 
   return {
     incidents,
-    report: report,
     incidentStats,
     areIncidentsLoading,
-    isReportLoading,
   };
 };
 

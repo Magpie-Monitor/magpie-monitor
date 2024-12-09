@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -31,12 +32,10 @@ public class MetadataService {
     private final MetadataHistoryService metadataHistoryService;
 
     public List<ClusterMetadataDTO> getAllClusters() {
-        List<ClusterMetadataDTO> activeClusterMetadataDTOS = getActiveClusters();
-
-        Set<ClusterMetadataDTO> inactiveClusterMetadataDTOS = filterInactiveClusters(activeClusterMetadataDTOS);
-        activeClusterMetadataDTOS.addAll(inactiveClusterMetadataDTOS);
-
-        return activeClusterMetadataDTOS;
+        return Stream.concat(
+                        getActiveClusters().stream(),
+                        filterInactiveClusters(getActiveClusters()).stream())
+                .collect(Collectors.toList());
     }
 
     public List<ClusterMetadataDTO> getActiveClusters() {
@@ -66,12 +65,11 @@ public class MetadataService {
     }
 
     public List<NodeMetadataDTO> getClusterNodes(String clusterId) {
-        List<NodeMetadataDTO> activeNodeMetadataDTOS = getActiveNodesForClusterId(clusterId);
-
-        Set<NodeMetadataDTO> inactiveNodeMetadataDTOS = filterInactiveNodesForClusterId(clusterId, activeNodeMetadataDTOS);
-        activeNodeMetadataDTOS.addAll(inactiveNodeMetadataDTOS);
-
-        return activeNodeMetadataDTOS;
+        return Stream.concat(
+                        getActiveNodesForClusterId(clusterId).stream(),
+                        filterInactiveNodesForClusterId(clusterId, getActiveNodesForClusterId(clusterId)).stream()
+                )
+                .collect(Collectors.toList());
     }
 
     private List<NodeMetadataDTO> getActiveNodesForClusterId(String clusterId) {

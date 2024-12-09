@@ -6,15 +6,19 @@
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  animation: spin 0.7s linear infinite;
-  margin: 20px auto;
+  animation: spin 1.2s linear infinite;
 }
 
 @keyframes spin {
   0% {
     transform: rotate(0deg);
   }
-
+  10% {
+    transform: rotate(20deg);
+  }
+  90% {
+    transform: rotate(340deg);
+  }
   100% {
     transform: rotate(360deg);
   }

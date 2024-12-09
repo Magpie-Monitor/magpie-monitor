@@ -1,0 +1,47 @@
+@import '@/variables';
+
+.toast {
+  border-radius: 10px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: $component-border-color;
+  padding: 0.8rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  background-color: $background;
+  animation: slide-in 0.3s ease;
+  display: flex;
+  flex-direction: column;
+
+  &--info {
+    @extend .toast;
+    border-left-color: $green;
+    border-left-width: 5px;
+  }
+
+  &--error {
+    @extend .toast;
+    border-left-color: $red;
+    border-left-width: 5px;
+  }
+
+  &--warning {
+    @extend .toast;
+    border-left-color: $medium-urgency-background;
+    border-left-width: 5px;
+  }
+
+  &__header {
+    font-weight: 500;
+  }
+}
+
+@keyframes slide-in {
+  0% {
+    transform: translateY(100%);
+  }
+
+  100% {
+    transform: translateY(0%);
+  }
+}

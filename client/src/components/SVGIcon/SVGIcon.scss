@@ -38,6 +38,16 @@
   mask: url('/src/assets/clusters-icon.svg') no-repeat center;
 }
 
+.cycle-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/cycle-icon.svg') no-repeat center;
+}
+
+.hive-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/hive-icon.svg') no-repeat center;
+}
+
 .clusters-icon--white {
   @extend .svg-icon;
   mask: url('/src/assets/clusters-icon.svg') no-repeat center;
@@ -150,6 +160,20 @@
   }
 }
 
+.open-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/open-icon.svg') no-repeat center;
+
+  .svg-icon {
+    transition: fill 0.3s ease;
+    background-color: $component-border-color;
+
+    &:hover {
+      background-color: $green;
+    }
+  }
+}
+
 .notification-icon {
   @extend .svg-icon;
   background-color: $green;
@@ -186,11 +210,36 @@
   mask: url('/src/assets/task_done_icon.svg') no-repeat center;
 }
 
-.hourglass {
+.sand-clock-top {
   @extend .svg-icon;
-  transform: rotate(180deg);
   background-color: $green;
-  mask: url('/src/assets/hourglass.svg') no-repeat center;
+  mask: url('/src/assets/hourglass-top.svg') no-repeat center;
+  width: 30px;
+  height: 30px;
+
+  .svg-icon {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.sand-clock-middle {
+  @extend .svg-icon;
+  background-color: $green;
+  mask: url('/src/assets/hourglass-split.svg') no-repeat center;
+  width: 30px;
+  height: 30px;
+
+  .svg-icon {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.sand-clock-bottom {
+  @extend .svg-icon;
+  background-color: $green;
+  mask: url('/src/assets/hourglass-bottom.svg') no-repeat center;
   width: 30px;
   height: 30px;
 
@@ -247,6 +296,44 @@
 
     &:hover {
       background-color: $red;
+    }
+  }
+}
+
+.edit-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/edit-icon.svg') no-repeat center;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+
+  .svg-icon {
+    background-color: $application-down-color;
+    width: 35px;
+    height: 35px;
+    transition: 0.2s ease;
+
+    &:hover {
+      background-color: $green;
+    }
+  }
+}
+
+.send-notification-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/send-notification-icon.svg') no-repeat center;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+
+  .svg-icon {
+    background-color: $application-down-color;
+    width: 35px;
+    height: 35px;
+    transition: 0.2s ease;
+
+    &:hover {
+      background-color: $medium-urgency-background;
     }
   }
 }

@@ -1,80 +1,30 @@
 package pl.pwr.zpi.auth.service;
 
-import com.google.api.client.http.*;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonObjectParser;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.util.GenericData;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import pl.pwr.zpi.auth.dto.TokenExpTime;
+import pl.pwr.zpi.auth.oauth2.GoogleOauthTokenService;
 import pl.pwr.zpi.user.dto.UserDTO;
-
-import java.io.IOException;
-import java.time.Instant;
 
 @RequiredArgsConstructor
 @Service
+@Log4j2
 public class AuthenticationService {
 
-    private static final String TOKEN_INFO_URL = "https://www.googleapis.com/oauth2/v3/tokeninfo";
-    private final HttpTransport httpTransport = new NetHttpTransport();
-    private final GsonFactory jsonFactory = new GsonFactory();
+    private final GoogleOauthTokenService googleOauthTokenService;
 
-    public UserDTO getUserDetails(String authToken) throws IOException {
-        String accessToken = extractAccessToken(authToken);
-        GenericData tokenInfo = fetchTokenInfo(accessToken);
-
-        String email = (String) tokenInfo.get("email");
-        String nickname = extractNicknameFromEmail(email);
-
+    public UserDTO getUserDetails(String authToken) {
+        Payload payload = googleOauthTokenService.decodeToken(authToken);
         return UserDTO.builder()
-                .nickname(nickname)
-                .email(email)
+                .nickname((String) payload.get("name"))
+                .email(payload.getEmail())
                 .build();
     }
 
     public TokenExpTime getTokenValidationTime(String authToken) {
-        long expiresAtMillis = extractExpiryTime(authToken);
-        long timeRemainingMillis = expiresAtMillis - Instant.now().toEpochMilli();
-        return new TokenExpTime(timeRemainingMillis);
-    }
-
-    private GenericData fetchTokenInfo(String accessToken) throws IOException {
-        HttpRequestFactory requestFactory = httpTransport.createRequestFactory(request ->
-                request.setParser(new JsonObjectParser(jsonFactory))
-        );
-
-        GenericUrl url = new GenericUrl(TOKEN_INFO_URL);
-        url.set("access_token", accessToken);
-
-        HttpRequest request = requestFactory.buildGetRequest(url);
-        HttpResponse response = request.execute();
-
-        return response.parseAs(GenericData.class);
-    }
-
-    private String extractAccessToken(String authToken) {
-        String[] parts = authToken.split("\\|");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Invalid authToken format");
-        }
-        return parts[0];
-    }
-
-    private long extractExpiryTime(String authToken) {
-        String[] parts = authToken.split("\\|");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Invalid authToken format");
-        }
-        try {
-            return Long.parseLong(parts[1]);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid expiry time format in authToken", e);
-        }
-    }
-
-    private String extractNicknameFromEmail(String email) {
-        return (email != null && email.contains("@")) ? email.split("@")[0] : "unknown";
+        long expMillis = googleOauthTokenService.decodeToken(authToken).getExpirationTimeSeconds() * 1000;
+        return new TokenExpTime(expMillis - System.currentTimeMillis());
     }
 }

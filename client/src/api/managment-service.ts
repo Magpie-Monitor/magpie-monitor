@@ -1,4 +1,4 @@
-import axios, {AxiosInstance} from 'axios';
+import axios, { AxiosInstance } from 'axios';
 
 export interface EmailChannelForm {
   name: string;
@@ -45,13 +45,14 @@ interface TokenInfo {
 
 export type AccuracyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 export type UrgencyLevel = 'HIGH' | 'MEDIUM' | 'LOW';
-export type ReportType = 'ON-DEMAND' | 'SCHEDULED';
+export type ReportType = 'ON_DEMAND' | 'SCHEDULED';
 
 export interface ReportAwaitingGeneration {
   clusterId: string;
   reportType: ReportType;
   sinceMs: number;
   toMs: number;
+  requestedAtMs: number;
   [key: string]: string | number;
 }
 
@@ -59,45 +60,43 @@ export interface ReportSummary {
   id: string;
   clusterId: string;
   title: string;
-  urgency: UrgencyLevel;
+  urgency: UrgencyLevel | null;
   requestedAtMs: number;
   sinceMs: number;
   toMs: number;
-  [key: string]: string | number;
+  [key: string]: string | number | null;
 }
 
 export interface ReportDetails {
   id: string;
   clusterId: string;
   title: string;
-  urgency: UrgencyLevel;
+  urgency: UrgencyLevel | null;
+  requestedAtMs: number;
+  sinceMs: number;
+  toMs: number;
   totalApplicationEntries: number;
   totalNodeEntries: number;
   analyzedApplications: number;
   analyzedNodes: number;
-  sinceMs: number;
-  toMs: number;
 }
 
 export interface ClusterSummary {
   clusterId: string;
-  running: boolean;
+  updatedAtMillis: number;
   accuracy: AccuracyLevel;
-  updatedAt: number;
-  slackChannels: {
-    name: string;
+  running: boolean;
+  slackReceivers: {
+    receiverName: string;
     webhookUrl: string;
-    updatedAt: number;
   }[];
-  discordChannels: {
-    name: string;
+  discordReceivers: {
+    receiverName: string;
     webhookUrl: string;
-    updatedAt: number;
   }[];
-  mailChannels: {
-    name: string;
-    email: string;
-    updatedAt: number;
+  emailReceivers: {
+    receiverName: string;
+    receiverEmail: string;
   }[];
 }
 
@@ -165,7 +164,8 @@ export interface ApplicationIncident {
   urgency: UrgencyLevel;
   accuracy: AccuracyLevel;
   recommendation: string;
-  sources: ApplicationIncidentSource[];
+  sinceMs: number;
+  toMs: number;
 }
 
 export interface ApplicationIncidentSource {
@@ -187,7 +187,8 @@ export interface NodeIncident {
   accuracy: AccuracyLevel;
   summary: string;
   recommendation: string;
-  sources: NodeIncidentSource[];
+  sinceMs: number;
+  toMs: number;
 }
 
 export interface AllIncidentsFromReport {
@@ -285,6 +286,32 @@ export interface EditEmailChannelForm {
   id: string;
   name: string;
   email: string;
+}
+
+export interface NodeIncidentSource {
+  incidentId: string;
+  timestamp: number;
+  content: string;
+  filename: string;
+}
+
+export interface ApplicationIncidentSource {
+  incidentId: string;
+  timestamp: number;
+  podName: string;
+  containerName: string;
+  image: string;
+  content: string;
+}
+
+export interface PaginatedNodeIncidentSources {
+  data: NodeIncidentSource[];
+  totalEntries: number;
+}
+
+export interface PaginatedApplicationIncidentSources {
+  data: ApplicationIncidentSource[];
+  totalEntries: number;
 }
 
 class ManagmentServiceApi {
@@ -428,6 +455,32 @@ class ManagmentServiceApi {
     // };
   }
 
+  public async getNodeIncidentSources(
+    incidentId: string,
+    page: number,
+    size: number,
+  ): Promise<PaginatedNodeIncidentSources> {
+    await this.refreshTokenIfExpired();
+    const report = await this.axiosInstance.get(
+      // eslint-disable-next-line
+      `/api/v1/reports/node-incidents/${incidentId}/sources?page=${page}&size=${size}&sort=timestamp`,
+    );
+    return report.data;
+  }
+
+  public async getApplicationIncidentSources(
+    incidentId: string,
+    page: number,
+    size: number,
+  ): Promise<PaginatedApplicationIncidentSources> {
+    await this.refreshTokenIfExpired();
+    const report = await this.axiosInstance.get(
+      // eslint-disable-next-line
+      `/api/v1/reports/application-incidents/${incidentId}/sources?page=${page}&size=${size}&sort=timestamp`,
+    );
+    return report.data;
+  }
+
   public async getReports(reportType: ReportType): Promise<ReportSummary[]> {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get('/api/v1/reports', {
@@ -449,9 +502,23 @@ class ManagmentServiceApi {
     return reports;
   }
 
-  public async getAwaitingGenerationReports(): Promise<ReportAwaitingGeneration[]> {
+  public async getAwaitingGenerationReports(): Promise<
+    ReportAwaitingGeneration[]
+  > {
     await this.refreshTokenIfExpired();
-    const response = await this.axiosInstance.get('/api/v1/reports/await-generation');
+    const response = await this.axiosInstance.get(
+      '/api/v1/reports/await-generation',
+    );
+    return response.data;
+  }
+
+  public async getLatestReport(): Promise<
+    ReportDetails
+  > {
+    await this.refreshTokenIfExpired();
+    const response = await this.axiosInstance.get(
+      '/api/v1/reports/latest',
+    );
     return response.data;
   }
 
@@ -478,18 +545,7 @@ class ManagmentServiceApi {
   public async getClusters(): Promise<ClusterSummary[]> {
     await this.refreshTokenIfExpired();
     const response = await this.axiosInstance.get('api/v1/clusters');
-    const clusters = response.data;
-
-    return clusters.map((cluster: ClusterSummary) => {
-      return {
-        ...cluster,
-        updatedAt: 0,
-        accuracy: 'LOW',
-        slackChannels: [],
-        discordChannels: [],
-        mailChannels: [],
-      };
-    });
+    return response.data;
   }
 
   public async getNotificationChannels(): Promise<NotificationChannel[]> {
