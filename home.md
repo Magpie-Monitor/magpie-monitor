@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:46:21.075Z
+date: 2024-12-09T17:53:38.234Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -176,9 +176,9 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [12.2.2.3. Planowanie generowania raportów](#planowanie-generowania-raportów)
 
-[12.2.2.4. Zmiana ustawień kanałów notyfikacji](#zmiana-ustawień-kanałów-notyfikacji)
+[12.2.2.4. Generacja raportu na życzenie](#generacja-raportu-na-życzenie)
 
-[12.2.2.5. Zmiana ustawień raportów](#zmiana-ustawień-raportów)
+[12.2.2.5. Konfiguracja kanałów powiadomień](#konfiguracja-kanałów-powiadomień)
 
 # 1.  Wykaz symboli, oznaczeń i akronimów {#wykaz-symboli,-oznaczeń-i-akronimów}
 # 2. Słownik pojęć {#słownik-pojęć}
