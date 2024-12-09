@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:27:04.143Z
+date: 2024-12-09T17:30:26.127Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1531,8 +1531,8 @@ Oprócz tej modyfikacji układ strony pozostał w dużej mierze niezmieniony. G�
 ### 8.1.3 Widok incydentu {#widok-incydentu}
 
 <figure>
-    <img src="/">
-    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+    <img src="/user-interface/incident-page.png">
+    <figcaption>Rysunek X: Widok incydentu [źródło opracowanie własne]</figcaption>
 </figure>
 
 Widok incydentu ma na celu dostarczenie użytkownikowi szczegółowych informacji na temat wykrytego problemu. Górną część strony zajmuje nazwa incydentu, którą nadał model językowy, służąca jako zwięzłe określenie charakteru problemu. Obok znajduje się data, która wskazuje moment wystąpienia incydentu.
@@ -1549,8 +1549,8 @@ W dolnej części strony znajdują się kolejne sekcje:
 Na samym dole użytkownik ma dostęp do logów, które wskazywały na wystąpienie incydentu, co umożliwia szczegółową analizę danych źródłowych.
 
 <figure>
-    <img src="/">
-    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+    <img src="/user-interface/incident-page-mobile.png">
+    <figcaption>Rysunek X: Widok incydentu na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
 </figure>
 
 W wersji mobilnej widok został dostosowany w sposób analogiczny do wersji desktopowej. Dla wygody użytkownika sekcje zostały ułożone w układ kolumnowy, co pozwala na przewijanie ekranu wyłącznie w pionie. Dzięki temu nawigacja staje się bardziej intuicyjna i dostosowana do korzystania na urządzeniach z mniejszym ekranem.
@@ -1558,7 +1558,7 @@ W wersji mobilnej widok został dostosowany w sposób analogiczny do wersji desk
 ### 8.1.4 Widok raportów
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/reports-page.png">
     <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
 </figure>
 
