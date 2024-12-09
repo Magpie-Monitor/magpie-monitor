@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:30:26.127Z
+date: 2024-12-09T17:32:03.970Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1559,7 +1559,7 @@ W wersji mobilnej widok został dostosowany w sposób analogiczny do wersji desk
 
 <figure>
     <img src="/user-interface/reports-page.png">
-    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Widok raportów [źródło opracowanie własne]</figcaption>
 </figure>
 
 Widok raportów składa się z listy raportów posortowanej malejąco według daty. Raporty są podzielone na dwie sekcje: **“Scheduled Reports”** i **“Reports on Demand”**. Każdy wiersz w liście zawiera następujące informacje:
@@ -1573,8 +1573,8 @@ Widok raportów składa się z listy raportów posortowanej malejąco według da
 Kliknięcie nazwy klastra lub przycisku w kolumnie **“Actions”** przenosi użytkownika na szczegółowy widok raportu, który jest analogiczny do widoku głównego.
 
 <figure>
-    <img src="/">
-    <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
+    <img src="/user-interface/reports-page-mobile.png">
+    <figcaption>Rysunek X: Widok raportów na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
 </figure>
 
 Widok w wersji mobilnej nie różni się znacząco od wersji na komputery stacjonarne. Ze względu na ograniczoną szerokość ekranu, użytkownik musi przesuwać wiersz w lewo, aby zobaczyć pozostałe kolumny. Choć sprawia to, że korzystanie z widoku mobilnego jest mniej wygodne niż w przypadku wersji desktopowej, interfejs nadal pozostaje funkcjonalny i intuicyjny.
