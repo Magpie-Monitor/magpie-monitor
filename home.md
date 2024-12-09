@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:13:14.210Z
+date: 2024-12-09T14:17:07.604Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -806,14 +806,14 @@ Dokument zawierający logi i metadane hosta z jakiego zostały zebrane.
 
 <figure>
     <img src="/logs-ingestion/logs-ingestion-db.svg">
-    <figcaption>Rysunek X: Logs Ingestion: Diagram bazy logów [źródło opracowanie własne]</figcaption>
+    <figcaption>Rysunek X: Logs Ingestion: Diagram fizyczny bazy logów [źródło opracowanie własne]</figcaption>
 </figure>
 
 Logi zebrane z klastra klienta są przechowywane w nierelacyjnej bazie danych \- ElasticSearch. W ramach tej bazy danych “kolekcje” podzielone są na indeksy, i to w ramach tych indeksów przeszukiwane są dane podczas zapytań. W związku z tym kluczowe jest stworzenie indeksów, które oddają typowe zapytania aplikacji. 
 
 Typowym zapytaniem do bazy jest pobieranie logów do raportu. Parametrami tego zapytania jest klaster oraz przedział czasowy. 
 
-W związku z tym, indeksy tworzone są na podstawie klastra, miesiąca w jakim zebrano dany log oraz rodzaj logów (aplikacji lub hosta).
+Na podstawie tej charakterystyki, indeksy zostały podzielone ze względu na klaster, miesiąc w jakim zebrano dany log oraz rodzaj logów (aplikacji lub hosta).
 
 Indeksy przyjmują postać {nazwa-klastra}-applications-{mm.rrrr} dla logów z aplikacji oraz {nazwa-klastra}-nodes-{mm.rrrr} dla logów z hostów. 
 
