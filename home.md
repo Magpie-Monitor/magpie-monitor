@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:13:55.732Z
+date: 2024-12-09T17:16:27.089Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3664,12 +3664,18 @@ W świecie rosnących złożoności systemów komputerowych administratorzy nie 
 </figure>
 
    Agent dostarczany jest w paczce wdrożeniowej Helm, której konfiguracja zawiera się w pliku values.yaml. Klient może skonfigurować agenta wedle swoich potrzeb, dostępne opcje konfiguracyjne to min.:
-   * przyjazna nazwa klastra, będąca jego identyfikatorem
-   * wyłączone ze zbierania logów przestrzenie nazw klastra
-	 * pliki, z których zbierane są logi
+* przyjazna nazwa klastra, będąca jego identyfikatorem
+* wyłączone ze zbierania logów przestrzenie nazw klastra
+* pliki, z których zbierane są logi
 
-   Skonfigurowaną paczkę wdrożeniową instaluje się
+   Skonfigurowaną paczkę wdrożeniową instaluje sie przy pomocy komendy *helm install*, zgodnie z dokumentacją narzędzia Helm (https://helm.sh/docs/helm/helm_install/). 
+   
+   <figure>
+    <img src="/agent/agent-installed-view.png">
+    <figcaption>Rysunek X: Kontenery wdrożonego Agenta na klastrze Kubernetes [źródło opracowanie własne]</figcaption>
+</figure>
 
+Po zainstalowaniu, agent zacznie wysyłać logi oraz metadane do chmury Magpie Monitor, która rozpocznie analizę logów.
 
    ### 12.2.2 Najczęściej wykonywane operacje {#najczęściej-wykonywane-operacje}
 
