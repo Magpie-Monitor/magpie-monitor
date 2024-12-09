@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T16:07:52.973Z
+date: 2024-12-09T16:10:45.619Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2278,8 +2278,6 @@ Wymagany schemat odpowiedzi modelu zawiera listę wykrytych incydent, a w każdy
 
 ### 9.13.8 **Scalanie incydentów**   
 
-W związku z ograniczeniami wielkości kontekstów, wiele z logów sugerujących incydent znajdowało się w różnych kontekstach, co skutkowało zduplikowanymi incydentami. Sugerowane incydenty posiadają podobne opisy, ale są ciężkie do połącznie bez semantycznej analizy podsumowania incydentu. Aby rozwiązać ten problem, po stworzeniu raportu kolejkowane jest kolejne żądanie do modelu językowego polegające na przekazaniu tytułu, podsumowania i rekomendacji wszystkich incydentów i pogrupowaniu ich na podstawie podobnego przekazu. Podczas scalania incydentów, tworzony jest nowy incydent posiadający źródła (logi i ich metadane) incydentów z jakich był stworzony.
-
 Tak jak wcześniej wspomniano ograniczony rozmiar kontekstu modelu językowego powoduje, że wiele incydentów zostanie powielonych ze względu na to, że logi należące do tego samego **wydarzenia** mogą być analizowane w ramach wielu kontekstów (tak aby nie przekroczyć jego maksymalnego rozmiaru). 
 
 Aby uniknąć zduplikowanych incydentów (takich, które odnoszą się faktycznie do tego samego wydarzenia, ale zawierające logi należące do różnych kontekstów), konieczne było ich scalanie.
@@ -2291,6 +2289,11 @@ W związku z tym konieczne było scalanie incydentów na podstawie rozumienia ic
 Zadanie scalania incydentów polega na przekazaniu do modelu językowego wyłącznie listy incydentów uproszczonych do identyfikatora, tytułu oraz podsumowania. Na podstawie tej treści model grupuje incydenty ze względu na ich podobieństwa. 
 
 Przez mały rozmiar przekazywanych parametrów, możliwe jest aby przekazać wszystkie incydenty w ramach pojedycznego kontekstu modelu. To pozwala na uniknięcie pomijania scalania incydentów należących do różnych kontekstów modelu językowego (analogiczny problem do tego który wymuszał scalanie incydentów).
+
+<figure>
+    <img src="/reports/reports-service-merged-incidents.png">
+    <figcaption>Rysunek X: Reports Service: Scalanie incydentów [źródło opracowanie własne]</figcaption>
+</figure>
 
 ## 9.14 Ustawianie kanałów komunikacji (management service) {#ustawianie-kanałów-komunikacji-(management-service)}
 
