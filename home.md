@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:26:31.306Z
+date: 2024-12-09T17:27:04.143Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1504,7 +1504,7 @@ Na samym dole paska nawigacyjnego znajduje się opcja **wylogowania**, która pr
 Po przewinięciu strony głównej w dół użytkownik zobaczy kolejny widok:
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/main-page-2.png">
     <figcaption>Rysunek X: Widok główny kontynuacja [źródło opracowanie własne]</figcaption>
 </figure>
 
@@ -1520,7 +1520,7 @@ Kliknięcie dowolnego wiersza z obu list przenosi użytkownika na stronę szczeg
 W wersji zoptymalizowanej dla urządzeń mobilnych strona jest odpowiednio dostosowana do mniejszych ekranów i prezentuje się w sposób przyjazny dla użytkownika:
 
 <figure>
-    <img src="/">
+    <img src="/user-interface/main-page-mobile.png">
     <figcaption>Rysunek X: Widok główny na urządzeniach mobilnych [źródło opracowanie własne]</figcaption>
 </figure>
 
