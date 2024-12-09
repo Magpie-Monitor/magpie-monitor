@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:53:38.234Z
+date: 2024-12-09T19:05:48.741Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1965,6 +1965,45 @@ Struktura aplikacji klienckiej została zaprojektowana zgodnie z najlepszymi pra
 
 
 ## 9.9 Uwierzytelnienie użytkownika {#uwierzytelnienie-użytkownika}
+
+Do uwierzytelniania użytkowników w aplikacji wykorzystywany jest dostawca OAuth2 od Google. Proces weryfikacji dostępu przebiega w kilku etapach:
+
+#### Proces dla użytkownika logującego się do aplikacji:
+1. Użytkownik otwiera stronę główną aplikacji.
+2. Wybierany jest sposób logowania, w tym przypadku logowanie przy użyciu Google.
+3. Następuje przekierowanie na ekran logowania dostarczony przez Google.
+4. Użytkownik wprowadza dane logowania do swojego konta Google.
+5. Po zalogowaniu użytkownik wyraża zgodę na udostępnienie aplikacji danych osobowych, takich jak imię, nazwisko i adres e-mail.
+6. Po pomyślnym uwierzytelnieniu użytkownik zostaje przekierowany z powrotem do aplikacji.
+7. Mikroserwis `management-service` otrzymuje trzy tokeny: token autoryzacyjny, **ID token**, oraz **refresh token**. W dalszym procesie wykorzystywane są dwa z nich:
+   - **ID token** – ważny przez jedną godzinę i dołączany do każdego zapytania HTTP do `management-service`.
+   - **Refresh token** – ważny bezterminowo i używany wyłącznie do odświeżania ID tokenu. Tokeny są przechowywane w przeglądarce użytkownika jako ciasteczka: `authToken` (ID token) oraz `refreshToken` (refresh token). Taki podział zapewnia ograniczenie ryzyka wycieku refresh tokena, który umożliwia generowanie nowych tokenów uwierzytelniających.
+
+#### Obsługa zapytań HTTP:
+8. Każde zapytanie przychodzące z frontendu do `management-service` jest filtrowane. Wyjątek stanowią następujące zasoby:
+   - `/public/api/*`
+   - `/v3/api-docs/*`
+   - `/swagger-ui/*`
+   - `/api/v1/auth/*`
+   - `/login/oauth2/code/*`
+   - `/error`
+   Dostęp do tych zasobów nie wymaga uwierzytelnienia. Wszystkie inne endpointy wymagają dołączenia ważnego ID tokenu w nagłówku zapytania.
+
+#### Odświeżanie tokenu uwierzytelnienia:
+9. W przypadku wygaśnięcia ID tokenu możliwe jest jego odświeżenie przez wywołanie endpointu:
+   ```
+   https://management-service.rolo-labs.xyz/api/v1/auth/refresh-token
+   ```
+   W zapytaniu należy przekazać refresh token. W odpowiedzi użytkownik otrzymuje nowy ID token. Proces ten jest zautomatyzowany – frontend regularnie sprawdza długość ważności bieżącego ID tokenu, korzystając z endpointu:
+   ```
+   https://management-service.rolo-labs.xyz/api/v1/auth/auth-token/validation-time
+   ```
+   Informacja o czasie ważności tokenu jest odczytywana z ładunku ID tokenu, który ma format JWT (JSON Web Token). Jeśli token wygaśnie w ciągu najbliższych 30 minut, aplikacja automatycznie wysyła żądanie o nowy ID token.
+
+#### Wylogowanie użytkownika:
+Użytkownik może wylogować się z aplikacji w dowolnym momencie. Po kliknięciu przycisku wylogowania oba ciasteczka (`authToken` oraz `refresh`) są trwale usuwane z przeglądarki.
+
+Taki model uwierzytelnienia zapewnia łatwość obsługi dla użytkownika oraz zgodność z najlepszymi praktykami bezpieczeństwa, minimalizując ryzyko nieautoryzowanego dostępu do aplikacji.
             
 
 ## 9.10. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-(scheduling-raportów,-management-service)}
