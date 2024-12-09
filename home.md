@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T15:14:33.047Z
+date: 2024-12-09T15:16:26.738Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2170,7 +2170,10 @@ Ze względu na brak oficjalnego klienta do API OpenAI w Go, napisany został wł
 W ten sposób możliwa była automatyczna serializacja struktur obecnych w projekcie do schematów w których odpowiada model 
 
 
- Tak stworzony schemat przesłany razem z zapytaniem do modelu pozwala na zagwarantowanie odpowiedzi spełniającej ten kontrakt.   Dodatkowym kluczowym mechanizmem oferowanym przez OpenAI jest Batch API. Jest to mechanizm pozwalający na obniżenie kosztów zapytań do 50%, oraz grupowania zapytań w listy, które będą realizowane wspólnie do 24 godzin od momentu zgłoszenia. Jest to mechanizm stworzony dla systemów przetwarzających dużą ilość danych oraz jednocześnie niekrytycznych pod względem czasu wykonania. W naszym przypadku było to idealne rozwiązanie, ponieważ logi pod względem objętości są wyjątkowo ciężkie. Jednocześnie generowanie raportów to coś co jest wykonywanie cyklicznie zwykle co parę dni, więc nie występuje presja czasu, które by zdyskwalifikowała to rozwiązanie.
+ Tak stworzony schemat przesłany razem z zapytaniem do modelu pozwala na zagwarantowanie odpowiedzi spełniającej ten kontrakt.   
+
+
+Dodatkowym kluczowym mechanizmem oferowanym przez OpenAI jest Batch API. Jest to mechanizm pozwalający na obniżenie kosztów zapytań do 50%, oraz grupowania zapytań w listy, które będą realizowane wspólnie do 24 godzin od momentu zgłoszenia. Jest to mechanizm stworzony dla systemów przetwarzających dużą ilość danych oraz jednocześnie niekrytycznych pod względem czasu wykonania. W naszym przypadku było to idealne rozwiązanie, ponieważ logi pod względem objętości są wyjątkowo ciężkie. Jednocześnie generowanie raportów to coś co jest wykonywanie cyklicznie (zwykle co parę dni), więc nie występuje presja czasu, które by zdyskwalifikowała to rozwiązanie.
 
    
 ### 9.13.3 Obsługa interfejsu Batch API 
