@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T14:31:00.164Z
+date: 2024-12-09T14:32:33.784Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -912,7 +912,7 @@ Reprezentuje konfiguracje aplikacji wykorzystywaną podczas generowania raportu.
 
 #### ApplicationIncidentSource
 
-Reprezentuje źródło incydentu aplikacji. Zawiera metadane o klastrze oraz zawartość loga, na podstawie którego został wykryty incydent.
+Reprezentuje źródło incydentu aplikacji. Zawiera metadane i zawartość loga, na podstawie którego został wykryty incydent.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
@@ -982,6 +982,8 @@ Reprezentuje konfiguracje hosta wykorzystywaną podczas generowania raportu.
    
 
 ####  NodeIncidentSource
+
+Reprezentuje źródło incydentu hosta. Zawiera metadane i zawartość loga, na podstawie którego został wykryty incydent.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
