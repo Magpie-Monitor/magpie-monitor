@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T17:13:16.820Z
+date: 2024-12-09T17:13:55.732Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3668,7 +3668,7 @@ W świecie rosnących złożoności systemów komputerowych administratorzy nie 
    * wyłączone ze zbierania logów przestrzenie nazw klastra
 	 * pliki, z których zbierane są logi
 
-
+   Skonfigurowaną paczkę wdrożeniową instaluje się
 
 
    ### 12.2.2 Najczęściej wykonywane operacje {#najczęściej-wykonywane-operacje}
