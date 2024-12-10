@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T20:37:23.730Z
+date: 2024-12-10T20:41:54.885Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3054,7 +3054,7 @@ Podjęte działania pozwoliły na zweryfikowanie kluczowych funkcjonalności mik
 
 | Pakiet                                                         | Pokrycie      |
 |----------------------------------------------------------------|---------------|
-| github.com/Magpie-Monitor/magpie-monitor/tree/main/management-service/src/main/java/pl/pwr/zpi       | 54%  
+| github.com/Magpie-Monitor/magpie-monitor/management-service/src/main/java/pl/pwr/zpi       | 54%  
 
 ## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
 
