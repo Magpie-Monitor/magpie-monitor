@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T20:22:40.130Z
+date: 2024-12-10T20:23:52.945Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3041,9 +3041,15 @@ Metadata service powinien generować zagregowane metadane o klastrach
 
 ## 10.4. Testy Management Service
 
+<figure>
+    <img src="/management-service/management-service-test-coverage.png">
+    <figcaption>Rysunek X: Pokrycie kodu testami [źródło opracowanie własne]</figcaption>
+</figure>
+
 | Pakiet                                                         | Pokrycie      |
 |----------------------------------------------------------------|---------------|
 | github.com/Magpie-Monitor/magpie-monitor/tree/main/management-service/src/main/java/pl/pwr/zpi       | 54%  
+
 ## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
 
 W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariusze testowe: 
