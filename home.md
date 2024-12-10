@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T21:20:55.764Z
+date: 2024-12-10T22:10:12.945Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1384,9 +1384,10 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 ### 7.3.6 Baza danych ustawień klastrów {#baza-danych-ustawień-klastrów}
 
-### Schemat tabel
-
 #### Tabela 1: discord_receiver
+
+**DiscordReceiver**(<u>id</u>, created_at, receiver_name, updated_at, webhook_url)
+
 | Nazwa atrybutu | Znaczenie                         | Dziedzina     | Unikalność | OBL(+) |
 |----------------|-----------------------------------|---------------|------------|--------|
 | id             | Identyfikator odbiorcy Discorda  | bigint        | +          | +      |
@@ -1395,11 +1396,17 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | updated_at     | Data ostatniej aktualizacji      | bigint        | -          | -      |
 | webhook_url    | URL webhooka odbiorcy Discorda   | varchar(255)  | -          | +      |
 
-**Klucz główny**: id  
+**Klucze kandydujące**: id, receiver_name
+**Klucz główny**: id
+**Zależności funkcyjne**
+&nbsp;&nbsp;&nbsp;id → created_at, receiver_name, updated_at, webhook_url
 
 ---
 
 #### Tabela 2: email_receiver
+
+**EmailReceiver**(<u>id</u>, created_at, receiver_email, receiver_name, updated_at)
+
 | Nazwa atrybutu | Znaczenie                       | Dziedzina     | Unikalność | OBL(+) |
 |----------------|---------------------------------|---------------|------------|--------|
 | id             | Identyfikator odbiorcy e-mail  | bigint        | +          | +      |
@@ -1408,11 +1415,18 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | receiver_name  | Nazwa odbiorcy                 | varchar(255)  | -          | +      |
 | updated_at     | Data ostatniej aktualizacji    | bigint        | -          | -      |
 
-**Klucz główny**: id  
+**Klucze kandydujące**: id, receiver_email, receiver_name
+**Klucz główny**: id
+**Zależności funkcyjne**
+&nbsp;&nbsp;&nbsp;id → created_at, receiver_email, updated_at, receiver_name
 
 ---
 
 #### Tabela 3: slack_receiver
+
+**SlackReceiver**(<u>id</u>, created_at, receiver_name, updated_at, webhook_url)
+
+
 | Nazwa atrybutu | Znaczenie                        | Dziedzina     | Unikalność | OBL(+) |
 |----------------|----------------------------------|---------------|------------|--------|
 | id             | Identyfikator odbiorcy Slacka   | bigint        | +          | +      |
@@ -1421,11 +1435,18 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | updated_at     | Data ostatniej aktualizacji     | bigint        | -          | -      |
 | webhook_url    | URL webhooka odbiorcy Slacka    | varchar(255)  | -          | +      |
 
-**Klucz główny**: id  
+**Klucze kandydujące**: id, receiver_name
+**Klucz główny**: id
+**Zależności funkcyjne**
+&nbsp;&nbsp;&nbsp;id → created_at, receiver_name, updated_at, webhook_url  
 
 ---
 
 #### Tabela 4: application_configuration
+
+**ApplicationConfiguration**(<u>id</u>, accuracy, custom_prompt, kind, name)
+
+
 | Nazwa atrybutu | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) |
 |----------------|----------------------------------------|---------------|------------|--------|
 | id             | Identyfikator konfiguracji aplikacji  | bigint        | +          | +      |
@@ -1434,8 +1455,10 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | kind           | Typ konfiguracji                     | varchar(255)  | -          | -      |
 | name           | Nazwa konfiguracji                   | varchar(255)  | -          | -      |
 
-**Klucz główny**: id  
-**Ograniczenie**: `accuracy` musi być w przedziale [0, 2].  
+**Klucze kandydujące**: id, name
+**Klucz główny**: id
+**Zależności funkcyjne**
+&nbsp;&nbsp;&nbsp;id → accuracy, custom_prompt, kind, name  
 
 ---
 
