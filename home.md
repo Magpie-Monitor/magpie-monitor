@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T22:12:29.186Z
+date: 2024-12-10T22:18:31.449Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1447,16 +1447,34 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 | Nazwa atrybutu | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) |
 |----------------|----------------------------------------|---------------|------------|--------|
-| id             | Identyfikator konfiguracji aplikacji  | bigint        | +          | +      |
-| accuracy       | Dokładność                            | smallint      | -          | -      |
-| custom_prompt  | Własny prompt                         | varchar(255)  | -          | -      |
-| kind           | Typ konfiguracji                     | varchar(255)  | -          | -      |
-| name           | Nazwa konfiguracji                   | varchar(255)  | -          | -      |
+| id             | Identyfikator aplikacji                | bigint        | +          | +      |
+| accuracy       | Dokładność                             | smallint      | -          | -      |
+| custom_prompt  | Własny prompt                          | varchar(255)  | -          | -      |
+| kind           | Typ konfiguracji                       | varchar(255)  | -          | -      |
+| name           | Nazwa konfiguracji                     | varchar(255)  | -          | -      |
 
 **Klucze kandydujące**: id, name
 **Klucz główny**: id
 **Zależności funkcyjne**
 &nbsp;&nbsp;&nbsp;id → accuracy, custom_prompt, kind, name  
+
+---
+
+#### Tabela 5: node_configuration
+
+**NodeConfiguration**(<u>id</u>, name, accuracy, custom_prompt)
+
+| Nazwa atrybutu      | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) |
+|---------------------|--------------------------------------------|---------------|------------|--------|
+| id                  | Identyfikator konfiguracji noda            | bigint        | +          | +      |
+| name                | Nazwa noda                                 | varchar(255)  | +          | +      |
+| accuracy            | Dokładność                                 | bigint        | -          | +      |
+| custom_prompt       | Własny prompt                              | bigint        | -          | -      |
+
+**Klucze kandydujące**: id, name
+**Klucz główny**: id
+**Zależności funkcyjne**
+&nbsp;&nbsp;&nbsp;id → name, accuracy, custom_prompt    
 
 ---
 
@@ -1485,8 +1503,8 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 | Nazwa atrybutu | Znaczenie                      | Dziedzina     | Unikalność | OBL(+) |
 |----------------|--------------------------------|---------------|------------|--------|
 | cluster_id     | Identyfikator klastra         | varchar(255)  | +          | +      |
-| last_generation_ms | Ostatnia generacja w ms   | bigint        | -          | -      |
-| period_ms      | Okres generowania w ms        | bigint        | -          | -      |
+| last_generation_ms | Ostatnia czas wygenerowania raportu w ms   | bigint        | -          | -      |
+| period_ms      | Przedział czasu miedzy raportami        | bigint        | -          | -      |
 
 **Klucze kandydujące**: cluster_id 
 **Klucz główny**: cluster_id
@@ -1558,19 +1576,6 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
 **Klucz główny**: (cluster_config_id, slack_receiver_id)  
 **Ograniczenie**: Brak duplikatów par kluczy.  
-
----
-
-#### Tabela 13: node_configuration
-| Nazwa atrybutu      | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) |
-|---------------------|--------------------------------------------|---------------|------------|--------|
-| id                  | Identyfikator konfiguracji węzła          | bigint        | +          | +      |
-| address             | Adres IP lub domena                       | varchar(255)  | -          | +      |
-| cluster_config_id   | Identyfikator konfiguracji klastra         | varchar(255)  | +          | +      |
-| created_at          | Data utworzenia                           | bigint        | -          | +      |
-| updated_at          | Data ostatniej aktualizacji               | bigint        | -          | -      |
-
-**Klucz główny**: id  
 
 
 ## 8.Interfejsy programistyczne {#interfejsy-programistyczne}
