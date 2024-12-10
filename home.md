@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T12:51:49.279Z
+date: 2024-12-10T12:54:52.804Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3520,6 +3520,11 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 * Użytkownik powinien móc zobaczyć listę raportów, z podziałem na raporty cykliczne oraz na żądanie.  
 * Wśród raportów powinien widnieć generowany raport wraz z informacją, że proces jego generowania jest w toku.  
+
+### 10.5. Testy Management Service
+| Pakiet                                                         | Pokrycie      |
+|----------------------------------------------------------------|---------------|
+| github.com/Magpie-Monitor/magpie-monitor/tree/main/management-service/src/main/java/pl/pwr/zpi       | 54%   
   
 # 11. Podsumowanie {#podsumowanie}
 
