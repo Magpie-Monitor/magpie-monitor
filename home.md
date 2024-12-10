@@ -2,13 +2,13 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T16:03:07.444Z
+date: 2024-12-10T16:06:46.530Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
 ---
 
-# Magpie Monitor
+# System raportowania zdarzeń systemowych w języku naturalnym z wykorzystaniem dużych modeli językowych
 
 ## Dokumentacja
 
@@ -179,6 +179,13 @@ dateCreated: 2024-12-02T23:31:18.691Z
 [12.2.2.5. Konfiguracja kanałów powiadomień](#konfiguracja-kanałów-powiadomień)
 
 # 1.  Wykaz symboli, oznaczeń i akronimów {#wykaz-symboli,-oznaczeń-i-akronimów}
+
+| Akronim | Znaczenie |
+| :---- | :---- |
+| Magpie Monitor | Nazwa zrealizowanego projektu |
+
+
+
 # 2. Słownik pojęć {#słownik-pojęć}
 
 | Pojęcie | Synonimy  | Znaczenie |
