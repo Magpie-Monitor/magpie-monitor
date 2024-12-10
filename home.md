@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T19:35:56.051Z
+date: 2024-12-10T20:19:32.751Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3039,6 +3039,11 @@ Metadata service powinien generować zagregowane metadane o klastrach
 |----------------------------------------------------------------|---------------|
 | github.com/Magpie-Monitor/magpie-monitor/blob/main/go/services/cluster_metadata/pkg/services/metadata_service.go       | 76.8%   
 
+## 10.4. Testy Management Service
+
+| Pakiet                                                         | Pokrycie      |
+|----------------------------------------------------------------|---------------|
+| github.com/Magpie-Monitor/magpie-monitor/tree/main/management-service/src/main/java/pl/pwr/zpi       | 54%  
 ## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
 
 W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariusze testowe: 
@@ -3520,12 +3525,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 **Oczekiwany wynik**:
 
 * Użytkownik powinien móc zobaczyć listę raportów, z podziałem na raporty cykliczne oraz na żądanie.  
-* Wśród raportów powinien widnieć generowany raport wraz z informacją, że proces jego generowania jest w toku.  
-
-### 10.5. Testy Management Service
-| Pakiet                                                         | Pokrycie      |
-|----------------------------------------------------------------|---------------|
-| github.com/Magpie-Monitor/magpie-monitor/tree/main/management-service/src/main/java/pl/pwr/zpi       | 54%   
+* Wśród raportów powinien widnieć generowany raport wraz z informacją, że proces jego generowania jest w toku.   
   
 # 11. Podsumowanie {#podsumowanie}
 
