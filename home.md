@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T22:10:12.945Z
+date: 2024-12-10T22:12:29.186Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1426,7 +1426,6 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 **SlackReceiver**(<u>id</u>, created_at, receiver_name, updated_at, webhook_url)
 
-
 | Nazwa atrybutu | Znaczenie                        | Dziedzina     | Unikalność | OBL(+) |
 |----------------|----------------------------------|---------------|------------|--------|
 | id             | Identyfikator odbiorcy Slacka   | bigint        | +          | +      |
@@ -1446,7 +1445,6 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 **ApplicationConfiguration**(<u>id</u>, accuracy, custom_prompt, kind, name)
 
-
 | Nazwa atrybutu | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) |
 |----------------|----------------------------------------|---------------|------------|--------|
 | id             | Identyfikator konfiguracji aplikacji  | bigint        | +          | +      |
@@ -1463,6 +1461,9 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 ---
 
 #### Tabela 5: cluster_configuration
+
+ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
+
 | Nazwa atrybutu      | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) |
 |---------------------|----------------------------------------|---------------|------------|--------|
 | id                  | Identyfikator konfiguracji klastra    | varchar(255)  | +          | +      |
@@ -1470,19 +1471,27 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | generated_every_millis | Okres generowania w milisekundach | bigint        | -          | -      |
 | is_enabled          | Status konfiguracji                  | boolean       | -          | +      |
 
-**Klucz główny**: id  
-**Ograniczenie**: `accuracy` musi być w przedziale [0, 2].  
+**Klucze kandydujące**: id
+**Klucz główny**: id
+**Zależności funkcyjne**
+&nbsp;&nbsp;&nbsp;id → accuracy, generated_every_millis, is_enabled  
 
 ---
 
 #### Tabela 6: cluster_schedule
+
+**ClusterSchedule**(<u>cluster_id</u>, last_generation_ms, period_ms)
+
 | Nazwa atrybutu | Znaczenie                      | Dziedzina     | Unikalność | OBL(+) |
 |----------------|--------------------------------|---------------|------------|--------|
 | cluster_id     | Identyfikator klastra         | varchar(255)  | +          | +      |
 | last_generation_ms | Ostatnia generacja w ms   | bigint        | -          | -      |
 | period_ms      | Okres generowania w ms        | bigint        | -          | -      |
 
-**Klucz główny**: cluster_id  
+**Klucze kandydujące**: cluster_id 
+**Klucz główny**: cluster_id
+**Zależności funkcyjne**
+&nbsp;&nbsp;&nbsp;cluster_id → last_generation_ms, period_ms   
 
 ---
 
