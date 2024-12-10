@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T16:06:46.530Z
+date: 2024-12-10T19:35:56.051Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -151,8 +151,6 @@ dateCreated: 2024-12-02T23:31:18.691Z
 [10.2.2 Testy integracyjne Logs Ingestion Service](#testy-integracyjne-logs-ingestion-service)
 
 [10.3. Testy funkcjonalne](#testy-funkcjonalne)
-
-[11\. Podsumowanie](#podsumowanie)
 
 [11.1. Przebieg projektu](#przebieg-projektu)
 
