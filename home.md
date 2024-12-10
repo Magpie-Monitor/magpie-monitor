@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-09T23:25:41.799Z
+date: 2024-12-10T12:47:36.922Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3038,7 +3038,7 @@ Metadata service powinien generować zagregowane metadane o klastrach
 |----------------------------------------------------------------|---------------|
 | github.com/Magpie-Monitor/magpie-monitor/blob/main/go/services/cluster_metadata/pkg/services/metadata_service.go       | 76.8%   
 
-## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
+### 10.3 Testy funkcjonalne {#testy-funkcjonalne}
 
 W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariusze testowe: 
 
