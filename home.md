@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T22:18:31.449Z
+date: 2024-12-10T22:20:45.215Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1514,13 +1514,15 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 ---
 
 #### Tabela 7: application_configuration_discord_receivers
+
+**ApplicationConfigurationDiscordReceivers**(<u>application_config_id</u>, <u>discord_receiver_id</u>)
+
 | Nazwa atrybutu      | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) |
 |---------------------|--------------------------------------------|---------------|------------|--------|
 | application_config_id | Identyfikator konfiguracji aplikacji    | bigint        | +          | +      |
 | discord_receiver_id | Identyfikator odbiorcy Discorda           | bigint        | +          | +      |
 
-**Klucz główny**: (application_config_id, discord_receiver_id)  
-**Ograniczenie**: Brak duplikatów par kluczy.  
+**Klucz główny**: {application_config_id, discord_receiver_id}  
 
 ---
 
