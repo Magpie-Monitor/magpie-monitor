@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T12:47:36.922Z
+date: 2024-12-10T12:51:49.279Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3038,7 +3038,7 @@ Metadata service powinien generować zagregowane metadane o klastrach
 |----------------------------------------------------------------|---------------|
 | github.com/Magpie-Monitor/magpie-monitor/blob/main/go/services/cluster_metadata/pkg/services/metadata_service.go       | 76.8%   
 
-### 10.3 Testy funkcjonalne {#testy-funkcjonalne}
+## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
 
 W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariusze testowe: 
 
@@ -3670,6 +3670,18 @@ Mniej domenowym aspektem, który był kluczowy podczas realizacji Magpie Monitor
 
 ## 12.1 Wprowadzenie {#wprowadzenie}
 
+W celu ułatwienia użytkownikom rozpoczęcia pracy z Magpie Monitorem, przygotowano instrukcję opisującą, jak uzyskać dostęp do podstawowych funkcji systemu oraz skutecznie z nich korzystać.  
+Magpie Monitor to zaawansowane narzędzie do monitorowania logów pochodzących z wybranego klastra Kubernetesa. W związku z tym instalacja wymaga dodania specjalnego serwisu do istniejącej architektury. Szczegółowy opis procesu instalacji znajduje się w kolejnej sekcji [instalacja aplikacji](#instalacja-aplikacji).  
+Ponadto dokumentacja obejmuje omówienie kluczowych scenariuszy użytkowania, takich jak:
+
+* [logowanie do aplikacji](#logowanie-do-aplikacji),  
+* [otworzenie ostatniego raportu](#otworzenie-ostatniego-raportu),
+* [planowanie generowania raportów](#planowanie-generowania-raportów),  
+* [generacja raportu na życzenie](#generacja-raportu-na-życzenie),  
+* [konfiguracja kanałów powiadomień](#konfiguracja-kanałów-powiadomień)
+
+Przedstawiona instrukcja stanowi solidną podstawę do zapoznania się z najważniejszymi funkcjami systemu, umożliwiając efektywne wykorzystanie jego możliwości w codziennym monitorowaniu logów. 
+
 ## 12.2 Użytkowanie produktu programowego {#użytkowanie-produktu-programowego}
 
    ### 12.2.1 Instalacja aplikacji {#instalacja-aplikacji}
@@ -3681,7 +3693,7 @@ Mniej domenowym aspektem, który był kluczowy podczas realizacji Magpie Monitor
     <figcaption>Rysunek X: Konfiguracja paczki wdrożeniowej Helm Agenta [źródło opracowanie własne]</figcaption>
 </figure>
 
-   Agent dostarczany jest w paczce wdrożeniowej Helm, której konfiguracja zawiera się w pliku values.yaml. Klient może skonfigurować agenta wedle swoich potrzeb, dostępne opcje konfiguracyjne to min.:
+   Agent dostarczany jest w paczce wdrożeniowej Helm, której konfiguracja zawiera się w pliku values.yaml. Klient może skonfigurować agenta wedle swoich potrzeb, dostępne opcje konfiguracyjne to m.in.:
 * przyjazna nazwa klastra, będąca jego identyfikatorem
 * wyłączone ze zbierania logów przestrzenie nazw klastra
 * pliki, z których zbierane są logi
@@ -3724,7 +3736,7 @@ Po zalogowaniu do systemu widok główny zawsze zawiera ostatni wygenerowany rap
 <figure>
     <img src="/user-interface/main-page.png">
     <figcaption>Rysunek X: Widok główny [źródło opracowanie własne]</figcaption>
-</figure>
+</figure>Przedstawiona instrukcja stanowi solidną podstawę do zapoznania się z najważniejszymi funkcjami Magpie Monitora, umożliwiając efektywne wykorzystanie jego możliwości w codziennym monitorowaniu logów. 
 
 Alternatywnie możemy również otworzyć ostatni raport z widoku raportów. Po kliknięciu zakładki “Reports”, użytkownik zostanie przeniesiony do tego widoku:
 
