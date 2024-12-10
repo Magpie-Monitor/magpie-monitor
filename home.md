@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T20:31:37.664Z
+date: 2024-12-10T20:37:23.730Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3043,7 +3043,7 @@ Metadata service powinien generować zagregowane metadane o klastrach
 
 Testy jednostkowe dla mikroserwisu `management-service` zostały zrealizowane przy użyciu języka Groovy oraz frameworka Spock. W celu oceny jakości testów i pokrycia kodu zastosowano narzędzie JaCoCo. Łączne pokrycie kodu wyniosło 54%, co obrazuje załączony wykres.
 
-Testy zostały skoncentrowane na klasach zawierających logikę aplikacyjną, takich jak warstwy **service** i **utils**, które odgrywają kluczową rolę w przetwarzaniu danych. Klasy odpowiedzialne za zarządzanie kontrolerami (`controller`), dostępem do danych (`repository`), konfiguracją aplikacji (`config`) oraz bezpieczeństwem (`auth`, `security`) nie zostały objęte testami jednostkowymi. Wynika to z faktu, że testowanie tych elementów wymagałoby podejścia integracyjnego/regresyjnego, wykraczającego poza zakres testów jednostkowych.
+Testy zostały skoncentrowane na klasach zawierających logikę aplikacyjną, takich jak warstwy **service** i **utils**, które odgrywają kluczową rolę w przetwarzaniu danych. Klasy odpowiedzialne za zarządzanie kontrolerami, dostępem do danych, konfiguracją aplikacji oraz bezpieczeństwem nie zostały objęte testami jednostkowymi. Wynika to z faktu, że testowanie tych elementów wymagałoby podejścia integracyjnego/regresyjnego, wykraczającego poza zakres testów jednostkowych.
 
 Podjęte działania pozwoliły na zweryfikowanie kluczowych funkcjonalności mikroserwisu.
 
