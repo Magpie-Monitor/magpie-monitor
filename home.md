@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T12:54:52.804Z
+date: 2024-12-10T16:03:07.444Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -48,39 +48,37 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [7. Projekt produktu programowego](#projekt-produktu-programowego)
 
-[7.1. Projekt domenowy](#projekt-domenowy)
+[7.1. Wykorzystane technologie i narzędzia](#wykorzystane-technologie-i-narzędzia)
 
-[7.2. Wykorzystane technologie i narzędzia](#wykorzystane-technologie-i-narzędzia)
+[7.2. Architektura systemu](#architektura-systemu)
 
-[7.3. Architektura systemu](#architektura-systemu)
+[7.2.1. Model C4 \- poziom 1](#model-c4---poziom-1)
 
-[7.3.1. Model C4 \- poziom 1](#model-c4---poziom-1)
+[7.2.2. Model C4 \- poziom 2](#model-c4---poziom-2)
 
-[7.3.2. Model C4 \- poziom 2](#model-c4---poziom-2)
+[7.2.3. Diagram wdrożenia](#diagram-wdrożenia)
 
-[7.3.3. Diagram wdrożenia](#diagram-wdrożenia)
+[7.2.4. Model C3 \- poziom 3 \- Agent](#model-c3---poziom-3---agent)
 
-[7.3.4. Model C3 \- poziom 3 \- Agent](#model-c3---poziom-3---agent)
+[7.2.5. Model C3 \- poziom 3 \- Logs Ingestion Service](#model-c3---poziom-3---logs-ingestion-service)
 
-[7.3.5. Model C3 \- poziom 3 \- Logs Ingestion Service](#model-c3---poziom-3---logs-ingestion-service)
+[7.2.6. Model C3 \- poziom 3 \- Report Service](#model-c3---poziom-3---report-service)
 
-[7.3.6. Model C3 \- poziom 3 \- Report Service](#model-c3---poziom-3---report-service)
+[7.2.7. Model C3 \- poziom 3 \- Metadata Service](#model-c3---poziom-3---metadata-service)
 
-[7.3.7. Model C3 \- poziom 3 \- Metadata Service](#model-c3---poziom-3---metadata-service)
+[7.2.8. Model C3 \- poziom 3 \- Management API](#model-c3---poziom-3---management-api)
 
-[7.3.8. Model C3 \- poziom 3 \- Management API](#model-c3---poziom-3---management-api)
+[7.2.9. Model C3 \- poziom 3 \- Client](#model-c3---poziom-3---client)
 
-[7.3.9. Model C3 \- poziom 3 \- Client](#model-c3---poziom-3---client)
+[7.3. Bazy danych mikroserwisów](#bazy-danych-mikroserwisów)
 
-[7.4. Bazy danych mikroserwisów](#bazy-danych-mikroserwisów)
+[7.3.1. Baza logów](#baza-logów)
 
-[7.4.1. Baza logów](#baza-logów)
+[7.3.2. Baza danych raportów](#baza-danych-raportów)
 
-[7.4.2. Baza danych raportów](#baza-danych-raportów)
+[7.3.3. Baza danych użytkowników](#baza-danych-użytkowników)
 
-[7.4.3. Baza danych użytkowników](#baza-danych-użytkowników)
-
-[7.4.4. Baza danych ustawień klastrów](#baza-danych-ustawień-klastrów)
+[7.3.4. Baza danych ustawień klastrów](#baza-danych-ustawień-klastrów)
 
 [8. Interfejsy programistyczne](#interfejsy-programistyczne)
 
@@ -549,9 +547,7 @@ Zależność między wymaganiami funkcjonalnymi, a historyjkami użytkownika prz
 
 # 7. Projekt produktu programowego {#projekt-produktu-programowego}
 
-## 7.1 Projekt domenowy {#projekt-domenowy}
-
-## 7.2. Wykorzystane technologie i narzędzia {#wykorzystane-technologie-i-narzędzia}
+## 7.1. Wykorzystane technologie i narzędzia {#wykorzystane-technologie-i-narzędzia}
 
 W celu realizacji projektu zdecydowano się użyć następujące technologie:
 
@@ -587,9 +583,9 @@ W celu realizacji projektu zdecydowano się użyć następujące technologie:
 
 **Nginx** – reverse proxy i serwer webowy, który wspiera aplikację w obsłudze ruchu sieciowego, zwiększając jej skalowalność i wydajność.
 
-## 7.3 Architektura systemu {#architektura-systemu}
+## 7.2 Architektura systemu {#architektura-systemu}
 
-### 7.3.1 Model C4 \- poziom 1 {#model-c4---poziom-1}
+### 7.2.1 Model C4 \- poziom 1 {#model-c4---poziom-1}
 
 Diagram kontekstu (C1) przedstawia ogólny obraz interakcji pomiędzy kluczowymi elementami systemu i jego otoczeniem. W skład diagramu C1 dla Magpie Monitora wchodzą następujące elementy:
 
@@ -607,7 +603,7 @@ Diagram kontekstu (C1) przedstawia ogólny obraz interakcji pomiędzy kluczowymi
 </figure>
 
 
-### 7.3.2 Model C4 \- poziom 2  {#model-c4---poziom-2}
+### 7.2.2 Model C4 \- poziom 2  {#model-c4---poziom-2}
 
 <figure>
     <img src="/container-diagram-latest.svg">
@@ -643,7 +639,7 @@ Jednocześnie, serwis w jakim utworzony został dany rekord/informacja oryginaln
 
 
 
-### 7.3.3 Diagram wdrożenia    {#diagram-wdrożenia}
+### 7.2.3 Diagram wdrożenia    {#diagram-wdrożenia}
 
 <figure>
     <img src="/deployment-diagram-latest.svg">
@@ -662,7 +658,7 @@ Przez duży wolumen danych nieopłacalnym było przesyłanie ich za pomocą brok
 
 Wdrożenie na klastrze klienta zakłada zainstalowania agentów skonfigurowanych odpowiednio do zbierania logów i metadanych z aplikacji oraz hostów w klastrze Kubernetesa. Aby zachować trwałość danych w przypadku chwilowej awarii, dodatkowym serwisem, który musi być zainstalowany razem z agentami jest baza danych służąca do utrzymywania metadanych z klastra, która w tym przypadku jest instancją Redisa. Redis został wybrany ze względu na szybki dostęp do danych oraz niskie zużycie zasobów, co jest kluczowe w systemie klienta.
 
-### 7.3.4 Model C3 \- poziom 3 \- Agent {#model-c3---poziom-3---agent}
+### 7.2.4 Model C3 \- poziom 3 \- Agent {#model-c3---poziom-3---agent}
 
 <figure>
     <img src="/agent/agent-components-transparent.png">
@@ -671,7 +667,7 @@ Wdrożenie na klastrze klienta zakłada zainstalowania agentów skonfigurowanych
 
 Agent instalowany jest na klastrze Kubernetes klienta i odpowiada za zbieranie metadanych i logów aplikacji oraz hostów, które następnie przesyła do brokera Kafki. Implementacyjnie Agent składa się z dwóch modułów podrzędnych, tj. Pod Agent oraz Node Agent. Pod Agent zbiera logi oraz metadane aplikacji, wykorzystując przy tym API klastra Kubernetes. Node Agent zbiera metadane oraz logi z hostów, wykorzystując przy tym API dostępowe systemu plików Linux. Postęp czytania logów hostów dla danego pliku jest zapisywany w zewnętrznej bazie danych Redis, dzięki czemu przesyłane dane nie są powtarzane nawet w przypadku tymczasowej awarii mechanizmu zbierania danych.
 
-### 7.3.5. Model C3 \- poziom 3 \- Logs Ingestion Service {#model-c3---poziom-3---logs-ingestion-service}
+### 7.2.5. Model C3 \- poziom 3 \- Logs Ingestion Service {#model-c3---poziom-3---logs-ingestion-service}
 
 <figure>
     <img src="/logs-ingestion/logs-ingestion-components.svg">
@@ -680,7 +676,7 @@ Agent instalowany jest na klastrze Kubernetes klienta i odpowiada za zbieranie m
 
 Logs Ingestion Service zajmuje się zbieraniem i przetwarzaniem kolejno logów aplikacji i hostów w Application Logs Queue i Node Logs Queue. Logi te są spłaszczone do formy, którą można efektywnie zapisać w bazie logów wykorzystując kolejno Application Logs Repository oraz Node Logs Repository. Wymienione powyżej serwisy pełnią funkcje abstrakcji (udostępniają interfejs) dla konkretnych technologii, które były wykorzystane w ramach Magpie Monitor. Takie rozwiązanie pozwala na łatwą podmianę użytego brokera wiadomości lub bazy danych jeżeli zajdzie taka potrzeba.  
 
-### 7.3.6. Model C3 \- poziom 3 \- Report Service {#model-c3---poziom-3---report-service}
+### 7.2.6. Model C3 \- poziom 3 \- Report Service {#model-c3---poziom-3---report-service}
 
 <figure>
     <img src="/reports/reports-components.svg">
@@ -699,7 +695,7 @@ Logs Ingestion Service zajmuje się zbieraniem i przetwarzaniem kolejno logów a
 
 **Application Insights Generator** oraz **Node Insights Generator** stanowią interfejsy wystawiane innym serwisom i pozwalają na implementację abstrakcji nad modelem językowym użytym do generowania raportów. 
 
-### 7.3.7. Model C3 \- poziom 3 \- Metadata Service {#model-c3---poziom-3---metadata-service}
+### 7.2.7. Model C3 \- poziom 3 \- Metadata Service {#model-c3---poziom-3---metadata-service}
 
 <figure>
     <img src="/metadata-service/metadata-service-components.svg">
@@ -765,12 +761,12 @@ Podsystem klastrów odpowiada za konfigurowanie ustawień raportu oraz odbiornik
 
 Podsystem uwierzytelniania odpowiedzialny jest za uwierzytelnianie użytkownika przy pomocy protokołu OAuth, gdzie dostawcą uwierzytelniania jest firma Google.
 
-### 7.3.9. Model C3 \- poziom 3 \- Client {#model-c3---poziom-3---client}
+### 7.2.9. Model C3 \- poziom 3 \- Client {#model-c3---poziom-3---client}
 
 
-## 7.4. Bazy danych mikroserwisów {#bazy-danych-mikroserwisów}
+## 7.3. Bazy danych mikroserwisów {#bazy-danych-mikroserwisów}
 
-### 7.4.1 Baza logów (Logs Ingestion Service)  {#baza-logów}
+### 7.3.1 Baza logów (Logs Ingestion Service)  {#baza-logów}
 
 **ApplicationLogsDocument**
 Dokument zawierający logi i metadane aplikacji z jakiej zostały zebrane.
@@ -817,7 +813,7 @@ W kolekcji z logami w hostów przechowywane są dokumenty typu **NodeLogsDocumen
 
 Dzięki temu rozwiązaniu minimalizujemy liczbę przeglądanych logów podczas generowania raportów, tym samym zmniejszając obciążenie system i czas realizacji takiego zapytania, co jest kluczowe ze względu na objętość danych.
 
-### 7.4.2 Baza raportów (reports service) {#baza-danych-raportów}
+### 7.3.2 Baza raportów (reports service) {#baza-danych-raportów}
 
 
 #### Report
@@ -1017,7 +1013,7 @@ Kolekcja odpowiadająca za przechowywanie zadań przekazywanych do modelu język
     <figcaption>Rysunek X: Reports Service: Diagram bazy raportów [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 7.4.3 Baza danych metadata service
+### 7.3.3 Baza danych metadata service
 
 Metadata Service przechowuje otrzymane z brokera Kafki metadane hostów oraz klastrów, a także ich zagregowane wersje.
 
@@ -1101,11 +1097,11 @@ Metadata Service przechowuje otrzymane z brokera Kafki metadane hostów oraz kla
 
 
 
-### 7.4.4 Baza danych management-service
+### 7.3.4 Baza danych management-service
 
 Management Service przechowuje swoją kopię wygenerowanych raportów oraz otrzymanych metadanych.
 
-#### 7.4.4.1 Baza danych raportów
+#### 7.3.4.1 Baza danych raportów
 
 Raporty przechowywane są w schemacie lustrzanym do bazy danych Report Service, różnicą są kolekcje **ApplicationIncident**, **NodeIncident**, **ApplicationIncidentSource** oraz **NodeIncidentSource**, które denormalizują schemat raportu w celu szybszego dostępu do danych.
 
@@ -1361,9 +1357,9 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | name | Nazwa hosta | string |
 | running | Wskazuje czy host jest aktualnie częścią klastra | boolean |
 
-### 7.4.5 Baza danych użytkowników {#baza-danych-użytkowników}
+### 7.3.5 Baza danych użytkowników {#baza-danych-użytkowników}
 
-### 7.4.6 Baza danych ustawień klastrów {#baza-danych-ustawień-klastrów}
+### 7.3.6 Baza danych ustawień klastrów {#baza-danych-ustawień-klastrów}
 
 ## 8.Interfejsy programistyczne {#interfejsy-programistyczne}
 
