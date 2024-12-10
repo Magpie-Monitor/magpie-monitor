@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T22:31:47.206Z
+date: 2024-12-10T22:35:25.648Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1565,31 +1565,37 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
 ---
 
-#### Tabela 11: cluster_configuration_application_configuration TODO
+#### Tabela 11: cluster_configuration_application_configuration 
 
-**ApplicationConfigurationDiscordReceivers**(<u>application_config_id</u>, <u>discord_receiver_id</u>)
+**ClusterConfigurationApplicationConfiguration**(<u>cluster_configuration_id</u>, <u>application_configuration_id</u>)
 
-| Nazwa atrybutu        | Znaczenie                                | Dziedzina     | Unikalność | OBL(+) |
-|-----------------------|------------------------------------------|---------------|------------|--------|
-| cluster_config_id     | Identyfikator konfiguracji klastra       | varchar(255)  | +          | +      |
-| discord_receiver_id   | Identyfikator odbiorcy Discord           | bigint        | +          | +      |
+| Nazwa atrybutu                 | Znaczenie                                | Dziedzina     | Unikalność | OBL(+) |
+|--------------------------------|------------------------------------------|---------------|------------|--------|
+| cluster_configuration_id       | Identyfikator konfiguracji klastra       | varchar(255)  | +          | +      |
+| application_configuration_id   | Identyfikator konfiguracji aplikacji     | bigint        | +          | +      |
 
-**Klucze kandydujące**: {application_config_id, discord_receiver_id}
-**Klucz główny**: {application_config_id, discord_receiver_id} 
+**Klucze kandydujące**: {cluster_configuration_id, application_configuration_id}
+**Klucz główny**: {cluster_configuration_id, application_configuration_id} 
 **Zależności funkcyjne**
-&nbsp;&nbsp;&nbsp;application_config_id → discord_receiver_id 
-&nbsp;&nbsp;&nbsp;discord_receiver_id → application_config_id  
+&nbsp;&nbsp;&nbsp;cluster_configuration_id → application_configuration_id 
+&nbsp;&nbsp;&nbsp;application_configuration_id → cluster_configuration_id 
 
 ---
 
-#### Tabela 12: cluster_configuration_node_configuration TODO
-| Nazwa atrybutu        | Znaczenie                                | Dziedzina     | Unikalność | OBL(+) |
-|-----------------------|------------------------------------------|---------------|------------|--------|
-| cluster_config_id     | Identyfikator konfiguracji klastra       | varchar(255)  | +          | +      |
-| email_receiver_id     | Identyfikator odbiorcy e-mail            | bigint        | +          | +      |
+#### Tabela 12: cluster_configuration_node_configuration
 
-**Klucz główny**: (cluster_config_id, email_receiver_id)  
-**Ograniczenie**: Brak duplikatów par kluczy.  
+**ClusterConfigurationNodeConfiguration**(<u>cluster_configuration_id</u>, <u>node_configuration_id</u>)
+
+| Nazwa atrybutu            | Znaczenie                                | Dziedzina     | Unikalność | OBL(+) |
+|---------------------------|------------------------------------------|---------------|------------|--------|
+| cluster_configuration_id  | Identyfikator konfiguracji klastra       | varchar(255)  | +          | +      |
+| node_configuration_id     | Identyfikator konfiguracji noda          | bigint        | +          | +      |
+
+**Klucze kandydujące**: {cluster_configuration_id, node_configuration_id}
+**Klucz główny**: {cluster_configuration_id, node_configuration_id} 
+**Zależności funkcyjne**
+&nbsp;&nbsp;&nbsp;cluster_configuration_id → node_configuration_id 
+&nbsp;&nbsp;&nbsp;node_configuration_id → cluster_configuration_id  
 
 
 ## 8.Interfejsy programistyczne {#interfejsy-programistyczne}
