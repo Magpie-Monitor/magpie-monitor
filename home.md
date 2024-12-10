@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T22:23:35.562Z
+date: 2024-12-10T22:31:47.206Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1478,7 +1478,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 ---
 
-#### Tabela 5: cluster_configuration
+#### Tabela 6: cluster_configuration
 
 ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
@@ -1496,7 +1496,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
 ---
 
-#### Tabela 6: cluster_schedule
+#### Tabela 7: cluster_schedule
 
 **ClusterSchedule**(<u>cluster_id</u>, last_generation_ms, period_ms)
 
@@ -1513,75 +1513,82 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
 ---
 
-#### Tabela 7: application_configuration_discord_receivers
+#### Tabela 8: cluster_configuration_discord_receivers
+
+**ClusterConfigurationDiscordReceivers**(<u>cluster_configuration_id</u>, <u>discord_receiver_id</u>)
+
+| Nazwa atrybutu           | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) |
+|--------------------------|--------------------------------------------|---------------|------------|--------|
+| cluster_configuration_id | Identyfikator konfiguracji klastra        | bigint        | +          | +      |
+| discord_receiver_id.     | Identyfikator odbiorcy Discorda            | bigint        | +          | +      |
+
+**Klucze kandydujące**: {cluster_configuration_id, discord_receiver_id}
+**Klucz główny**: {cluster_configuration_id, discord_receiver_id} 
+**Zależności funkcyjne**
+&nbsp;&nbsp;&nbsp;cluster_configuration_id → discord_receiver_id 
+&nbsp;&nbsp;&nbsp;discord_receiver_id → cluster_configuration_id 
+
+
+---
+
+#### Tabela 9: cluster_configuration_email_receivers
+
+**ClusterConfigurationEmailReceivers**(<u>cluster_configuration_id</u>, <u>email_receiver_id</u>)
+
+| Nazwa atrybutu      | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) |
+|---------------------|--------------------------------------------|---------------|------------|--------|
+| cluster_configuration_id | Identyfikator konfiguracji klastra       | bigint        | +          | +      |
+| email_receiver_id   | Identyfikator odbiorcy e-mail             | bigint        | +          | +      |
+
+**Klucze kandydujące**: {cluster_configuration_id, email_receiver_id}
+**Klucz główny**: {cluster_configuration_id, email_receiver_id} 
+**Zależności funkcyjne**
+&nbsp;&nbsp;&nbsp;cluster_configuration_id → email_receiver_id 
+&nbsp;&nbsp;&nbsp;email_receiver_id → cluster_configuration_id   
+
+---
+
+#### Tabela 10: cluster_configuration_slack_receivers
+
+**ClusterConfigurationSlackReceivers**(<u>cluster_configuration_id</u>, <u>slack_receiver_id</u>)
+
+| Nazwa atrybutu      | Znaczenie                                     | Dziedzina     | Unikalność | OBL(+) |
+|---------------------|-----------------------------------------------|---------------|------------|--------|
+| cluster_configuration_id | Identyfikator konfiguracji klastra       | bigint        | +          | +      |
+| slack_receiver_id   | Identyfikator odbiorcy Slack                  | bigint        | +          | +      |
+
+**Klucze kandydujące**: {cluster_configuration_id, slack_receiver_id}
+**Klucz główny**: {cluster_configuration_id, slack_receiver_id} 
+**Zależności funkcyjne**
+&nbsp;&nbsp;&nbsp;cluster_configuration_id → slack_receiver_id 
+&nbsp;&nbsp;&nbsp;slack_receiver_id → cluster_configuration_id   
+
+---
+
+#### Tabela 11: cluster_configuration_application_configuration TODO
 
 **ApplicationConfigurationDiscordReceivers**(<u>application_config_id</u>, <u>discord_receiver_id</u>)
 
-| Nazwa atrybutu      | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) |
-|---------------------|--------------------------------------------|---------------|------------|--------|
-| application_config_id | Identyfikator konfiguracji aplikacji    | bigint        | +          | +      |
-| discord_receiver_id | Identyfikator odbiorcy Discorda           | bigint        | +          | +      |
-
-**Klucze kandydujące**: application_config_id, discord_receiver_id
-**Klucz główny**: {application_config_id, discord_receiver_id} 
-**Zależności funkcyjne**
-&nbsp;&nbsp;&nbsp;application_config_id → discord_receiver_id 
-&nbsp;&nbsp;&nbsp;discord_receiver_id → application_config_id 
-
-
----
-
-#### Tabela 8: application_configuration_email_receivers
-| Nazwa atrybutu      | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) |
-|---------------------|--------------------------------------------|---------------|------------|--------|
-| application_config_id | Identyfikator konfiguracji aplikacji    | bigint        | +          | +      |
-| email_receiver_id   | Identyfikator odbiorcy e-mail             | bigint        | +          | +      |
-
-**Klucz główny**: (application_config_id, email_receiver_id)  
-**Ograniczenie**: Brak duplikatów par kluczy.  
-
----
-
-#### Tabela 9: application_configuration_slack_receivers
-| Nazwa atrybutu      | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) |
-|---------------------|--------------------------------------------|---------------|------------|--------|
-| application_config_id | Identyfikator konfiguracji aplikacji    | bigint        | +          | +      |
-| slack_receiver_id   | Identyfikator odbiorcy Slacka             | bigint        | +          | +      |
-
-**Klucz główny**: (application_config_id, slack_receiver_id)  
-**Ograniczenie**: Brak duplikatów par kluczy.  
-
----
-
-#### Tabela 10: cluster_configuration_discord_receivers
 | Nazwa atrybutu        | Znaczenie                                | Dziedzina     | Unikalność | OBL(+) |
 |-----------------------|------------------------------------------|---------------|------------|--------|
 | cluster_config_id     | Identyfikator konfiguracji klastra       | varchar(255)  | +          | +      |
-| discord_receiver_id   | Identyfikator odbiorcy Discorda          | bigint        | +          | +      |
+| discord_receiver_id   | Identyfikator odbiorcy Discord           | bigint        | +          | +      |
 
-**Klucz główny**: (cluster_config_id, discord_receiver_id)  
-**Ograniczenie**: Brak duplikatów par kluczy.  
+**Klucze kandydujące**: {application_config_id, discord_receiver_id}
+**Klucz główny**: {application_config_id, discord_receiver_id} 
+**Zależności funkcyjne**
+&nbsp;&nbsp;&nbsp;application_config_id → discord_receiver_id 
+&nbsp;&nbsp;&nbsp;discord_receiver_id → application_config_id  
 
 ---
 
-#### Tabela 11: cluster_configuration_email_receivers
+#### Tabela 12: cluster_configuration_node_configuration TODO
 | Nazwa atrybutu        | Znaczenie                                | Dziedzina     | Unikalność | OBL(+) |
 |-----------------------|------------------------------------------|---------------|------------|--------|
 | cluster_config_id     | Identyfikator konfiguracji klastra       | varchar(255)  | +          | +      |
 | email_receiver_id     | Identyfikator odbiorcy e-mail            | bigint        | +          | +      |
 
 **Klucz główny**: (cluster_config_id, email_receiver_id)  
-**Ograniczenie**: Brak duplikatów par kluczy.  
-
----
-
-#### Tabela 12: cluster_configuration_slack_receivers
-| Nazwa atrybutu        | Znaczenie                                | Dziedzina     | Unikalność | OBL(+) |
-|-----------------------|------------------------------------------|---------------|------------|--------|
-| cluster_config_id     | Identyfikator konfiguracji klastra       | varchar(255)  | +          | +      |
-| slack_receiver_id     | Identyfikator odbiorcy Slacka            | bigint        | +          | +      |
-
-**Klucz główny**: (cluster_config_id, slack_receiver_id)  
 **Ograniczenie**: Brak duplikatów par kluczy.  
 
 
