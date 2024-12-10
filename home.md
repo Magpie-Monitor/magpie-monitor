@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T21:12:46.295Z
+date: 2024-12-10T21:19:11.157Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1365,6 +1365,9 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 ### 7.3.5 Baza danych użytkowników {#baza-danych-użytkowników}
 
 #### Tabela 1: _user
+
+**User**(id, email, nickname, password, provider)
+
 | Nazwa atrybutu | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) |
 |----------------|----------------------------------------|---------------|------------|--------|
 | id             | Identyfikator użytkownika             | bigint        | +          | +      |
@@ -1373,8 +1376,11 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | password       | Hasło użytkownika                     | varchar(255)  | -          | -      |
 | provider       | Dostawca usługi uwierzytelniania      | varchar(255)  | -          | +      |
 
-**Klucz główny**: id  
-**Ograniczenie**: provider może przyjmować wartość tylko `GOOGLE`.
+**Klucze kandydujące**: id, email, nickname
+**Klucz główny**: id
+**Zależności funkcyjne**
+id -> email, nickname, password, provider
+email -> id, nickname, password, provider
 
 ### 7.3.6 Baza danych ustawień klastrów {#baza-danych-ustawień-klastrów}
 
