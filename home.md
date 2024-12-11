@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T13:10:09.036Z
+date: 2024-12-11T13:11:17.551Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -179,6 +179,7 @@ dateCreated: 2024-12-02T23:31:18.691Z
 | Akronim | Znaczenie |
 | :---- | :---- |
 | Magpie Monitor | Nazwa zrealizowanego projektu |
+| OpenAI | Dostawca modeli językowych wykorzystanych do realizacji projektu |
 
 
 
