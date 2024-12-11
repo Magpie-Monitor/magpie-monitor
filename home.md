@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:51:14.737Z
+date: 2024-12-11T12:52:03.892Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -104,7 +104,7 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [8.1. Środowisko pracy](#środowisko-pracy)
 
-[8.2. Model implementacyjny](#model-implementacyjny)
+[8.2. Struktura plików projektu](#struktura-plikow-projektu)
 
 [8.3. Struktura plików w aplikacji “Agenta”](#struktura-plików-w-aplikacji-“agenta”)
 
