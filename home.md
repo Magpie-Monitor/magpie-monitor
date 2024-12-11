@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:57:33.106Z
+date: 2024-12-11T13:00:06.646Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2661,11 +2661,11 @@ Proces uwierzytelniania przebiega w następujący sposób:
 Mechanizm ten zapewnia prostotę implementacji uwierzytelniania, przy jednoczesnym wykorzystaniu standardowych rozwiązań OAuth2 i Google Identity Platform.
 
 
-## 10. Testy produktu programowego/Wyniki i analiza badań {#testy-produktu-programowego/wyniki-i-analiza-badań}
+## 9. Testy produktu programowego/Wyniki i analiza badań {#testy-produktu-programowego/wyniki-i-analiza-badań}
 
-### 10.1 Testy Reports Service {#testy-reports-service}
+### 9.1 Testy Reports Service {#testy-reports-service}
 
-#### 10.1.1 Testy jednostkowe {#testy-jednostkowe-reports-service}
+#### 9.1.1 Testy jednostkowe {#testy-jednostkowe-reports-service}
 
 **Id**: TC1
 **Tytuł**: Wydobywanie indexów ElasticSearch na podstawie daty, źródła logów oraz identyfikator klastra
@@ -2777,7 +2777,7 @@ Mechanizm ten zapewnia prostotę implementacji uwierzytelniania, przy jednoczesn
     <figcaption>Rysunek 9: Test określania pilności raportu [źródło opracowanie własne]</figcaption>
 </figure>
 
-#### 10.1.2 Testy integracyjne {#testy-integracyjne-reports-service}
+#### 9.1.2 Testy integracyjne {#testy-integracyjne-reports-service}
 
 
 **Id**: TC13
@@ -2811,7 +2811,7 @@ Mechanizm ten zapewnia prostotę implementacji uwierzytelniania, przy jednoczesn
 </figure>
 
 
-#### 10.1.3 Pokrycie testów
+#### 9.1.3 Pokrycie testów
 Testami zostały pokryte kluczowe metody zawierające niebanalną logikę biznesową, metody te znajdowały się głównie w `/services`, `/incident_correlation`, `/insights` oraz `/handlers`
 
 | Pakiet                                                         | Pokrycie      |
@@ -2831,9 +2831,9 @@ Testami zostały pokryte kluczowe metody zawierające niebanalną logikę biznes
 
 
 
-### 10.2 Testy Logs Ingestion Service {#testy-logs-ingestion-service}
+### 9.2 Testy Logs Ingestion Service {#testy-logs-ingestion-service}
 
-#### 10.2.1  Testy integracyjne {#testy-integracyjne-logs-ingestion-service}
+#### 9.2.1  Testy integracyjne {#testy-integracyjne-logs-ingestion-service}
 
 **Id**: TC1
 **Tytuł**: Nasłuchiwanie na przychodzące z brokera logi hostów
@@ -2863,7 +2863,7 @@ Testami zostały pokryte kluczowe metody zawierające niebanalną logikę biznes
 </figure>
 
 
-#### 10.2.1 Pokrycie testów
+#### 9.2.1 Pokrycie testów
 
 Testami były objęte głównie funkcje, które zawierają niebanalną logikę biznesową, która znajdowała się w pakiecie `logsstream`
 
@@ -2873,13 +2873,13 @@ Testami były objęte głównie funkcje, które zawierają niebanalną logikę b
 | github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/cmd/logs_ingestion | 0.0%          |
 | github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/logs_stream   | 59.0%         |
 
-## 10.3 Testy Agenta
+## 9.3 Testy Agenta
 
 Agent przetestowany został jednostkowo w zakresie funkcjonalności rozdzielania zebranych logów na pakiety danych oraz deduplikacji logów, czyli procesu, w którym ze zbioru zebranych danych usuwane są logi, które powinny być częścią kolejnej paczki przesyłanych danych, a ich obecność w zbiorze wynika z niedokładności API klastra Kubernetes. W testach integracyjnych skupiono się natomiast na testowaniu integracji z API Kubernetes oraz zbieraniu logów z klastra.
 
-### 10.3.1 Testy Node Agenta
+### 9.3.1 Testy Node Agenta
 
-#### 10.3.1.1 Testy jednostkowe
+#### 9.3.1.1 Testy jednostkowe
 
 <figure>
     <img src="/agent/tests/agent-node-integration-example.png">
@@ -2907,7 +2907,7 @@ Powyższe zdjęcie przedstawia wejściowe logi, rozmiar pakietu oraz spodziewan�
 2\. Rozdzielenie logi na pakiety  
 3\. Sprawdzenie czy liczba pakietów jest prawidłowa
 
-#### 10.3.1.1 Testy integracyjne
+#### 9.3.1.1 Testy integracyjne
 
 <figure>
     <img src="/agent/tests/agent-node-integration-example.png">
@@ -2952,9 +2952,9 @@ Agent zbiera metadane o hoście na którym działa.
 2\. Odczytanie metadanych o hoście  
 3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami  
 
-### 10.3.2 Testy Pod Agenta
+### 9.3.2 Testy Pod Agenta
 
-#### 10.3.2.1 Testy jednostkowe
+#### 9.3.2.1 Testy jednostkowe
 
 <figure>
     <img src="/agent/tests/agent-pod-unit-example.png">
@@ -3032,7 +3032,7 @@ Logi z kontenerów powinny być dzielone na pakiety wedle zadanej konfiguracji
 2\. Przeprowadzenie procesu dzielenia logów na pakiety  
 3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
 
-#### 10.3.2.2 Testy integracyjne
+#### 9.3.2.2 Testy integracyjne
 
 W testach integracyjnych Pod Agenta skupiono się w głównej mierze na zbieraniu logów przy pomocy API Kubernetesa, które zamockowano. Mockowanie pozwoliło na całościowe przetestowanie procesu zbierania logów z klastra bez zewnętrznych zależności oraz zmian w kodzie.
 
@@ -3134,18 +3134,18 @@ Agent powinien zbierać dane o działających aplikacjach oraz ich rodzajach z k
 2\. Pobranie metadanych  
 3\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
 
-#### 10.3.3 Pokrycie testów
+#### 9.3.3 Pokrycie testów
 
 | Pakiet                                                         | Pokrycie      |
 |----------------------------------------------------------------|---------------|
 | github.com/Magpie-Monitor/magpie-monitor/tree/main/agent/app/internal/agent/node/agent        | 28.5%   
 | github.com/Magpie-Monitor/magpie-monitor/tree/main/agent/app/internal/agent/pods/agent | 48.3%          |
 
-### 10.4 Testy Metadata Service
+### 9.4 Testy Metadata Service
 
 Metadata Service został przetestowany integracyjnie, w obszarze pobierania metadanych z brokera Kafki oraz generowania zagregowanych metadanych.
 
-#### 10.4.1 Testy integracyjne 
+#### 9.4.1 Testy integracyjne 
 
 **Id:** TC1  
 **Tytuł:** Odbieranie metadanych o hostach z klastra Kubernetes  
@@ -3250,13 +3250,13 @@ Metadata service powinien generować zagregowane metadane o klastrach
 3\. Nasłuchiwanie na wygenerowane zagregowane metadane o klastrach  
 4\. Porównanie odczytanych wyników z oczekiwanymi rezultatami
 
-#### 10.4.2 Pokrycie testów
+#### 9.4.2 Pokrycie testów
 
 | Pakiet                                                         | Pokrycie      |
 |----------------------------------------------------------------|---------------|
 | github.com/Magpie-Monitor/magpie-monitor/blob/main/go/services/cluster_metadata/pkg/services/metadata_service.go       | 76.8%   
 
-## 10.4. Testy Management Service
+## 9.5. Testy Management Service
 
 Testy jednostkowe dla mikroserwisu `management-service` zostały zrealizowane przy użyciu języka Groovy oraz frameworka Spock. W celu oceny jakości testów i pokrycia kodu zastosowano narzędzie JaCoCo. Łączne pokrycie kodu wyniosło 54%, co obrazuje załączony wykres.
 
