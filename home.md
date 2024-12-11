@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T13:00:06.646Z
+date: 2024-12-11T13:03:12.310Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -138,15 +138,11 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [9.1. Testy Reports Service](#testy-reports-service)
 
-[9.1.1 Testy jednostkowe Reports Service](#testy-jednostkowe-reports-service)
-
-[9.1.2 Testy integracyjne Reports Service](#testy-integracyjne-reports-service)
-
 [9.2. Testy Logs Ingestion Service](#testy-logs-ingestion-service)
 
-[9.2.1 Testy jednostkowe Logs Ingestion Service](#testy-jednostkowe-logs-ingestion-service)
+[9.3. Testy Agenta](#testy-agenta)
 
-[9.2.2 Testy integracyjne Logs Ingestion Service](#testy-integracyjne-logs-ingestion-service)
+[9.4. Testy Metadata Service](#testy-metadata-service)
 
 [9.3. Testy funkcjonalne](#testy-funkcjonalne)
 
