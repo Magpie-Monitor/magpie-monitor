@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:49:45.672Z
+date: 2024-12-11T12:50:40.645Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1877,14 +1877,14 @@ Metadane są zbierane z klastra Kubernetes przez Agenta, który następnie wysy�
 </figure>
 
 
-# 9. Implementacja {#implementacja}
+# 8. Implementacja {#implementacja}
 
 
 
 
-## 9.1 Środowisko pracy {#środowisko-pracy}
+## 8.1 Środowisko pracy {#środowisko-pracy}
 
-### 9.1.1 Uruchamiania projektu lokalnie
+### 8.1.1 Uruchamiania projektu lokalnie
 
 Ze względu na nature systemu Magpie Monitor i ilość użytych języków i technologii (**18** kontenerów z serwisami i narzędziami), kluczowe było aby uprościć i ustandaryzować proces uruchamiania wszystkich narzędzi oraz mikroserwisów na systemach deweloperskich oraz instancji produkcyjnej.
 
@@ -1894,7 +1894,7 @@ Wszystkie narzędzia i podsystemy zostały przygotowane w formie kontenerów,  k
     <figcaption>Rysunek X: Fragment pliku Makefile [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 9.1.2 Automatyczne wykrywanie zmian z docker watch
+### 8.1.2 Automatyczne wykrywanie zmian z docker watch
 
 Dodatkowo konfiguracja została przygotowana aby działać z kontenerami działającymi z takimi samymi obrazami jak te używane w ostatecznym wdrożeniu dzięki funkcjonalności `watch` oferowaną przez interfejs docker-compose, które automatycznie buduje nowy obraz, jeżeli wykryje zmiany w odpowiadającej części kodu. Taka konfiguracja pozwoliła jednorazowo uruchochomić polecenie, które następnie automatycznie wykrywa zmiany z jakiegolwiek z serwisów i odświeża kontener z nowym obrazem. Taka konfiguracja znacząco ułatwiła rozwijanie systemu składającego się z wielu mikroserwisów.
 
@@ -1903,7 +1903,7 @@ Dodatkowo konfiguracja została przygotowana aby działać z kontenerami działa
     <figcaption>Rysunek X: Przykład konfiguracji Reports Service w docker-compose [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 9.1.3 Bogaty zestaw narzędzi do administracji i rozwiązywania problemów
+### 8.1.3 Bogaty zestaw narzędzi do administracji i rozwiązywania problemów
 
 Aby ułatwić pracę z wieloma bazami danych oraz brokerów wiadomości, dodano do konfiguracji docker-compose narzędzia pozwalające administracje tymi systemami z panelu przeglądarki. Wszystkie poniższe narzędzia są częścią polecenia `make watch` dzięki któremu mogą być one uruchomione na systemie dewelopera beż żadnych dodatkowych kroków lub zależności. 
 
@@ -1960,7 +1960,7 @@ Pozwoliło to na dostrajanie systemu bez potrzeby modifikacji kodu.
     <figcaption>Rysunek X: Fragment pliku z przykładowymi zmiennymi środowiskowymi [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 9.1.5 Automatyczna integracja i wdrażanie od początku rozwoju projektu
+### 8.1.4 Automatyczna integracja i wdrażanie od początku rozwoju projektu
 
 Wiele aspektów Magpie Monitor mogło być przetestowanych tylko w systemie imitującym środowisko produkcyjne. W związku z tym kluczowe było aby jak najwcześniej uruchomić system na instancji wystawionej do internetu. Dzięki temu możliwe było zbieranie logów przez całą dobę oraz generowanie raportów w realistycznych warunkach. 
 
@@ -1977,17 +1977,17 @@ Po przesłaniu obrazów do rejestru, zmiany były wykrywane przez narzędzie **W
 </figure>
 
 
-### 9.1.6 Wykorzystanie linterów oraz narzędzi do formatowania
+### 8.1.5 Wykorzystanie linterów oraz narzędzi do formatowania
 
 W celu utrzymania wspólnego stylu oraz unikania powszechnych błędów związanych ze stylem lub formatowaniem, wymagane było aby każdy członek zespołu korzystał z narzędzi takich jak **ESLint**, **Prettier**, **Stylelint** oraz **go-fmt**. Wykorzystanie zewnętrznych narzędzi pozwoliło uniezależnić się od zintegrowanych środowisk deweloperskich, i zostawić ich wybór dla każdego dewelopera indywidualnie. 
 
-### 9.1.7 Inne użyte narzędzia deweloperskie
+### 8.1.6 Inne użyte narzędzia deweloperskie
 
 Podczas rozwoju oprogramowania użyto wielu środowisk deweloperskich w zależności od dewelopra. Od **NeoVim'a**, przez **VSCode**, po **Jetbrains IDEA**. Dzięki wykorzystanie zewnętrznych narzędzi deweloperzy nie byli związani z konkretnym środowiskiem i mogli rozwijać oprogramowanie w takim, który im osobiście najbardziej odpowiadał. 
 
 Do wygenerowania interfejsów między mikroserwisami został wykorzystany schemat **AsyncAPI**.
 
-## 9.2 Struktura plików projektu
+## 8.2 Struktura plików projektu
 
 ### 9.2.1 Motywacja za wyborem monolitycznego repozytorium
 Projekt został stworzony w ramach **monolitycznego repozytorium**. 
