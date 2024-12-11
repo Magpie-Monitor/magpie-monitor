@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:49:24.021Z
+date: 2024-12-11T12:49:45.672Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1850,7 +1850,7 @@ Dodatkowo, każdy wiersz umożliwia użytkownikowi edycję, przetestowanie dzia�
 
 ### 7.6 Diagramy procesów {#diagramy-procesów}
 
-#### 8.2.1 Diagram procesu generowania raportu
+#### 7.6.1 Diagram procesu generowania raportu
 
 <figure>
     <img src="/sequence-diagrams/reports-generation-sequence.svg">
@@ -1867,7 +1867,7 @@ Management service pobiera  taką odpowiedź z brokera i aktualizuje rekord w ba
 
 
 
-#### 8.2.2 Diagram procesu zbierania oraz emitowania zmian w metadanych
+#### 7.6.2 Diagram procesu zbierania oraz emitowania zmian w metadanych
 
 Metadane są zbierane z klastra Kubernetes przez Agenta, który następnie wysyła je do Metadata Service. Metadata Service zapisuje otrzymane dane w bazie, po czym cyklicznie sprawdza, czy najnowszy stan metadanych aplikacji, hostów lub klastrów uległ zmianie. Jeśli zmiana zostanie wykryta, generowany jest nowy stan, który przesyłany jest bezpośrednio do Management Service.
 
