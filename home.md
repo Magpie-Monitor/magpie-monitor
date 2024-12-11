@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-10T22:37:02.053Z
+date: 2024-12-11T12:33:38.285Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -80,27 +80,27 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [7.3.4. Baza danych ustawień klastrów](#baza-danych-ustawień-klastrów)
 
-[8. Interfejsy programistyczne](#interfejsy-programistyczne)
+[7.4. Interfejsy programistyczne](#interfejsy-programistyczne)
 
-[8.1. Projekt interfejsu](#projekt-interfejsu)
+[7.4.1. Projekt interfejsu](#projekt-interfejsu)
 
-[8.1.1. Widok logowania](#widok-logowania)
+[7.4.2. Widok logowania](#widok-logowania)
 
-[8.1.2. Widok główny](#widok-główny)
+[7.4.3. Widok główny](#widok-główny)
 
-[8.1.3. Widok incydentu](#widok-incydentu)
+[7.4.4. Widok incydentu](#widok-incydentu)
 
-[8.1.4. Widok raportów](#widok-raportów)
+[7.4.5. Widok raportów](#widok-raportów)
 
-[8.1.5. Widok klastrów](#widok-klastrów)
+[7.4.6. Widok klastrów](#widok-klastrów)
 
-[8.1.6. Widok konfiguracji raportów](#widok-konfiguracji-raportów)
+[7.4.7. Widok konfiguracji raportów](#widok-konfiguracji-raportów)
 
-[8.1.7. Widok konfiguracji powiadomień](#projekt-interfejsu)
+[7.4.8. Widok konfiguracji powiadomień](#projekt-interfejsu)
 
-[8.2. Diagramy procesów](#diagramy-procesów)
+[7.5 Diagramy procesów](#diagramy-procesów)
 
-[9. Implementacja](#implementacja)
+[8. Implementacja](#implementacja)
 
 [9.1. Środowisko pracy](#środowisko-pracy)
 
