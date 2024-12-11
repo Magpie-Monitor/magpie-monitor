@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T17:21:09.036Z
+date: 2024-12-11T17:44:05.381Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1361,12 +1361,15 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | name | Nazwa hosta | string |
 | running | Wskazuje czy host jest aktualnie częścią klastra | boolean |
 
-#### 7.3.4.3 Baza danych użytkowników {#baza-danych-użytkowników}
+#### 7.3.4.3 Baza danych użytkowników i konfiguracji {#baza-danych-użytkowników-i-konfiguracji}
 
+#### 7.3.4.3.1 Model fizyczny bazy danych
 <figure>
     <img src="/management-service/database/management-service-postgres-diagram.drawio.svg">
     <figcaption>Rysunek X: Management Service: Diagram fizyczny bazy danych [źródło opracowanie własne]</figcaption>
 </figure>
+
+#### 7.3.4.3.1 Definicja schematów relacji
 
 ##### Tabela 1: _user
 
@@ -1386,9 +1389,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 &nbsp;&nbsp;&nbsp;id → email, nickname, password, provider
 &nbsp;&nbsp;&nbsp;email → id, nickname, password, provider
 
-#### 7.3.4.4 Baza danych ustawień klastrów {#baza-danych-ustawień-klastrów}
-
-##### Tabela 1: discord_receiver
+##### Tabela 2: discord_receiver
 
 **DiscordReceiver**(<u>id</u>, created_at, receiver_name, updated_at, webhook_url)
 
@@ -1406,7 +1407,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 &nbsp;&nbsp;&nbsp;id → created_at, receiver_name, updated_at, webhook_url
 
 
-##### Tabela 2: email_receiver
+##### Tabela 3: email_receiver
 
 **EmailReceiver**(<u>id</u>, created_at, receiver_email, receiver_name, updated_at)
 
@@ -1424,7 +1425,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 &nbsp;&nbsp;&nbsp;id → created_at, receiver_email, updated_at, receiver_name
 
 
-##### Tabela 3: slack_receiver
+##### Tabela 4: slack_receiver
 
 **SlackReceiver**(<u>id</u>, created_at, receiver_name, updated_at, webhook_url)
 
@@ -1442,7 +1443,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 &nbsp;&nbsp;&nbsp;id → created_at, receiver_name, updated_at, webhook_url  
 
 
-##### Tabela 4: application_configuration
+##### Tabela 5: application_configuration
 
 **ApplicationConfiguration**(<u>id</u>, accuracy, custom_prompt, kind, name)
 
@@ -1460,7 +1461,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 &nbsp;&nbsp;&nbsp;id → accuracy, custom_prompt, kind, name  
 
 
-##### Tabela 5: node_configuration
+##### Tabela 6: node_configuration
 
 **NodeConfiguration**(<u>id</u>, name, accuracy, custom_prompt)
 
@@ -1477,7 +1478,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 &nbsp;&nbsp;&nbsp;id → name, accuracy, custom_prompt    
 
 
-##### Tabela 6: cluster_configuration
+##### Tabela 7: cluster_configuration
 
 ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
@@ -1494,7 +1495,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 &nbsp;&nbsp;&nbsp;id → accuracy, generated_every_millis, is_enabled  
 
 
-##### Tabela 7: cluster_schedule
+##### Tabela 8: cluster_schedule
 
 **ClusterSchedule**(<u>cluster_id</u>, last_generation_ms, period_ms)
 
