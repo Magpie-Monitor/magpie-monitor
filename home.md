@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:42:04.144Z
+date: 2024-12-11T12:43:05.270Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1020,7 +1020,7 @@ Kolekcja odpowiadająca za przechowywanie zadań przekazywanych do modelu język
     <figcaption>Rysunek X: Reports Service: Diagram bazy raportów [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 7.3.3 Baza danych metadata service
+### 7.3.3 Baza danych metadata service {#bazy-danych-metadata-service}
 
 Metadata Service przechowuje otrzymane z brokera Kafki metadane hostów oraz klastrów, a także ich zagregowane wersje.
 
@@ -1104,7 +1104,7 @@ Metadata Service przechowuje otrzymane z brokera Kafki metadane hostów oraz kla
 
 
 
-### 7.3.4 Baza danych management-service
+### 7.3.4 Bazy danych management-service {#bazy-danych-management-service}
 
 Management Service przechowuje swoją kopię wygenerowanych raportów oraz otrzymanych metadanych.
 
