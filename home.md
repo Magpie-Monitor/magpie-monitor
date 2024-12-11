@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T17:44:05.381Z
+date: 2024-12-11T17:44:54.069Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1452,8 +1452,8 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | id             | Identyfikator aplikacji                | bigint        | +          | +      |
 | accuracy       | Dokładność                             | smallint      | -          | +      |
 | custom_prompt  | Własny prompt                          | varchar(255)  | -          | -      |
-| kind           | Typ konfiguracji                       | varchar(255)  | -          | +      |
-| name           | Nazwa konfiguracji                     | varchar(255)  | -          | +      |
+| kind           | Typ aplikacji                       | varchar(255)  | -          | +      |
+| name           | Nazwa aplikacji                     | varchar(255)  | -          | +      |
 
 **Klucze kandydujące**: id, name
 **Klucz główny**: id
