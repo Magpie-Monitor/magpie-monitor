@@ -38,6 +38,13 @@ const PieChart = ({ data, label }: PieChartProps) => {
       legend: {
         display: true,
         position: 'bottom',
+        labels: {
+          font: {
+            family: 'Roboto',
+            weight: 'bold',
+          },
+          color: 'white',
+        },
       },
       title: {
         display: true,

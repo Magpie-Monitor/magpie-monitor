@@ -1,8 +1,6 @@
 @import '@/variables';
 
 .tag-button {
-  position: relative;
-  width: 100%;
   max-width: 8rem;
 
   &__toggle {
@@ -18,7 +16,9 @@
     width: 100%;
     font-size: 0.9rem;
     outline: none;
-    transition: background-color 0.2s, color 0.2s;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
 
     .svg-icon {
       background-color: $green;
@@ -49,11 +49,12 @@
     padding: 0;
     margin: 0;
     border: 1px solid $green;
+
+    z-index: 10;
     background-color: $component-background;
     color: $green;
-    width: 100%;
+
     border-radius: 4px;
-    z-index: 9999;
     transition: opacity 0.2s ease;
     opacity: 0;
     animation: fadeIn 0.15s forwards;
@@ -61,7 +62,9 @@
     &__element {
       padding: 0.4rem 0.8rem;
       font-size: 0.85rem;
+      height: 20px;
       cursor: pointer;
+      transform: translate(0, 0);
       border-bottom: 1px solid $green;
 
       &:last-child {
@@ -81,6 +84,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

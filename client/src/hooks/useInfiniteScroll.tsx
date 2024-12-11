@@ -1,3 +1,4 @@
+import { debounce } from 'lib/debounce';
 import { useEffect } from 'react';
 
 interface UseInfiniteScrollParams {
@@ -5,21 +6,6 @@ interface UseInfiniteScrollParams {
   debounceTreshhold?: number;
   scrollTreshhold?: number;
   handleScroll: () => void;
-}
-
-// eslint-disable-next-line
-function debounce<T extends (...args: any[]) => void>(
-  func: T,
-  delay: number,
-): (...args: Parameters<T>) => void {
-  let timer: ReturnType<typeof setTimeout> | null = null;
-
-  return (...args: Parameters<T>) => {
-    if (timer) {
-      clearTimeout(timer);
-    }
-    timer = setTimeout(() => func(...args), delay);
-  };
 }
 
 const useInfiniteScroll = ({

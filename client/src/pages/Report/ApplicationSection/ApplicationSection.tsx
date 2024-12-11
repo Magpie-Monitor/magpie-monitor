@@ -1,14 +1,18 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import SectionComponent from 'components/SectionComponent/SectionComponent.tsx';
-import Table, {TableColumn} from 'components/Table/Table.tsx';
+import Table, { TableColumn } from 'components/Table/Table.tsx';
 import TagButton from 'components/TagButton/TagButton.tsx';
 import SVGIcon from 'components/SVGIcon/SVGIcon.tsx';
 import OverlayComponent from 'components/OverlayComponent/OverlayComponent.tsx';
 import LinkComponent from 'components/LinkComponent/LinkComponent.tsx';
 import CustomPromptPopup from 'components/CustomPromptPopup/CustomPromptPopup.tsx';
-import {AccuracyLevel, ManagmentServiceApiInstance} from 'api/managment-service';
-import ApplicationsEntriesSelector
-    from 'components/EntriesSelector/ApplicationsEntriesSelector/ApplicationsEntriesSelector.tsx';
+import {
+    AccuracyLevel,
+    ManagmentServiceApiInstance,
+} from 'api/managment-service';
+
+// eslint-disable-next-line
+import ApplicationsEntriesSelector from 'components/EntriesSelector/ApplicationsEntriesSelector/ApplicationsEntriesSelector.tsx';
 import CustomTag from 'components/CustomTag/CustomTag.tsx';
 import KindTag from 'components/KindTag/KindTag.tsx';
 import DeleteIconButton from 'components/DeleteIconButton/DeleteIconButton.tsx';
@@ -31,31 +35,37 @@ interface ApplicationSectionProps {
 }
 
 const ApplicationSection: React.FC<ApplicationSectionProps> = ({
-                                                                   applications,
-                                                                   setApplications,
-                                                                   clusterId,
-                                                                   defaultAccuracy,
-                                                               }) => {
+    applications,
+    setApplications,
+    clusterId,
+    defaultAccuracy,
+}) => {
     const [showModal, setShowModal] = useState(false);
     const [showCustomPromptPopup, setShowCustomPromptPopup] = useState(false);
-    const [selectedApp, setSelectedApp] = useState<ApplicationDataRow | null>(null);
-    const [selectedApplications, setSelectedApplications] = useState<ApplicationDataRow[]>([]);
-    const [applicationsToAdd, setApplicationsToAdd] = useState<ApplicationDataRow[]>([]);
+    const [selectedApp, setSelectedApp] = useState<ApplicationDataRow | null>(
+        null,
+    );
+    const [selectedApplications, setSelectedApplications] = useState<
+        ApplicationDataRow[]
+    >([]);
+    const [applicationsToAdd, setApplicationsToAdd] = useState<
+        ApplicationDataRow[]
+    >([]);
 
     const loadApplications = async () => {
         try {
             const data = await ManagmentServiceApiInstance.getApplications(clusterId);
             setApplicationsToAdd(
-              data.map((app) => ({
-                  name: app.name,
-                  running: app.running,
-                  kind: app.kind,
-                  accuracy: defaultAccuracy,
-                  customPrompt: '',
-              })),
+                data.map((app) => ({
+                    name: app.name,
+                    running: app.running,
+                    kind: app.kind,
+                    accuracy: defaultAccuracy,
+                    customPrompt: '',
+                })),
             );
         } catch (error) {
-            console.error("Failed to load applications:", error);
+            console.error('Failed to load applications:', error);
         }
     };
 
@@ -73,8 +83,8 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
     const handleAccuracyChange = (name: string, accuracy: AccuracyLevel) => {
         setApplications(
             applications.map((app) =>
-                app.name === name ? { ...app, accuracy } : app
-            )
+                app.name === name ? { ...app, accuracy } : app,
+            ),
         );
     };
 
@@ -84,8 +94,8 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
                 applications.map((app) =>
                     app.name === selectedApp.name
                         ? { ...app, customPrompt: newPrompt }
-                        : app
-                )
+                        : app,
+                ),
             );
             setShowCustomPromptPopup(false);
             setSelectedApp(null);
@@ -106,9 +116,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
             header: 'Name',
             columnKey: 'name',
             customComponent: (app: ApplicationDataRow) => (
-                <LinkComponent isRunning={app.running}>
-                    {app.name}
-                </LinkComponent>
+                <LinkComponent isRunning={app.running}>{app.name}</LinkComponent>
             ),
         },
         {
@@ -136,9 +144,7 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
             header: 'Kind',
             columnKey: 'kind',
             customComponent: (app: ApplicationDataRow) => (
-                <KindTag
-                    name={app.kind || 'unknown'}
-                />
+                <KindTag name={app.kind || 'unknown'} />
             ),
         },
         {
@@ -156,7 +162,10 @@ const ApplicationSection: React.FC<ApplicationSectionProps> = ({
             title="Applications"
             callback={() => handleOpenModal()}
         >
-            <OverlayComponent isDisplayed={showModal} onClose={() => setShowModal(false)}>
+            <OverlayComponent
+                isDisplayed={showModal}
+                onClose={() => setShowModal(false)}
+            >
                 <ApplicationsEntriesSelector
                     selectedApplications={selectedApplications}
                     setSelectedApplications={setSelectedApplications}

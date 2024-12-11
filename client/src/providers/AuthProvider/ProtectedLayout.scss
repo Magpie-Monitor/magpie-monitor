@@ -7,6 +7,7 @@
   flex-direction: row;
   padding: 0rem;
   margin: 0rem;
+  height: 100svh;
 
   @media (max-width: $sm) {
     flex-direction: column;
