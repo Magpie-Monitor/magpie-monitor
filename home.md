@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:36:10.111Z
+date: 2024-12-11T12:37:21.996Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -646,7 +646,7 @@ Jednocześnie, serwis w jakim utworzony został dany rekord/informacja oryginaln
 
 
 
-### 7.2.3 Diagram wdrożenia    {#diagram-wdrożenia}
+### 7.2.3 Diagram wdrożenia {#diagram-wdrożenia}
 
 <figure>
     <img src="/deployment-diagram-latest.svg">
