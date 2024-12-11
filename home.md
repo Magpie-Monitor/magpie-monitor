@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T17:14:11.933Z
+date: 2024-12-11T17:21:09.036Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1375,9 +1375,9 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | Nazwa atrybutu | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |----------------|----------------------------------------|---------------|------------|--------|
 | id             | Identyfikator użytkownika             | bigint        | +          | +      |
-| email          | Adres e-mail użytkownika              | varchar(255)  | +          | -      |
-| nickname       | Pseudonim użytkownika                 | varchar(255)  | -          | -      |
-| password       | Hasło użytkownika                     | varchar(255)  | -          | -      |
+| email          | Adres e-mail użytkownika              | varchar(255)  | +          | +      |
+| nickname       | Pseudonim użytkownika                 | varchar(255)  | -          | +      |
+| password       | Hasło użytkownika                     | varchar(255)  | -          | +      |
 | provider       | Dostawca usługi uwierzytelniania      | varchar(255)  | -          | +      |
 
 **Klucze kandydujące**: id, email, nickname
@@ -1449,10 +1449,10 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | Nazwa atrybutu | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |----------------|----------------------------------------|---------------|------------|--------|
 | id             | Identyfikator aplikacji                | bigint        | +          | +      |
-| accuracy       | Dokładność                             | smallint      | -          | -      |
+| accuracy       | Dokładność                             | smallint      | -          | +      |
 | custom_prompt  | Własny prompt                          | varchar(255)  | -          | -      |
-| kind           | Typ konfiguracji                       | varchar(255)  | -          | -      |
-| name           | Nazwa konfiguracji                     | varchar(255)  | -          | -      |
+| kind           | Typ konfiguracji                       | varchar(255)  | -          | +      |
+| name           | Nazwa konfiguracji                     | varchar(255)  | -          | +      |
 
 **Klucze kandydujące**: id, name
 **Klucz główny**: id
@@ -1484,8 +1484,8 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 | Nazwa atrybutu      | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |---------------------|----------------------------------------|---------------|------------|--------|
 | id                  | Identyfikator konfiguracji klastra    | varchar(255)  | +          | +      |
-| accuracy            | Dokładność                            | smallint      | -          | -      |
-| generated_every_millis | Okres generowania w milisekundach | bigint        | -          | -      |
+| accuracy            | Dokładność                            | smallint      | -          | +      |
+| generated_every_millis | Okres generowania w milisekundach | bigint        | -          | +      |
 | is_enabled          | Status konfiguracji                  | boolean       | -          | +      |
 
 **Klucze kandydujące**: id
@@ -1501,93 +1501,13 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 | Nazwa atrybutu | Znaczenie                      | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |----------------|--------------------------------|---------------|------------|--------|
 | cluster_id     | Identyfikator klastra         | varchar(255)  | +          | +      |
-| last_generation_ms | Ostatnia czas wygenerowania raportu w ms   | bigint        | -          | -      |
-| period_ms      | Przedział czasu miedzy raportami        | bigint        | -          | -      |
+| last_generation_ms | Ostatnia czas wygenerowania raportu w ms   | bigint        | -          | +      |
+| period_ms      | Przedział czasu miedzy raportami        | bigint        | -          | +      |
 
 **Klucze kandydujące**: cluster_id 
 **Klucz główny**: cluster_id
 **Zależności funkcyjne**
-&nbsp;&nbsp;&nbsp;cluster_id → last_generation_ms, period_ms   
-
-
-##### Tabela 8: cluster_configuration_discord_receivers
-
-**ClusterConfigurationDiscordReceivers**(<u>cluster_configuration_id</u>, <u>discord_receiver_id</u>)
-
-| Nazwa atrybutu           | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) OPC(-) |
-|--------------------------|--------------------------------------------|---------------|------------|--------|
-| cluster_configuration_id | Identyfikator konfiguracji klastra        | bigint        | +          | +      |
-| discord_receiver_id.     | Identyfikator odbiorcy Discorda            | bigint        | +          | +      |
-
-**Klucze kandydujące**: {cluster_configuration_id, discord_receiver_id}
-**Klucz główny**: {cluster_configuration_id, discord_receiver_id} 
-**Zależności funkcyjne**
-&nbsp;&nbsp;&nbsp;cluster_configuration_id → discord_receiver_id 
-&nbsp;&nbsp;&nbsp;discord_receiver_id → cluster_configuration_id 
-
-
-##### Tabela 9: cluster_configuration_email_receivers
-
-**ClusterConfigurationEmailReceivers**(<u>cluster_configuration_id</u>, <u>email_receiver_id</u>)
-
-| Nazwa atrybutu      | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) OPC(-) |
-|---------------------|--------------------------------------------|---------------|------------|--------|
-| cluster_configuration_id | Identyfikator konfiguracji klastra       | bigint        | +          | +      |
-| email_receiver_id   | Identyfikator odbiorcy e-mail             | bigint        | +          | +      |
-
-**Klucze kandydujące**: {cluster_configuration_id, email_receiver_id}
-**Klucz główny**: {cluster_configuration_id, email_receiver_id} 
-**Zależności funkcyjne**
-&nbsp;&nbsp;&nbsp;cluster_configuration_id → email_receiver_id 
-&nbsp;&nbsp;&nbsp;email_receiver_id → cluster_configuration_id   
-
-
-##### Tabela 10: cluster_configuration_slack_receivers
-
-**ClusterConfigurationSlackReceivers**(<u>cluster_configuration_id</u>, <u>slack_receiver_id</u>)
-
-| Nazwa atrybutu      | Znaczenie                                     | Dziedzina     | Unikalność | OBL(+) OPC(-) |
-|---------------------|-----------------------------------------------|---------------|------------|--------|
-| cluster_configuration_id | Identyfikator konfiguracji klastra       | bigint        | +          | +      |
-| slack_receiver_id   | Identyfikator odbiorcy Slack                  | bigint        | +          | +      |
-
-**Klucze kandydujące**: {cluster_configuration_id, slack_receiver_id}
-**Klucz główny**: {cluster_configuration_id, slack_receiver_id} 
-**Zależności funkcyjne**
-&nbsp;&nbsp;&nbsp;cluster_configuration_id → slack_receiver_id 
-&nbsp;&nbsp;&nbsp;slack_receiver_id → cluster_configuration_id   
-
-
-##### Tabela 11: cluster_configuration_application_configuration 
-
-**ClusterConfigurationApplicationConfiguration**(<u>cluster_configuration_id</u>, <u>application_configuration_id</u>)
-
-| Nazwa atrybutu                 | Znaczenie                                | Dziedzina     | Unikalność | OBL(+) OPC(-) |
-|--------------------------------|------------------------------------------|---------------|------------|--------|
-| cluster_configuration_id       | Identyfikator konfiguracji klastra       | varchar(255)  | +          | +      |
-| application_configuration_id   | Identyfikator konfiguracji aplikacji     | bigint        | +          | +      |
-
-**Klucze kandydujące**: {cluster_configuration_id, application_configuration_id}
-**Klucz główny**: {cluster_configuration_id, application_configuration_id} 
-**Zależności funkcyjne**
-&nbsp;&nbsp;&nbsp;cluster_configuration_id → application_configuration_id 
-&nbsp;&nbsp;&nbsp;application_configuration_id → cluster_configuration_id 
-
-
-##### Tabela 12: cluster_configuration_node_configuration
-
-**ClusterConfigurationNodeConfiguration**(<u>cluster_configuration_id</u>, <u>node_configuration_id</u>)
-
-| Nazwa atrybutu            | Znaczenie                                | Dziedzina     | Unikalność | OBL(+) OPC(-) |
-|---------------------------|------------------------------------------|---------------|------------|--------|
-| cluster_configuration_id  | Identyfikator konfiguracji klastra       | varchar(255)  | +          | +      |
-| node_configuration_id     | Identyfikator konfiguracji noda          | bigint        | +          | +      |
-
-**Klucze kandydujące**: {cluster_configuration_id, node_configuration_id}
-**Klucz główny**: {cluster_configuration_id, node_configuration_id} 
-**Zależności funkcyjne**
-&nbsp;&nbsp;&nbsp;cluster_configuration_id → node_configuration_id 
-&nbsp;&nbsp;&nbsp;node_configuration_id → cluster_configuration_id  
+&nbsp;&nbsp;&nbsp;cluster_id → last_generation_ms, period_ms    
 
 
 ## 7.4. Interfejsy programistyczne {#interfejsy-programistyczne}
