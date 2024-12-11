@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T13:05:10.794Z
+date: 2024-12-11T13:07:36.339Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3271,11 +3271,11 @@ Podjęte działania pozwoliły na zweryfikowanie kluczowych funkcjonalności mik
 |----------------------------------------------------------------|---------------|
 | github.com/Magpie-Monitor/magpie-monitor/management-service/src/main/java/pl/pwr/zpi       | 54%  
 
-## 10.3 Testy funkcjonalne {#testy-funkcjonalne}
+## 9.6 Testy funkcjonalne {#testy-funkcjonalne}
 
 W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariusze testowe: 
 
-1. **Logowanie użytkownika**
+### **Logowanie użytkownika**
 
    
 
@@ -3299,7 +3299,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 * Użytkownik pomyślnie loguje się do systemu i zostaje przeniesiony na stronę główną.
 
-2. **Próba dostępu przez nieuwierzytelnionego użytkownika**
+### **Próba dostępu przez nieuwierzytelnionego użytkownika**
 
    
 
@@ -3322,7 +3322,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 * Użytkownik nie otrzymuje dostępu do strony z raportami.  
 * Użytkownik zostaje przekierowany na stronę logowania
 
-3. **Wylogowanie użytkownika**
+### **Wylogowanie użytkownika**
 
    
 
@@ -3345,7 +3345,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 * Użytkownik zostaje pomyślnie wylogowany i przekierowany na stronę logowania.
 
-4. **Wyświetlenie raportu**
+### **Wyświetlenie raportu**
 
    
 
@@ -3371,7 +3371,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 * System wyświetla raport z nazwą klastra na podstawie, którego wygenerowano raport, przedział czasu, z którego zebrane zostały logi, statystyki, takie jak liczba przeanalizowanych aplikacji, hostów, liczba krytycznych, średnich oraz mało krytycznych incydentów, liczba przeanalizowanych logów z aplikacji, liczba przeanalizowanych logów z hostów.  
     
-5. **Przeglądanie incydentów**  
+### **Przeglądanie incydentów**  
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wyświetlić listę incydentów wykrytych w wygenerowanym raporcie.  
 **Warunki wstępne**: 
@@ -3395,7 +3395,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 * System wyświetla listę incydentów, zawierającą nazwę aplikacji/hosta, kategorię i tytuł incydentu, oraz datę wykrycia.
 
-6.  **Generacja raportu na żądanie**
+###  **Generacja raportu na żądanie**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wyświetlić listę incydentów wykrytych w wygenerowanym raporcie.  
 **Warunki wstępne**: 
@@ -3419,7 +3419,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 * System wyświetla listę incydentów, zawierającą nazwę aplikacji/hosta, kategorię i tytuł incydentu, oraz datę wykrycia.
 
-7. **Konfiguracja dokładności aplikacji i hostów**
+### **Konfiguracja dokładności aplikacji i hostów**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może dostosować poziomy dokładności osobno dla każdej aplikacji i hosta w raporcie.  
 **Warunki wstępne**: 
@@ -3447,7 +3447,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 * System wyświetla listę dodanych aplikacji oraz hostów do raportu z różnymi wartościami pola dokładność
 
-8. **Planowanie raportów**
+### **Planowanie raportów**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może zaplanować cykliczne generowanie raportów w określonych przedziałach czasu.  
 **Warunki wstępne**: 
@@ -3473,7 +3473,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 * System wygenerował raport z ostatniego tygodnia  
 * W zakładce “Reports” pojawił się nowy zaplanowany raport na przyszły tydzień
 
-9. **Generacja raportu na żądanie**
+### **Generacja raportu na żądanie**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może generować raport na żądanie z wybranego przedziału czasu.  
 **Warunki wstępne**: 
@@ -3501,7 +3501,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 * System wygenerował raport z wybranego przedziału  
 * Utworzony raport nie zawiera incydentu spoza wybranego zakresu czasu
 
-10. **Personalizacja interpretacji logów**
+### **Personalizacja interpretacji logów**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może dodać własne instrukcje dla modelu językowego, aby raporty były dostosowane do specyfiki aplikacji i hostów.  
 **Warunki wstępne**: 
@@ -3530,7 +3530,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 * System wygenerował raport   
 * Incydenty aplikacji zawierają informacje o wprowadzonej instrukcji do interpretacji logów
 
-11. **Wybór analizowanych hostów**
+### **Wybór analizowanych hostów**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wskazać konkretne hosty, które będą źródłem danych do raportu.  
 **Warunki wstępne**: 
@@ -3557,7 +3557,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 * System wygenerował raport   
 * Każdy znaleziony incydent dotyczy tylko wybranego hosta
 
-12. **Wybór analizowanych aplikacji**
+### **Wybór analizowanych aplikacji**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wskazać konkretne aplikacje, które będą źródłem danych do raportu.  
 **Warunki wstępne**: 
@@ -3585,7 +3585,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 * System wygenerował raport   
 * Każdy znaleziony incydent dotyczy tylko wybranej aplikacji
 
-13. **Dodanie kanału powiadomień do raportu**
+### **Dodanie kanału powiadomień do raportu**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może przypisać kanał powiadomień (Slack, Discord lub email) do raportu.  
 **Warunki wstępne**: 
@@ -3612,7 +3612,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 * System wygenerował raport  
 * W momencie wygenerowania raportu, wiadomość o zakończeniu pracy przychodzi na przypisany kanał powiadomień  
     
-14. **Dodanie nowego kanału powiadomień**
+### **Dodanie nowego kanału powiadomień**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik dodać nowy kanał powiadomień (Slack, Discord lub email) do raportu.  
 **Warunki wstępne**: 
@@ -3634,7 +3634,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 * Do systemu został dodany nowy kanał powiadomień  
 * Kanał powiadomień zostaje wyświetlany na stronie “Notifications” z poprawną nazwą, webhookiem oraz datami dodania oraz modyfikacji 
 
-15. **Usuwanie kanału powiadomień**
+### **Usuwanie kanału powiadomień**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może usunąć kanał powiadomień.  
 **Warunki wstępne**: 
@@ -3656,7 +3656,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 * Z systemu zostaje usunięty kanał powiadomień
 
-16. **Edytowanie kanału powiadomień**
+### **Edytowanie kanału powiadomień**
 
 **Opis:** Test ma na celu sprawdzenie, czy użytkownik może edytować dodany kanał powiadomień.  
 **Warunki wstępne**: 
@@ -3681,7 +3681,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 * Kanał powiadomień zmienia nazwę na nową.
 
-17. **Testowanie powiadomień**
+### **Testowanie powiadomień**
 
 **Opis:** Test ma na celu sprawdzenie, czy użytkownik może przetestować dodany kanał powiadomień.  
 **Warunki wstępne**: 
@@ -3704,7 +3704,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 * Na kanale powiadomień pojawia się nowa wiadomość testowa wysłana przez Magpie Monitor.
 
-18. **Wyświetlenie danych o incydencie** 
+### **Wyświetlenie danych o incydencie** 
 
 **Opis:** Test ma na celu sprawdzenie, czy użytkownik może wyświetlić dane o incydencie.  
 **Warunki wstępne**: 
@@ -3728,7 +3728,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 * Użytkownik powinien móc wyświetlić: nazwę aplikacji lub hosta; rekomendację działań opis; czas; w jakim doszło do incydentu.
 
-19. **Wyświetlenie listy raportów**
+### **Wyświetlenie listy raportów**
 
 **Opis:** Test ma na celu sprawdzenie, czy użytkownik może wyświetlić listę raportów.  
 **Warunki wstępne**: 
