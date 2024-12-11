@@ -1,9 +1,9 @@
 .schedule-period {
   display: flex;
   align-items: center;
-  gap: 1rem;
   flex-direction: row;
   width: 100%;
+  column-gap: 2rem;
 
   &__text {
     display: flex;
