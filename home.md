@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:45:51.349Z
+date: 2024-12-11T12:47:51.371Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -82,23 +82,23 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [7.4. Interfejsy programistyczne](#interfejsy-programistyczne)
 
-[7.4.1. Projekt interfejsu](#projekt-interfejsu)
+[7.5. Projekt interfejsu](#projekt-interfejsu)
 
-[7.4.2. Widok logowania](#widok-logowania)
+[7.5.1. Widok logowania](#widok-logowania)
 
-[7.4.3. Widok główny](#widok-główny)
+[7.5.2. Widok główny](#widok-główny)
 
-[7.4.4. Widok incydentu](#widok-incydentu)
+[7.5.3. Widok incydentu](#widok-incydentu)
 
-[7.4.5. Widok raportów](#widok-raportów)
+[7.5.4. Widok raportów](#widok-raportów)
 
-[7.4.6. Widok klastrów](#widok-klastrów)
+[7.5.5. Widok klastrów](#widok-klastrów)
 
-[7.4.7. Widok konfiguracji raportów](#widok-konfiguracji-raportów)
+[7.5.6. Widok konfiguracji raportów](#widok-konfiguracji-raportów)
 
-[7.4.8. Widok konfiguracji powiadomień](#projekt-interfejsu)
+[7.5.7. Widok konfiguracji powiadomień](#projekt-interfejsu)
 
-[7.5 Diagramy procesów](#diagramy-procesów)
+[7.6 Diagramy procesów](#diagramy-procesów)
 
 [8. Implementacja](#implementacja)
 
