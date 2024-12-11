@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T13:07:36.339Z
+date: 2024-12-11T13:08:26.474Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3754,9 +3754,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 * Użytkownik powinien móc zobaczyć listę raportów, z podziałem na raporty cykliczne oraz na żądanie.  
 * Wśród raportów powinien widnieć generowany raport wraz z informacją, że proces jego generowania jest w toku.   
   
-# 11. Podsumowanie {#podsumowanie}
+# 10. Podsumowanie {#podsumowanie}
 
-## 11.1 Przebieg projektu {#przebieg-projektu}
+## 10.1 Przebieg projektu {#przebieg-projektu}
 
 Projekt był realizowany w metodyce zwinnej. Na początkowym etapie szczególna uwaga była przyłożona do projektu architektury oraz interfejsu, 
 tak aby zdecydować się na odpowiednie rozwiązania technologiczne oraz przygotować interfejsy na wymagania funkcjonalne, które system ma oferować.
@@ -3771,7 +3771,7 @@ W ramach **sprintu 4** oraz **sprintu 5**, udało się zrealizować integracje m
 Ostatnimi zadaniami w projekcie były naprawa drobnych błędów oraz rozpisanie testów jednostkowych i integracyjnych, co zostało wykonane w **spincie 7** oraz **sprincie 8**. 
 
 
-### 11.1.1 Ós czasu
+### 10.1.1 Ós czasu
 
 Projekt był realizowany w ramach 8 sprintów. Pierwsze 2 sprinty trwały tydzień ze względu na dużą dynamike i zmieniające się wymagania i koncepty na początku życia projektu. Następne sprinty trwały standardowe 2 tygodnie. Po każdym sprincie, wszyscy członkowie zespołu planowali zadania na następny sprint i przygotowywali estymaty punktów story point, tak aby nowe zadania były możliwe do realizacji w trakcie następnego sprintu.
 
@@ -3780,7 +3780,7 @@ Projekt był realizowany w ramach 8 sprintów. Pierwsze 2 sprinty trwały tydzie
     <figcaption>Rysunek 2: Oś czasu w wykonywaniu projektu [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 11.1.2 Diagram zaangażowania 
+### 10.1.2 Diagram zaangażowania 
 
 Diagram zaangażowania pozwala zobaczyć ile zadań udało się wykonać w ramach danego sprintu w kontekście wszystkich przypisanych zadań.
 W większości sprintów pojedyńcze zadania musiały być przenoszone do następnych sprintów. Te decyzje były podjęte ze względu na pojawiające się w trakcie sprintu zadania, które musiały być jak najszybciej wykonane.
@@ -3790,7 +3790,7 @@ W większości sprintów pojedyńcze zadania musiały być przenoszone do nastę
     <figcaption>Rysunek 2: Wykres zaangażowania [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 11.1.3 Diagramy spalania 
+### 10.1.3 Diagramy spalania 
 
 
 Diagramy spalania wskazują ile punktów story point było wykonywanych w trakcie trwania sprintu.  Punktem odniesienie jest przewodnik, czyli sugestia odnośnie idealnego tempa prac w projekcie. Niestety diagram ten nie uwzględnia, że wiele zadań było dopisywanych w trakcie sprintu.  Zadania te były dopisywane razem z nowymi wymagania, które musiałby być pilnie zrealizowane.
@@ -3825,11 +3825,11 @@ Diagramy spalania wskazują ile punktów story point było wykonywanych w trakci
     <figcaption>Rysunek 2: Wykres spalania ze Sprintu 8. [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 11.1.4 Statystyki systemu kontroli wersji
+### 10.1.4 Statystyki systemu kontroli wersji
 
 System kontroli wersji wykorzystany w projekcie - git wraz z dostawcą, który oferuje zdalną synchronizację - Github, oferuje statystyki, które pozwalają na bardziej realistyczną estymate postępów prac. 
 
-#### 11.1.4.1 Liczba kontrybucji
+#### 10.1.4.1 Liczba kontrybucji
 
 W momencie tworzenia dokumentacji w projekcie wykonano **485 kontrybucji**. Każda z nich podegała wymogom odnośnie opisów i treści. Efektem takiego podejścia było powstanie kontroli wersji w której łatwo można analizować i rozumieć zmiany w kodzie za pośrednictwem wiadomości w kontrybucjach. Dodatkowo operacje takie jak wybiórcze dodawawanie zmian (cherry-pick) lub wycofywanie zmian (revert) stały się również bardzo przystępne.
 
@@ -3854,7 +3854,7 @@ W trakcie realizacji projektu zostały zamknięte **137 pull requesty**. Pull re
     <figcaption>Rysunek 2: Liczba Pull Requestów [źródło opracowanie własne]</figcaption>
 </figure>
 
-#### 11.1.4.2 Przebieg projektu według liczby kontrybucji
+#### 10.1.4.2 Przebieg projektu według liczby kontrybucji
 
 Na poniższym wykresie można zobaczyć liczbę liń kodu dodanych do głównej gałęzi w trakcie realizacji projektu.
 
@@ -3872,7 +3872,7 @@ Poniższy wykres przedstawia liczbę kontrybucji (commitów) do głównej gałę
 
 
 
-## 11.2 Wnioski {#wnioski}
+## 10.2 Wnioski {#wnioski}
 ### 11.2.1 Wnioski z konceptu projektu
 Projekt został zaplanowany jako dowód konceptu (Proof of concept) zintegrowanego systemu do zbierania i przetwarzania logów z dużych klastów komputerowych, i w ramach tego celu udało się zweryfikować, że rozwiązanie takie jest nie tylko możliwe technicznie, lecz również posiada sens biznesowy.
 
