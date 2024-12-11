@@ -1,3 +1,5 @@
+@import '@/variables.scss';
+
 .date-range {
   display: flex;
   align-items: center;
@@ -5,4 +7,11 @@
   margin-left: 1rem;
   margin-right: 1rem;
   /* background-color: black; */
+
+  &__popover {
+    border-style: solid;
+    border-width: 1px;
+    border-color: $component-border-color;
+    /* border-radius: 1rem; */
+  }
 }

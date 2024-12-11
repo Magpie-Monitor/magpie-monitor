@@ -11,9 +11,24 @@ export default {
   plugins: [
     nextui({
       defaultTheme: 'magpie',
+      layout: {
+        radius: {
+          small: '1rem',
+          medium: '1rem',
+          large: '1rem',
+        },
+      },
+
       themes: {
         magpie: {
           extend: 'dark',
+          layout: {
+            radius: {
+              small: '1rem',
+              medium: '1rem',
+              large: '1rem',
+            },
+          },
           colors: {
             default: {
               50: '#122131',

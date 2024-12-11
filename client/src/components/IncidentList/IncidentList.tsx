@@ -23,7 +23,7 @@ const IncidentList = ({ incidents, onClick }: IncidentListProps) => {
     leave: { opacity: 0, transform: 'translateY(20px)' },
     config: { duration: 100 }, // Animation duration
     keys: incidents.map((incident) => incident.id), // Ensure unique keys
-    trail: 200,
+    trail: 100,
   });
 
   if (incidents.length === 0) {
@@ -43,7 +43,7 @@ const IncidentList = ({ incidents, onClick }: IncidentListProps) => {
           style={style}
           className="incident-list__entry"
           key={incident.id}
-          onClick={onClick ? () => onClick(incident) : () => {}}
+          onClick={onClick ? () => onClick(incident) : () => { }}
         >
           <div className="incident-list__entry__source">{incident.source}</div>
           <div

@@ -48,11 +48,16 @@ const DateRangeSection = ({ onDateChange }: DateRangeSectionProps) => {
       title={'Date Range'}
     >
       <DateRangePicker
+        selectorIcon={<SVGIcon iconName="date-range-selector-icon" />}
         className="date-range"
+        classNames={{
+          popoverContent: 'radius-large date-range__popover',
+        }}
         value={{
           start: startDate,
           end: endDate,
         }}
+        maxValue={today(getLocalTimeZone())}
         onChange={(dates) => {
           if (!dates) {
             return;

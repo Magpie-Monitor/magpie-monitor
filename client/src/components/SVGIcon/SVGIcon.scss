@@ -59,7 +59,8 @@
 
 .application-incident-metadata-icon {
   @extend .svg-icon;
-  mask: url('/src/assets/application-incident-metadata-icon.svg') no-repeat center;
+  mask: url('/src/assets/application-incident-metadata-icon.svg') no-repeat
+    center;
 }
 
 .node-incident-metadata-icon {
@@ -383,6 +384,19 @@
 .date-range-icon {
   @extend .svg-icon;
   mask: url('/src/assets/date-range-icon.svg') no-repeat center;
+}
+
+.date-range-selector-icon {
+  @extend .svg-icon;
+  mask: url('/src/assets/date-range-icon.svg') no-repeat center;
+
+  .svg-icon {
+    background-color: $component-border-color;
+
+    &:hover {
+      background-color: $green;
+    }
+  }
 }
 
 .precision-icon {
