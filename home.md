@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T13:03:58.800Z
+date: 2024-12-11T13:05:10.794Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2871,7 +2871,7 @@ Testami były objęte głównie funkcje, które zawierają niebanalną logikę b
 | github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/cmd/logs_ingestion | 0.0%          |
 | github.com/Magpie-Monitor/magpie-monitor/services/logs_ingestion/pkg/logs_stream   | 59.0%         |
 
-## 9.3 Testy Agenta
+## 9.3 Testy Agenta {#testy-agenta}
 
 Agent przetestowany został jednostkowo w zakresie funkcjonalności rozdzielania zebranych logów na pakiety danych oraz deduplikacji logów, czyli procesu, w którym ze zbioru zebranych danych usuwane są logi, które powinny być częścią kolejnej paczki przesyłanych danych, a ich obecność w zbiorze wynika z niedokładności API klastra Kubernetes. W testach integracyjnych skupiono się natomiast na testowaniu integracji z API Kubernetes oraz zbieraniu logów z klastra.
 
@@ -3139,7 +3139,7 @@ Agent powinien zbierać dane o działających aplikacjach oraz ich rodzajach z k
 | github.com/Magpie-Monitor/magpie-monitor/tree/main/agent/app/internal/agent/node/agent        | 28.5%   
 | github.com/Magpie-Monitor/magpie-monitor/tree/main/agent/app/internal/agent/pods/agent | 48.3%          |
 
-### 9.4 Testy Metadata Service
+### 9.4 Testy Metadata Service {#testy-metadata-service}
 
 Metadata Service został przetestowany integracyjnie, w obszarze pobierania metadanych z brokera Kafki oraz generowania zagregowanych metadanych.
 
@@ -3254,7 +3254,7 @@ Metadata service powinien generować zagregowane metadane o klastrach
 |----------------------------------------------------------------|---------------|
 | github.com/Magpie-Monitor/magpie-monitor/blob/main/go/services/cluster_metadata/pkg/services/metadata_service.go       | 76.8%   
 
-## 9.5. Testy Management Service
+## 9.5. Testy Management Service {#testy-management-service}
 
 Testy jednostkowe dla mikroserwisu `management-service` zostały zrealizowane przy użyciu języka Groovy oraz frameworka Spock. W celu oceny jakości testów i pokrycia kodu zastosowano narzędzie JaCoCo. Łączne pokrycie kodu wyniosło 54%, co obrazuje załączony wykres.
 
