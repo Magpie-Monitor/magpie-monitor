@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:52:03.892Z
+date: 2024-12-11T12:53:48.755Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1987,7 +1987,7 @@ Podczas rozwoju oprogramowania użyto wielu środowisk deweloperskich w zależno
 
 Do wygenerowania interfejsów między mikroserwisami został wykorzystany schemat **AsyncAPI**.
 
-## 8.2 Struktura plików projektu
+## 8.2 Struktura plików projektu {#struktura-plikow-projektu}
 
 ### 8.2.1 Motywacja za wyborem monolitycznego repozytorium
 Projekt został stworzony w ramach **monolitycznego repozytorium**. 
@@ -1999,7 +1999,7 @@ Sprawiło to również, że rozwijanie jakiejkolwiej części projektu stało si
     <figcaption>Rysunek X: Struktura plików projektu [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 9.2.2 Struktura repozytorium
+### 8.2.2 Struktura repozytorium
 
  - **/.github**: Pliki konfiguracyjne dla Github Actions
  - **/agent**: Kod agenta zbierającego logi i metadane z aplikacji i hostów
@@ -2015,7 +2015,7 @@ Sprawiło to również, że rozwijanie jakiejkolwiej części projektu stało si
 - **/docker-compose.es.yml**: Plik docker-compose zawierający konfiguracje ElasticSearch i automatyczne generowanie dla niego certyfikatów kryptograficznych
 - **/docker-compose.dev.yml** Plik docker-compose nadpisujący wybrane ustawienia z /docker-compose.yml. Pozwala na efektywniejszy rozwój projektu lokalnie.
 
-### 9.2.3 Struktura plików w katalogu /go
+### 8.2.3 Struktura plików w katalogu /go
 
 W ramach tego katalogu umieszczono kod wszystkich mikroserwisów napisanych w Go. 
 
@@ -2033,7 +2033,7 @@ Umieszczenie plików z zależnościami (go.mod oraz go.sum) w korzeniu folderu /
 
 
 
-## 9.3 Struktura plików w aplikacji “Agenta” {#struktura-plików-w-aplikacji-“agenta”}
+## 8.3 Struktura plików w aplikacji “Agenta” {#struktura-plików-w-aplikacji-“agenta”}
 
 Agent składa się z kilku mniejszych pakietów, z których większość jest współdzielona zarówno przez Pod Agenta jak i Node Agenta.
 
@@ -2062,7 +2062,7 @@ W części kodu agenta znajduje się również plik budujący obraz kontenera **
 
 Dodatkowo, agent posiada folder chart, który przechowuje Helm Chart, czyli paczkę pozwalającą na łatwe wdrożenie agenta na klastrze Kubernetes. W folderze chart znajduje się również folder scripts, który udostępnia zbiór skryptów przydatnych do testowania agenta.
 
-## 9.4 Struktura plików w serwisie “Logs Ingestion Service” {#struktura-plików-w-serwisie-“ingestion-service”}
+## 8.4 Struktura plików w serwisie “Logs Ingestion Service” {#struktura-plików-w-serwisie-“ingestion-service”}
 
 Logs Ingestion Service został stworzony zgodnie ze standardami języka go związanych z strukturą projektów. Jednocześnie serwis jest na tyle mały, że nie było potrzeby na nadmierne pakietowanie.
 
@@ -2076,7 +2076,7 @@ Logs Ingestion Service został stworzony zgodnie ze standardami języka go zwią
 - **/go/services/logs_ingestion/pkg/config**: Zawiera konfiguracje wstrzykiwanych zależności do aplikacji i testów z wykorzystaniem Go fx. 
 - **/go/services/logs_ingestion/pkg/logs_stream**: Zawiera pakiet logsstream, który jest odpowiedzialny za nasłuchiwanie za logami aplikacji i hostów z brokera wiadomości
 
-## 9.5 Struktura plików w serwisie “Report Service” {#struktura-plików-w-serwisie-“report-service”}
+## 8.5 Struktura plików w serwisie “Report Service” {#struktura-plików-w-serwisie-“report-service”}
 
 Raports Service został stworzony zgodnie ze standardami języka Go, stąd obecność folderów takich jak /cmd, /internal czy /pkg. 
 
@@ -2103,7 +2103,7 @@ Raports Service został stworzony zgodnie ze standardami języka Go, stąd obecn
 
 
 
-## 9.6 Struktura plików w serwisie “Metadata Service” {#struktura-plików-w-serwisie-“metadata-service”}
+## 8.6 Struktura plików w serwisie “Metadata Service” {#struktura-plików-w-serwisie-“metadata-service”}
 
 
 <figure>
@@ -2119,7 +2119,7 @@ Wybrane pakiety Metadata Service odpowiadają za:
 - **cluster_metadata/pkg/services** - zawiera serwisy odpowiadające za część biznesową aplikacji tj. zbieranie oraz generowanie zagregowanych metadanych, a także emitowanie wydarzeń sygnalizujących zmianę metadanych
 
 
-## 9.7 Struktura plików w aplikacji “Management Service” {#struktura-plików-w-aplikacji-“management-service”}
+## 8.7 Struktura plików w aplikacji “Management Service” {#struktura-plików-w-aplikacji-“management-service”}
 
 <figure>
     <img src="/management-service/management-service-struktura-plikow.png">
@@ -2141,7 +2141,7 @@ Management Service został podzielony na moduły wedle realizowanej przez nie do
 
 Plik **Dockerfile** zawiera konfigurację budowania obrazu, a pliki **mvnw** i **pom.xml** należą do narzędzia Maven, które zarządza zależnościami w projekcie i buduje plik JAR aplikacji.
 
-## 9.8 Struktura plików w aplikacji klienckiej {#struktura-plików-w-aplikacji-klienckiej}
+## 8.8 Struktura plików w aplikacji klienckiej {#struktura-plików-w-aplikacji-klienckiej}
 
 Struktura aplikacji klienckiej została zaprojektowana zgodnie z najlepszymi praktykami React oraz Typescript. 
 
@@ -2179,10 +2179,7 @@ Struktura aplikacji klienckiej została zaprojektowana zgodnie z najlepszymi pra
   - **/client/src/variables.scss**: Katalog z globalnymi zmiennymi SCSS.
 
 
-
-
-
-## 9.9 Uwierzytelnienie użytkownika {#uwierzytelnienie-użytkownika}
+## 8.9 Uwierzytelnienie użytkownika {#uwierzytelnienie-użytkownika}
 
 Do uwierzytelniania użytkowników w aplikacji wykorzystywany jest dostawca OAuth2 od Google. Proces weryfikacji dostępu przebiega w kilku etapach:
 
