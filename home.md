@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:50:40.645Z
+date: 2024-12-11T12:51:14.737Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1989,7 +1989,7 @@ Do wygenerowania interfejsów między mikroserwisami został wykorzystany schema
 
 ## 8.2 Struktura plików projektu
 
-### 9.2.1 Motywacja za wyborem monolitycznego repozytorium
+### 8.2.1 Motywacja za wyborem monolitycznego repozytorium
 Projekt został stworzony w ramach **monolitycznego repozytorium**. 
 Podejście to zostało wybrane ze względu na przystępność integracji kolejnych narzędzi i serwisów. 
 Sprawiło to również, że rozwijanie jakiejkolwiej części projektu stało się przystępniejsze dla każdego dewelopera, ponieważ każdy miał już cały kod i wszystkie narzędzia dostępne w swoim systemie. 
