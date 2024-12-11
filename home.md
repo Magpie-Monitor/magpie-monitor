@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T17:09:55.297Z
+date: 2024-12-11T17:14:11.933Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1372,7 +1372,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 **User**(<u>id</u>, email, nickname, password, provider)
 
-| Nazwa atrybutu | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) |
+| Nazwa atrybutu | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |----------------|----------------------------------------|---------------|------------|--------|
 | id             | Identyfikator użytkownika             | bigint        | +          | +      |
 | email          | Adres e-mail użytkownika              | varchar(255)  | +          | -      |
@@ -1392,7 +1392,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 **DiscordReceiver**(<u>id</u>, created_at, receiver_name, updated_at, webhook_url)
 
-| Nazwa atrybutu | Znaczenie                         | Dziedzina     | Unikalność | OBL(+) |
+| Nazwa atrybutu | Znaczenie                         | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |----------------|-----------------------------------|---------------|------------|--------|
 | id             | Identyfikator odbiorcy Discorda  | bigint        | +          | +      |
 | created_at     | Data utworzenia                  | bigint        | -          | +      |
@@ -1410,7 +1410,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 **EmailReceiver**(<u>id</u>, created_at, receiver_email, receiver_name, updated_at)
 
-| Nazwa atrybutu | Znaczenie                       | Dziedzina     | Unikalność | OBL(+) |
+| Nazwa atrybutu | Znaczenie                       | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |----------------|---------------------------------|---------------|------------|--------|
 | id             | Identyfikator odbiorcy e-mail  | bigint        | +          | +      |
 | created_at     | Data utworzenia                | bigint        | -          | +      |
@@ -1428,7 +1428,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 **SlackReceiver**(<u>id</u>, created_at, receiver_name, updated_at, webhook_url)
 
-| Nazwa atrybutu | Znaczenie                        | Dziedzina     | Unikalność | OBL(+) |
+| Nazwa atrybutu | Znaczenie                        | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |----------------|----------------------------------|---------------|------------|--------|
 | id             | Identyfikator odbiorcy Slacka   | bigint        | +          | +      |
 | created_at     | Data utworzenia                 | bigint        | -          | +      |
@@ -1446,7 +1446,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 **ApplicationConfiguration**(<u>id</u>, accuracy, custom_prompt, kind, name)
 
-| Nazwa atrybutu | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) |
+| Nazwa atrybutu | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |----------------|----------------------------------------|---------------|------------|--------|
 | id             | Identyfikator aplikacji                | bigint        | +          | +      |
 | accuracy       | Dokładność                             | smallint      | -          | -      |
@@ -1464,7 +1464,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 **NodeConfiguration**(<u>id</u>, name, accuracy, custom_prompt)
 
-| Nazwa atrybutu      | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) |
+| Nazwa atrybutu      | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |---------------------|--------------------------------------------|---------------|------------|--------|
 | id                  | Identyfikator konfiguracji noda            | bigint        | +          | +      |
 | name                | Nazwa noda                                 | varchar(255)  | +          | +      |
@@ -1481,7 +1481,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
-| Nazwa atrybutu      | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) |
+| Nazwa atrybutu      | Znaczenie                              | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |---------------------|----------------------------------------|---------------|------------|--------|
 | id                  | Identyfikator konfiguracji klastra    | varchar(255)  | +          | +      |
 | accuracy            | Dokładność                            | smallint      | -          | -      |
@@ -1498,7 +1498,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
 **ClusterSchedule**(<u>cluster_id</u>, last_generation_ms, period_ms)
 
-| Nazwa atrybutu | Znaczenie                      | Dziedzina     | Unikalność | OBL(+) |
+| Nazwa atrybutu | Znaczenie                      | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |----------------|--------------------------------|---------------|------------|--------|
 | cluster_id     | Identyfikator klastra         | varchar(255)  | +          | +      |
 | last_generation_ms | Ostatnia czas wygenerowania raportu w ms   | bigint        | -          | -      |
@@ -1514,7 +1514,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
 **ClusterConfigurationDiscordReceivers**(<u>cluster_configuration_id</u>, <u>discord_receiver_id</u>)
 
-| Nazwa atrybutu           | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) |
+| Nazwa atrybutu           | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |--------------------------|--------------------------------------------|---------------|------------|--------|
 | cluster_configuration_id | Identyfikator konfiguracji klastra        | bigint        | +          | +      |
 | discord_receiver_id.     | Identyfikator odbiorcy Discorda            | bigint        | +          | +      |
@@ -1530,7 +1530,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
 **ClusterConfigurationEmailReceivers**(<u>cluster_configuration_id</u>, <u>email_receiver_id</u>)
 
-| Nazwa atrybutu      | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) |
+| Nazwa atrybutu      | Znaczenie                                  | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |---------------------|--------------------------------------------|---------------|------------|--------|
 | cluster_configuration_id | Identyfikator konfiguracji klastra       | bigint        | +          | +      |
 | email_receiver_id   | Identyfikator odbiorcy e-mail             | bigint        | +          | +      |
@@ -1546,7 +1546,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
 **ClusterConfigurationSlackReceivers**(<u>cluster_configuration_id</u>, <u>slack_receiver_id</u>)
 
-| Nazwa atrybutu      | Znaczenie                                     | Dziedzina     | Unikalność | OBL(+) |
+| Nazwa atrybutu      | Znaczenie                                     | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |---------------------|-----------------------------------------------|---------------|------------|--------|
 | cluster_configuration_id | Identyfikator konfiguracji klastra       | bigint        | +          | +      |
 | slack_receiver_id   | Identyfikator odbiorcy Slack                  | bigint        | +          | +      |
@@ -1562,7 +1562,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
 **ClusterConfigurationApplicationConfiguration**(<u>cluster_configuration_id</u>, <u>application_configuration_id</u>)
 
-| Nazwa atrybutu                 | Znaczenie                                | Dziedzina     | Unikalność | OBL(+) |
+| Nazwa atrybutu                 | Znaczenie                                | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |--------------------------------|------------------------------------------|---------------|------------|--------|
 | cluster_configuration_id       | Identyfikator konfiguracji klastra       | varchar(255)  | +          | +      |
 | application_configuration_id   | Identyfikator konfiguracji aplikacji     | bigint        | +          | +      |
@@ -1578,7 +1578,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
 **ClusterConfigurationNodeConfiguration**(<u>cluster_configuration_id</u>, <u>node_configuration_id</u>)
 
-| Nazwa atrybutu            | Znaczenie                                | Dziedzina     | Unikalność | OBL(+) |
+| Nazwa atrybutu            | Znaczenie                                | Dziedzina     | Unikalność | OBL(+) OPC(-) |
 |---------------------------|------------------------------------------|---------------|------------|--------|
 | cluster_configuration_id  | Identyfikator konfiguracji klastra       | varchar(255)  | +          | +      |
 | node_configuration_id     | Identyfikator konfiguracji noda          | bigint        | +          | +      |
