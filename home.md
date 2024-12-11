@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:54:36.605Z
+date: 2024-12-11T12:57:33.106Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2219,11 +2219,11 @@ Użytkownik może wylogować się z aplikacji w dowolnym momencie. Po kliknięci
 Taki model uwierzytelnienia zapewnia łatwość obsługi dla użytkownika oraz zgodność z najlepszymi praktykami bezpieczeństwa, minimalizując ryzyko nieautoryzowanego dostępu do aplikacji.
             
 
-## 9.10. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-(scheduling-raportów,-management-service)}
+## 8.10. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-(scheduling-raportów,-management-service)}
 
-## 9.11 Zbieranie logów (agent) {#zbieranie-logów-(agent)}
+## 8.11 Zbieranie logów (agent) {#zbieranie-logów-(agent)}
 
-## 9.11.1 Zbieranie logów z hostów
+## 8.11.1 Zbieranie logów z hostów
 
 Agent zbiera logi z hostów, obserwując pliki które użytkownik skonfiguruje podczas wdrożenia. 
 
@@ -2260,7 +2260,7 @@ Obserwowanie pliku polega na cyklicznym sprawdzeniu jego rozmiaru i porównaniu 
 
 Dane dzielone są na mniejsze pakiety *Chunk*, które przesyłane są do brokera Kafki.
 
-## 9.11.2 Zbieranie metadanych z hostów
+## 8.11.2 Zbieranie metadanych z hostów
 
 <figure>
     <img src="/agent/agent-gather-node-metadata.png">
@@ -2275,7 +2275,7 @@ Dane dzielone są na mniejsze pakiety *Chunk*, które przesyłane są do brokera
 
 Agent cyklicznie odczytuje oraz przesyła metadane o swoim działaniu, tj. id klastra na którym działa, nazwę hosta w klastrze na którym działa dana replika agenta oraz pliki obserwowane przez agenta. Odczytane metadane są następnie przesyłane do brokera Kafki.
 
-## 9.11.3 Zbieranie logów z aplikacji
+## 8.11.3 Zbieranie logów z aplikacji
 
 Logi aplikacji są zbierane ze wszystkich przestrzeni nazw obecnych w klastrze Kubernetes, poza przestrzeniami wykluczonymi w konfiguracji paczki wdrożeniowej Helm Chart.
 
@@ -2325,7 +2325,7 @@ Powyższe obrazki przedstawiają przykład zbierania logów z obiektu typu Deplo
     <figcaption>Rysunek X: Klient API Kubernetes [źródło opracowanie własne]</figcaption>
 </figure>
 
-## 9.11.4 Zbieranie metadanych z aplikacji
+## 8.11.4 Zbieranie metadanych z aplikacji
 
 Agent cyklicznie odczytuje oraz przesyła metadane o aplikacjach aktualnie działających na klastrze. Odczytane metadane są następnie przesyłane do brokera Kafki.
 
@@ -2339,9 +2339,9 @@ Agent cyklicznie odczytuje oraz przesyła metadane o aplikacjach aktualnie dzia�
     <figcaption>Rysunek X: Pakiet metadanych [źródło opracowanie własne]</figcaption>
 </figure>
 
-## 9.12 Zapisywanie logów (ingestion service) {#zapisywanie-logów-(ingestion-service)}
+## 8.12 Zapisywanie logów (ingestion service) {#zapisywanie-logów-(ingestion-service)}
 
-### 9.12.1 Dynamiczne tworzenie indeksów
+### 8.12.1 Dynamiczne tworzenie indeksów
 
 Wiadomość z logami może posiadać parę poziomów zagnieżdżenie, grupujących logi na podstawie określonych metadanych. W związku z tym kluczowe jest przetworzenie tej wiadomości w taki sposób, aby dokument nie miał zagnieżdżonych pół, ponieważ utrudnia to przeszukiwania i indeksowanie. W ramach takiego procesu, z jednej wiadomości może powstać wiele dokumentów. 
 
@@ -2350,7 +2350,7 @@ Wiadomość z logami może posiadać parę poziomów zagnieżdżenie, grupujący
     <figcaption>Rysunek X: Implementacja Logs Ingestion: Nazwa indeksu  [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 9.12.2 Spłaszczanie dokumentów
+### 8.12.2 Spłaszczanie dokumentów
 
 W ramach jednej wiadomości zawierającej logi sama zawartość może być zagnieżdżona, w związku z tym kluczowe jest przetworzenie tej wiadomości w taki sposób aby dokument nie miał zagnieżdżonych pół, ponieważ utrudnia to przeszukiwania i indeksowanie. W ramach takiego procesu z jednej wiadomości może powstać wiele dokumentów. 
 
@@ -2359,7 +2359,7 @@ W ramach jednej wiadomości zawierającej logi sama zawartość może być zagni
     <figcaption>Rysunek X: Implementacja Logs Ingestion: Spłaszczanie logów  [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 9.12.3 Grupowanie operacji dodawania rekordów
+### 8.12.3 Grupowanie operacji dodawania rekordów
 
 W związku z tym, że w jednej wiadomości może być wiele dokumentów, to aby uniknąć wykonywania wielu zapytań do bazy, wykorzystany został mechanizm Bulk Query, który pozwala wysyłać listę zadań ElasticSearch do wykonania. 
 
@@ -2368,9 +2368,9 @@ W związku z tym, że w jednej wiadomości może być wiele dokumentów, to aby 
     <figcaption>Rysunek X: Implementacja Logs Ingestion: Dodawanie logów [źródło opracowanie własne]</figcaption>
 </figure>
 
-## 9.13. Generowanie raportów (reports service)  {#generowanie-raportów-(reports-service)}
+## 8.13. Generowanie raportów (reports service)  {#generowanie-raportów-(reports-service)}
 
-### 9.13.1 **Wczytywanie logów do pamięci**   
+### 8.13.1 **Wczytywanie logów do pamięci**   
 Istotnym problemem, występującym podczas pracy z dużej ilością danych jest unikanie sytuacji, w których musimy mieć wszystkie dane w pamięci jednocześnie. Ze względu na wysoki rozmiar logów, z których użytkownik może sobie zażyczyć raportu, kluczowe było aby przetwarzać je w paczkach, później nazywanych batchami.  
 
 Proces ten rozpoczyna się przez pobieranie logów z instancji ElasticSearch w batchach wykorzystując dostarczone Scroll API. Interfejs ten pozwala na stworzenie zapytania, dla którego zostanie zwrócony identyfikator scrolla, który może służyć do pobierania kolejnych paczek z zapytania, realizując w ten sposób paginacje zapytań.  
@@ -2390,7 +2390,7 @@ W ten sposób możliwe jest operowanie wyłącznie na paczkach danych, i zdejmow
     <figcaption>Rysunek X: Reports Service: Zdobywanie następnej paczki logów [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 9.13.2 Przygotowywanie logów do generowania raportu 
+### 8.13.2 Przygotowywanie logów do generowania raportu 
 Logi przetwarzane są po jednej paczce w danym momencie (co sprowadza się w obecnej konfiguracji do 10 000 rekordów)  Przed przesłaniem żądania, logi są grupowane oraz filtrowane, tak aby zminimalizować koszta wygenerowania raportu i zmniejszenie zbędnego obciążenia.  
 
 <figure>
@@ -2398,7 +2398,7 @@ Logi przetwarzane są po jednej paczce w danym momencie (co sprowadza się w obe
     <figcaption>Rysunek X: Reports Service: Przetwarzanie logów paczkami [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 9.13.3 Tworzenie zapytań do modelu językowego od OpenAI
+### 8.13.3 Tworzenie zapytań do modelu językowego od OpenAI
   Główną funkcjonalnością **Reports service** jest przekształcanie logów w raporty, z wykorzystaniem zewnętrznego modelu językowego. 
 
 Stąd, bardzo istotny był odpowiedni sposób na komunikację z modelem pozwalający na utrzymanie niskich kosztów, uwzględniając ilość logów, którą model musiałby przetworzyć.
@@ -2424,7 +2424,7 @@ W ten sposób możliwa była automatyczna serializacja struktur obecnych w proje
 Dodatkowym kluczowym mechanizmem oferowanym przez OpenAI jest Batch API. Jest to mechanizm pozwalający na obniżenie kosztów zapytań do **50%**, oraz grupowania zapytań w listy, które będą realizowane wspólnie do 24 godzin od momentu zgłoszenia. Jest to mechanizm stworzony dla systemów przetwarzających dużą ilość danych oraz jednocześnie niekrytycznych pod względem czasu wykonania. W naszym przypadku było to idealne rozwiązanie, ponieważ logi pod względem objętości są wyjątkowo ciężkie. Jednocześnie generowanie raportów to coś co jest wykonywanie cyklicznie (zwykle co parę dni), więc nie występuje presja czasu, które by zdyskwalifikowała to rozwiązanie.
 
    
-### 9.13.3 Obsługa interfejsu Batch API 
+### 8.13.3 Obsługa interfejsu Batch API 
 
 
 Tak jak wcześniej wspomniano, zrealizowanie komunikacji z Batch API od OpenAI wymagało implementacji własnościowego klienta, a w ramach niego metod na serializacje wielu zapytań do jednego żądania.  
@@ -2443,7 +2443,7 @@ Ten format również wymagał napisania własnościowego enkodera wykorzystując
 </figure>
 
 
-### 9.13.4 Wykorzystanie FilesAPI razem z BatchAPI  
+### 8.13.4 Wykorzystanie FilesAPI razem z BatchAPI  
 
 Przed przesłaniem żądania przetworzenia batcha przez BatchAPI, konieczne jest przesłanie treści żądań (w formacie **JSONL**), jako plik do Files API od OpenAI. Po przesłaniu pliku, możliwe jest rozpoczęcie przetwarzania batcha odwołując się do identyfikatora pliku z zapytaniami. 
 
@@ -2456,7 +2456,7 @@ Dodatkowym parametrem wymagającym sprecyzowania jest okno wykonania, czyli maks
 
 
 
-### 9.13.5 Dzielenie zapytań do modelu na konteksty i batche
+### 8.13.5 Dzielenie zapytań do modelu na konteksty i batche
 Podstawowym problemem podczas interpretacji logów jest ograniczenie wielkości logów przekazanych w ramach jednego kontekstu. Zmniejszenie ilości logów wewnątrz pojedyńczego kontekstu pozwoliła zaobserwować poprawę jakości wykrywanych incydentów i rekomendacji ich rozwiązania. 
 
 Dodatkowym twardym ograniczeniem jest maksymalna wielkość kontekstu, która wynosi około 100 000 tokenów, który przekazując logi można bardzo łatwo przekroczyć.  
@@ -2483,7 +2483,7 @@ Abstrakcje nad jednostką pracą stanowią obiekty ScheduledJob, który posiada 
     <figcaption>Rysunek X: Reports Service: Dzielenie logów do wielu zapytań [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 9.13.6 Kolejkowanie zapytań do modelu 
+### 8.13.6 Kolejkowanie zapytań do modelu 
 
 Oferowany przez OpenAI Batch API posiada ograniczenie na liczbę obecnie przetwarzanych tokenów (około 2 miliony tokenów). Każdy batch przekraczający ten limit jest automatycznie odrzucany. W związku z tym wymagane było stworzenie rate-limitera sprawdzającego ile tokenów jest obecnie przetwarzanych przed przesłaniem kolejnego batcha.
 
@@ -2509,7 +2509,7 @@ Podczas uruchamiania serwisu, uruchamiany jest również wątek, którego odpowi
     <figcaption>Rysunek X: Reports Service: Kolejkowanie zapytań do modelu językowego [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 9.13.7 **Interfejs generowania raportu z modelem**  
+### 8.13.7 **Interfejs generowania raportu z modelem**  
 
 
 Generowanie raportu z użyciem modelu językowego, polega na przekazaniu modelowi logów wraz z informacjami o ich źródle (aplikacja/host i ich metadane), oraz wskazanie na wejściu do modelu polecenia precyzującego kontekts przesyłanych logów oraz polecenia odnoczące się do sposobu ich analizy oraz formatu odpowiedzi. 
@@ -2524,7 +2524,7 @@ Wymagany schemat odpowiedzi modelu zawiera listę wykrytych incydent, a w każdy
     <figcaption>Rysunek X: Reports Service: Wejście do modelu językowego [źródło opracowanie własne]</figcaption>
 </figure>
 
-### 9.13.8 **Scalanie incydentów**   
+### 8.13.8 **Scalanie incydentów**   
 
 Tak jak wcześniej wspomniano ograniczony rozmiar kontekstu modelu językowego powoduje, że wiele incydentów zostanie powielonych ze względu na to, że logi wyprodukowane na skutek tego samego problemu mogą być analizowane w ramach wielu kontekstów (tak aby nie przekroczyć jego maksymalnego rozmiaru). 
 
@@ -2543,9 +2543,9 @@ Przez mały rozmiar przekazywanych parametrów, możliwe jest aby przekazać wsz
     <figcaption>Rysunek X: Reports Service: Scalanie incydentów [źródło opracowanie własne]</figcaption>
 </figure>
 
-## 9.14 Ustawianie kanałów komunikacji (management service) {#ustawianie-kanałów-komunikacji-(management-service)}
+## 8.14 Ustawianie kanałów komunikacji (management service) {#ustawianie-kanałów-komunikacji-(management-service)}
 
-## 9.15 Odczytywanie stanu klastra (metadata service) {#odczytywanie-stanu-klastra-(metadata-service)}
+## 8.15 Odczytywanie stanu klastra (metadata service) {#odczytywanie-stanu-klastra-(metadata-service)}
 
 Głównym zadaniem Metadata Service jest odczytywanie stanu klastra, który definiujemy jako:
 
@@ -2554,7 +2554,7 @@ Głównym zadaniem Metadata Service jest odczytywanie stanu klastra, który defi
 
 Dodatkowo, Metadata Service zajmuje się agregacją odczytanych metadanych.
 
-## 9.15.1 Odbieranie metadanych o aplikacjach oraz hostach
+## 8.15.1 Odbieranie metadanych o aplikacjach oraz hostach
 
 Metadane o aplikacjach oraz hostach są odbierane z brokera Kafki, a następnie zapisywane do bazy danych MongoDB.
 
@@ -2572,7 +2572,7 @@ Przykładowe metadane zbierane o aplikacjach.
 
 Powyższy obrazek przedstawia proces zbierania metadanych dla aplikacji, proces ten jest analogiczny dla hostów.
 
-## 9.15.2 Agregacja metadanych dla aplikacji
+### 8.15.2 Agregacja metadanych dla aplikacji
 
 Zapisane do bazy metadane są następnie odczytywane przez proces agregacji. Agregacja jest procesem cyklicznym, który odbywa się co zadany, konfigurowalny przedział czasowy. Celem procesu agregacji jest przeprowadzenie procesu spłaszczenia otrzymanych metadanych dla każdego zarejestrowanego klastra. Spłaszczone metadane są następnie porównywane z ostatnim odczytem, aby w przypadku zmiany wyemitować zdarzenie zawierające najnowszy stan.
 
@@ -2611,7 +2611,7 @@ Wynik procesu agregacji metadanych jest emitowany w postaci wydarzenia do broker
 
 Analogiczny proces przeprowadzany jest dla agregacji metadanych hostów.
 
-## 9.15.3 Agregacja metadanych dla klastrów
+### 8.15.3 Agregacja metadanych dla klastrów
 
 Dla agregacji metadanych klastrów, proces nieco się różni. Unikalny zbiór klastrów jest odczytywany na podstawie ich identyfikatorów, zawartych w metadanych aplikacji oraz hostów, przesłanych do Metadata Service w zadanym przedziale czasowym.
 
@@ -2642,7 +2642,7 @@ Przykład porównania, na podstawie którego w przypadku zmiany generowany jest 
 
 Wygenerowany stan jest następnie emitowany w postaci wydarzenia do brokera Kafki.
 
-## 9.16 Zabezpieczenia aplikacji (management service) {#zabezpieczenia-aplikacji-(management-service)}
+## 8.16 Zabezpieczenia aplikacji (management service) {#zabezpieczenia-aplikacji-(management-service)}
 
 Aplikacja wykorzystuje protokół OAuth2 do uwierzytelniania użytkowników. Wybrano dostawcę Google, który odpowiada za autoryzację i generowanie tokenów uwierzytelniających. Po zakończonym procesie autoryzacji użytkownik otrzymuje dwa tokeny:
 
