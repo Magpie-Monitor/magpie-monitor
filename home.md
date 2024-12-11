@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T13:11:17.551Z
+date: 2024-12-11T17:09:55.297Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1362,6 +1362,11 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | running | Wskazuje czy host jest aktualnie częścią klastra | boolean |
 
 #### 7.3.4.3 Baza danych użytkowników {#baza-danych-użytkowników}
+
+<figure>
+    <img src="/management-service/database/management-service-postgres-diagram.drawio.svg">
+    <figcaption>Rysunek X: Management Service: Diagram fizyczny bazy danych [źródło opracowanie własne]</figcaption>
+</figure>
 
 ##### Tabela 1: _user
 
