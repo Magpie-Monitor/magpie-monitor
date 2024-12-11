@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:47:51.371Z
+date: 2024-12-11T12:49:24.021Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1588,7 +1588,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 &nbsp;&nbsp;&nbsp;node_configuration_id → cluster_configuration_id  
 
 
-## 8.Interfejsy programistyczne {#interfejsy-programistyczne}
+## 7.4. Interfejsy programistyczne {#interfejsy-programistyczne}
 
 
 ### Żądanie raportu - ReportRequested (Reports Service):
@@ -1683,11 +1683,11 @@ Zmiana stanu zagregowanych metadanych klastrów jest emitowana przez Metadata Se
 </figure>
 
 
-## 8.1 Projekt interfejsu {#projekt-interfejsu}
+## 7.5 Projekt interfejsu {#projekt-interfejsu}
 
 Na podstawie wymagań funkcjonalnych oraz historyjek użytkownika zaprojektowano interfejs, który odpowiada oczekiwaniom użytkowników podczas korzystania z systemu. Szczególną uwagę poświęcono zapewnieniu pozytywnych doświadczeń użytkownika z Magpie Monitorem. W tym celu skupiono się na prostocie, czytelności oraz estetycznym wyglądzie interfejsu. Dodatkowym wyzwaniem było zapewnienie pełnej responsywności, aby użytkownicy mogli wygodnie korzystać z systemu także na urządzeniach mobilnych za pośrednictwem przeglądarki.
 
-### 8.1.1 Widok logowania {#widok-logowania}
+### 7.5.1 Widok logowania {#widok-logowania}
 
 <figure>
     <img src="/user-interface/login-page.png">
@@ -1701,7 +1701,7 @@ Na podstawie wymagań funkcjonalnych oraz historyjek użytkownika zaprojektowano
 
 Pierwszym widokiem wyświetlanym po wejściu na witrynę Magpie Monitor jest ekran logowania. Jego celem jest spełnienie wymogu uwierzytelnienia użytkownika przed uzyskaniem dostępu do funkcji systemu. Po wybraniu opcji „Sign in with Google” użytkownik zostaje przekierowany na ekran logowania dostarczany przez firmę Google, gdzie może wybrać konto, które chce wykorzystać do zalogowania się do systemu.
 
-### 8.1.2 Widok główny {#widok-główny}
+### 7.5.2 Widok główny {#widok-główny}
 
 <figure>
     <img src="/user-interface/main-page.png">
@@ -1751,7 +1751,7 @@ W wersji zoptymalizowanej dla urządzeń mobilnych strona jest odpowiednio dosto
 Pasek nawigacji został przeniesiony na górę strony, a zakładki są prezentowane wyłącznie za pomocą ikon. Ta zmiana ma na celu ułatwienie nawigacji w wersji mobilnej, zapewniając większą czytelność i oszczędność miejsca na mniejszych ekranach.
 Oprócz tej modyfikacji układ strony pozostał w dużej mierze niezmieniony. Główną różnicą jest zwiększenie liczby wierszy, w których prezentowane są statystyki, co pozwala na bardziej efektywne wykorzystanie przestrzeni ekranu. Pozostałe elementy interfejsu nie zostały zmienione.
 
-### 8.1.3 Widok incydentu {#widok-incydentu}
+### 7.5.3 Widok incydentu {#widok-incydentu}
 
 <figure>
     <img src="/user-interface/incident-page.png">
@@ -1778,7 +1778,7 @@ Na samym dole użytkownik ma dostęp do logów, które wskazywały na wystąpien
 
 W wersji mobilnej widok został dostosowany w sposób analogiczny do wersji desktopowej. Dla wygody użytkownika sekcje zostały ułożone w układ kolumnowy, co pozwala na przewijanie ekranu wyłącznie w pionie. Dzięki temu nawigacja staje się bardziej intuicyjna i dostosowana do korzystania na urządzeniach z mniejszym ekranem.
 
-### 8.1.4 Widok raportów
+### 7.5.4 Widok raportów
 
 <figure>
     <img src="/user-interface/reports-page.png">
@@ -1802,7 +1802,7 @@ Kliknięcie nazwy klastra lub przycisku w kolumnie **“Actions”** przenosi u�
 
 Widok w wersji mobilnej nie różni się znacząco od wersji na komputery stacjonarne. Ze względu na ograniczoną szerokość ekranu, użytkownik musi przesuwać wiersz w lewo, aby zobaczyć pozostałe kolumny. Choć sprawia to, że korzystanie z widoku mobilnego jest mniej wygodne niż w przypadku wersji desktopowej, interfejs nadal pozostaje funkcjonalny i intuicyjny.
 
-### 8.1.5 Widok klastrów {#widok-klastrów}
+### 7.5.5 Widok klastrów {#widok-klastrów}
 
 <figure>
     <img src="/user-interface/clusters-page.png">
@@ -1813,7 +1813,7 @@ Widok klastrów przedstawia listę klastrów, które mogą być monitorowane prz
 
 Widok ten na urządzeniach mobilnych jest analogiczny do widoku raportów. Ze względu na ograniczenia ekranu, użytkownik może przesuwać tabelę w poziomie, aby zobaczyć wszystkie kolumny, co zapewnia pełną funkcjonalność również na urządzeniach mobilnych.
 
-### 8.1.6 Widok konfiguracji raportów {#widok-kanałów-raportów}
+### 7.5.6 Widok konfiguracji raportów {#widok-kanałów-raportów}
 
 <figure>
     <img src="/user-interface/report-config-on-demand.png">
@@ -1832,7 +1832,7 @@ Widok konfiguracji raportu zawiera następujące sekcje:
 W prawym dolnym rogu znajdują się dwa przyciski: jeden odpowiada za wygenerowanie raportu, a drugi za anulowanie zmian, co powoduje powrót do widoku głównego.  
 W wersji mobilnej sekcje są ułożone w jednej kolumnie, co poprawia czytelność i ułatwia nawigację po stronie.
 
-### 8.1.7 Widok kanałów powiadomień {#widok-kanałów-powiadomień}
+### 7.5.7 Widok kanałów powiadomień {#widok-kanałów-powiadomień}
 
 <figure>
     <img src="/user-interface/notification-page.png">
@@ -1848,7 +1848,7 @@ Widok składa się z trzech sekcji: “Slack”, “Discord” oraz “Email”.
 
 Dodatkowo, każdy wiersz umożliwia użytkownikowi edycję, przetestowanie działania kanału lub jego usunięcie, zgodnie z historyjkami użytkownika. Podobnie jak w innych widokach, ikona „plus” umożliwia dodanie nowego kanału powiadomień.
 
-### 8.2 Diagramy procesów {#diagramy-procesów}
+### 7.6 Diagramy procesów {#diagramy-procesów}
 
 #### 8.2.1 Diagram procesu generowania raportu
 
