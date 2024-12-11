@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:43:57.130Z
+date: 2024-12-11T12:45:51.349Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1364,9 +1364,9 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | name | Nazwa hosta | string |
 | running | Wskazuje czy host jest aktualnie częścią klastra | boolean |
 
-### 7.3.4.3 Baza danych użytkowników {#baza-danych-użytkowników}
+#### 7.3.4.3 Baza danych użytkowników {#baza-danych-użytkowników}
 
-#### Tabela 1: _user
+##### Tabela 1: _user
 
 **User**(<u>id</u>, email, nickname, password, provider)
 
@@ -1384,9 +1384,9 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 &nbsp;&nbsp;&nbsp;id → email, nickname, password, provider
 &nbsp;&nbsp;&nbsp;email → id, nickname, password, provider
 
-### 7.3.6 Baza danych ustawień klastrów {#baza-danych-ustawień-klastrów}
+#### 7.3.4.4 Baza danych ustawień klastrów {#baza-danych-ustawień-klastrów}
 
-#### Tabela 1: discord_receiver
+##### Tabela 1: discord_receiver
 
 **DiscordReceiver**(<u>id</u>, created_at, receiver_name, updated_at, webhook_url)
 
@@ -1404,7 +1404,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 &nbsp;&nbsp;&nbsp;id → created_at, receiver_name, updated_at, webhook_url
 
 
-#### Tabela 2: email_receiver
+##### Tabela 2: email_receiver
 
 **EmailReceiver**(<u>id</u>, created_at, receiver_email, receiver_name, updated_at)
 
@@ -1422,7 +1422,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 &nbsp;&nbsp;&nbsp;id → created_at, receiver_email, updated_at, receiver_name
 
 
-#### Tabela 3: slack_receiver
+##### Tabela 3: slack_receiver
 
 **SlackReceiver**(<u>id</u>, created_at, receiver_name, updated_at, webhook_url)
 
@@ -1440,7 +1440,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 &nbsp;&nbsp;&nbsp;id → created_at, receiver_name, updated_at, webhook_url  
 
 
-#### Tabela 4: application_configuration
+##### Tabela 4: application_configuration
 
 **ApplicationConfiguration**(<u>id</u>, accuracy, custom_prompt, kind, name)
 
@@ -1458,7 +1458,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 &nbsp;&nbsp;&nbsp;id → accuracy, custom_prompt, kind, name  
 
 
-#### Tabela 5: node_configuration
+##### Tabela 5: node_configuration
 
 **NodeConfiguration**(<u>id</u>, name, accuracy, custom_prompt)
 
@@ -1475,7 +1475,7 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 &nbsp;&nbsp;&nbsp;id → name, accuracy, custom_prompt    
 
 
-#### Tabela 6: cluster_configuration
+##### Tabela 6: cluster_configuration
 
 ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 
@@ -1492,7 +1492,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 &nbsp;&nbsp;&nbsp;id → accuracy, generated_every_millis, is_enabled  
 
 
-#### Tabela 7: cluster_schedule
+##### Tabela 7: cluster_schedule
 
 **ClusterSchedule**(<u>cluster_id</u>, last_generation_ms, period_ms)
 
@@ -1508,7 +1508,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 &nbsp;&nbsp;&nbsp;cluster_id → last_generation_ms, period_ms   
 
 
-#### Tabela 8: cluster_configuration_discord_receivers
+##### Tabela 8: cluster_configuration_discord_receivers
 
 **ClusterConfigurationDiscordReceivers**(<u>cluster_configuration_id</u>, <u>discord_receiver_id</u>)
 
@@ -1524,7 +1524,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 &nbsp;&nbsp;&nbsp;discord_receiver_id → cluster_configuration_id 
 
 
-#### Tabela 9: cluster_configuration_email_receivers
+##### Tabela 9: cluster_configuration_email_receivers
 
 **ClusterConfigurationEmailReceivers**(<u>cluster_configuration_id</u>, <u>email_receiver_id</u>)
 
@@ -1540,7 +1540,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 &nbsp;&nbsp;&nbsp;email_receiver_id → cluster_configuration_id   
 
 
-#### Tabela 10: cluster_configuration_slack_receivers
+##### Tabela 10: cluster_configuration_slack_receivers
 
 **ClusterConfigurationSlackReceivers**(<u>cluster_configuration_id</u>, <u>slack_receiver_id</u>)
 
@@ -1556,7 +1556,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 &nbsp;&nbsp;&nbsp;slack_receiver_id → cluster_configuration_id   
 
 
-#### Tabela 11: cluster_configuration_application_configuration 
+##### Tabela 11: cluster_configuration_application_configuration 
 
 **ClusterConfigurationApplicationConfiguration**(<u>cluster_configuration_id</u>, <u>application_configuration_id</u>)
 
@@ -1572,7 +1572,7 @@ ClusterConfiguration(<u>id</u>, accuracy, generated_every_millis, is_enabled)
 &nbsp;&nbsp;&nbsp;application_configuration_id → cluster_configuration_id 
 
 
-#### Tabela 12: cluster_configuration_node_configuration
+##### Tabela 12: cluster_configuration_node_configuration
 
 **ClusterConfigurationNodeConfiguration**(<u>cluster_configuration_id</u>, <u>node_configuration_id</u>)
 
