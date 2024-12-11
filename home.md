@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:37:21.996Z
+date: 2024-12-11T12:39:20.617Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -74,11 +74,9 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [7.3.1. Baza logów](#baza-logów)
 
-[7.3.2. Baza danych raportów](#baza-danych-raportów)
+[7.3.2. Baza raportów](#baza-danych-raportów)
 
-[7.3.3. Baza danych użytkowników](#baza-danych-użytkowników)
-
-[7.3.4. Baza danych ustawień klastrów](#baza-danych-ustawień-klastrów)
+[7.3.3. Bazy danych management service](#bazy-danych-management-service)
 
 [7.4. Interfejsy programistyczne](#interfejsy-programistyczne)
 
