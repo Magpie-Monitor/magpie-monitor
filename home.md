@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T13:03:12.310Z
+date: 2024-12-11T13:03:45.095Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -144,7 +144,9 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [9.4. Testy Metadata Service](#testy-metadata-service)
 
-[9.3. Testy funkcjonalne](#testy-funkcjonalne)
+[9.5. Testy Management Service](#testy-management-service)
+
+[9.6. Testy funkcjonalne](#testy-funkcjonalne)
 
 [10. Podsumowanie](#podsumowanie)
 
