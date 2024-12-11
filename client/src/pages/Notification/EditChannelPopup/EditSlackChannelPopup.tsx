@@ -75,7 +75,7 @@ const EditSlackChannelPopup = ({
   const isFormValid = () => {
     return (
       nonEmptyFieldValidation(slackChannel.name) == null &&
-      slackWebhookValidation(slackChannel.webhookUrl) == null
+      validateNonEmptySlackWebhook(slackChannel.webhookUrl) == null
     );
   };
 
