@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T13:08:26.474Z
+date: 2024-12-11T13:10:09.036Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3873,11 +3873,11 @@ Poniższy wykres przedstawia liczbę kontrybucji (commitów) do głównej gałę
 
 
 ## 10.2 Wnioski {#wnioski}
-### 11.2.1 Wnioski z konceptu projektu
+### 10.2.1 Wnioski z konceptu projektu
 Projekt został zaplanowany jako dowód konceptu (Proof of concept) zintegrowanego systemu do zbierania i przetwarzania logów z dużych klastów komputerowych, i w ramach tego celu udało się zweryfikować, że rozwiązanie takie jest nie tylko możliwe technicznie, lecz również posiada sens biznesowy.
 
 
-### 11.2.2 Wnioski z implementacji projektu
+### 10.2.2 Wnioski z implementacji projektu
 Podczas pracy z modelem oferowanym przez OpenAI oraz pracy z Batch API, odkryto,
 że rozwiązanie to pomimo atrakcyjnego modelu biznesowego (dostosowanego do dużej ilości danych), nie jest rowiązaniem bezproblemowych.
 
@@ -3899,9 +3899,9 @@ Mniej domenowym aspektem, który był kluczowy podczas realizacji Magpie Monitor
  
  
 
-# 12. Dokumentacja użytkownika {#dokumentacja-użytkownika}
+# 11. Dokumentacja użytkownika {#dokumentacja-użytkownika}
 
-## 12.1 Wprowadzenie {#wprowadzenie}
+## 11.1 Wprowadzenie {#wprowadzenie}
 
 W celu ułatwienia użytkownikom rozpoczęcia pracy z Magpie Monitorem, przygotowano instrukcję opisującą, jak uzyskać dostęp do podstawowych funkcji systemu oraz skutecznie z nich korzystać.  
 Magpie Monitor to zaawansowane narzędzie do monitorowania logów pochodzących z wybranego klastra Kubernetesa. W związku z tym instalacja wymaga dodania specjalnego serwisu do istniejącej architektury. Szczegółowy opis procesu instalacji znajduje się w kolejnej sekcji [instalacja aplikacji](#instalacja-aplikacji).  
@@ -3915,9 +3915,9 @@ Ponadto dokumentacja obejmuje omówienie kluczowych scenariuszy użytkowania, ta
 
 Przedstawiona instrukcja stanowi solidną podstawę do zapoznania się z najważniejszymi funkcjami systemu, umożliwiając efektywne wykorzystanie jego możliwości w codziennym monitorowaniu logów. 
 
-## 12.2 Użytkowanie produktu programowego {#użytkowanie-produktu-programowego}
+## 11.2 Użytkowanie produktu programowego {#użytkowanie-produktu-programowego}
 
-   ### 12.2.1 Instalacja aplikacji {#instalacja-aplikacji}
+### 11.2.1 Instalacja aplikacji {#instalacja-aplikacji}
    
    Aby zacząć korzystać z systemu Magpie Monitor, należy zainstalować na swoim klastrze komputerowym Kubernetes i odpowiednio skonfigurować agenta, który zbiera logi z aplikacji oraz hostów. 
 
@@ -3940,10 +3940,10 @@ Skonfigurowaną paczkę wdrożeniową instaluje sie przy pomocy komendy *helm in
 
 Po zainstalowaniu, agent zacznie wysyłać logi oraz metadane do chmury Magpie Monitor, która rozpocznie analizę logów.
 
-   ### 12.2.2 Najczęściej wykonywane operacje {#najczęściej-wykonywane-operacje}
+### 11.2.2 Najczęściej wykonywane operacje {#najczęściej-wykonywane-operacje}
 
 
-   #### 12.2.2.1 Logowanie do aplikacji {#logowanie-do-aplikacji}
+#### 11.2.2.1 Logowanie do aplikacji {#logowanie-do-aplikacji}
 
 W celu zalogowania się do systemu należy otworzyć stronę Magpie Monitor. Następnie wybrać opcję “Sign in with Google”:
 
@@ -3962,7 +3962,7 @@ Po naciśnięciu przycisku użytkownik zostaje przeniesiony na stronę dostarczo
 Po wybraniu odpowiedniego konta zostaniemy zalogowani i przeniesieni na widok główny. 
 
 
-   #### 12.2.2.2 Otworzenie ostatniego raportu {#otworzenie-ostatniego-raportu}
+#### 11.2.2.2 Otworzenie ostatniego raportu {#otworzenie-ostatniego-raportu}
 
 Po zalogowaniu do systemu widok główny zawsze zawiera ostatni wygenerowany raport:
 
@@ -3985,7 +3985,7 @@ Raporty są posortowane malejąco według daty rozpoczęcia procesu generacji. N
     <figcaption>Rysunek X: Widok raportu [źródło opracowanie własne]</figcaption>
 </figure>
 
-   ### 12.2.2.3 Planowanie generowania raportów {#planowanie-generowania-raportów}
+### 11.2.2.3 Planowanie generowania raportów {#planowanie-generowania-raportów}
 
 Po zalogowaniu należy przejść do zakładki “Clusters”:
 
@@ -4005,7 +4005,7 @@ Po wybraniu klastra, dla którego chcemy wygenerować raport cykliczny, należy 
 Aby wygenerować raport cykliczny, w sekcji „Generation type” należy wybrać opcję „Scheduled”. Po jej zaznaczeniu pojawi się sekcja „Schedule period”, w której można określić, w jakich odstępach czasu raport ma być generowany. Następnie należy skonfigurować pozostałe elementy raportu, takie jak kanały powiadomień, które mają informować o zakończeniu procesu generacji, oraz wybrać aplikacje i hosty, których logi mają zostać uwzględnione. Dla każdej aplikacji i hosta można również precyzyjnie dostosować instrukcje do modelu, klikając ikonę w kolumnie „Custom prompt”, oraz zmienić poziom dokładności w kolumnie „Accuracy”. Na końcu wystarczy nacisnąć przycisk „Generate”.
 
 
-   ### 12.2.2.4 Generacja raportu na życzenie {#generacja-raportu-na-życzenie}
+### 11.2.2.4 Generacja raportu na życzenie {#generacja-raportu-na-życzenie}
    
 Proces generacji raportu jest analogiczny do opisywanego procesu generacji raportu na żądanie. W momencie widoku konfiguracji raportu należy zmienić wartość w sekcji “Generation type” na “ON_DEMAND”:
 
@@ -4018,7 +4018,7 @@ Proces generacji raportu jest analogiczny do opisywanego procesu generacji rapor
 Po zmianie wartości wspomnianego pola pojawi się sekcja „Data Range”, w której użytkownik może określić okres, z którego mają pochodzić logi wykorzystane do generacji raportu. Pozostała konfiguracja nie różni się od konfiguracji raportów cyklicznych. Po zakończeniu wszystkich ustawień wystarczy kliknąć przycisk „Generate”.
 
 
-   ### 12.2.2.5 Konfiguracja kanałów powiadomień {#konfiguracja-kanałów-powiadomień}
+### 11.2.2.5 Konfiguracja kanałów powiadomień {#konfiguracja-kanałów-powiadomień}
    
    Konfiguracja kanałów powiadomień jest dostępna z poziomu widoku „Notifications”. Aby przejść do tego widoku, użytkownik musi zalogować się do systemu, a następnie wybrać zakładkę „Notifications”.
 
