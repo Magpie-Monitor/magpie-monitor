@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T12:33:38.285Z
+date: 2024-12-11T12:35:37.858Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -102,79 +102,79 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [8. Implementacja](#implementacja)
 
-[9.1. Środowisko pracy](#środowisko-pracy)
+[8.1. Środowisko pracy](#środowisko-pracy)
 
-[9.2. Model implementacyjny](#model-implementacyjny)
+[8.2. Model implementacyjny](#model-implementacyjny)
 
-[9.3. Struktura plików w aplikacji “Agenta”](#struktura-plików-w-aplikacji-“agenta”)
+[8.3. Struktura plików w aplikacji “Agenta”](#struktura-plików-w-aplikacji-“agenta”)
 
-[9.4. Struktura plików w serwisie “Ingestion Service”](#struktura-plików-w-serwisie-“ingestion-service”)
+[8.4. Struktura plików w serwisie “Ingestion Service”](#struktura-plików-w-serwisie-“ingestion-service”)
 
-[9.5. Struktura plików w serwisie “Report Service”](#struktura-plików-w-serwisie-“report-service”)
+[8.5. Struktura plików w serwisie “Report Service”](#struktura-plików-w-serwisie-“report-service”)
 
-[9.6. Struktura plików w serwisie “Metadata Service”](#struktura-plików-w-serwisie-“metadata-service”)
+[8.6. Struktura plików w serwisie “Metadata Service”](#struktura-plików-w-serwisie-“metadata-service”)
 
-[9.7. Struktura plików w aplikacji “Management Service”](#struktura-plików-w-aplikacji-“management-service”)
+[8.7. Struktura plików w aplikacji “Management Service”](#struktura-plików-w-aplikacji-“management-service”)
 
-[9.8. Struktura plików w aplikacji klienckiej](#struktura-plików-w-aplikacji-klienckiej)
+[8.8. Struktura plików w aplikacji klienckiej](#struktura-plików-w-aplikacji-klienckiej)
 
-[9.9. Uwierzytelnienie użytkownika](#uwierzytelnienie-użytkownika)
+[8.9. Uwierzytelnienie użytkownika](#uwierzytelnienie-użytkownika)
 
-[9.10. Komunikacja mikroserwisów z pośrednictwem Kafki](#komunikacja-mikroserwisów-z-pośrednictwem-kafki)
+[8.10. Komunikacja mikroserwisów z pośrednictwem Kafki](#komunikacja-mikroserwisów-z-pośrednictwem-kafki)
 
-[9.11. Planowanie raportów (scheduling raportów, management service)](#planowanie-raportów-\(scheduling-raportów,-management-service\))
+[8.11. Planowanie raportów (scheduling raportów, management service)](#planowanie-raportów-\(scheduling-raportów,-management-service\))
 
-[9.12. Zbieranie logów (agent)](#zbieranie-logów-\(agent\))
+[8.12. Zbieranie logów (agent)](#zbieranie-logów-\(agent\))
 
-[9.13. Zapisywanie logów (ingestion service)](#zapisywanie-logów-\(ingestion-service\))
+[8.13. Zapisywanie logów (ingestion service)](#zapisywanie-logów-\(ingestion-service\))
 
-[9.14. Generowanie raportów (reports service)](#generowanie-raportów-\(reports-service\))
+[8.14. Generowanie raportów (reports service)](#generowanie-raportów-\(reports-service\))
 
-[9.15. Ustawianie kanałów komunikacji (management service)](#ustawianie-kanałów-komunikacji-\(management-service\))
+[8.15. Ustawianie kanałów komunikacji (management service)](#ustawianie-kanałów-komunikacji-\(management-service\))
 
-[9.16. Odczytywanie stanu klastra (metadata service)](#odczytywanie-stanu-klastra-\(metadata-service\))
+[8.16. Odczytywanie stanu klastra (metadata service)](#odczytywanie-stanu-klastra-\(metadata-service\))
 
-[9.17. Zabezpieczenia aplikacji (management service)](#zabezpieczenia-aplikacji-\(management-service\))
+[8.17. Zabezpieczenia aplikacji (management service)](#zabezpieczenia-aplikacji-\(management-service\))
 
-[10\. Testy produktu programowego/Wyniki i analiza badań](#testy-produktu-programowego/wyniki-i-analiza-badań)
+[9\. Testy produktu programowego/Wyniki i analiza badań](#testy-produktu-programowego/wyniki-i-analiza-badań)
 
-[10.1. Testy Reports Service](#testy-reports-service)
+[9.1. Testy Reports Service](#testy-reports-service)
 
-[10.1.1 Testy jednostkowe Reports Service](#testy-jednostkowe-reports-service)
+[9.1.1 Testy jednostkowe Reports Service](#testy-jednostkowe-reports-service)
 
-[10.1.2 Testy integracyjne Reports Service](#testy-integracyjne-reports-service)
+[9.1.2 Testy integracyjne Reports Service](#testy-integracyjne-reports-service)
 
-[10.2. Testy Logs Ingestion Service](#testy-logs-ingestion-service)
+[9.2. Testy Logs Ingestion Service](#testy-logs-ingestion-service)
 
-[10.2.1 Testy jednostkowe Logs Ingestion Service](#testy-jednostkowe-logs-ingestion-service)
+[9.2.1 Testy jednostkowe Logs Ingestion Service](#testy-jednostkowe-logs-ingestion-service)
 
-[10.2.2 Testy integracyjne Logs Ingestion Service](#testy-integracyjne-logs-ingestion-service)
+[9.2.2 Testy integracyjne Logs Ingestion Service](#testy-integracyjne-logs-ingestion-service)
 
-[10.3. Testy funkcjonalne](#testy-funkcjonalne)
+[9.3. Testy funkcjonalne](#testy-funkcjonalne)
 
-[11.1. Przebieg projektu](#przebieg-projektu)
+[10.1. Przebieg projektu](#przebieg-projektu)
 
-[11.2. Wnioski](#wnioski)
+[10.2. Wnioski](#wnioski)
 
-[12\. Dokumentacja użytkownika](#dokumentacja-użytkownika)
+[11\. Dokumentacja użytkownika](#dokumentacja-użytkownika)
 
-[12.1\. Wprowadzenie	19](#wprowadzenie)
+[11.1\. Wprowadzenie	19](#wprowadzenie)
 
-[12.1.2 Użytkowanie produktu programowego](#użytkowanie-produktu-programowego)
+[11.1.2 Użytkowanie produktu programowego](#użytkowanie-produktu-programowego)
 
-[12.1.2. Instalacja aplikacji](#instalacja-aplikacji)
+[11.1.2. Instalacja aplikacji](#instalacja-aplikacji)
 
-[12.2.2 Najczęściej wykonywane operacje](#najczęściej-wykonywane-operacje)
+[11.2.2 Najczęściej wykonywane operacje](#najczęściej-wykonywane-operacje)
 
-[12.2.2.1. Logowanie do aplikacji](#logowanie-do-aplikacji)
+[11.2.2.1. Logowanie do aplikacji](#logowanie-do-aplikacji)
 
-[12.2.2.2 Otworzenie ostatniego raportu](#otworzenie-ostatniego-raportu)
+[11.2.2.2 Otworzenie ostatniego raportu](#otworzenie-ostatniego-raportu)
 
-[12.2.2.3. Planowanie generowania raportów](#planowanie-generowania-raportów)
+[11.2.2.3. Planowanie generowania raportów](#planowanie-generowania-raportów)
 
-[12.2.2.4. Generacja raportu na życzenie](#generacja-raportu-na-życzenie)
+[11.2.2.4. Generacja raportu na życzenie](#generacja-raportu-na-życzenie)
 
-[12.2.2.5. Konfiguracja kanałów powiadomień](#konfiguracja-kanałów-powiadomień)
+[11.2.2.5. Konfiguracja kanałów powiadomień](#konfiguracja-kanałów-powiadomień)
 
 # 1.  Wykaz symboli, oznaczeń i akronimów {#wykaz-symboli,-oznaczeń-i-akronimów}
 
