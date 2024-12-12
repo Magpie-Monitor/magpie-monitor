@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-12T15:26:45.432Z
+date: 2024-12-12T15:28:42.684Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1876,7 +1876,7 @@ Panel administracyjny do baz relacyjnych PostgreSQL. Wykorzystywany głównie do
 </figure>
 
 
-### 9.1.4 Nacisk na konfigurowalność środowiska uruchomieniowego
+### 8.1.4 Nacisk na konfigurowalność środowiska uruchomieniowego
 Podczas tworzenia wszystkich serwisów, nałożono szczególny nacisk na konfigurowalność wszystkich serwisów wykorzystując zmienne środowiskowe.
 Było to istotne aby system był elastyczny na modyfikacje zewnętrznych zależności lub serwisów. Magpie Monitor posiada ponad **120** zmiennych środowiskowych odpowiadających za konfiguracje systemu. Odpowiadają one przykładowo za aspekty takie jak adresy baz danych czy brokerów wiadomości lub konfiguracje związane z przetwarzaniem i paczkowaniem logów. 
 
