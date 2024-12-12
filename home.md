@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-11T17:46:21.929Z
+date: 2024-12-12T12:28:12.743Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -255,6 +255,10 @@ podzieleniu danych na mniejsze fragmenty i prezentowaniu ich w sposób umożliwi
 ## 2. Nazwa i logo projektu {#nazwa-i-logo-projektu}
 
 Projekt nosi nazwę *Magpie Monitor*, a oba człony tej nazwy zostały dobrane nieprzypadkowo. Słowo *Monitor* jednoznacznie wskazuje na podstawową funkcjonalność systemu, jaką jest monitorowanie aplikacji. Z kolei *Magpie* (sroka) nawiązuje do charakterystycznego zachowania tego ptaka, który zbiera różnorodne błyskotki – analogicznie do zaprojektowanego systemu, który gromadzi logi. Motyw sroki pojawia się również w logo projektu, nadając mu spójności wizualnej z nazwą:
+
+<br>
+<br>
+<br>
 
 <figure>
     <img src="/logo.png">
