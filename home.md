@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-12T15:32:54.435Z
+date: 2024-12-12T15:33:31.695Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3702,7 +3702,7 @@ Ostatnimi zadaniami w projekcie były naprawa drobnych błędów oraz rozpisanie
 
 ### 10.1.1 Ós czasu
 
-Projekt był realizowany w ramach 8 sprintów. Pierwsze 2 sprinty trwały tydzień ze względu na dużą dynamike i zmieniające się wymagania i koncepty na początku życia projektu. Następne sprinty trwały standardowe 2 tygodnie. Po każdym sprincie, wszyscy członkowie zespołu planowali zadania na następny sprint i przygotowywali estymaty punktów story point, tak aby nowe zadania były możliwe do realizacji w trakcie następnego sprintu.
+Projekt był realizowany w ramach 8 sprintów. Pierwsze 2 sprinty trwały tydzień ze względu na dużą dynamikę oraz zmieniające się wymagania i koncepty na początku życia projektu. Następne sprinty trwały standardowe 2 tygodnie. Po każdym sprincie, wszyscy członkowie zespołu planowali zadania na następny sprint i przygotowywali estymaty punktów story point, tak aby nowe zadania były możliwe do realizacji w trakcie następnego sprintu.
 
 <figure>
     <img src="/przebieg-projektu/jira-os-czasu.png">
