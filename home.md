@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-12T15:40:42.051Z
+date: 2024-12-12T15:51:33.676Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3803,7 +3803,9 @@ Poniższy wykres przedstawia liczbę kontrybucji (commitów) do głównej gałę
 
 ## 10.2 Wnioski {#wnioski}
 ### 10.2.1 Wnioski z konceptu projektu
-Projekt został zaplanowany jako dowód konceptu (Proof of concept) zintegrowanego systemu do zbierania i przetwarzania logów z dużych klastów komputerowych, i w ramach tego celu udało się zweryfikować, że rozwiązanie takie jest nie tylko możliwe technicznie, lecz również posiada sens biznesowy.
+Projekt został zaplanowany jako dowód konceptu (Proof of concept) zintegrowanego systemu do zbierania i przetwarzania logów z dużych klastów komputerowych, i w ramach tego celu udało się zweryfikować, że rozwiązanie takie jest nie tylko możliwe technicznie, lecz również posiada sens biznesowy. 
+
+Na podstawie szacunków związanych z wielkością logów emitowanych przez systemy produkcyjne oraz kosztów związanych z przetwarzaniem tekstu z użyciem modelu językowego, takiego jak gpt-4o-mini od OpenAI ustalono, że wdrożenie systemu Magpie Monitor jest rozwiązaniem konkurencyjnym uwzględniając ceny narzędzi 
 
 
 ### 10.2.2 Wnioski z implementacji projektu
