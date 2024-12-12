@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-12T12:28:12.743Z
+date: 2024-12-12T15:24:50.236Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -825,7 +825,7 @@ Dzięki temu rozwiązaniu minimalizujemy liczbę przeglądanych logów podczas g
 
 
 #### Report
-Obiekt ten przechowuje obecny raportu od momentu zażądania wygenerowania do momentu wygenerowania przez model językowy. 
+Obiekt ten przechowuje raport od momentu zażądania wygenerowania do momentu wygenerowania przez model językowy. 
 Jest tworzony w momencie otrzymania żądania od Management Service w którym znajduje się correlationId, na podstawie którego można go powiązać z samym żądaniem.
 
 
