@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-12T15:28:42.684Z
+date: 2024-12-12T15:32:54.435Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3689,11 +3689,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 ## 10.1 Przebieg projektu {#przebieg-projektu}
 
-Projekt był realizowany w metodyce zwinnej. Na początkowym etapie szczególna uwaga była przyłożona do projektu architektury oraz interfejsu, 
-tak aby zdecydować się na odpowiednie rozwiązania technologiczne oraz przygotować interfejsy na wymagania funkcjonalne, które system ma oferować.
+Projekt był realizowany w metodyce zwinnej. Na początkowym etapie szczególna uwaga była przyłożona do projektu architektury oraz interfejsu użytkownika, tak aby zdecydować się na odpowiednie rozwiązania technologiczne oraz przygotować interfejsy na wymagania funkcjonalne, które system ma oferować.
 
-Po realizacji wstępnej dokumentacji i doboru technologi, rozpoczęta została praca implementacyjna - **2 sprint**. Zadania zostały zorganizowamy w taki sposób aby móc jak najszybciej 
-rozpocząć równoległą pracę nad wszystkimi mikroserwisami w systemie. 
+Po realizacji wstępnej dokumentacji i doboru technologi, rozpoczęta została praca implementacyjna - **2 sprint**. Zadania zostały zorganizowamy w taki sposób aby móc jak najszybciej rozpocząć równoległą pracę nad wszystkimi mikroserwisami w systemie. 
 
 Na początkowym etapie projektu, kluczowa była również weryfikacja oczekiwać odnośnie analizy dużej ilości logów przez model językowy. W związku z tym w ramach pierwszych sprintów, kluczowe było zaimplementowanie podstawowych funkcjonalności Logs Ingestion Service oraz Reports Service, ponieważ wykrycie problemów z tym podsystemem mogło uniemożliwić realizację całego projektu. Na wczesnym etapie zweryfikowane zatem było, że podstawowe założenia projektu mają sens zarówno techniczny jak i biznesowy.
 
