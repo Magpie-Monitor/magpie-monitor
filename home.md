@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-12T15:40:19.264Z
+date: 2024-12-12T15:40:42.051Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3810,7 +3810,7 @@ Projekt został zaplanowany jako dowód konceptu (Proof of concept) zintegrowane
 Podczas pracy z modelem oferowanym przez OpenAI oraz pracy z Batch API od tego samego dostawcy odkryto, że rozwiązanie to pomimo atrakcyjnego modelu biznesowego (dostosowanego do dużej ilości danych), nie jest rowiązaniem bezproblemowych.
 
 W trakcie implementacji odkryto nieprzewidywalne odkładanie zadań przez Batch API co powodowało utrudnione testowanie nowych funkcjonalności end-2-end. Dodatkowo, na niektóre żądania Batch API od OpenAI zwracał błąd z kodem **500** bez podania przyczyny.
-Taki kod błędu sugeruje wewnętrzny błąd systemu i może sugerować niestabilność oferowanego przez OpenAI produktu.
+Taki kod błędu wskazuje na wewnętrzny błąd systemu i może sugerować niestabilność oferowanego przez OpenAI produktu.
 
 Zaobserwowano również jak dużą kontrole nad dokładnością obserwacji modelu ma rozmiar danych umieszczonych w jednym kontekście. Zmniejszając tą wartość możliwe było uzyskiwanie lepszych obserwacji kosztem większego kosztu.
 
