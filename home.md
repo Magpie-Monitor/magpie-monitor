@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-12T15:33:31.695Z
+date: 2024-12-12T15:37:02.299Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3776,7 +3776,7 @@ Kontrybucje mają zawsze postać: **{nazwa-częsci-projektu}: Wykonana zmiana**
 </figure>
 
 
-W trakcie realizacji projektu zostały zamknięte **137 pull requesty**. Pull request odpowiada w większości przypadków dodaniu nowych funkcjonalności lub naprawienia obecnych błedów. 
+W trakcie realizacji projektu zostały zamknięte **137 pull requesty**. Pull request odpowiada w większości przypadków dodaniu nowych funkcjonalności lub naprawienia obecnych błedów. Każdy pull request wymagał akceptacji innego członka zespołu. W więkości przypadków recenzenci dodawali komentarze sugerujące poprawki i dopiero po ich zaimplementowaniu akceptowali zmiany.
 
 <figure>
     <img src="/przebieg-projektu/github-prs.png">
@@ -3785,14 +3785,14 @@ W trakcie realizacji projektu zostały zamknięte **137 pull requesty**. Pull re
 
 #### 10.1.4.2 Przebieg projektu według liczby kontrybucji
 
-Na poniższym wykresie można zobaczyć liczbę liń kodu dodanych do głównej gałęzi w trakcie realizacji projektu.
+Na poniższym wykresie można zobaczyć liczbę liń kodu dodano do głównej gałęzi w trakcie realizacji projektu.
 
 <figure>
     <img src="/przebieg-projektu/additions-graph.png">
     <figcaption>Rysunek 2: Wykres dodanych linii kodu w projekcie [źródło opracowanie własne]</figcaption>
 </figure>
 
-Poniższy wykres przedstawia liczbę kontrybucji (commitów) do głównej gałęzi repozytorium przez każdego członka zespołu.
+Poniższy wykres przedstawia liczbę kontrybucji (commitów) do głównej gałęzi repozytorium
 
 <figure>
     <img src="/przebieg-projektu/commits-graph.png">
