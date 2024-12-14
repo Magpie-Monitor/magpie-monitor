@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-14T13:28:16.195Z
+date: 2024-12-14T13:32:15.262Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -20,9 +20,9 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [3\. Cel i zakres przedsięwzięcia](#cel-i-zakres-przedsięwzięcia)
 
-[3.1 Cel](##cel)
+[3.1 Cel](#cel)
 
-[3.2 Zakres](##zakres)
+[3.2 Zakres](#zakres)
 
 [4\. Stan wiedzy w obszarze przedsięwzięcia](#stan-wiedzy-w-obszarze-przedsięwzięcia)
 
@@ -194,10 +194,9 @@ dateCreated: 2024-12-02T23:31:18.691Z
 | Pilność | Urgency | Używana w kontekście raportu i incydentu, określa jak bardzo dany problem (określany przez incydent lub raport) wymaga natychmiastowej naprawy |
 
 
-
 # 3.  Cel i zakres przedsięwzięcia {#cel-i-zakres-przedsięwzięcia}
 
-## 3.1 Cel {##cel}
+## 3.1 Cel {#cel}
 
 Celem projektu jest opracowanie kompleksowej, wysoko skalowalnej aplikacji webowej, wspieranej przez program instalowany na wybranym klastrze komputerowym. System będzie umożliwiał monitorowanie i analizę logów systemowych oraz generowanie szczegółowych raportów na ich podstawie. Opracowywane rozwiązanie ma dostarczyć administratorom zaawansowane narzędzie, które usprawni szybkie i efektywne zarządzanie dużymi wolumenami danych generowanych przez różnorodne aplikacje.
 
@@ -211,7 +210,7 @@ W założeniu efektem projektu powinno być znaczące podniesienie jakości moni
 
 Z uwagi na nowatorskie podejście do monitorowania aplikacji, dodatkowym celem projektu będzie ocena skuteczności przyjętego rozwiązania. Pozwoli to określić jego wartość biznesową w porównaniu do bardziej standardowych metod, a także wskazać potencjalne kierunki dalszego rozwoju systemu.
 
-## 3.2 Zakres {##zakres}
+## 3.2 Zakres {#zakres}
 
 Zakres projektu prezentuje się następująco:
 
