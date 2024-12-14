@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-14T12:31:52.839Z
+date: 2024-12-14T12:33:45.225Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1362,6 +1362,8 @@ Przechowuje metadane o ciele zapytania generującego raport.
 
 **ApplicationConfiguration**
 
+Przechowuje dane o konfiguracji danej aplikacji, która ma wystąpić w raporcie.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | applicationName | Unikalny identyfikator | string |
@@ -1369,6 +1371,8 @@ Przechowuje metadane o ciele zapytania generującego raport.
 | accuracy | Typ raportu (cykliczny lub na żądanie) | string |
 
 **NodeConfiguration**
+
+Przechowuje dane o konfiguracji danego hosta, który ma wystąpić w raporcie.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
@@ -1378,6 +1382,8 @@ Przechowuje metadane o ciele zapytania generującego raport.
 
 **ClusterHistory**
 
+Przechowuje dane o aplikacjach oraz hostach należących aktualnie lub historycznie do klastra.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | id | Unikalny identyfikator klastra | string |
@@ -1386,6 +1392,8 @@ Przechowuje metadane o ciele zapytania generującego raport.
 
 **Application**
 
+Przechowuje dane dotyczące aplikacji która występuje lub występowała w klastrze.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | name | Nazwa aplikacji | string |
@@ -1393,6 +1401,8 @@ Przechowuje metadane o ciele zapytania generującego raport.
 | running | Wskazuje czy aplikacja aktualnie działa na klastrze | boolean |
 
 **Node**
+
+Przechowuje dane dotyczące hosta, który występuje lub występował w klastrze.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
