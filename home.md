@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-14T12:35:56.167Z
+date: 2024-12-14T12:38:22.774Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1162,7 +1162,6 @@ Obiekt ten przechowuje raport otrzymany od **Report Service**.
 | scheduledApplicationIncidentMergerJobs | Zaplanowane zadania związane ze scalaniem zduplikowanych incydentów aplikacji  | ScheduledApplicationIncidentMergerJob\[\] |
 | scheduledNodeIncidentMergerJobs | Zaplanowane zadania związane ze scalaniem zduplikowanych incydentów hostów  | ScheduledNodeIncidentMergerJob\[\] |
 
-
 **ApplicationReport**
 
 Przechowuje incydenty występujące dla konkretnej aplikacji w ramach **Report**. Pozwala na połączenie informacji dotyczącej konfiguracji aplikacji przy generowaniu raportu wraz z incydentami z danej aplikacji.
@@ -1175,6 +1174,8 @@ Przechowuje incydenty występujące dla konkretnej aplikacji w ramach **Report**
 | incidents | Lista incidentów z aplikacji | ApplicationIncidents\[\] |
 
 **ApplicationIncident**
+
+Incydent aplikacji wraz z metadanymi pozwalającymi na stwierdzenie na podstawie których logów dany incydent został wykryty. Dokument ten został zdenormalizowany (posiada źródła incydentu (**ApplicationIncidentSources**) oraz nazwę aplikacji i konfigurację aplikacji, ponieważ pobieranie pojedyneczego incydentu wraz z jego metadanymi jest typowym zapytaniem, a denormalizacja pozwala na uniknięcie częstej operacji złączania dokumentów.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
@@ -1191,6 +1192,8 @@ Przechowuje incydenty występujące dla konkretnej aplikacji w ramach **Report**
 
 **ScheduledApplicationInsights**
 
+Reprezentuje wykonywane zadanie generowania **obserwacji** z aplikacji.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | scheduledJobIds | Identyfikatory zadań związanych z wykrywaniem incydentów z aplikacji | string\[\] |
@@ -1201,6 +1204,8 @@ Przechowuje incydenty występujące dla konkretnej aplikacji w ramach **Report**
 
 **ApplicationInsightConfiguration**
 
+Reprezentuje konfiguracje aplikacji wykorzystywaną podczas generowania raportu.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | applicationName | Nazwa aplikacji | string |
@@ -1208,6 +1213,8 @@ Przechowuje incydenty występujące dla konkretnej aplikacji w ramach **Report**
 | customPrompt | Własne wejście do modelu językowego przy generowaniu **obserwacji** dla danej aplikacji | string |
 
 **ApplicationIncidentSource**
+
+Reprezentuje źródło incydentu aplikacji. Zawiera metadane i zawartość loga, na podstawie którego został wykryty incydent.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
@@ -1219,6 +1226,8 @@ Przechowuje incydenty występujące dla konkretnej aplikacji w ramach **Report**
 
 **NodeReport**
 
+Przechowuje incydenty występujące dla konkretnego hosta w ramach **Report**. Pozwala na połączenie informacji dotyczącej konfiguracji hosta przy generowaniu raportu wraz z incydentami z danego hosta.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | node | Nazwa hosta | string |
@@ -1227,6 +1236,8 @@ Przechowuje incydenty występujące dla konkretnej aplikacji w ramach **Report**
 | incidents | Lista incidentów z hostów | NodeIncidents\[\] |
 
 **NodeIncident**
+
+Incydent hosta wraz z metadanymi pozwalającymi na stwierdzenie na podstawie których logów dany incydent został wykryty. Dokument ten został zdenormalizowany (posiada źródła incydentu (**NodeIncidentSources**) oraz nazwę hosta i konfigurację hosta, ponieważ pobieranie pojedyneczego incydentu wraz z jego metadanymi jest typowym zapytaniem, a denormalizacja pozwala na uniknięcie częstej operacji złączania dokumentów.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
@@ -1243,6 +1254,8 @@ Przechowuje incydenty występujące dla konkretnej aplikacji w ramach **Report**
 
 **ScheduledNodeInsights**
 
+Reprezentuje wykonywane zadanie generowania **obserwacji** z hostów.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | scheduledJobIds | Identyfikatory zadań związanych z wykrywaniem incydentów z hosta | string\[\] |
@@ -1253,6 +1266,8 @@ Przechowuje incydenty występujące dla konkretnej aplikacji w ramach **Report**
 
 **NodeInsightConfiguration**
 
+Reprezentuje konfiguracje hosta wykorzystywaną podczas generowania raportu.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | nodeName | Nazwa aplikacji | string |
@@ -1260,6 +1275,8 @@ Przechowuje incydenty występujące dla konkretnej aplikacji w ramach **Report**
 | customPrompt | Własne wejście do modelu językowego przy generowaniu **obserwacji** dla danego hosta | string |
 
 **NodeIncidentSource**
+
+Reprezentuje źródło incydentu hosta. Zawiera metadane i zawartość loga, na podstawie którego został wykryty incydent.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
