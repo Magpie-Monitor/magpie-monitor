@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-14T13:25:22.424Z
+date: 2024-12-14T13:28:16.195Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -14,7 +14,7 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 **Spis treści**
 
-[1\. Wykaz symboli, oznaczeń i akronimów](#wykaz-symboli,-oznaczeń-i-akronimów)
+[1\. Wykaz symboli, oznaczeń i akronimów](#wykaz-symboli-oznaczeń-i-akronimów)
 
 [2\. Słownik pojęć](#słownik-pojęć)
 
@@ -197,7 +197,7 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 # 3.  Cel i zakres przedsięwzięcia {#cel-i-zakres-przedsięwzięcia}
 
-## 1. Cel {##cel}
+## 3.1 Cel {##cel}
 
 Celem projektu jest opracowanie kompleksowej, wysoko skalowalnej aplikacji webowej, wspieranej przez program instalowany na wybranym klastrze komputerowym. System będzie umożliwiał monitorowanie i analizę logów systemowych oraz generowanie szczegółowych raportów na ich podstawie. Opracowywane rozwiązanie ma dostarczyć administratorom zaawansowane narzędzie, które usprawni szybkie i efektywne zarządzanie dużymi wolumenami danych generowanych przez różnorodne aplikacje.
 
@@ -211,7 +211,7 @@ W założeniu efektem projektu powinno być znaczące podniesienie jakości moni
 
 Z uwagi na nowatorskie podejście do monitorowania aplikacji, dodatkowym celem projektu będzie ocena skuteczności przyjętego rozwiązania. Pozwoli to określić jego wartość biznesową w porównaniu do bardziej standardowych metod, a także wskazać potencjalne kierunki dalszego rozwoju systemu.
 
-## 2. Zakres {##zakres}
+## 3.2 Zakres {##zakres}
 
 Zakres projektu prezentuje się następująco:
 
@@ -243,7 +243,7 @@ Podsumowując, dziedzina analizy logów z użyciem dużych modeli językowych je
 
 
 #  5. Założenia wstępne {#założenia-wstępne}
-## 1. Przeznaczenie {#przeznaczenie}
+## 5.1 Przeznaczenie {#przeznaczenie}
 
 Celem systemu Magpie Monitor jest wsparcie administratorów IT w monitorowaniu usług webowych, które muszą być dostępne przez całą dobę. Każda awaria może generować poważne straty finansowe dla firmy, dlatego system został zaprojektowany, aby pomagać w zapobieganiu potencjalnym przestojom oraz przyspieszać proces monitorowania aplikacji. Rozwiązanie to nie tylko identyfikuje problemy, ale również proaktywnie wspiera działania prewencyjne, minimalizując ryzyko awarii.  
 
@@ -252,7 +252,7 @@ Warto jednak zaznaczyć, że wykorzystanie zewnętrznego modelu, w celu generowa
 Większość konkurencyjnych rozwiązań skupia się na tzw. podejściu „slice and dice”. Polega ono na 
 podzieleniu danych na mniejsze fragmenty i prezentowaniu ich w sposób umożliwiający analizę trendów w zbiorze danych. Magpie Monitor działa w sposób bardziej zautomatyzowany, pokazując nie tylko trendy w danych, ale także ich konsekwencje oraz potencjalne sposoby rozwiązania problemów. Jest to nowatorskie rozwiązaniem, które wyróżnia się w segmencie narzędzi do monitorowania usług webowych.
 
-## 2. Nazwa i logo projektu {#nazwa-i-logo-projektu}
+## 5.2 Nazwa i logo projektu {#nazwa-i-logo-projektu}
 
 Projekt nosi nazwę *Magpie Monitor*, a oba człony tej nazwy zostały dobrane nieprzypadkowo. Słowo *Monitor* jednoznacznie wskazuje na podstawową funkcjonalność systemu, jaką jest monitorowanie aplikacji. Z kolei *Magpie* (sroka) nawiązuje do charakterystycznego zachowania tego ptaka, który zbiera różnorodne błyskotki – analogicznie do zaprojektowanego systemu, który gromadzi logi. Motyw sroki pojawia się również w logo projektu, nadając mu spójności wizualnej z nazwą:
 
@@ -271,7 +271,7 @@ Logo jest minimalistyczne i przedstawia czarno-białą srokę na szarym tle. Sub
 Głównym celem logotypu jest ścisłe powiązanie go z nazwą systemu. Użycie maskotki w postaci sroki skutecznie realizuje ten zamysł, tworząc czytelne skojarzenie wizualne i jednocześnie dodając projektowi charakteru.
       
 
-## 3. Analiza funkcjonalna {#analiza-funkcjonalna}
+## 5.3 Analiza funkcjonalna {#analiza-funkcjonalna}
 
 System będzie oferował funkcjonalność uwierzytelniania w celu identyfikacji użytkowników i weryfikacji, czy osoby próbujące uzyskać dostęp do systemu posiadają odpowiednie uprawnienia. Funkcja ta jest kluczowa dla zapewnienia bezpieczeństwa działania aplikacji.  
 Po zalogowaniu użytkownik powinien ocenić interfejs aplikacji jako intuicyjny i estetyczny. Z tego względu raporty generowane przez system nie mogą być przedstawiane w formie surowego tekstu. Informacje w raportach zostaną podzielone na czytelne sekcje, a niektóre dane dotyczące przeanalizowanych logów będą prezentowane w formie wykresów, co zwiększy ich przejrzystość.  
