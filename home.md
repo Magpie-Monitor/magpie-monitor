@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-14T12:38:22.774Z
+date: 2024-12-14T13:25:22.424Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -285,7 +285,7 @@ Zakres przedstawionych danych w raporcie będzie zależny od opcji wybranych prz
 Te parametry bezpośrednio wpłyną na jakość raportu oraz związane z nim koszty. Aby użytkownicy nie musieli za każdym razem konfigurować i generować raportów, system będzie oferował funkcjonalność raportów cyklicznych, które będą tworzone automatycznie w określonych przedziałach czasowych.  
 Ze względu na to, że czas generacji raportu nie jest możliwy do precyzyjnego określenia z góry, użytkownik będzie mógł przypisać kanał powiadomień (np. e-mail), na który system wyśle informację o zmianie statusu generacji raportu. Dzięki temu użytkownik zostanie poinformowany na bieżąco o zakończeniu procesu lub wystąpieniu ewentualnych problemów.
 
-4. ## Przyjęte ograniczenia
+## 5.4 Przyjęte ograniczenia {#przyjęte-ograniczenia}
 
 W realizowanym projekcie przyjęto następujące ograniczenia:
 
