@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-14T12:25:26.025Z
+date: 2024-12-14T12:30:31.769Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1032,6 +1032,8 @@ Metadata Service przechowuje otrzymane z brokera Kafki metadane hostów oraz kla
 
 **ApplicationMetadata**
 
+Przechowuje metadane aplikacji.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | id | Unikalny identyfikator dokumentu w ramach danego indeksu | string |
@@ -1040,6 +1042,8 @@ Metadata Service przechowuje otrzymane z brokera Kafki metadane hostów oraz kla
 | applications | Aplikacje wchodzące w skład metadanych | Application |
 
 **Application**
+
+Przechowuje metadane konkretnej aplikacji.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
@@ -1258,6 +1262,8 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 **AggregatedApplicationMetadata**
 
+Przechowuje zagregowane metadane aplikacji.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | id | Unikalny identyfikator dokumentu w ramach danego indeksu | string |
@@ -1267,12 +1273,16 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 **Metadata**
 
+Przechowuje metadane o konkretnej aplikacji.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | kind | Nazwa zasobu w Kubernetesie | string |
 | name | Nazwa aplikacji | string |
 
 **AggregatedNodeMetadata**
+
+Przechowuje zagregowane metadane hostów.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
@@ -1283,12 +1293,16 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 **Metadata**
 
+Przechowuje metadane o konkretnym hoście.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | name | Nazwa hosta | string |
 | files | Pliki na hoście, z których zbierane są logi | string\[\] |
 
 **AggregatedClusterState**
+
+Przechowuje zagregowane metadane klastrów.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
@@ -1299,11 +1313,15 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 
 **Metadata**
 
+Przechowuje metadane o konkretnym klastrze.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | clusterId | Identyfikator klastra | string |
 
 **ReportGenerationRequestMetadata**
+
+Agreguje metadane o zapytaniu generującym raport.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
@@ -1313,6 +1331,8 @@ Metadane o aplikacjach, hostach oraz klastrach są przechowywane w sposób lustr
 | request | Zapytanie z konfiguracją generowanego raportu | CreateReportRequest |
 
 **CreateReportRequest**
+
+Przechowuje metadane o ciele zapytania generującego raport.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
