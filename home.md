@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-14T14:14:02.204Z
+date: 2024-12-14T14:16:24.704Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -558,7 +558,7 @@ Zależność między wymaganiami funkcjonalnymi, a historyjkami użytkownika prz
 
 W celu realizacji projektu zdecydowano się użyć następujące technologie:
 
-**Kubernetes** – najbardziej dojrzały i powszechnie stosowany orkiestrator rozproszonych systemów opartych na kontenerach, szeroko wykorzystywany w zastosowaniach komercyjnych.
+**Kubernetes** [] – najbardziej dojrzały i powszechnie stosowany orkiestrator rozproszonych systemów opartych na kontenerach, szeroko wykorzystywany w zastosowaniach komercyjnych.
 
 **Docker** – najpopularniejsze narzędzie i ekosystem do budowania oraz uruchamiania kontenerów aplikacji.
 
