@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-14T13:32:15.262Z
+date: 2024-12-14T13:32:47.976Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -33,6 +33,8 @@ dateCreated: 2024-12-02T23:31:18.691Z
 [5.2. Nazwa i logo projektu](#nazwa-i-logo-projektu)
 
 [5.3. Analiza funkcjonalna](#analiza-funkcjonalna)
+
+[5.4. Przyjęte ograniczenia](#przyjęte-ograniczenia)
 
 [6. Specyfikacja i analiza wymagań na produkt programowy](#specyfikacja-i-analiza-wymagań-na-produkt-programowy)
 
