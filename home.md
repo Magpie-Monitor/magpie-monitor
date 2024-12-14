@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-14T12:30:50.052Z
+date: 2024-12-14T12:31:52.839Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1064,6 +1064,8 @@ Przechowuje metadane hostów.
 
 **AggregatedApplicationMetadata**
 
+Przechowuje zagregowane metadane aplikacji.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | id | Unikalny identyfikator dokumentu w ramach danego indeksu | string |
@@ -1073,12 +1075,16 @@ Przechowuje metadane hostów.
 
 **Metadata**
 
+Przechowuje metadane aplikacji.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | kind | Nazwa zasobu w Kubernetesie | string |
 | name | Nazwa aplikacji | string |
 
 **AggregatedNodeMetadata**
+
+Przechowuje zagregowane metadane hostów.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
@@ -1089,12 +1095,16 @@ Przechowuje metadane hostów.
 
 **Metadata**
 
+Przechowuje metadane konkretnych hostów.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | name | Nazwa hosta | string |
 | files | Pliki na hoście, z których zbierane są logi | string\[\] |
 
 **AggregatedClusterState**
+
+Przechowuje zagregowane metadane klastrów.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
@@ -1104,6 +1114,8 @@ Przechowuje metadane hostów.
 | metadata | Klastry wchodzące w skład metadanych | Metadata |
 
 **Metadata**
+
+Przechowuje metadane konkretnych klastrów.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
