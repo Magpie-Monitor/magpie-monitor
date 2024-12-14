@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-14T12:33:45.225Z
+date: 2024-12-14T12:35:56.167Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1138,6 +1138,8 @@ Raporty przechowywane są w schemacie lustrzanym do bazy danych Report Service, 
 
 **Report**
 
+Obiekt ten przechowuje raport otrzymany od **Report Service**.
+
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
 | id | Unikalny identyfikator raportu | string |
@@ -1160,7 +1162,10 @@ Raporty przechowywane są w schemacie lustrzanym do bazy danych Report Service, 
 | scheduledApplicationIncidentMergerJobs | Zaplanowane zadania związane ze scalaniem zduplikowanych incydentów aplikacji  | ScheduledApplicationIncidentMergerJob\[\] |
 | scheduledNodeIncidentMergerJobs | Zaplanowane zadania związane ze scalaniem zduplikowanych incydentów hostów  | ScheduledNodeIncidentMergerJob\[\] |
 
+
 **ApplicationReport**
+
+Przechowuje incydenty występujące dla konkretnej aplikacji w ramach **Report**. Pozwala na połączenie informacji dotyczącej konfiguracji aplikacji przy generowaniu raportu wraz z incydentami z danej aplikacji.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
