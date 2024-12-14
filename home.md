@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-14T13:32:47.976Z
+date: 2024-12-14T13:34:16.378Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -297,14 +297,14 @@ W realizowanym projekcie przyjęto następujące ograniczenia:
 
 #  6. Specyfikacja i analiza wymagań na produkt programowy {#specyfikacja-i-analiza-wymagań-na-produkt-programowy}
 
-## 1. Użytkownicy systemu {#użytkownicy-systemu}
+## 6.1 Użytkownicy systemu {#użytkownicy-systemu}
 
 | Nazwa  | Opis  | Zakres funkcjonalności |
 | :---- | :---- | :---- |
 | Gość | Osoba niezalogowana w systemie. | Logowanie się w systemie. |
 | Użytkownik | Administrator lub osoba odpowiedzialna za monitorowanie stanu aplikacji. | Wylogowywanie się z systemu, przeglądanie raportów, generowanie raportów, konfigurowanie raportów, ustawianie kanałów powiadomień. |
 
-## 2. Wymagania niefunkcjonalne {#wymagania-niefunkcjonalne}
+## 6.2 Wymagania niefunkcjonalne {#wymagania-niefunkcjonalne}
 
 Wymagania funkcjonalne zostały podzielone według modelu FURPS. Pozwala on skategoryzować wszystkie wymagania według pięciu klas (Funkcjonalności, Użyteczności, Niezawodności, Wydajności, Wsparcia).
 
@@ -338,7 +338,7 @@ Jeśli liczba logów przekracza ograniczenia wybranego modelu, system powinien p
 
 * System powinien być w stanie obserwować dowolną aplikację, która została umieszczona na klastrze Kubernetesa.
 
-## 3. Wymagania funkcjonalne {#wymagania-funkcjonalne}
+## 6.3 Wymagania funkcjonalne {#wymagania-funkcjonalne}
 
 Wymagania funkcjonalne to szczegółowe opisy tego, co system ma robić, aby spełnić potrzeby użytkownika i osiągnąć zamierzone cele.  
 	Poniższa tabela prezentuje wszystkie wymagania funkcjonalne dla produktu Magpie Monitor:
@@ -374,7 +374,7 @@ Wymagania funkcjonalne to szczegółowe opisy tego, co system ma robić, aby spe
 | REQ27 | Oznaczenie pilności incydentu | System powinien oznaczać poziom pilności każdego incydentu, aby umożliwić użytkownikowi łatwe określenie jego istotności i priorytetyzację działań. |
      
 
-## 4. Historyjki użytkownika {#historyjki-użytkownika}
+## 6.4 Historyjki użytkownika {#historyjki-użytkownika}
 
 W celu wskazania wymaganych funkcjonalności przez poszczególnych użytkowników systemu, zapisano historyjki użytkowników, które mają zapewnić odpowiedni kontekst i uzasadnienie poszczególnych elementów Magpie Monitora:
 
@@ -427,8 +427,6 @@ W celu wskazania wymaganych funkcjonalności przez poszczególnych użytkownikó
     Jako użytkownik,  
     Chcę dostosowywać poziomy dokładności osobno dla każdej aplikacji i dla każdego hosta uwzględnionego w raporcie,  
     Żeby mieć wpływ jakie hosty oraz aplikacje mają być przeanalizowane w większym stopniu, a jakie w mniejszym. 
-
-    
 
 11. **H11 – Planowanie raportów**  
     Jako użytkownik,  
@@ -545,7 +543,7 @@ W celu wskazania wymaganych funkcjonalności przez poszczególnych użytkownikó
     Chcę widzieć poziom pilności każdego incydentu,  
     Żeby priorytetyzować działania naprawcze.
 
-## 5. Mapowanie wymagań funkcjonalnych na historyjki użytkownika {#mapowanie-wymagań-funkcjonalnych-na-historyjki-użytkownika}
+## 6.5 Mapowanie wymagań funkcjonalnych na historyjki użytkownika {#mapowanie-wymagań-funkcjonalnych-na-historyjki-użytkownika}
 
 Zależność między wymaganiami funkcjonalnymi, a historyjkami użytkownika przedstawia poniższy diagram:
 
