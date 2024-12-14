@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-14T12:30:31.769Z
+date: 2024-12-14T12:30:50.052Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1051,6 +1051,8 @@ Przechowuje metadane konkretnej aplikacji.
 | name | Nazwa aplikacji | string |
 
 **NodeMetadata**
+
+Przechowuje metadane hostów.
 
 | Nazwa atrybutu | Znaczenie | Dziedzina |
 | :---- | :---- | :---- |
