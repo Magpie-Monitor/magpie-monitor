@@ -34,7 +34,7 @@ const Reports = () => {
       header: 'Cluster',
       columnKey: 'clusterId',
       customComponent: (row: ReportSummary) => (
-        <LinkComponent to={`/clusters/${row.id}/report`}>
+        <LinkComponent to={`/clusters/${row.clusterId}/report`}>
           {row.clusterId}
         </LinkComponent>
       ),
@@ -142,7 +142,9 @@ const Reports = () => {
         startDate: dateFromTimestampMs(report.sinceMs),
         endDate: dateFromTimestampMs(report.toMs),
         urgency: null,
-        requestedAtDate: dateTimeWithoutSecondsFromTimestampMs(report.requestedAtMs),
+        requestedAtDate: dateTimeWithoutSecondsFromTimestampMs(
+          report.requestedAtMs,
+        ),
       }));
 
       const updateRows = (
