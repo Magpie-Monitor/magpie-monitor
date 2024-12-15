@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T14:06:53.075Z
+date: 2024-12-15T14:25:30.747Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -557,9 +557,9 @@ Zależność między wymaganiami funkcjonalnymi, a historyjkami użytkownika prz
 
 W celu realizacji projektu zdecydowano się użyć następujące technologie:
 
-**Kubernetes** [[1]](#ref1)– najbardziej dojrzały i powszechnie stosowany orkiestrator rozproszonych systemów opartych na kontenerach, szeroko wykorzystywany w zastosowaniach komercyjnych.
+**Kubernetes** [[1]](#ref1) – najbardziej dojrzały i powszechnie stosowany orkiestrator rozproszonych systemów opartych na kontenerach, szeroko wykorzystywany w zastosowaniach komercyjnych.
 
-**Docker** [[2]](#ref2)– najpopularniejsze narzędzie i ekosystem do budowania oraz uruchamiania kontenerów aplikacji.
+**Docker** [[2]](#ref2) – najpopularniejsze narzędzie i ekosystem do budowania oraz uruchamiania kontenerów aplikacji.
 
 **Golang** [[3]](#ref3) – język programowania umożliwiający tworzenie szybkich, odpornych na wycieki pamięci i wielowątkowych mikroserwisów bez konieczności używania dodatkowych frameworków do budowy aplikacji webowych. Dodatkowo, ekosystem Go zapewnia skuteczną integrację z interfejsem Kubernetesa, co jest kluczowe przy zbieraniu logów z klastra komputerowego zarządzanego przez Kubernetes.
 
