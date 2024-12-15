@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T17:25:12.487Z
+date: 2024-12-15T17:26:01.352Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3336,10 +3336,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - Użytkownik zostaje pomyślnie wylogowany i przekierowany na stronę logowania.
 
--------------------------------------------------------------------
-<br>
 
-### Wyświetlenie raportu
+## Wyświetlenie raportu
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wyświetlić szczegóły raportu.  
 **Warunki wstępne**:
@@ -3363,10 +3361,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - System wyświetla raport z nazwą klastra na podstawie, którego wygenerowano raport, przedział czasu, z którego zebrane zostały logi, statystyki, takie jak liczba przeanalizowanych aplikacji, hostów, liczba krytycznych, średnich oraz mało krytycznych incydentów, liczba przeanalizowanych logów z aplikacji, liczba przeanalizowanych logów z hostów.
 
--------------------------------------------------------------------
-<br>
 
-### Przeglądanie incydentów
+## Przeglądanie incydentów
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wyświetlić listę incydentów wykrytych w wygenerowanym raporcie.  
 **Warunki wstępne**:
@@ -3390,10 +3386,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - System wyświetla listę incydentów, zawierającą nazwę aplikacji/hosta, kategorię i tytuł incydentu, oraz datę wykrycia.
 
--------------------------------------------------------------------
-<br>
 
-### Generacja raportu na żądanie
+## Generacja raportu na żądanie
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wyświetlić listę incydentów wykrytych w wygenerowanym raporcie.  
 **Warunki wstępne**:
@@ -3417,10 +3411,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - System wyświetla listę incydentów, zawierającą nazwę aplikacji/hosta, kategorię i tytuł incydentu, oraz datę wykrycia.
 
--------------------------------------------------------------------
-<br>
 
-### Konfiguracja dokładności aplikacji i hostów
+## Konfiguracja dokładności aplikacji i hostów
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może dostosować poziomy dokładności osobno dla każdej aplikacji i hosta w raporcie.  
 **Warunki wstępne**:
@@ -3448,10 +3440,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - System wyświetla listę dodanych aplikacji oraz hostów do raportu z różnymi wartościami pola dokładność
 
--------------------------------------------------------------------
-<br>
 
-### Planowanie raportów
+## Planowanie raportów
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może zaplanować cykliczne generowanie raportów w określonych przedziałach czasu.  
 **Warunki wstępne**:
@@ -3478,10 +3468,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport z ostatniego tygodnia
 - W zakładce “Reports” pojawił się nowy zaplanowany raport na przyszły tydzień
 
--------------------------------------------------------------------
-<br>
 
-### Generacja raportu na żądanie
+## Generacja raportu na żądanie
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może generować raport na żądanie z wybranego przedziału czasu.  
 **Warunki wstępne**:
@@ -3509,10 +3497,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport z wybranego przedziału
 - Utworzony raport nie zawiera incydentu spoza wybranego zakresu czasu
 
--------------------------------------------------------------------
-<br>
 
-### Personalizacja interpretacji logów
+## Personalizacja interpretacji logów
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może dodać własne instrukcje dla modelu językowego, aby raporty były dostosowane do specyfiki aplikacji i hostów.  
 **Warunki wstępne**:
