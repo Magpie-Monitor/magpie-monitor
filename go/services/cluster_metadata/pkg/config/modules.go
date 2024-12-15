@@ -3,14 +3,9 @@ package config
 import (
 	"context"
 	"fmt"
-	"net"
-	"net/http"
-	"os"
-
 	messagebroker "github.com/Magpie-Monitor/magpie-monitor/pkg/message-broker"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/mongodb"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/routing"
-	"github.com/Magpie-Monitor/magpie-monitor/pkg/swagger"
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/tests"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/internal/database"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/internal/handlers"
@@ -20,6 +15,9 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
+	"net"
+	"net/http"
+	"os"
 )
 
 type ServerParams struct {
@@ -28,7 +26,6 @@ type ServerParams struct {
 	Logger         *zap.Logger
 	MetadataRouter *handlers.MetadataRouter
 	RootRouter     *mux.Router
-	SwaggerRouter  *swagger.SwaggerRouter
 }
 
 func NewHTTPServer(ServerParams ServerParams) *http.Server {
@@ -66,10 +63,6 @@ func init() {
 
 				routing.NewRootRouter,
 
-				swagger.NewSwaggerRouter,
-				swagger.NewSwaggerHandler,
-				swagger.ProvideSwaggerConfig(),
-
 				handlers.NewMetadataRouter,
 				handlers.NewMetadataHandler,
 
@@ -104,10 +97,6 @@ func init() {
 				NewHTTPServer,
 
 				routing.NewRootRouter,
-
-				swagger.NewSwaggerRouter,
-				swagger.NewSwaggerHandler,
-				swagger.ProvideSwaggerConfig(),
 
 				handlers.NewMetadataRouter,
 				handlers.NewMetadataHandler,
