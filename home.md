@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T16:25:30.695Z
+date: 2024-12-15T16:29:42.673Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -132,7 +132,7 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [8.14. Ustawianie kanałów komunikacji (management service)](<#ustawianie-kanałów-komunikacji-(management-service)>)
 
-[8.15. Odczytywanie stanu klastra (metadata service)](<#odczytywanie-stanu-klastra-(metadata-service)>)
+[8.15. Odczytywanie stanu klastra (metadata service)](#odczytywanie-stanu-klastra-(metadata-service))
 
 [8.16. Zabezpieczenia aplikacji (management service)](<#zabezpieczenia-aplikacji-(management-service)>)
 
