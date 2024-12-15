@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T12:03:56.501Z
+date: 2024-12-15T12:04:23.185Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2168,6 +2168,11 @@ Taki model uwierzytelnienia zapewnia łatwość obsługi dla użytkownika oraz z
 
 <figure>
     <img src="/management-service/management-service-process-schedule.png">
+    <figcaption> Przetwarzanie zaplanowanego raportu</figcaption>
+</figure>
+
+<figure>
+    <img src="/management-service/management-service-create-report.png">
     <figcaption> Przetwarzanie zaplanowanego raportu</figcaption>
 </figure>
 
