@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T13:36:01.424Z
+date: 2024-12-15T13:37:57.433Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2161,13 +2161,12 @@ Taki model uwierzytelnienia zapewnia łatwość obsługi dla użytkownika oraz z
 
 ## 8.10. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-(scheduling-raportów,-management-service)}
 
-Management Service udostępnia użytkownikowi funkcję konfiguracji raportów cyklicznych, które będą generowane co zdefiniowany przez użytkownika okres.
+Management Service udostępnia użytkownikowi funkcję konfiguracji raportów cyklicznych, które będą generowane co zdefiniowany przez użytkownika okres. Konfiguracja raportów cykliczych różni się od konfiguracji raportów na żądanie. Raporty cykliczne konfigurowane są przy użyciu dedykowanego interfejsu API, który zapisuje konfigurację w bazie danych MongoDB.
 
 <figure>
     <img src="/management-service/management-service-schedule-report.png">
     <figcaption>Management Service: Endpoint API służący do konfiguracji raportów cyklicznych</figcaption>
 </figure>
-
 
 <figure>
     <img src="/management-service/management-service-create-report-schedule-request.png">
