@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T14:42:35.209Z
+date: 2024-12-15T14:43:54.185Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3995,6 +3995,8 @@ Po naciśnięciu przycisku użytkownik zostaje przeniesiony na stronę dostarczo
 Po wybraniu odpowiedniego konta zostaniemy zalogowani i przeniesieni na widok główny.
 
 #### 11.2.2.2 Otworzenie ostatniego raportu {#otworzenie-ostatniego-raportu}
+
+Wymaganie funkcjonalne: REQ23, REQ24, REQ25
 
 Po zalogowaniu do systemu widok główny zawsze zawiera ostatni wygenerowany raport:
 
