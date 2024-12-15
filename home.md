@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T17:26:01.352Z
+date: 2024-12-15T17:26:29.672Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3288,10 +3288,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 **Oczekiwany wynik**:
 - Użytkownik pomyślnie loguje się do systemu i zostaje przeniesiony na stronę główną.
--------------------------------------------------------------------
-<br>
 
-### Próba dostępu przez nieuwierzytelnionego użytkownika
+
+## Próba dostępu przez nieuwierzytelnionego użytkownika
 
 **Opis**: Test ma na celu sprawdzenie, czy nieuwierzytelniony użytkownik może uzyskać dostęp do funkcjonalności systemu.  
 **Warunki wstępne**:
@@ -3312,10 +3311,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - Użytkownik nie otrzymuje dostępu do strony z raportami.
 - Użytkownik zostaje przekierowany na stronę logowania
 
--------------------------------------------------------------------
-<br>
 
-### Wylogowanie użytkownika
+## Wylogowanie użytkownika
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może poprawnie wylogować się z systemu.  
 **Warunki wstępne**:
