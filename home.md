@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T15:49:18.085Z
+date: 2024-12-15T15:49:34.444Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3963,7 +3963,7 @@ Agent dostarczany jest w paczce wdrożeniowej Helm, której konfiguracja zawiera
 - wyłączone ze zbierania logów przestrzenie nazw klastra
 - pliki, z których zbierane są logi
 
-Skonfigurowaną paczkę wdrożeniową instaluje sie przy pomocy komendy _helm install_, zgodnie z dokumentacją narzędzia Helm [test](#28).
+Skonfigurowaną paczkę wdrożeniową instaluje sie przy pomocy komendy _helm install_, zgodnie z dokumentacją narzędzia Helm [Helm install](#28).
 
    <figure>
     <img src="/agent/agent-installed-view.png">
