@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T12:04:55.645Z
+date: 2024-12-15T12:05:15.355Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2179,7 +2179,7 @@ Taki model uwierzytelnienia zapewnia łatwość obsługi dla użytkownika oraz z
 
 <figure>
     <img src="/management-service/management-service-publish-report-requested.png">
-    <figcaption>Generowanie raportu</figcaption>
+    <figcaption>Publikowanie wydarzenia tworzącego raport</figcaption>
 </figure>
 
 ## 8.11 Zbieranie logów (agent) {#zbieranie-logów-(agent)}
