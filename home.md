@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T17:24:46.655Z
+date: 2024-12-15T17:25:12.487Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3541,10 +3541,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport
 - Incydenty aplikacji zawierają informacje o wprowadzonej instrukcji do interpretacji logów
 
--------------------------------------------------------------------
-<br>
 
-### Wybór analizowanych hostów
+## Wybór analizowanych hostów
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wskazać konkretne hosty, które będą źródłem danych do raportu.  
 **Warunki wstępne**:
@@ -3571,10 +3569,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport
 - Każdy znaleziony incydent dotyczy tylko wybranego hosta
 
--------------------------------------------------------------------
-<br>
 
-### Wybór analizowanych aplikacji
+## Wybór analizowanych aplikacji
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wskazać konkretne aplikacje, które będą źródłem danych do raportu.  
 **Warunki wstępne**:
