@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T16:33:24.128Z
+date: 2024-12-15T16:37:47.788Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -557,37 +557,37 @@ Zależność między wymaganiami funkcjonalnymi, a historyjkami użytkownika prz
 
 W celu realizacji projektu zdecydowano się użyć następujące technologie:
 
-[Kubernetes](#ref1) – najbardziej dojrzały i powszechnie stosowany orkiestrator rozproszonych systemów opartych na kontenerach, szeroko wykorzystywany w zastosowaniach komercyjnych.
+[Kubernetes](#kubernetes) – najbardziej dojrzały i powszechnie stosowany orkiestrator rozproszonych systemów opartych na kontenerach, szeroko wykorzystywany w zastosowaniach komercyjnych.
 
-[Docker](#ref2) – najpopularniejsze narzędzie i ekosystem do budowania oraz uruchamiania kontenerów aplikacji.
+[Docker](#docker) – najpopularniejsze narzędzie i ekosystem do budowania oraz uruchamiania kontenerów aplikacji.
 
-[Golang](#ref3) – język programowania umożliwiający tworzenie szybkich, odpornych na wycieki pamięci i wielowątkowych mikroserwisów bez konieczności używania dodatkowych frameworków do budowy aplikacji webowych. Dodatkowo, ekosystem Go zapewnia skuteczną integrację z interfejsem Kubernetesa, co jest kluczowe przy zbieraniu logów z klastra komputerowego zarządzanego przez Kubernetes.
+[Golang](#golang) – język programowania umożliwiający tworzenie szybkich, odpornych na wycieki pamięci i wielowątkowych mikroserwisów bez konieczności używania dodatkowych frameworków do budowy aplikacji webowych. Dodatkowo, ekosystem Go zapewnia skuteczną integrację z interfejsem Kubernetesa, co jest kluczowe przy zbieraniu logów z klastra komputerowego zarządzanego przez Kubernetes.
 
-[Fx](#ref4) – biblioteka, która dostarcza funkcjonalność wstrzykiwania zależności do aplikacji w Go. Pozwala na standaryzację struktury mikroserwisów oraz większą reużywalność kodu.
+[Fx](#fx) – biblioteka, która dostarcza funkcjonalność wstrzykiwania zależności do aplikacji w Go. Pozwala na standaryzację struktury mikroserwisów oraz większą reużywalność kodu.
 
-[Java](#ref5) – dojrzały i popularny język programowania, który dzięki bogatej dokumentacji i licznej społeczności znacząco przyspiesza proces rozwoju oprogramowania.
+[Java](#java) – dojrzały i popularny język programowania, który dzięki bogatej dokumentacji i licznej społeczności znacząco przyspiesza proces rozwoju oprogramowania.
 
-[Spring Boot](#ref6) – popularny framework backendowy przeznaczony do budowy aplikacji webowych w architekturze REST. Oferuje sprawdzone rozwiązania w zakresie bezpieczeństwa, routingu oraz mapowania obiektowo-relacyjnego (ORM).
+[Spring Boot](#spring-boot) – popularny framework backendowy przeznaczony do budowy aplikacji webowych w architekturze REST. Oferuje sprawdzone rozwiązania w zakresie bezpieczeństwa, routingu oraz mapowania obiektowo-relacyjnego (ORM).
 
-[Typescript](#ref7) – język programowania, rozwijający język JavaScript o dodatkową składnie. Wprowadzone modyfikacje pozwalają na uniknięcie błędów związanych z brakiem silnego typowania.
+[Typescript](#typescript) – język programowania, rozwijający język JavaScript o dodatkową składnie. Wprowadzone modyfikacje pozwalają na uniknięcie błędów związanych z brakiem silnego typowania.
 
-[React](#ref8)- framework frontendowy użyty do stworzenia klienta aplikacji. React jest najszerzej wspieranym frameworkiem do tworzenia aplikacji w architekturze SPA. To pozwala na znacznie łatwiejsze zarządzanie stanem aplikacji.
+[React](#react)- framework frontendowy użyty do stworzenia klienta aplikacji. React jest najszerzej wspieranym frameworkiem do tworzenia aplikacji w architekturze SPA. To pozwala na znacznie łatwiejsze zarządzanie stanem aplikacji.
 
-[Sass](#ref9) - rozszerzenie klasycznego CSS, które ubogaca podstawową składnie o funkcjonalności minimalizujące duplikacje kodu, poprawiając przy tym czytelność pliku.
+[Sass](#sass) - rozszerzenie klasycznego CSS, które ubogaca podstawową składnie o funkcjonalności minimalizujące duplikacje kodu, poprawiając przy tym czytelność pliku.
 
-[Vite](#ref10) – nowoczesny narzędzie do budowania frontendowych aplikacji webowych, które oferuje szybkie ładowanie modułów podczas rozwoju oraz efektywne budowanie w środowiskach produkcyjnych.
+[Vite](#vite) – nowoczesny narzędzie do budowania frontendowych aplikacji webowych, które oferuje szybkie ładowanie modułów podczas rozwoju oraz efektywne budowanie w środowiskach produkcyjnych.
 
-[PostgreSQL](#ref11) - relacyjna baza danych, która została użyta do przechowywania informacji związanych z ustawieniami użytkownika oraz informacji o monitorowanym systemie, które cechują się możliwości ich normalizacji.
+[PostgreSQL](#postgresql) - relacyjna baza danych, która została użyta do przechowywania informacji związanych z ustawieniami użytkownika oraz informacji o monitorowanym systemie, które cechują się możliwości ich normalizacji.
 
-[MongoDB](#ref12) - dokumentowa baza danych, w której zostaną przechowywane wygenerowane raporty w języku naturalnym. Raporty takie są długimi dokumentami, które nie wymagają spójności w każdym momencie oraz które ciężko byłoby efektywnie przechowywać i przetwarzać w niedokumentowej bazie danych.
+[MongoDB](#mongodb) - dokumentowa baza danych, w której zostaną przechowywane wygenerowane raporty w języku naturalnym. Raporty takie są długimi dokumentami, które nie wymagają spójności w każdym momencie oraz które ciężko byłoby efektywnie przechowywać i przetwarzać w niedokumentowej bazie danych.
 
-[Kafka](#ref13) - jedna z najpopularniejszych platform do strumieniowego przetwarzania danych i kolejkowania zdarzeń. Jej zastosowanie pozwala na uniezależnienie działania mikroserwisów od siebie, zapewniając efektywną komunikację pomiędzy nimi.
+[Kafka](#kafka) - jedna z najpopularniejszych platform do strumieniowego przetwarzania danych i kolejkowania zdarzeń. Jej zastosowanie pozwala na uniezależnienie działania mikroserwisów od siebie, zapewniając efektywną komunikację pomiędzy nimi.
 
-[ElasticSearch](#ref14) - czyli nierelacyjna, łatwo skalowalna baza danych, która stała się biznesowym standardem do przechowywania logów.
+[ElasticSearch](#elasticsearch) - czyli nierelacyjna, łatwo skalowalna baza danych, która stała się biznesowym standardem do przechowywania logów.
 
-[Redis](#ref15) – szybka, nierelacyjna baza danych typu klucz-wartość, używana w projekcie jako mechanizm pamięci podręcznej, co przyspiesza dostęp do często wykorzystywanych danych oraz zmniejsza obciążenie głównych baz danych.
+[Redis](#redis) – szybka, nierelacyjna baza danych typu klucz-wartość, używana w projekcie jako mechanizm pamięci podręcznej, co przyspiesza dostęp do często wykorzystywanych danych oraz zmniejsza obciążenie głównych baz danych.
 
-[Nginx](#ref16) – reverse proxy i serwer webowy, który wspiera aplikację w obsłudze ruchu sieciowego, zwiększając jej skalowalność i wydajność.
+[Nginx](#nginx) – reverse proxy i serwer webowy, który wspiera aplikację w obsłudze ruchu sieciowego, zwiększając jej skalowalność i wydajność.
 
 ## 7.2 Architektura systemu {#architektura-systemu}
 
@@ -3312,7 +3312,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - Użytkownik nie otrzymuje dostępu do strony z raportami.
 - Użytkownik zostaje przekierowany na stronę logowania
 
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
 ### Wylogowanie użytkownika
@@ -3336,7 +3336,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - Użytkownik zostaje pomyślnie wylogowany i przekierowany na stronę logowania.
 
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
 ### Wyświetlenie raportu
@@ -3363,7 +3363,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - System wyświetla raport z nazwą klastra na podstawie, którego wygenerowano raport, przedział czasu, z którego zebrane zostały logi, statystyki, takie jak liczba przeanalizowanych aplikacji, hostów, liczba krytycznych, średnich oraz mało krytycznych incydentów, liczba przeanalizowanych logów z aplikacji, liczba przeanalizowanych logów z hostów.
 
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
 ### Przeglądanie incydentów
@@ -3390,7 +3390,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - System wyświetla listę incydentów, zawierającą nazwę aplikacji/hosta, kategorię i tytuł incydentu, oraz datę wykrycia.
 
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
 ### Generacja raportu na żądanie
@@ -3417,7 +3417,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - System wyświetla listę incydentów, zawierającą nazwę aplikacji/hosta, kategorię i tytuł incydentu, oraz datę wykrycia.
 
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
 ### Konfiguracja dokładności aplikacji i hostów
@@ -3448,7 +3448,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - System wyświetla listę dodanych aplikacji oraz hostów do raportu z różnymi wartościami pola dokładność
 
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
 ### Planowanie raportów
@@ -3478,7 +3478,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport z ostatniego tygodnia
 - W zakładce “Reports” pojawił się nowy zaplanowany raport na przyszły tydzień
 
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
 ### Generacja raportu na żądanie
@@ -3509,7 +3509,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport z wybranego przedziału
 - Utworzony raport nie zawiera incydentu spoza wybranego zakresu czasu
 
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
 ### Personalizacja interpretacji logów
@@ -3541,7 +3541,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport
 - Incydenty aplikacji zawierają informacje o wprowadzonej instrukcji do interpretacji logów
 
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
 ### Wybór analizowanych hostów
@@ -3571,7 +3571,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport
 - Każdy znaleziony incydent dotyczy tylko wybranego hosta
 
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
 ### Wybór analizowanych aplikacji
@@ -3602,7 +3602,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport
 - Każdy znaleziony incydent dotyczy tylko wybranej aplikacji
 
---------------------------------------------------------------------------
+------------------------------------------------------------------
 <br>
 
 ### Dodanie kanału powiadomień do raportu
@@ -3632,7 +3632,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport
 - W momencie wygenerowania raportu, wiadomość o zakończeniu pracy przychodzi na przypisany kanał powiadomień
 
---------------------------------------------------------------------------
+------------------------------------------------------------------
 <br>
 
 ### Dodanie nowego kanału powiadomień
@@ -3657,10 +3657,10 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - Do systemu został dodany nowy kanał powiadomień
 - Kanał powiadomień zostaje wyświetlany na stronie “Notifications” z poprawną nazwą, webhookiem oraz datami dodania oraz modyfikacji
 
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
-### **Usuwanie kanału powiadomień**
+### Usuwanie kanału powiadomień
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może usunąć kanał powiadomień.  
 **Warunki wstępne**:
@@ -3682,10 +3682,10 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - Z systemu zostaje usunięty kanał powiadomień
 
---------------------------------------------------------------------------
+-----------------------------------------------------------------
 <br>
 
-### **Edytowanie kanału powiadomień**
+### Edytowanie kanału powiadomień
 
 **Opis:** Test ma na celu sprawdzenie, czy użytkownik może edytować dodany kanał powiadomień.  
 **Warunki wstępne**:
@@ -3710,10 +3710,10 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - Kanał powiadomień zmienia nazwę na nową.
 
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
-### **Testowanie powiadomień**
+### Testowanie powiadomień
 
 **Opis:** Test ma na celu sprawdzenie, czy użytkownik może przetestować dodany kanał powiadomień.  
 **Warunki wstępne**:
@@ -3736,10 +3736,10 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - Na kanale powiadomień pojawia się nowa wiadomość testowa wysłana przez Magpie Monitor.
 
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
-### **Wyświetlenie danych o incydencie**
+### Wyświetlenie danych o incydencie
 
 **Opis:** Test ma na celu sprawdzenie, czy użytkownik może wyświetlić dane o incydencie.  
 **Warunki wstępne**:
@@ -3763,10 +3763,10 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - Użytkownik powinien móc wyświetlić: nazwę aplikacji lub hosta; rekomendację działań opis; czas; w jakim doszło do incydentu.
 
---------------------------------------------------------------------------
+-----------------------------------------------------------------
 <br>
 
-### **Wyświetlenie listy raportów**
+### Wyświetlenie listy raportów
 
 **Opis:** Test ma na celu sprawdzenie, czy użytkownik może wyświetlić listę raportów.  
 **Warunki wstępne**:
@@ -3792,7 +3792,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - Użytkownik powinien móc zobaczyć listę raportów, z podziałem na raporty cykliczne oraz na żądanie.
 - Wśród raportów powinien widnieć generowany raport wraz z informacją, że proces jego generowania jest w toku.
 
---------------------------------------------------------------------------
+------------------------------------------------------------------
 <br>
 
 # 10. Podsumowanie {#podsumowanie}
@@ -4112,22 +4112,22 @@ Możliwość usunięcia kanału powiadomień dostępna jest poprzez kliknięcie 
 # 12. Bibliografia {#bibliografia}
 
 ### Bibliografia
-1. [The Kubernetes Authors, Home](https://kubernetes.io), dostęp 24 listopada 2024. {#ref1}  
-2. [Docker, Home](https://www.docker.com), dostęp 24 listopada 2024. {#ref2}  
-3. [The Go Authors, Home](https://go.dev), dostęp 24 listopada 2024. {#ref3}  
-4. [Uber Technologies, Fx](https://github.com/uber-go/fx), dostęp 24 listopada 2024. {#ref4}  
-5. [Oracle, Java](https://www.oracle.com/java/), dostęp 24 listopada 2024. {#ref5}  
-6. [Pivotal Software, Spring Boot](https://spring.io/projects/spring-boot), dostęp 24 listopada 2024. {#ref6}  
-7. [Microsoft, TypeScript](https://www.typescriptlang.org), dostęp 24 listopada 2024. {#ref7}  
-8. [Meta, React](https://react.dev), dostęp 24 listopada 2024. {#ref8}  
-9. [Hampton Catlin, Sass](https://sass-lang.com), dostęp 24 listopada 2024. {#ref9}  
-10. [Evan You, Vite](https://vitejs.dev), dostęp 24 listopada 2024. {#ref10}  
-11. [PostgreSQL Global Development Group, PostgreSQL](https://www.postgresql.org), dostęp 24 listopada 2024. {#ref11}  
-12. [MongoDB Inc., MongoDB](https://www.mongodb.com), dostęp 24 listopada 2024. {#ref12}  
-13. [Apache Software Foundation, Kafka](https://kafka.apache.org), dostęp 24 listopada 2024. {#ref13}  
-14. [Elastic N.V., ElasticSearch](https://www.elastic.co/elasticsearch), dostęp 24 listopada 2024. {#ref14}  
-15. [Redis Ltd., Redis](https://redis.io), dostęp 24 listopada 2024. {#ref15}  
-16. [Nginx, Inc., NGINX](https://nginx.org), dostęp 24 listopada 2024. {#ref16}  
+1. [The Kubernetes Authors, Home](https://kubernetes.io), dostęp 24 listopada 2024. {#kubernetes}  
+2. [Docker, Home](https://www.docker.com), dostęp 24 listopada 2024. {#docker}  
+3. [The Go Authors, Home](https://go.dev), dostęp 24 listopada 2024. {#golang}  
+4. [Uber Technologies, Fx](https://github.com/uber-go/fx), dostęp 24 listopada 2024. {#fx}  
+5. [Oracle, Java](https://www.oracle.com/java/), dostęp 24 listopada 2024. {#java}  
+6. [Pivotal Software, Spring Boot](https://spring.io/projects/spring-boot), dostęp 24 listopada 2024. {#spring-boot}  
+7. [Microsoft, TypeScript](https://www.typescriptlang.org), dostęp 24 listopada 2024. {#typescript}  
+8. [Meta, React](https://react.dev), dostęp 24 listopada 2024. {#react}  
+9. [Hampton Catlin, Sass](https://sass-lang.com), dostęp 24 listopada 2024. {#sass}  
+10. [Evan You, Vite](https://vitejs.dev), dostęp 24 listopada 2024. {#vite}  
+11. [PostgreSQL Global Development Group, PostgreSQL](https://www.postgresql.org), dostęp 24 listopada 2024. {#postgresql}  
+12. [MongoDB Inc., MongoDB](https://www.mongodb.com), dostęp 24 listopada 2024. {#mongodb}  
+13. [Apache Software Foundation, Kafka](https://kafka.apache.org), dostęp 24 listopada 2024. {#kafka}  
+14. [Elastic N.V., ElasticSearch](https://www.elastic.co/elasticsearch), dostęp 24 listopada 2024. {#elasticsearch}  
+15. [Redis Ltd., Redis](https://redis.io), dostęp 24 listopada 2024. {#redis}  
+16. [Nginx, Inc., NGINX](https://nginx.org), dostęp 24 listopada 2024. {#nginx}  
 17. [Dynatrace](https://www.dynatrace.com), dostęp 7 grudnia 2024. {#ref17}  
 18. [Datadog](https://www.datadoghq.com), dostęp 7 grudnia 2024. {#ref18}  
 19. [Logz.io](https://logz.io), dostęp 7 grudnia 2024. {#ref19}  
