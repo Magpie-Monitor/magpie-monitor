@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T15:14:36.086Z
+date: 2024-12-15T15:15:10.777Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2335,7 +2335,7 @@ Agent cyklicznie odczytuje oraz przesyła metadane o aplikacjach aktualnie dzia�
 
 ### 8.12.1 Dynamiczne tworzenie indeksów
 
-Wiadomość z logami może posiadać parę poziomów zagnieżdżenie, grupujących logi na podstawie określonych metadanych. W związku z tym kluczowe jest przetworzenie tej wiadomości w taki sposób, aby dokument nie miał zagnieżdżonych pół, ponieważ utrudnia to przeszukiwania i indeksowanie. W ramach takiego procesu, z jednej wiadomości może powstać wiele dokumentów.
+Wiadomość z logami może posiadać wiele poziomów zagnieżdżenia, grupujących logi na podstawie określonych metadanych. W związku z tym kluczowe jest przetworzenie tej wiadomości w taki sposób, aby dokument nie miał zagnieżdżonych pół, ponieważ utrudnia to przeszukiwania i indeksowanie. W ramach takiego procesu, z jednej wiadomości może powstać wiele dokumentów.
 
 <figure>
     <img src="/logs-ingestion/implementation/logs-ingestion-implementation-index-name.png">
