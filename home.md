@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T16:29:42.673Z
+date: 2024-12-15T16:30:32.050Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -122,19 +122,19 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [8.9. Uwierzytelnienie użytkownika](#uwierzytelnienie-użytkownika)
 
-[8.10. Planowanie raportów (scheduling raportów, management service)](<#planowanie-raportów-(scheduling-raportów,-management-service)>)
+[8.10. Planowanie raportów (scheduling raportów, management service)](#planowanie-raportów-(scheduling-raportów,-management-service))
 
-[8.11. Zbieranie logów (agent)](<#zbieranie-logów-(agent)>)
+[8.11. Zbieranie logów (agent)](#zbieranie-logów-(agent))
 
-[8.12. Zapisywanie logów (ingestion service)](<#zapisywanie-logów-(ingestion-service)>)
+[8.12. Zapisywanie logów (ingestion service)](#zapisywanie-logów-(ingestion-service))
 
-[8.13. Generowanie raportów (reports service)](<#generowanie-raportów-(reports-service)>)
+[8.13. Generowanie raportów (reports service)](#generowanie-raportów-(reports-service))
 
-[8.14. Ustawianie kanałów komunikacji (management service)](<#ustawianie-kanałów-komunikacji-(management-service)>)
+[8.14. Ustawianie kanałów komunikacji (management service)](#ustawianie-kanałów-komunikacji-(management-service))
 
 [8.15. Odczytywanie stanu klastra (metadata service)](#odczytywanie-stanu-klastra-(metadata-service))
 
-[8.16. Zabezpieczenia aplikacji (management service)](<#zabezpieczenia-aplikacji-(management-service)>)
+[8.16. Zabezpieczenia aplikacji (management service)](#zabezpieczenia-aplikacji-(management-service))
 
 [9\. Testy produktu programowego/Wyniki i analiza badań](#testy-produktu-programowego/wyniki-i-analiza-badań)https://wikijs.rolo-labs.xyz/e/en/home#testy-agenta
 
