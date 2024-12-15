@@ -1,13 +1,12 @@
 package services
 
 import (
-	"os"
-
 	"github.com/Magpie-Monitor/magpie-monitor/pkg/envs"
 	messagebroker "github.com/Magpie-Monitor/magpie-monitor/pkg/message-broker"
 	"github.com/Magpie-Monitor/magpie-monitor/services/cluster_metadata/pkg/repositories"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"os"
 )
 
 const (
