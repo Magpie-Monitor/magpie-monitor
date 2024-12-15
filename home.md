@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T12:02:50.646Z
+date: 2024-12-15T12:03:11.681Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2162,7 +2162,7 @@ Taki model uwierzytelnienia zapewnia łatwość obsługi dla użytkownika oraz z
 ## 8.10. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-(scheduling-raportów,-management-service)}
 
 <figure>
-    <img src="/management-service/management-service-generate-report.png">
+    <img src="/management-service/management-service-generate-reports.png">
     <figcaption> Konfiguracja Agenta [źródło opracowanie własne]</figcaption>
 </figure>
 
