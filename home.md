@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T17:24:07.952Z
+date: 2024-12-15T17:24:25.897Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3632,10 +3632,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport
 - W momencie wygenerowania raportu, wiadomość o zakończeniu pracy przychodzi na przypisany kanał powiadomień
 
-------------------------------------------------------------------
-<br>
 
-### Dodanie nowego kanału powiadomień
+## Dodanie nowego kanału powiadomień
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik dodać nowy kanał powiadomień (Slack, Discord lub email) do raportu.  
 **Warunki wstępne**:
