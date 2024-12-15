@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T15:31:27.116Z
+date: 2024-12-15T15:32:21.225Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2446,7 +2446,7 @@ Dodatkowym parametrem wymagającym sprecyzowania jest okno wykonania, czyli maks
 
 Podstawowym problemem podczas interpretacji logów jest ograniczenie wielkości logów przekazanych w ramach jednego kontekstu. Zmniejszenie ilości logów wewnątrz pojedyńczego kontekstu pozwoliło zaobserwować poprawę jakości wykrywanych incydentów i rekomendacji ich rozwiązania.
 
-Dodatkowym twardym ograniczeniem jest maksymalna wielkość kontekstu, która wynosi około 100 000 tokenów, który przekazując logi można bardzo łatwo przekroczyć.
+Dodatkowym twardym ograniczeniem jest maksymalna wielkość kontekstu, wynosząca około 100 000 tokenów, którą można łatwo przekroczyć podczas przekazywania logów.
 
 Aby utrzymać wysoką jakość odpowiedzi, zdecydowano się pogrupować logi na podstawie aplikacji / hostów, przez, które zostały wyprodukowane oraz następnie podzielenić je dodatkowo tak aby jedna paczka logów nie przekraczała z góry określonej wielkości, która jest mniejsza od maksymalnej wielkości kontekstu.
 
