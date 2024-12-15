@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T13:49:57.119Z
+date: 2024-12-15T13:57:57.802Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -225,7 +225,7 @@ Zakres projektu prezentuje się następująco:
 
 Aplikacja Magpie Monitor dotyczy branży obserwowania systemów (ang. observability), będącą poddziedziną szerszej dziedziny technik analizy oraz przetwarzania danych. Obszar observability skupia się w głównej mierze na analizie danych emitowanych przez aplikacje, a jego filarami są metryki, logi oraz smugi (ang. traces).
 
-Domeną Magpie Monitor jest semantyczna analiza logów emitowanych przez klastry komputerowe oraz przedstawianie rekomendacji w przypadku wykrycia nieprawidłowości. Obszar ten nie cieszy się wysoką popularnością w branży, co potwierdza fakt, jako iż najpopularniejsze narzędzia takie jak Dynatrace [17], Datadog [18] czy Logz.io [19], nie dokonują takowej analizy, czego przyczyny można doszukiwać się w niedawnej ekspansji technologii dużych modeli językowych.
+Domeną Magpie Monitor jest semantyczna analiza logów emitowanych przez klastry komputerowe oraz przedstawianie rekomendacji w przypadku wykrycia nieprawidłowości. Obszar ten nie cieszy się wysoką popularnością w branży, co potwierdza fakt, jako iż najpopularniejsze narzędzia takie jak Dynatrace [[17]](#ref17), Datadog [[18]](#ref18), czy Logz.io [[19]](#ref19), nie dokonują takowej analizy, czego przyczyny można doszukiwać się w niedawnej ekspansji technologii dużych modeli językowych.
 
 Znakomita większość narzędzi zorientowanych na logi emitowane z aplikacji, takich jak Azure Monitor [20] czy Amazon CloudWatch [21], jest skupiona na komfortowym wyświetlaniu oraz wyszukiwaniu logów, a także analizie wzorców, które w logach występują. Podejście to pozwala ekspertom domenowym na analizę przebiegu wydarzeń występujących w aplikacji, natomiast jest niezwykle czasochłonne i podatne na błędy. Istnieją jednak narzędzia realizujące odmienne funkcje, które częściowo pokrywają się z obszarem działania Magpie Monitor.
 
