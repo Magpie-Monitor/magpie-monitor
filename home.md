@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T16:59:25.156Z
+date: 2024-12-15T16:59:56.024Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -108,15 +108,15 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [8.2. Struktura plików projektu](#struktura-plikow-projektu)
 
-[8.3. Struktura plików w aplikacji “Agenta”](#struktura-plików-w-aplikacji-“agenta”)
+[8.3. Struktura plików w aplikacji “Agenta”](#struktura-plików-w-aplikacji-agenta)
 
-[8.4. Struktura plików w serwisie “Ingestion Service”](#struktura-plików-w-serwisie-“ingestion-service”)
+[8.4. Struktura plików w serwisie “Ingestion Service”](#struktura-plików-w-serwisie-ingestion-service)
 
-[8.5. Struktura plików w serwisie “Report Service”](#struktura-plików-w-serwisie-“report-service”)
+[8.5. Struktura plików w serwisie “Report Service”](#struktura-plików-w-serwisie-report-service)
 
-[8.6. Struktura plików w serwisie “Metadata Service”](#struktura-plików-w-serwisie-“metadata-service”)
+[8.6. Struktura plików w serwisie “Metadata Service”](#struktura-plików-w-serwisie-metadata-service)
 
-[8.7. Struktura plików w aplikacji “Management Service”](#struktura-plików-w-aplikacji-“management-service”)
+[8.7. Struktura plików w aplikacji “Management Service”](#struktura-plików-w-aplikacji-management-service)
 
 [8.8. Struktura plików w aplikacji klienckiej](#struktura-plików-w-aplikacji-klienckiej)
 
