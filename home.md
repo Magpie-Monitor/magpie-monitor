@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T15:17:01.699Z
+date: 2024-12-15T15:31:27.116Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2444,7 +2444,7 @@ Dodatkowym parametrem wymagającym sprecyzowania jest okno wykonania, czyli maks
 
 ### 8.13.5 Dzielenie zapytań do modelu na konteksty i batche
 
-Podstawowym problemem podczas interpretacji logów jest ograniczenie wielkości logów przekazanych w ramach jednego kontekstu. Zmniejszenie ilości logów wewnątrz pojedyńczego kontekstu pozwoliła zaobserwować poprawę jakości wykrywanych incydentów i rekomendacji ich rozwiązania.
+Podstawowym problemem podczas interpretacji logów jest ograniczenie wielkości logów przekazanych w ramach jednego kontekstu. Zmniejszenie ilości logów wewnątrz pojedyńczego kontekstu pozwoliło zaobserwować poprawę jakości wykrywanych incydentów i rekomendacji ich rozwiązania.
 
 Dodatkowym twardym ograniczeniem jest maksymalna wielkość kontekstu, która wynosi około 100 000 tokenów, który przekazując logi można bardzo łatwo przekroczyć.
 
