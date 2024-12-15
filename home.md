@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T17:26:29.672Z
+date: 2024-12-15T17:26:43.808Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3268,7 +3268,7 @@ Podjęte działania pozwoliły na zweryfikowanie kluczowych funkcjonalności mik
 
 W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariusze testowe:
 
-### Logowanie użytkownika
+## Logowanie użytkownika
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może pomyślnie zalogować się do systemu, aby uzyskać dostęp do jego funkcjonalności.  
 **Warunki wstępne**:
