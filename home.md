@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T12:11:12.268Z
+date: 2024-12-15T12:11:53.530Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2191,12 +2191,12 @@ Generacja raportu wiąże się z przesłaniem wydarzenia określającego konfigu
 
 <figure>
     <img src="/management-service/management-service-listen-for-report-generated-event.png">
-    <figcaption>Publikowanie wydarzenia tworzącego raport</figcaption>
+    <figcaption>Nasłuchiwanie na wygenerowany raport</figcaption>
 </figure>
 
 <figure>
     <img src="/management-service/management-service-handle-report-generated.png">
-    <figcaption>Publikowanie wydarzenia tworzącego raport</figcaption>
+    <figcaption>Zapisywanie wygenerowanego raportu</figcaption>
 </figure>
 
 
