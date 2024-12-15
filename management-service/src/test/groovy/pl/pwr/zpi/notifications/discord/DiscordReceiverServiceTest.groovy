@@ -76,7 +76,7 @@ class DiscordReceiverServiceTest extends Specification {
     def "should update discord integration successfully"() {
         given:
         def id = 1L
-        def encryptedWebhookUrl = "https://discord.com/api/webhooks/1234554321/********************************************************"
+        def encryptedWebhookUrl = "https://discord.com/api/webhooks/1234554321/****"
         def decryptedWebhookUrl = "https://discord.com/api/webhooks/1234554321/xKh5vF0Som55bSex4q9slwOApmB0VXjcUoVS5Z9v9vu89snl-XeedfHj"
         def discordReceiverUpdateRequest = new UpdateDiscordReceiverRequest("Updated Receiver", decryptedWebhookUrl)
         def existingReceiver = createDiscordReceiver(id, "Receiver 1", encryptedWebhookUrl)

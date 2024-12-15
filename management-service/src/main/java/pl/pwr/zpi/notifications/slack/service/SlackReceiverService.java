@@ -12,8 +12,6 @@ import pl.pwr.zpi.notifications.slack.repository.SlackRepository;
 
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -92,18 +90,10 @@ public class SlackReceiverService {
     }
 
     private String getAnonymizedWebhookUrl(String webhookUrl) {
-        webhookUrl = confidentialTextEncoder.decrypt(webhookUrl);
+        String decryptedUrl = confidentialTextEncoder.decrypt(webhookUrl);
+        int lastSlashIndex = decryptedUrl.lastIndexOf('/');
 
-        String[] webhookParts = webhookUrl.split("/");
-        String authToken = webhookParts[webhookParts.length - 1];
-
-        return joinWebhookWithoutAuthToken(webhookParts) + "/" + "*".repeat(authToken.length());
-    }
-
-    private String joinWebhookWithoutAuthToken(String[] webhookParts) {
-        return Stream.of(webhookParts)
-                .limit(webhookParts.length - 1)
-                .collect(Collectors.joining("/"));
+        return decryptedUrl.substring(0, lastSlashIndex + 1) + "****";
     }
 
     public SlackReceiver getById(Long receiverId) {
