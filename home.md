@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T12:11:53.530Z
+date: 2024-12-15T12:12:59.008Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2189,10 +2189,13 @@ Generacja raportu wiąże się z przesłaniem wydarzenia określającego konfigu
     <figcaption>Publikowanie wydarzenia tworzącego raport</figcaption>
 </figure>
 
+Wygenerowany raport jest następnie przesyłany przy pomocy brokera Kafki przez **Report Service**.
 <figure>
     <img src="/management-service/management-service-listen-for-report-generated-event.png">
     <figcaption>Nasłuchiwanie na wygenerowany raport</figcaption>
 </figure>
+
+Po przyjęciu wydarzenia, raport jest zapisywany do bazy danych MongoDB.
 
 <figure>
     <img src="/management-service/management-service-handle-report-generated.png">
