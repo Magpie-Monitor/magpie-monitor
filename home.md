@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T14:44:17.268Z
+date: 2024-12-15T15:03:23.353Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2186,14 +2186,14 @@ Cyklicznie uruchamiany komponent sprawdza, czy wygenerowane mają zostać raport
     <figcaption>Management Service: Przetwarzanie zaplanowanego raportu</figcaption>
 </figure>
 
-Jeśli warunki czasowe zostaną spełnione, raport jest generowany.
+Jeśli warunki czasowe zostaną spełnione, żądanie wygenerowania raportu jest przesyłane.
 
 <figure>
     <img src="/management-service/management-service-create-report.png">
     <figcaption>Management Service: Generowanie raportu</figcaption>
 </figure>
 
-Generacja raportu wiąże się z przesłaniem wydarzenia określającego konfigurację raportu do brokera Kafki. Wydarzenie jest odbierane oraz przetwarzane przez Report Service.
+Żądanie jest odbierane oraz przetwarzane przez **Report Service**.
 
 <figure>
     <img src="/management-service/management-service-publish-report-requested.png">
