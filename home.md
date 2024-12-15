@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T17:00:47.161Z
+date: 2024-12-15T17:03:17.202Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -122,21 +122,21 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [8.9. Uwierzytelnienie użytkownika](#uwierzytelnienie-użytkownika)
 
-[8.10. Planowanie raportów (scheduling raportów, management service)](#planowanie-raportów-(scheduling-raportów,-management-service))
+[8.10. Planowanie raportów (scheduling raportów, management service)](#planowanie-raportów-scheduling-raportów-management-service)
 
-[8.11. Zbieranie logów (agent)](#zbieranie-logów-(agent))
+[8.11. Zbieranie logów (agent)](#zbieranie-logów-agent)
 
-[8.12. Zapisywanie logów (ingestion service)](#zapisywanie-logów-(ingestion-service))
+[8.12. Zapisywanie logów (ingestion service)](#zapisywanie-logów-ingestion-service)
 
-[8.13. Generowanie raportów (reports service)](#generowanie-raportów-(reports-service))
+[8.13. Generowanie raportów (reports service)](#generowanie-raportów-reports-service)
 
-[8.14. Ustawianie kanałów komunikacji (management service)](#ustawianie-kanałów-komunikacji-(management-service))
+[8.14. Ustawianie kanałów komunikacji (management service)](#ustawianie-kanałów-komunikacji-management-service)
 
-[8.15. Odczytywanie stanu klastra (metadata service)](#odczytywanie-stanu-klastra-(metadata-service))
+[8.15. Odczytywanie stanu klastra (metadata service)](#odczytywanie-stanu-klastra-metadata-service)
 
-[8.16. Zabezpieczenia aplikacji (management service)](#zabezpieczenia-aplikacji-(management-service))
+[8.16. Zabezpieczenia aplikacji (management service)](#zabezpieczenia-aplikacji-management-service)
 
-[9\. Testy produktu programowego/Wyniki i analiza badań](#testy-produktu-programowego/wyniki-i-analiza-badań)
+[9\. Testy produktu programowego/Wyniki i analiza badań](#testy-produktu-programowego-wyniki-i-analiza-badań)
 
 [9.1. Testy Reports Service](#testy-reports-service)
 
@@ -2160,7 +2160,7 @@ Użytkownik może wylogować się z aplikacji w dowolnym momencie. Po kliknięci
 
 Taki model uwierzytelnienia zapewnia łatwość obsługi dla użytkownika oraz zgodność z najlepszymi praktykami bezpieczeństwa, minimalizując ryzyko nieautoryzowanego dostępu do aplikacji.
 
-## 8.10. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-(scheduling-raportów,-management-service)}
+## 8.10. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-scheduling-raportów-management-service}
 
 Management Service udostępnia użytkownikowi funkcję konfiguracji raportów cyklicznych, które będą generowane co zdefiniowany przez użytkownika okres. Konfiguracja raportów cykliczych różni się od konfiguracji raportów na żądanie. Raporty cykliczne konfigurowane są przy użyciu dedykowanego interfejsu API, który zapisuje konfigurację w bazie danych MongoDB.
 
@@ -2214,7 +2214,7 @@ Po przyjęciu wydarzenia, raport jest zapisywany do bazy danych MongoDB.
     <figcaption>Zapisywanie wygenerowanego raportu</figcaption>
 </figure>
 
-## 8.11 Zbieranie logów (agent) {#zbieranie-logów-(agent)}
+## 8.11 Zbieranie logów (agent) {#zbieranie-logów-agent}
 
 ## 8.11.1 Zbieranie logów z hostów
 
@@ -2331,7 +2331,7 @@ Agent cyklicznie odczytuje oraz przesyła metadane o aplikacjach aktualnie dzia�
     <figcaption> Pakiet metadanych [źródło opracowanie własne]</figcaption>
 </figure>
 
-## 8.12 Zapisywanie logów (ingestion service) {#zapisywanie-logów-(ingestion-service)}
+## 8.12 Zapisywanie logów (ingestion service) {#zapisywanie-logów-ingestion-service}
 
 ### 8.12.1 Dynamiczne tworzenie indeksów
 
@@ -2360,7 +2360,7 @@ W związku z tym, że w jednej wiadomości może być wiele dokumentów, to aby 
     <figcaption> Implementacja Logs Ingestion: Dodawanie logów [źródło opracowanie własne]</figcaption>
 </figure>
 
-## 8.13. Generowanie raportów (reports service) {#generowanie-raportów-(reports-service)}
+## 8.13. Generowanie raportów (reports service) {#generowanie-raportów-reports-service}
 
 ### 8.13.1 **Wczytywanie logów do pamięci**
 
@@ -2527,7 +2527,7 @@ Przez mały rozmiar przekazywanych parametrów, możliwe jest aby przekazać wsz
     <figcaption> Reports Service: Scalanie incydentów [źródło opracowanie własne]</figcaption>
 </figure>
 
-## 8.14 Ustawianie kanałów komunikacji (management service) {#ustawianie-kanałów-komunikacji-(management-service)}
+## 8.14 Ustawianie kanałów komunikacji (management service) {#ustawianie-kanałów-komunikacji-management-service}
 
 System obsługuje trzy kanały notyfikacji: **Discord**, **Slack** oraz **email**. Powiadomienia dla Discorda i Slacka są wysyłane za pomocą protokołu HTTPS poprzez webhooki, natomiast wiadomości email są dostarczane za pośrednictwem protokołu SMTP. Użytkownik posiada możliwość wykonywania operacji CRUD (tworzenie, odczyt, aktualizacja, usuwanie) na zdefiniowanych kanałach notyfikacji.
 
@@ -2542,7 +2542,7 @@ Po dodaniu nowego kanału notyfikacji, użytkownik może skorzystać z funkcji w
 
 Dodatkowo, system umożliwia przypisanie kanału notyfikacji do procesu generowania raportów. Po zakończeniu generowania raportu użytkownik otrzyma powiadomienie na wybranym kanale, co pozwala na natychmiastową informację o gotowości raportu do przeglądu.
 
-## 8.15 Odczytywanie stanu klastra (metadata service) {#odczytywanie-stanu-klastra-(metadata-service)}
+## 8.15 Odczytywanie stanu klastra (metadata service) {#odczytywanie-stanu-klastra-metadata-service}
 
 Głównym zadaniem Metadata Service jest odczytywanie stanu klastra, który definiujemy jako:
 
@@ -2638,7 +2638,7 @@ Przykład porównania, na podstawie którego w przypadku zmiany generowany jest 
 
 Wygenerowany stan jest następnie emitowany w postaci wydarzenia do brokera Kafki.
 
-## 8.16 Zabezpieczenia aplikacji (management service) {#zabezpieczenia-aplikacji-(management-service)}
+## 8.16 Zabezpieczenia aplikacji (management service) {#zabezpieczenia-aplikacji-management-service}
 
 Aplikacja wykorzystuje protokół OAuth2 do uwierzytelniania użytkowników. Wybrano dostawcę Google, który odpowiada za autoryzację i generowanie tokenów uwierzytelniających. Po zakończonym procesie autoryzacji użytkownik otrzymuje dwa tokeny:
 
@@ -2657,7 +2657,7 @@ Proces uwierzytelniania przebiega w następujący sposób:
 
 Mechanizm ten zapewnia prostotę implementacji uwierzytelniania, przy jednoczesnym wykorzystaniu standardowych rozwiązań OAuth2 i Google Identity Platform.
 
-## 9. Testy produktu programowego/Wyniki i analiza badań {#testy-produktu-programowego/wyniki-i-analiza-badań}
+## 9. Testy produktu programowego/Wyniki i analiza badań {#testy-produktu-programowego-wyniki-i-analiza-badań}
 
 ### 9.1 Testy Reports Service {#testy-reports-service}
 
