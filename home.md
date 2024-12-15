@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T17:23:51.464Z
+date: 2024-12-15T17:24:07.952Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3657,10 +3657,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - Do systemu został dodany nowy kanał powiadomień
 - Kanał powiadomień zostaje wyświetlany na stronie “Notifications” z poprawną nazwą, webhookiem oraz datami dodania oraz modyfikacji
 
--------------------------------------------------------------------
-<br>
 
-### Usuwanie kanału powiadomień
+## Usuwanie kanału powiadomień
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może usunąć kanał powiadomień.  
 **Warunki wstępne**:
