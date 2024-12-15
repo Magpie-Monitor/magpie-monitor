@@ -38,8 +38,8 @@ class SlackReceiverServiceTest extends Specification {
         1 * confidentialTextEncoder.decrypt("encryptedUrl1") >> "https://slack.com/receiver1/token1"
         1 * confidentialTextEncoder.decrypt("encryptedUrl2") >> "https://slack.com/receiver2/token2"
         result.size() == 2
-        result[0].webhookUrl == "https://slack.com/receiver1/******"
-        result[1].webhookUrl == "https://slack.com/receiver2/******"
+        result[0].webhookUrl == "https://slack.com/receiver1/****"
+        result[1].webhookUrl == "https://slack.com/receiver2/****"
     }
 
     def "getEncodedWebhookUrl should return receiver with decoded webhook URL"() {
@@ -104,7 +104,7 @@ class SlackReceiverServiceTest extends Specification {
 
         then:
         receiver.receiverName == "UpdatedReceiver"
-        receiver.webhookUrl == "https://hooks.slack.com/services/T04PB0Y4K8Q/B07QG098S7M/********************"
+        receiver.webhookUrl == "https://hooks.slack.com/services/T04PB0Y4K8Q/B07QG098S7M/****"
     }
 
     def "addNewSlackIntegration should save new slack integration"() {

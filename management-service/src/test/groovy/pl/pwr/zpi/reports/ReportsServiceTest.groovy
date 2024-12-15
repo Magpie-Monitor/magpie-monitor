@@ -237,7 +237,16 @@ class ReportsServiceTest extends Specification {
         def result = reportsService.getApplicationIncidentById(incidentId)
 
         then:
-        result == Optional.of(applicationIncidentDTO)
+        result.get().id == applicationIncidentDTO.id
+        result.get().clusterId == applicationIncidentDTO.clusterId
+        result.get().applicationName == applicationIncidentDTO.applicationName
+        result.get().category == applicationIncidentDTO.category
+        result.get().title == applicationIncidentDTO.title
+        result.get().summary == applicationIncidentDTO.summary
+        result.get().accuracy == applicationIncidentDTO.accuracy
+        result.get().customPrompt == applicationIncidentDTO.customPrompt
+        result.get().recommendation == applicationIncidentDTO.recommendation
+        result.get().urgency == applicationIncidentDTO.urgency
     }
 
     def "should get node incident by id"() {
@@ -252,7 +261,16 @@ class ReportsServiceTest extends Specification {
         def result = reportsService.getNodeIncidentById(incidentId)
 
         then:
-        result == Optional.of(nodeIncidentDTO)
+        result.get().id == nodeIncidentDTO.id
+        result.get().clusterId == nodeIncidentDTO.clusterId
+        result.get().nodeName == nodeIncidentDTO.nodeName
+        result.get().category == nodeIncidentDTO.category
+        result.get().title == nodeIncidentDTO.title
+        result.get().summary == nodeIncidentDTO.summary
+        result.get().accuracy == nodeIncidentDTO.accuracy
+        result.get().customPrompt == nodeIncidentDTO.customPrompt
+        result.get().recommendation == nodeIncidentDTO.recommendation
+        result.get().urgency == nodeIncidentDTO.urgency
     }
 
     private ReportGenerationRequestMetadata createReportGenerationRequestMetadata(String correlationId, ReportGenerationStatus status, String clusterId, long sinceMs, long toMs) {
