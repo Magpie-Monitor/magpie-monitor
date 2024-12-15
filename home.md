@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T12:01:47.651Z
+date: 2024-12-15T12:02:50.646Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2160,6 +2160,11 @@ Użytkownik może wylogować się z aplikacji w dowolnym momencie. Po kliknięci
 Taki model uwierzytelnienia zapewnia łatwość obsługi dla użytkownika oraz zgodność z najlepszymi praktykami bezpieczeństwa, minimalizując ryzyko nieautoryzowanego dostępu do aplikacji.
 
 ## 8.10. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-(scheduling-raportów,-management-service)}
+
+<figure>
+    <img src="/management-service/management-service-generate-report.png">
+    <figcaption> Konfiguracja Agenta [źródło opracowanie własne]</figcaption>
+</figure>
 
 ## 8.11 Zbieranie logów (agent) {#zbieranie-logów-(agent)}
 
