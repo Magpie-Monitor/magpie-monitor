@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T01:38:12.784Z
+date: 2024-12-15T10:07:28.294Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -136,7 +136,7 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [8.16. Zabezpieczenia aplikacji (management service)](<#zabezpieczenia-aplikacji-(management-service)>)
 
-[9\. Testy produktu programowego/Wyniki i analiza badań](#testy-produktu-programowego/wyniki-i-analiza-badań)
+[9\. Testy produktu programowego/Wyniki i analiza badań](#testy-produktu-programowego/wyniki-i-analiza-badań)https://wikijs.rolo-labs.xyz/e/en/home#testy-agenta
 
 [9.1. Testy Reports Service](#testy-reports-service)
 
@@ -1725,7 +1725,7 @@ Na samym dole użytkownik ma dostęp do logów, które wskazywały na wystąpien
 
 W wersji mobilnej widok został dostosowany w sposób analogiczny do wersji desktopowej. Dla wygody użytkownika sekcje zostały ułożone w układ kolumnowy, co pozwala na przewijanie ekranu wyłącznie w pionie. Dzięki temu nawigacja staje się bardziej intuicyjna i dostosowana do korzystania na urządzeniach z mniejszym ekranem.
 
-### 7.5.4 Widok raportów
+### 7.5.4 Widok raportów {#widok-raportów}
 
 <figure>
     <img src="/user-interface/reports-page.png">
@@ -1760,7 +1760,7 @@ Widok klastrów przedstawia listę klastrów, które mogą być monitorowane prz
 
 Widok ten na urządzeniach mobilnych jest analogiczny do widoku raportów. Ze względu na ograniczenia ekranu, użytkownik może przesuwać tabelę w poziomie, aby zobaczyć wszystkie kolumny, co zapewnia pełną funkcjonalność również na urządzeniach mobilnych.
 
-### 7.5.6 Widok konfiguracji raportów {#widok-kanałów-raportów}
+### 7.5.6 Widok konfiguracji raportów {#widok-konfiguracji-raportów}
 
 <figure>
     <img src="/user-interface/report-config-on-demand.png">
@@ -1779,7 +1779,7 @@ Widok konfiguracji raportu zawiera następujące sekcje:
 W prawym dolnym rogu znajdują się dwa przyciski: jeden odpowiada za wygenerowanie raportu, a drugi za anulowanie zmian, co powoduje powrót do widoku głównego.  
 W wersji mobilnej sekcje są ułożone w jednej kolumnie, co poprawia czytelność i ułatwia nawigację po stronie.
 
-### 7.5.7 Widok kanałów powiadomień {#widok-kanałów-powiadomień}
+### 7.5.7 Widok konfiguracji powiadomień {#widok-konfiguracji-powiadomień}
 
 <figure>
     <img src="/user-interface/notification-page.png">
