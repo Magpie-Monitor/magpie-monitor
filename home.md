@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T12:06:17.460Z
+date: 2024-12-15T12:07:57.366Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2168,18 +2168,21 @@ Management Service udostępnia użytkownikowi funkcję konfiguracji raportów cy
     <figcaption>Cykliczne generowanie zaplanowanych raportów</figcaption>
 </figure>
 
-Cyklicznie uruchamiany komponent sprawdza, czy
+Cyklicznie uruchamiany komponent sprawdza, czy wygenerowane mają zostać raporty, sprawdzając konfigurację oraz czas, który upłynął od ostatniej generacji.
 
 <figure>
     <img src="/management-service/management-service-process-schedule.png">
     <figcaption>Przetwarzanie zaplanowanego raportu</figcaption>
 </figure>
 
+Jeśli warunki czasowe zostaną spełnione, raport jest generowany.
+
 <figure>
     <img src="/management-service/management-service-create-report.png">
     <figcaption>Generowanie raportu</figcaption>
 </figure>
 
+Generacja raportu wiąże się z przesłaniem wydarzenia określającego konfigurację raportu do brokera Kafki. Wydarzenie jest odbierane oraz przetwarzane przez Report Service.
 
 <figure>
     <img src="/management-service/management-service-publish-report-requested.png">
