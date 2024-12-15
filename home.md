@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T15:38:36.853Z
+date: 2024-12-15T15:40:32.183Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -4138,4 +4138,4 @@ Możliwość usunięcia kanału powiadomień dostępna jest poprzez kliknięcie 
 25. <a id="ref25"></a>[Gain insights into Kubernetes errors with Elastic Observability logs and OpenAI](https://www.elastic.co/observability-labs/blog/kubernetes-errors-observability-logs-openai), dostęp 9 grudnia 2024.
 26. <a id="ref26"></a>[LogEval: A Comprehensive Benchmark Suite for Large Language Models In Log Analysis](https://arxiv.org/pdf/2407.01896).
 27. <a id="ref27"></a>[Log Analyzer](https://chatgpt.com/g/g-JBmeWsY2w-log-analyzer), dostęp 7 grudnia 2024.
-28. <a id="ref27"></a>[Helm install](https://helm.sh/docs/helm/helm_install/), dostęp 15 grudnia 2024.
+28. <a id="ref28"></a>[Helm install](https://helm.sh/docs/helm/helm_install/), dostęp 15 grudnia 2024.
