@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T12:56:29.343Z
+date: 2024-12-15T12:57:28.630Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2529,6 +2529,11 @@ Przez mały rozmiar przekazywanych parametrów, możliwe jest aby przekazać wsz
 </figure>
 
 ## 8.14 Ustawianie kanałów komunikacji (management service) {#ustawianie-kanałów-komunikacji-(management-service)}
+
+<figure>
+    <img src="/management-service/management-service-text-encoder.png">
+    <figcaption> Management Service: Szyfrowanie i deszyfrowanie linków [źródło opracowanie własne]</figcaption>
+</figure>
 
 ## 8.15 Odczytywanie stanu klastra (metadata service) {#odczytywanie-stanu-klastra-(metadata-service)}
 
