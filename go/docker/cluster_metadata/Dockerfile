@@ -38,10 +38,6 @@ USER appuser
 
 COPY --from=build /bin/server /bin/
 
-# Copy the openapi.yaml specification
-COPY ./services/cluster_metadata/api /srv
-COPY ./pkg/swagger/index.html /srv/swagger-ui.html
-
 EXPOSE 9090
 
 ENTRYPOINT [ "/bin/server" ]
