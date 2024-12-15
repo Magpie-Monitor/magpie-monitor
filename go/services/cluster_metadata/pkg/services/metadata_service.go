@@ -27,7 +27,7 @@ const (
 	NODE_AGENT_METADATA_TOPIC_ENV_NAME                  = "NODE_AGENT_NODE_METADATA_TOPIC"
 )
 
-func NewApplicationMetadataBroker(logger *zap.Logger, creds *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[repositories.ApplicationState] {
+func NewApplicationMetadataBroker(logger *zap.Logger, creds *messagebroker.KafkaCredentials) messagebroker.MessageBroker[repositories.ApplicationState] {
 	envs.ValidateEnvs("%s env variable not set", []string{
 		POD_AGENT_APPLICATION_METADATA_TOPIC_ENV_NAME,
 	})
@@ -40,7 +40,7 @@ func NewApplicationMetadataBroker(logger *zap.Logger, creds *messagebroker.Kafka
 	)
 }
 
-func NewNodeMetadataBroker(logger *zap.Logger, creds *messagebroker.KafkaCredentials) *messagebroker.KafkaJsonMessageBroker[repositories.NodeState] {
+func NewNodeMetadataBroker(logger *zap.Logger, creds *messagebroker.KafkaCredentials) messagebroker.MessageBroker[repositories.NodeState] {
 	envs.ValidateEnvs("%s env variable not set", []string{
 		NODE_AGENT_METADATA_TOPIC_ENV_NAME,
 	})
