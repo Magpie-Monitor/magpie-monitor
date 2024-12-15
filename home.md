@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T15:04:15.354Z
+date: 2024-12-15T15:09:03.260Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2200,7 +2200,8 @@ Jeśli warunki czasowe zostaną spełnione, żądanie wygenerowania raportu jest
     <figcaption>Publikowanie wydarzenia tworzącego raport</figcaption>
 </figure>
 
-Wygenerowany raport jest następnie przesyłany przy pomocy brokera Kafki przez **Report Service**. Żądanie jest łączone z raportem przy użyciu atrybutu **correlationId**.
+Wygenerowany raport jest zwracany do **Management Service** za pośrednictwem Apache Kafka. Żądanie jest łączone z raportem przy użyciu atrybutu **correlationId**.
+
 <figure>
     <img src="/management-service/management-service-listen-for-report-generated-event.png">
     <figcaption>Nasłuchiwanie na wygenerowany raport</figcaption>
