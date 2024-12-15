@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T17:22:55.351Z
+date: 2024-12-15T17:23:51.464Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3682,10 +3682,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - Z systemu zostaje usunięty kanał powiadomień
 
------------------------------------------------------------------
-<br>
 
-### Edytowanie kanału powiadomień
+## Edytowanie kanału powiadomień
 
 **Opis:** Test ma na celu sprawdzenie, czy użytkownik może edytować dodany kanał powiadomień.  
 **Warunki wstępne**:
@@ -3710,10 +3708,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - Kanał powiadomień zmienia nazwę na nową.
 
--------------------------------------------------------------------
-<br>
 
-### Testowanie powiadomień
+## Testowanie powiadomień
 
 **Opis:** Test ma na celu sprawdzenie, czy użytkownik może przetestować dodany kanał powiadomień.  
 **Warunki wstępne**:
@@ -3736,10 +3732,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - Na kanale powiadomień pojawia się nowa wiadomość testowa wysłana przez Magpie Monitor.
 
--------------------------------------------------------------------
-<br>
 
-### Wyświetlenie danych o incydencie
+## Wyświetlenie danych o incydencie
 
 **Opis:** Test ma na celu sprawdzenie, czy użytkownik może wyświetlić dane o incydencie.  
 **Warunki wstępne**:
@@ -3763,10 +3757,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - Użytkownik powinien móc wyświetlić: nazwę aplikacji lub hosta; rekomendację działań opis; czas; w jakim doszło do incydentu.
 
------------------------------------------------------------------
-<br>
 
-### Wyświetlenie listy raportów
+## Wyświetlenie listy raportów
 
 **Opis:** Test ma na celu sprawdzenie, czy użytkownik może wyświetlić listę raportów.  
 **Warunki wstępne**:
@@ -3792,8 +3784,6 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - Użytkownik powinien móc zobaczyć listę raportów, z podziałem na raporty cykliczne oraz na żądanie.
 - Wśród raportów powinien widnieć generowany raport wraz z informacją, że proces jego generowania jest w toku.
 
-------------------------------------------------------------------
-<br>
 
 # 10. Podsumowanie {#podsumowanie}
 
