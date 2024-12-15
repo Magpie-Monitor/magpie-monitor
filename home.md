@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T13:21:21.038Z
+date: 2024-12-15T13:21:53.754Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2482,7 +2482,7 @@ Webhooki używane do komunikacji z Discordem i Slackiem są przechowywane w bazi
 
 <figure>
     <img src="/management-service/management-service-text-encoder.png">
-    <figcaption> Management Service: Szyfrowanie i deszyfroewanie webhooków [źródło opracowanie własne]</figcaption>
+    <figcaption> Management Service: Szyfrowanie i deszyfrowanie tekstu [źródło opracowanie własne]</figcaption>
 </figure>
 
 Po dodaniu nowego kanału notyfikacji, użytkownik może skorzystać z funkcji wysyłki testowego powiadomienia, aby sprawdzić poprawność konfiguracji kanału. Dzięki temu można zweryfikować, czy webhook lub serwer SMTP działa prawidłowo, zanim zostanie on użyty w środowisku produkcyjnym.
