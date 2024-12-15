@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T15:09:03.260Z
+date: 2024-12-15T15:14:36.086Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2344,7 +2344,7 @@ Wiadomość z logami może posiadać parę poziomów zagnieżdżenie, grupujący
 
 ### 8.12.2 Spłaszczanie dokumentów
 
-W ramach jednej wiadomości zawierającej logi sama zawartość może być zagnieżdżona, w związku z tym kluczowe jest przetworzenie tej wiadomości w taki sposób aby dokument nie miał zagnieżdżonych pół, ponieważ utrudnia to przeszukiwania i indeksowanie. W ramach takiego procesu z jednej wiadomości może powstać wiele dokumentów.
+W ramach jednej wiadomości zawierającej logi sama zawartość może być zagnieżdżona, w związku z tym kluczowe jest przetworzenie tej wiadomości w taki sposób aby dokument nie miał zagnieżdżonych pól, ponieważ utrudnia to przeszukiwania i indeksowanie. W ramach takiego procesu z jednej wiadomości może powstać wiele dokumentów.
 
 <figure>
     <img src="/logs-ingestion/implementation/logs-ingestion-implementation-flatten.png">
