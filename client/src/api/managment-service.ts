@@ -478,6 +478,7 @@ class ManagmentServiceApi {
       // eslint-disable-next-line
       `/api/v1/reports/application-incidents/${incidentId}/sources?page=${page}&size=${size}&sort=timestamp`,
     );
+
     return report.data;
   }
 
@@ -512,13 +513,9 @@ class ManagmentServiceApi {
     return response.data;
   }
 
-  public async getLatestReport(): Promise<
-    ReportDetails
-  > {
+  public async getLatestReport(): Promise<ReportDetails> {
     await this.refreshTokenIfExpired();
-    const response = await this.axiosInstance.get(
-      '/api/v1/reports/latest',
-    );
+    const response = await this.axiosInstance.get('/api/v1/reports/latest');
     return response.data;
   }
 

@@ -1,11 +1,11 @@
 import { debounce } from 'lib/debounce';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface UseInfiniteScrollParams {
   scrollTargetRef: React.RefObject<HTMLDivElement>;
   debounceTreshhold?: number;
   scrollTreshhold?: number;
-  handleScroll: () => void;
+  handleScroll: () => Promise<void> | void;
 }
 
 const useInfiniteScroll = ({
@@ -14,10 +14,15 @@ const useInfiniteScroll = ({
   scrollTreshhold = 2,
   handleScroll,
 }: UseInfiniteScrollParams) => {
+  const [isHandling, setIsHandling] = useState(false);
   useEffect(() => {
-    const onScroll = () => {
+    const onScroll = async () => {
       const element = scrollTargetRef.current;
       if (!element) {
+        return;
+      }
+
+      if (isHandling === true) {
         return;
       }
 
@@ -25,7 +30,9 @@ const useInfiniteScroll = ({
         element.scrollTop + element.clientHeight >=
         element.scrollHeight / scrollTreshhold
       ) {
-        handleScroll();
+        setIsHandling(true);
+        await handleScroll();
+        setIsHandling(false);
       }
     };
 
