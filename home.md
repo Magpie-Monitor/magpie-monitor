@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T10:28:16.217Z
+date: 2024-12-15T10:31:10.895Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -160,7 +160,7 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [11.1\. Wprowadzenie](#wprowadzenie)
 
-[11.1.2 Użytkowanie produktu programowego](#użytkowanie-produktu-programowego)
+[11.1.1 Użytkowanie produktu programowego](#użytkowanie-produktu-programowego)
 
 [11.1.2. Instalacja aplikacji](#instalacja-aplikacji)
 
