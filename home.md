@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T10:10:37.157Z
+date: 2024-12-15T10:17:20.520Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3223,6 +3223,8 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 **Oczekiwany wynik**:
 
 - Użytkownik pomyślnie loguje się do systemu i zostaje przeniesiony na stronę główną.
+--------------------------------------------------------------------------
+<br>
 
 ### **Próba dostępu przez nieuwierzytelnionego użytkownika**
 
@@ -3266,6 +3268,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - Użytkownik zostaje pomyślnie wylogowany i przekierowany na stronę logowania.
 
+--------------------------------------------------------------------------
+<br>
+
 ### **Wyświetlenie raportu**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wyświetlić szczegóły raportu.  
@@ -3289,6 +3294,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 **Oczekiwany wynik**:
 
 - System wyświetla raport z nazwą klastra na podstawie, którego wygenerowano raport, przedział czasu, z którego zebrane zostały logi, statystyki, takie jak liczba przeanalizowanych aplikacji, hostów, liczba krytycznych, średnich oraz mało krytycznych incydentów, liczba przeanalizowanych logów z aplikacji, liczba przeanalizowanych logów z hostów.
+
+--------------------------------------------------------------------------
+<br>
 
 ### **Przeglądanie incydentów**
 
@@ -3314,6 +3322,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - System wyświetla listę incydentów, zawierającą nazwę aplikacji/hosta, kategorię i tytuł incydentu, oraz datę wykrycia.
 
+--------------------------------------------------------------------------
+<br>
+
 ### **Generacja raportu na żądanie**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wyświetlić listę incydentów wykrytych w wygenerowanym raporcie.  
@@ -3337,6 +3348,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 **Oczekiwany wynik**:
 
 - System wyświetla listę incydentów, zawierającą nazwę aplikacji/hosta, kategorię i tytuł incydentu, oraz datę wykrycia.
+
+--------------------------------------------------------------------------
+<br>
 
 ### **Konfiguracja dokładności aplikacji i hostów**
 
@@ -3366,6 +3380,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - System wyświetla listę dodanych aplikacji oraz hostów do raportu z różnymi wartościami pola dokładność
 
+--------------------------------------------------------------------------
+<br>
+
 ### **Planowanie raportów**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może zaplanować cykliczne generowanie raportów w określonych przedziałach czasu.  
@@ -3392,6 +3409,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - System wygenerował raport z ostatniego tygodnia
 - W zakładce “Reports” pojawił się nowy zaplanowany raport na przyszły tydzień
+
+--------------------------------------------------------------------------
+<br>
 
 ### **Generacja raportu na żądanie**
 
@@ -3420,6 +3440,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - System wygenerował raport z wybranego przedziału
 - Utworzony raport nie zawiera incydentu spoza wybranego zakresu czasu
+
+--------------------------------------------------------------------------
+<br>
 
 ### **Personalizacja interpretacji logów**
 
@@ -3450,6 +3473,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport
 - Incydenty aplikacji zawierają informacje o wprowadzonej instrukcji do interpretacji logów
 
+--------------------------------------------------------------------------
+<br>
+
 ### **Wybór analizowanych hostów**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wskazać konkretne hosty, które będą źródłem danych do raportu.  
@@ -3476,6 +3502,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - System wygenerował raport
 - Każdy znaleziony incydent dotyczy tylko wybranego hosta
+
+--------------------------------------------------------------------------
+<br>
 
 ### **Wybór analizowanych aplikacji**
 
@@ -3505,6 +3534,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport
 - Każdy znaleziony incydent dotyczy tylko wybranej aplikacji
 
+--------------------------------------------------------------------------
+<br>
+
 ### **Dodanie kanału powiadomień do raportu**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może przypisać kanał powiadomień (Slack, Discord lub email) do raportu.  
@@ -3532,6 +3564,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - System wygenerował raport
 - W momencie wygenerowania raportu, wiadomość o zakończeniu pracy przychodzi na przypisany kanał powiadomień
 
+--------------------------------------------------------------------------
+<br>
+
 ### **Dodanie nowego kanału powiadomień**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik dodać nowy kanał powiadomień (Slack, Discord lub email) do raportu.  
@@ -3554,6 +3589,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - Do systemu został dodany nowy kanał powiadomień
 - Kanał powiadomień zostaje wyświetlany na stronie “Notifications” z poprawną nazwą, webhookiem oraz datami dodania oraz modyfikacji
 
+--------------------------------------------------------------------------
+<br>
+
 ### **Usuwanie kanału powiadomień**
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może usunąć kanał powiadomień.  
@@ -3575,6 +3613,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 **Oczekiwany wynik**:
 
 - Z systemu zostaje usunięty kanał powiadomień
+
+--------------------------------------------------------------------------
+<br>
 
 ### **Edytowanie kanału powiadomień**
 
@@ -3601,6 +3642,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - Kanał powiadomień zmienia nazwę na nową.
 
+--------------------------------------------------------------------------
+<br>
+
 ### **Testowanie powiadomień**
 
 **Opis:** Test ma na celu sprawdzenie, czy użytkownik może przetestować dodany kanał powiadomień.  
@@ -3623,6 +3667,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 **Oczekiwany wynik**:
 
 - Na kanale powiadomień pojawia się nowa wiadomość testowa wysłana przez Magpie Monitor.
+
+--------------------------------------------------------------------------
+<br>
 
 ### **Wyświetlenie danych o incydencie**
 
@@ -3647,6 +3694,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 **Oczekiwany wynik**:
 
 - Użytkownik powinien móc wyświetlić: nazwę aplikacji lub hosta; rekomendację działań opis; czas; w jakim doszło do incydentu.
+
+--------------------------------------------------------------------------
+<br>
 
 ### **Wyświetlenie listy raportów**
 
@@ -3673,6 +3723,9 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 
 - Użytkownik powinien móc zobaczyć listę raportów, z podziałem na raporty cykliczne oraz na żądanie.
 - Wśród raportów powinien widnieć generowany raport wraz z informacją, że proces jego generowania jest w toku.
+
+--------------------------------------------------------------------------
+<br>
 
 # 10. Podsumowanie {#podsumowanie}
 
