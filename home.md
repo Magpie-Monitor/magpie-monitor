@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T13:33:35.203Z
+date: 2024-12-15T13:33:45.738Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2161,7 +2161,7 @@ Taki model uwierzytelnienia zapewnia łatwość obsługi dla użytkownika oraz z
 
 ## 8.10. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-(scheduling-raportów,-management-service)}
 
- Management Service udostępnia użytkownikowi funkcję konfiguracji raportów cyklicznych, które będą generowane co zdefiniowany przez użytkownika okres.
+Management Service udostępnia użytkownikowi funkcję konfiguracji raportów cyklicznych, które będą generowane co zdefiniowany przez użytkownika okres.
 
 <figure>
     <img src="/management-service/management-service-schedule-report.png">
