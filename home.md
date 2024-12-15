@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T13:19:19.231Z
+date: 2024-12-15T13:20:05.427Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2476,7 +2476,7 @@ Przez mały rozmiar przekazywanych parametrów, możliwe jest aby przekazać wsz
 
 ## 8.14 Ustawianie kanałów komunikacji (management service) {#ustawianie-kanałów-komunikacji-(management-service)}
 
-System obsługuje trzy kanały notyfikacji: **Discord**, **Slack** oraz **email**. Powiadomienia dla Discorda i Slacka są wysyłane za pomocą protokołu HTTPS poprzez **webhooki**, natomiast wiadomości email są dostarczane za pośrednictwem protokołu **SMTP**. Użytkownik posiada możliwość wykonywania operacji **CRUD** (tworzenie, odczyt, aktualizacja, usuwanie) na zdefiniowanych kanałach notyfikacji.
+System obsługuje trzy kanały notyfikacji: **Discord**, **Slack** oraz **email**. Powiadomienia dla Discorda i Slacka są wysyłane za pomocą protokołu HTTPS poprzez webhooki, natomiast wiadomości email są dostarczane za pośrednictwem protokołu SMTP. Użytkownik posiada możliwość wykonywania operacji CRUD (tworzenie, odczyt, aktualizacja, usuwanie) na zdefiniowanych kanałach notyfikacji.
 
 Webhooki używane do komunikacji z Discordem i Slackiem są przechowywane w bazie danych w sposób zaszyfrowany przy użyciu **symetrycznego algorytmu AES**. Dla zapewnienia bezpieczeństwa, klucze szyfrowania są chronione i używane jedynie w kontekście wysyłania powiadomień. 
 
