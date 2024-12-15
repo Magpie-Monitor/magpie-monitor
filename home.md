@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T10:17:20.520Z
+date: 2024-12-15T10:28:16.217Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3878,7 +3878,9 @@ Ponadto dokumentacja obejmuje omówienie kluczowych scenariuszy użytkowania, ta
 
 Przedstawiona instrukcja stanowi solidną podstawę do zapoznania się z najważniejszymi funkcjami systemu, umożliwiając efektywne wykorzystanie jego możliwości w codziennym monitorowaniu logów.
 
+
 ## 11.2 Użytkowanie produktu programowego {#użytkowanie-produktu-programowego}
+
 
 ### 11.2.1 Instalacja aplikacji {#instalacja-aplikacji}
 
@@ -3905,6 +3907,7 @@ Skonfigurowaną paczkę wdrożeniową instaluje sie przy pomocy komendy _helm in
 Po zainstalowaniu, agent zacznie wysyłać logi oraz metadane do chmury Magpie Monitor, która rozpocznie analizę logów.
 
 ### 11.2.2 Najczęściej wykonywane operacje {#najczęściej-wykonywane-operacje}
+
 
 #### 11.2.2.1 Logowanie do aplikacji {#logowanie-do-aplikacji}
 
