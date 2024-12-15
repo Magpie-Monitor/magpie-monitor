@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T16:21:39.736Z
+date: 2024-12-15T16:25:30.695Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3268,7 +3268,7 @@ Podjęte działania pozwoliły na zweryfikowanie kluczowych funkcjonalności mik
 
 W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariusze testowe:
 
-### **Logowanie użytkownika**
+### Logowanie użytkownika
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może pomyślnie zalogować się do systemu, aby uzyskać dostęp do jego funkcjonalności.  
 **Warunki wstępne**:
@@ -3287,12 +3287,11 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - Użytkownik zostaje przekierowany na stronę główną systemu.
 
 **Oczekiwany wynik**:
-
 - Użytkownik pomyślnie loguje się do systemu i zostaje przeniesiony na stronę główną.
---------------------------------------------------------------------------
+-------------------------------------------------------------------
 <br>
 
-### **Próba dostępu przez nieuwierzytelnionego użytkownika**
+### Próba dostępu przez nieuwierzytelnionego użytkownika
 
 **Opis**: Test ma na celu sprawdzenie, czy nieuwierzytelniony użytkownik może uzyskać dostęp do funkcjonalności systemu.  
 **Warunki wstępne**:
@@ -3313,7 +3312,10 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 - Użytkownik nie otrzymuje dostępu do strony z raportami.
 - Użytkownik zostaje przekierowany na stronę logowania
 
-### **Wylogowanie użytkownika**
+--------------------------------------------------------------------------
+<br>
+
+### Wylogowanie użytkownika
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może poprawnie wylogować się z systemu.  
 **Warunki wstępne**:
@@ -3337,7 +3339,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 --------------------------------------------------------------------------
 <br>
 
-### **Wyświetlenie raportu**
+### Wyświetlenie raportu
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wyświetlić szczegóły raportu.  
 **Warunki wstępne**:
@@ -3364,7 +3366,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 --------------------------------------------------------------------------
 <br>
 
-### **Przeglądanie incydentów**
+### Przeglądanie incydentów
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wyświetlić listę incydentów wykrytych w wygenerowanym raporcie.  
 **Warunki wstępne**:
@@ -3391,7 +3393,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 --------------------------------------------------------------------------
 <br>
 
-### **Generacja raportu na żądanie**
+### Generacja raportu na żądanie
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wyświetlić listę incydentów wykrytych w wygenerowanym raporcie.  
 **Warunki wstępne**:
@@ -3418,7 +3420,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 --------------------------------------------------------------------------
 <br>
 
-### **Konfiguracja dokładności aplikacji i hostów**
+### Konfiguracja dokładności aplikacji i hostów
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może dostosować poziomy dokładności osobno dla każdej aplikacji i hosta w raporcie.  
 **Warunki wstępne**:
@@ -3449,7 +3451,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 --------------------------------------------------------------------------
 <br>
 
-### **Planowanie raportów**
+### Planowanie raportów
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może zaplanować cykliczne generowanie raportów w określonych przedziałach czasu.  
 **Warunki wstępne**:
@@ -3479,7 +3481,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 --------------------------------------------------------------------------
 <br>
 
-### **Generacja raportu na żądanie**
+### Generacja raportu na żądanie
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może generować raport na żądanie z wybranego przedziału czasu.  
 **Warunki wstępne**:
@@ -3510,7 +3512,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 --------------------------------------------------------------------------
 <br>
 
-### **Personalizacja interpretacji logów**
+### Personalizacja interpretacji logów
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może dodać własne instrukcje dla modelu językowego, aby raporty były dostosowane do specyfiki aplikacji i hostów.  
 **Warunki wstępne**:
@@ -3542,7 +3544,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 --------------------------------------------------------------------------
 <br>
 
-### **Wybór analizowanych hostów**
+### Wybór analizowanych hostów
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wskazać konkretne hosty, które będą źródłem danych do raportu.  
 **Warunki wstępne**:
@@ -3572,7 +3574,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 --------------------------------------------------------------------------
 <br>
 
-### **Wybór analizowanych aplikacji**
+### Wybór analizowanych aplikacji
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może wskazać konkretne aplikacje, które będą źródłem danych do raportu.  
 **Warunki wstępne**:
@@ -3603,7 +3605,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 --------------------------------------------------------------------------
 <br>
 
-### **Dodanie kanału powiadomień do raportu**
+### Dodanie kanału powiadomień do raportu
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik może przypisać kanał powiadomień (Slack, Discord lub email) do raportu.  
 **Warunki wstępne**:
@@ -3633,7 +3635,7 @@ W celu weryfikacji czy system spełnia skonstruowane wymagania napisano scenariu
 --------------------------------------------------------------------------
 <br>
 
-### **Dodanie nowego kanału powiadomień**
+### Dodanie nowego kanału powiadomień
 
 **Opis**: Test ma na celu sprawdzenie, czy użytkownik dodać nowy kanał powiadomień (Slack, Discord lub email) do raportu.  
 **Warunki wstępne**:
