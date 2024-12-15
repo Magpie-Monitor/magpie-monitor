@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T16:48:56.937Z
+date: 2024-12-15T16:59:25.156Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1975,7 +1975,7 @@ Umieszczenie plików z zależnościami (go.mod oraz go.sum) w korzeniu folderu /
 - **/go/pkg**: Zawiera pakiety wspólne dla wszystkich mikroserwisów
 - **/go/services**: Każdy z podfolderów ma nazwę odpowiadającą nazwie mikroserwisu, którego kod on posiada
 
-## 8.3 Struktura plików w aplikacji “Agenta” {#struktura-plików-w-aplikacji-“agenta”}
+## 8.3 Struktura plików w aplikacji “Agenta” {#struktura-plików-w-aplikacji-agenta}
 
 Agent składa się z kilku mniejszych pakietów, z których większość jest współdzielona zarówno przez Pod Agenta jak i Node Agenta.
 
@@ -2004,7 +2004,7 @@ W części kodu agenta znajduje się również plik budujący obraz kontenera **
 
 Dodatkowo, agent posiada folder chart, który przechowuje Helm Chart, czyli paczkę pozwalającą na łatwe wdrożenie agenta na klastrze Kubernetes. W folderze chart znajduje się również folder scripts, który udostępnia zbiór skryptów przydatnych do testowania agenta.
 
-## 8.4 Struktura plików w serwisie “Logs Ingestion Service” {#struktura-plików-w-serwisie-“ingestion-service”}
+## 8.4 Struktura plików w serwisie “Logs Ingestion Service” {#struktura-plików-w-serwisie-ingestion-service}
 
 Logs Ingestion Service został stworzony zgodnie ze standardami języka go związanych z strukturą projektów. Jednocześnie serwis jest na tyle mały, że nie było potrzeby na nadmierne pakietowanie.
 
@@ -2017,7 +2017,7 @@ Logs Ingestion Service został stworzony zgodnie ze standardami języka go zwią
 - **/go/services/logs_ingestion/pkg/config**: Zawiera konfiguracje wstrzykiwanych zależności do aplikacji i testów z wykorzystaniem Go fx.
 - **/go/services/logs_ingestion/pkg/logs_stream**: Zawiera pakiet logsstream, który jest odpowiedzialny za nasłuchiwanie za logami aplikacji i hostów z brokera wiadomości
 
-## 8.5 Struktura plików w serwisie “Report Service” {#struktura-plików-w-serwisie-“report-service”}
+## 8.5 Struktura plików w serwisie “Report Service” {#struktura-plików-w-serwisie-report-service}
 
 Raports Service został stworzony zgodnie ze standardami języka Go, stąd obecność folderów takich jak /cmd, /internal czy /pkg.
 
@@ -2042,7 +2042,7 @@ Raports Service został stworzony zgodnie ze standardami języka Go, stąd obecn
   - **/go/services/logs_ingestion/pkg/repositories**: Zawiera kod odpowiedzialny za przechowywanie trwałych danych w serwisie
   - **/go/services/logs_ingestion/pkg/scheduled_jobs**: Zawiera kod odpowiedzialny za kolejnkowania zadań do modelu językowego
 
-## 8.6 Struktura plików w serwisie “Metadata Service” {#struktura-plików-w-serwisie-“metadata-service”}
+## 8.6 Struktura plików w serwisie “Metadata Service” {#struktura-plików-w-serwisie-metadata-service}
 
 <figure>
     <img src="/metadata-service/metadata-service-struktura-plikow.png">
@@ -2056,7 +2056,7 @@ Wybrane pakiety Metadata Service odpowiadają za:
 - **cluster_metadata/pkg/repositories** - przechowuje repozytorium danych MongoDB
 - **cluster_metadata/pkg/services** - zawiera serwisy odpowiadające za część biznesową aplikacji tj. zbieranie oraz generowanie zagregowanych metadanych, a także emitowanie wydarzeń sygnalizujących zmianę metadanych
 
-## 8.7 Struktura plików w aplikacji “Management Service” {#struktura-plików-w-aplikacji-“management-service”}
+## 8.7 Struktura plików w aplikacji “Management Service” {#struktura-plików-w-aplikacji-management-service}
 
 <figure>
     <img src="/management-service/management-service-struktura-plikow.png">
