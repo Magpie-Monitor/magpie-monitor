@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T14:38:42.660Z
+date: 2024-12-15T14:41:38.381Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1740,7 +1740,8 @@ Widok raportów składa się z listy raportów posortowanej malejąco według da
 - zakres czasu, w którym zebrano logi wykorzystane w raporcie,
 - datę zatwierdzenia generacji raportu.
 
-Kliknięcie nazwy klastra lub przycisku w kolumnie **“Actions”** przenosi użytkownika na szczegółowy widok raportu, który jest analogiczny do widoku głównego.
+Kliknięcie przycisku w kolumnie **“Actions”** przenosi użytkownika na szczegółowy widok raportu, który jest analogiczny do widoku głównego.
+Kliknięcie na nazwę klastra sposowduje przeniesienie użytkownika na widok konfiguracji raportu. W przypadku wyboru raportu na żądanie, strona konfiguracji raportów nie pokazuje orginalnych ustawień wybranych przy generacji raportu.
 
 <figure>
     <img src="/user-interface/reports-page-mobile.png">
