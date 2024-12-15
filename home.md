@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T14:25:30.747Z
+date: 2024-12-15T14:33:23.239Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -557,37 +557,37 @@ Zależność między wymaganiami funkcjonalnymi, a historyjkami użytkownika prz
 
 W celu realizacji projektu zdecydowano się użyć następujące technologie:
 
-**Kubernetes** [[1]](#ref1) – najbardziej dojrzały i powszechnie stosowany orkiestrator rozproszonych systemów opartych na kontenerach, szeroko wykorzystywany w zastosowaniach komercyjnych.
+[**Kubernetes**](#ref1) – najbardziej dojrzały i powszechnie stosowany orkiestrator rozproszonych systemów opartych na kontenerach, szeroko wykorzystywany w zastosowaniach komercyjnych.
 
-**Docker** [[2]](#ref2) – najpopularniejsze narzędzie i ekosystem do budowania oraz uruchamiania kontenerów aplikacji.
+[**Docker**](#ref2) – najpopularniejsze narzędzie i ekosystem do budowania oraz uruchamiania kontenerów aplikacji.
 
-**Golang** [[3]](#ref3) – język programowania umożliwiający tworzenie szybkich, odpornych na wycieki pamięci i wielowątkowych mikroserwisów bez konieczności używania dodatkowych frameworków do budowy aplikacji webowych. Dodatkowo, ekosystem Go zapewnia skuteczną integrację z interfejsem Kubernetesa, co jest kluczowe przy zbieraniu logów z klastra komputerowego zarządzanego przez Kubernetes.
+[**Golang**](#ref3) – język programowania umożliwiający tworzenie szybkich, odpornych na wycieki pamięci i wielowątkowych mikroserwisów bez konieczności używania dodatkowych frameworków do budowy aplikacji webowych. Dodatkowo, ekosystem Go zapewnia skuteczną integrację z interfejsem Kubernetesa, co jest kluczowe przy zbieraniu logów z klastra komputerowego zarządzanego przez Kubernetes.
 
-**Fx** [[4]](#ref4) – biblioteka, która dostarcza funkcjonalność wstrzykiwania zależności do aplikacji w Go. Pozwala na standaryzację struktury mikroserwisów oraz większą reużywalność kodu.
+[**Fx**](#ref4) – biblioteka, która dostarcza funkcjonalność wstrzykiwania zależności do aplikacji w Go. Pozwala na standaryzację struktury mikroserwisów oraz większą reużywalność kodu.
 
-**Java** [[5]](#ref5) – dojrzały i popularny język programowania, który dzięki bogatej dokumentacji i licznej społeczności znacząco przyspiesza proces rozwoju oprogramowania.
+[**Java**](#ref5) – dojrzały i popularny język programowania, który dzięki bogatej dokumentacji i licznej społeczności znacząco przyspiesza proces rozwoju oprogramowania.
 
-**Spring Boot** [[6]](#ref6) – popularny framework backendowy przeznaczony do budowy aplikacji webowych w architekturze REST. Oferuje sprawdzone rozwiązania w zakresie bezpieczeństwa, routingu oraz mapowania obiektowo-relacyjnego (ORM).
+[**Spring Boot**](#ref6) – popularny framework backendowy przeznaczony do budowy aplikacji webowych w architekturze REST. Oferuje sprawdzone rozwiązania w zakresie bezpieczeństwa, routingu oraz mapowania obiektowo-relacyjnego (ORM).
 
-**Typescript** [[7]](#ref7) – język programowania, rozwijający język JavaScript o dodatkową składnie. Wprowadzone modyfikacje pozwalają na uniknięcie błędów związanych z brakiem silnego typowania.
+[**Typescript**](#ref7) – język programowania, rozwijający język JavaScript o dodatkową składnie. Wprowadzone modyfikacje pozwalają na uniknięcie błędów związanych z brakiem silnego typowania.
 
-**React** [[8]](#ref8)- framework frontendowy użyty do stworzenia klienta aplikacji. React jest najszerzej wspieranym frameworkiem do tworzenia aplikacji w architekturze SPA. To pozwala na znacznie łatwiejsze zarządzanie stanem aplikacji.
+[**React**](#ref8)- framework frontendowy użyty do stworzenia klienta aplikacji. React jest najszerzej wspieranym frameworkiem do tworzenia aplikacji w architekturze SPA. To pozwala na znacznie łatwiejsze zarządzanie stanem aplikacji.
 
-**Sass** [[9]](#ref9) - rozszerzenie klasycznego CSS, które ubogaca podstawową składnie o funkcjonalności minimalizujące duplikacje kodu, poprawiając przy tym czytelność pliku.
+[**Sass**](#ref9) - rozszerzenie klasycznego CSS, które ubogaca podstawową składnie o funkcjonalności minimalizujące duplikacje kodu, poprawiając przy tym czytelność pliku.
 
-**Vite** [[10]](#ref10) – nowoczesny narzędzie do budowania frontendowych aplikacji webowych, które oferuje szybkie ładowanie modułów podczas rozwoju oraz efektywne budowanie w środowiskach produkcyjnych.
+[**Vite**](#ref10) – nowoczesny narzędzie do budowania frontendowych aplikacji webowych, które oferuje szybkie ładowanie modułów podczas rozwoju oraz efektywne budowanie w środowiskach produkcyjnych.
 
-**PostgreSQL** [[11]](#ref11) - relacyjna baza danych, która została użyta do przechowywania informacji związanych z ustawieniami użytkownika oraz informacji o monitorowanym systemie, które cechują się możliwości ich normalizacji.
+[**PostgreSQL**](#ref11) - relacyjna baza danych, która została użyta do przechowywania informacji związanych z ustawieniami użytkownika oraz informacji o monitorowanym systemie, które cechują się możliwości ich normalizacji.
 
-**MongoDB** [[12]](#ref12) - dokumentowa baza danych, w której zostaną przechowywane wygenerowane raporty w języku naturalnym. Raporty takie są długimi dokumentami, które nie wymagają spójności w każdym momencie oraz które ciężko byłoby efektywnie przechowywać i przetwarzać w niedokumentowej bazie danych.
+[**MongoDB**](#ref12) - dokumentowa baza danych, w której zostaną przechowywane wygenerowane raporty w języku naturalnym. Raporty takie są długimi dokumentami, które nie wymagają spójności w każdym momencie oraz które ciężko byłoby efektywnie przechowywać i przetwarzać w niedokumentowej bazie danych.
 
-**Kafka** [[13]](#ref13) - jedna z najpopularniejszych platform do strumieniowego przetwarzania danych i kolejkowania zdarzeń. Jej zastosowanie pozwala na uniezależnienie działania mikroserwisów od siebie, zapewniając efektywną komunikację pomiędzy nimi.
+[**Kafka**](#ref13) - jedna z najpopularniejszych platform do strumieniowego przetwarzania danych i kolejkowania zdarzeń. Jej zastosowanie pozwala na uniezależnienie działania mikroserwisów od siebie, zapewniając efektywną komunikację pomiędzy nimi.
 
-**ElasticSearch** [[14]](#ref14) - czyli nierelacyjna, łatwo skalowalna baza danych, która stała się biznesowym standardem do przechowywania logów.
+[**ElasticSearch**](#ref14) - czyli nierelacyjna, łatwo skalowalna baza danych, która stała się biznesowym standardem do przechowywania logów.
 
-**Redis** [[15]](#ref15) – szybka, nierelacyjna baza danych typu klucz-wartość, używana w projekcie jako mechanizm pamięci podręcznej, co przyspiesza dostęp do często wykorzystywanych danych oraz zmniejsza obciążenie głównych baz danych.
+[**Redis**](#ref15) – szybka, nierelacyjna baza danych typu klucz-wartość, używana w projekcie jako mechanizm pamięci podręcznej, co przyspiesza dostęp do często wykorzystywanych danych oraz zmniejsza obciążenie głównych baz danych.
 
-**Nginx** [[16]](#ref16) – reverse proxy i serwer webowy, który wspiera aplikację w obsłudze ruchu sieciowego, zwiększając jej skalowalność i wydajność.
+[**Nginx**](#ref16) – reverse proxy i serwer webowy, który wspiera aplikację w obsłudze ruchu sieciowego, zwiększając jej skalowalność i wydajność.
 
 ## 7.2 Architektura systemu {#architektura-systemu}
 
