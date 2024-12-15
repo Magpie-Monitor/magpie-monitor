@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T14:01:26.581Z
+date: 2024-12-15T14:06:53.075Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -547,7 +547,7 @@ W celu wskazania wymaganych funkcjonalności przez poszczególnych użytkownikó
 Zależność między wymaganiami funkcjonalnymi, a historyjkami użytkownika przedstawia poniższy diagram:
 
 <figure>
- <img src=/mapping-requirements-to-user-stories.svg>
+ <img src="/mapping-requirements-to-user-stories.svg">
 <figcaption> Diagram przedstawiający mapowanie się wymagań funkcjonalnych na historyjki użytkownika [źródło opracowanie własne]</figcaption>
 </figure>
 
