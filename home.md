@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T15:49:49.819Z
+date: 2024-12-15T15:52:04.593Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -4110,7 +4110,7 @@ Możliwość usunięcia kanału powiadomień dostępna jest poprzez kliknięcie 
 # 12. Bibliografia {#bibliografia}
 
 ### Bibliografia
-1. [The Kubernetes Authors, Home](https://kubernetes.io), dostęp 24 listopada 2024.  
+1. [The Kubernetes Authors, Home](https://kubernetes.io), dostęp 24 listopada 2024. [ref#1]  
 2. [Docker, Home](https://www.docker.com), dostęp 24 listopada 2024.  
 3. [The Go Authors, Home](https://go.dev), dostęp 24 listopada 2024.  
 4. [Uber Technologies, Fx](https://github.com/uber-go/fx), dostęp 24 listopada 2024.  
@@ -4137,4 +4137,4 @@ Możliwość usunięcia kanału powiadomień dostępna jest poprzez kliknięcie 
 25. [Gain insights into Kubernetes errors with Elastic Observability logs and OpenAI](https://www.elastic.co/observability-labs/blog/kubernetes-errors-observability-logs-openai), dostęp 9 grudnia 2024.  
 26. [LogEval: A Comprehensive Benchmark Suite for Large Language Models In Log Analysis](https://arxiv.org/pdf/2407.01896).  
 27. [Log Analyzer](https://chatgpt.com/g/g-JBmeWsY2w-log-analyzer), dostęp 7 grudnia 2024.  
-28. [Helm install](https://helm.sh/docs/helm/helm_install/), dostęp 15 grudnia 2024.
+28. [Helm install](https://helm.sh/docs/helm/helm_install/), dostęp 15 grudnia 2024. [ref#28]
