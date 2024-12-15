@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0" version="25.0.3">
   <diagram name="Strona-1" id="r-6NvSKqyRKvIeXgEale">
-    <mxGraphModel dx="4114" dy="3136" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2470" dy="2152" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -470,7 +470,7 @@
             <mxGeometry x="10" y="810" width="200" height="170" as="geometry" />
           </mxCell>
         </object>
-        <object placeholders="1" c4Name="Reports service" c4Type="Container" c4Technology="Go, fx" c4Description="Using the collected logs, generates reports with a LLM" label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%:&amp;nbsp;%c4Technology%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;&lt;font&gt;%c4Description%&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;" id="eQmtFs-PxKMfzNlPE_j_-86">
+        <object placeholders="1" c4Name="Reports service" c4Type="Container" c4Technology="Go, Fx" c4Description="Using the collected logs, generates reports with a LLM" label="&lt;font style=&quot;font-size: 16px&quot;&gt;&lt;b&gt;%c4Name%&lt;/b&gt;&lt;/font&gt;&lt;div&gt;[%c4Type%:&amp;nbsp;%c4Technology%]&lt;/div&gt;&lt;br&gt;&lt;div&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;&lt;font&gt;%c4Description%&lt;/font&gt;&lt;/font&gt;&lt;/div&gt;" id="eQmtFs-PxKMfzNlPE_j_-86">
           <mxCell style="shape=hexagon;size=50;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;rounded=1;labelBackgroundColor=none;fillColor=#D5E8D4;fontSize=12;align=center;strokeColor=#82b366;metaEdit=1;points=[[0.5,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.5,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];resizable=0;fillStyle=auto;fontColor=default;" parent="1" vertex="1">
             <mxGeometry y="270" width="200" height="170" as="geometry" />
           </mxCell>
@@ -606,7 +606,7 @@
             <mxPoint x="-80" y="-111" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="PIg1etdeGoSK7Yj7hdCs-1" value="&amp;nbsp;" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="PIg1etdeGoSK7Yj7hdCs-1" value="&amp;nbsp;" style="text;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="590" y="1090" width="40" height="40" as="geometry" />
         </mxCell>
       </root>
