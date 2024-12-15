@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T13:20:05.427Z
+date: 2024-12-15T13:21:21.038Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2478,16 +2478,16 @@ Przez mały rozmiar przekazywanych parametrów, możliwe jest aby przekazać wsz
 
 System obsługuje trzy kanały notyfikacji: **Discord**, **Slack** oraz **email**. Powiadomienia dla Discorda i Slacka są wysyłane za pomocą protokołu HTTPS poprzez webhooki, natomiast wiadomości email są dostarczane za pośrednictwem protokołu SMTP. Użytkownik posiada możliwość wykonywania operacji CRUD (tworzenie, odczyt, aktualizacja, usuwanie) na zdefiniowanych kanałach notyfikacji.
 
-Webhooki używane do komunikacji z Discordem i Slackiem są przechowywane w bazie danych w sposób zaszyfrowany przy użyciu **symetrycznego algorytmu AES**. Dla zapewnienia bezpieczeństwa, klucze szyfrowania są chronione i używane jedynie w kontekście wysyłania powiadomień. 
+Webhooki używane do komunikacji z Discordem i Slackiem są przechowywane w bazie danych w sposób zaszyfrowany przy użyciu symetrycznego algorytmu AES. Dla zapewnienia bezpieczeństwa, klucze szyfrowania są chronione i używane jedynie w kontekście wysyłania powiadomień. 
 
 <figure>
     <img src="/management-service/management-service-text-encoder.png">
     <figcaption> Management Service: Szyfrowanie i deszyfroewanie webhooków [źródło opracowanie własne]</figcaption>
 </figure>
 
-Po dodaniu nowego kanału notyfikacji, użytkownik może skorzystać z funkcji **wysyłki testowego powiadomienia**, aby sprawdzić poprawność konfiguracji kanału. Dzięki temu można zweryfikować, czy webhook lub serwer SMTP działa prawidłowo, zanim zostanie on użyty w środowisku produkcyjnym.
+Po dodaniu nowego kanału notyfikacji, użytkownik może skorzystać z funkcji wysyłki testowego powiadomienia, aby sprawdzić poprawność konfiguracji kanału. Dzięki temu można zweryfikować, czy webhook lub serwer SMTP działa prawidłowo, zanim zostanie on użyty w środowisku produkcyjnym.
 
-Dodatkowo, system umożliwia **przypisanie kanału notyfikacji** do zadań generowania raportów. Po zakończeniu generowania raportu użytkownik otrzyma powiadomienie na wybranym kanale, co pozwala na natychmiastową informację o gotowości raportu do przeglądu lub pobrania.
+Dodatkowo, system umożliwia przypisanie kanału notyfikacji do procesu generowania raportów. Po zakończeniu generowania raportu użytkownik otrzyma powiadomienie na wybranym kanale, co pozwala na natychmiastową informację o gotowości raportu do przeglądu.
 
 ## 8.15 Odczytywanie stanu klastra (metadata service) {#odczytywanie-stanu-klastra-(metadata-service)}
 
