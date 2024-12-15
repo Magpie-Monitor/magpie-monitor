@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T12:58:10.050Z
+date: 2024-12-15T13:02:07.426Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -176,7 +176,7 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [11.2.2.5. Konfiguracja kanałów powiadomień](#konfiguracja-kanałów-powiadomień)
 
-# 1. Wykaz symboli, oznaczeń i akronimów {#wykaz-symboli,-oznaczeń-i-akronimów}
+# 1. Wykaz symboli, oznaczeń i akronimów {#wykaz-symboli-oznaczeń-i-akronimów}
 
 | Akronim        | Znaczenie                                                        |
 | :------------- | :--------------------------------------------------------------- |
@@ -2161,60 +2161,6 @@ Taki model uwierzytelnienia zapewnia łatwość obsługi dla użytkownika oraz z
 
 ## 8.10. Planowanie raportów (scheduling raportów, management service) {#planowanie-raportów-(scheduling-raportów,-management-service)}
 
-Management Service udostępnia użytkownikowi funkcję konfiguracji raportów cyklicznych, które będą generowane co zdefiniowany przez użytkownika okres.
-
-<figure>
-    <img src="/management-service/management-service-schedule-report.png">
-    <figcaption>Endpoint API służący do konfiguracji raportów cyklicznych</figcaption>
-</figure>
-
-
-<figure>
-    <img src="/management-service/management-service-create-report-schedule-request.png">
-    <figcaption>Ciało zapytania konfiguracji raportów cyklicznych</figcaption>
-</figure>
-
-<figure>
-    <img src="/management-service/management-service-generate-reports.png">
-    <figcaption>Cykliczne generowanie zaplanowanych raportów</figcaption>
-</figure>
-
-Cyklicznie uruchamiany komponent sprawdza, czy wygenerowane mają zostać raporty, sprawdzając konfigurację oraz czas, który upłynął od ostatniej generacji.
-
-<figure>
-    <img src="/management-service/management-service-process-schedule.png">
-    <figcaption>Przetwarzanie zaplanowanego raportu</figcaption>
-</figure>
-
-Jeśli warunki czasowe zostaną spełnione, raport jest generowany.
-
-<figure>
-    <img src="/management-service/management-service-create-report.png">
-    <figcaption>Generowanie raportu</figcaption>
-</figure>
-
-Generacja raportu wiąże się z przesłaniem wydarzenia określającego konfigurację raportu do brokera Kafki. Wydarzenie jest odbierane oraz przetwarzane przez Report Service.
-
-<figure>
-    <img src="/management-service/management-service-publish-report-requested.png">
-    <figcaption>Publikowanie wydarzenia tworzącego raport</figcaption>
-</figure>
-
-Wygenerowany raport jest następnie przesyłany przy pomocy brokera Kafki przez **Report Service**.
-<figure>
-    <img src="/management-service/management-service-listen-for-report-generated-event.png">
-    <figcaption>Nasłuchiwanie na wygenerowany raport</figcaption>
-</figure>
-
-Po przyjęciu wydarzenia, raport jest zapisywany do bazy danych MongoDB.
-
-<figure>
-    <img src="/management-service/management-service-handle-report-generated.png">
-    <figcaption>Zapisywanie wygenerowanego raportu</figcaption>
-</figure>
-
-
-
 ## 8.11 Zbieranie logów (agent) {#zbieranie-logów-(agent)}
 
 ## 8.11.1 Zbieranie logów z hostów
@@ -2529,11 +2475,6 @@ Przez mały rozmiar przekazywanych parametrów, możliwe jest aby przekazać wsz
 </figure>
 
 ## 8.14 Ustawianie kanałów komunikacji (management service) {#ustawianie-kanałów-komunikacji-(management-service)}
-
-<figure>
-    <img src="/management-service/management-service-text-encoder.png">
-    <figcaption> Management Service: Szyfrowanie i deszyfrowanie linków [źródło opracowanie własne]</figcaption>
-</figure>
 
 ## 8.15 Odczytywanie stanu klastra (metadata service) {#odczytywanie-stanu-klastra-(metadata-service)}
 
