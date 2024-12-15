@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T14:33:23.239Z
+date: 2024-12-15T14:38:42.660Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1656,7 +1656,7 @@ Pierwszym widokiem wyświetlanym po wejściu na witrynę Magpie Monitor jest ekr
     <figcaption> Widok główny [źródło opracowanie własne]</figcaption>
 </figure>
 
-Po zalogowaniu się do systemu użytkownik zostaje przeniesiony na stronę główną. Wyświetla ona ostatnio wygenerowany raport, wraz z informacją o klastrze Kubernetes, z którego pochodzi, oraz przedziałem czasowym, w którym zebrano logi wykorzystane do jego stworzenia.
+Po zalogowaniu się do systemu użytkownik zostaje przeniesiony na stronę główną. Wyświetla ona ostatnio wygenerowany raport, wraz z informacją o klastrze Kubernetesa, z którego pochodzi, oraz przedziałem czasowym, w którym zebrano logi wykorzystane do jego stworzenia.
 
 W sekcji **“Statistics”** prezentowane są użytkownikowi kluczowe dane opisane w historyjkach użytkownika, takie jak:
 
