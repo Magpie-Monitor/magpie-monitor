@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T15:41:18.259Z
+date: 2024-12-15T15:46:57.630Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -4110,32 +4110,31 @@ Możliwość usunięcia kanału powiadomień dostępna jest poprzez kliknięcie 
 # 12. Bibliografia {#bibliografia}
 
 ### Bibliografia
-
-1. <a id="ref1"></a>[The Kubernetes Authors, Home](https://kubernetes.io), dostęp 24 listopada 2024.
-2. <a id="ref2"></a>[Docker, Home](https://www.docker.com), dostęp 24 listopada 2024.
-3. <a id="ref3"></a>[The Go Authors, Home](https://go.dev), dostęp 24 listopada 2024.
-4. <a id="ref4"></a>[Uber Technologies, Fx](https://github.com/uber-go/fx), dostęp 24 listopada 2024.
-5. <a id="ref5"></a>[Oracle, Java](https://www.oracle.com/java/), dostęp 24 listopada 2024.
-6. <a id="ref6"></a>[Pivotal Software, Spring Boot](https://spring.io/projects/spring-boot), dostęp 24 listopada 2024.
-7. <a id="ref7"></a>[Microsoft, TypeScript](https://www.typescriptlang.org), dostęp 24 listopada 2024.
-8. <a id="ref8"></a>[Meta, React](https://react.dev), dostęp 24 listopada 2024.
-9. <a id="ref9"></a>[Hampton Catlin, Sass](https://sass-lang.com), dostęp 24 listopada 2024.
-10. <a id="ref10"></a>[Evan You, Vite](https://vitejs.dev), dostęp 24 listopada 2024.
-11. <a id="ref11"></a>[PostgreSQL Global Development Group, PostgreSQL](https://www.postgresql.org), dostęp 24 listopada 2024.
-12. <a id="ref12"></a>[MongoDB Inc., MongoDB](https://www.mongodb.com), dostęp 24 listopada 2024.
-13. <a id="ref13"></a>[Apache Software Foundation, Kafka](https://kafka.apache.org), dostęp 24 listopada 2024.
-14. <a id="ref14"></a>[Elastic N.V., ElasticSearch](https://www.elastic.co/elasticsearch), dostęp 24 listopada 2024.
-15. <a id="ref15"></a>[Redis Ltd., Redis](https://redis.io), dostęp 24 listopada 2024.
-16. <a id="ref16"></a>[Nginx, Inc., NGINX](https://nginx.org), dostęp 24 listopada 2024.
-17. <a id="ref17"></a>[Dynatrace](https://www.dynatrace.com), dostęp 7 grudnia 2024.
-18. <a id="ref18"></a>[Datadog](https://www.datadoghq.com), dostęp 7 grudnia 2024.
-19. <a id="ref19"></a>[Logz.io](https://logz.io), dostęp 7 grudnia 2024.
-20. <a id="ref20"></a>[Azure Monitor](https://azure.microsoft.com/pl-pl/products/monitor), dostęp 7 grudnia 2024.
-21. <a id="ref21"></a>[Amazon CloudWatch](https://aws.amazon.com/cloudwatch), dostęp 7 grudnia 2024.
-22. <a id="ref22"></a>[Science Logic](https://sciencelogic.com), dostęp 7 grudnia 2024.
-23. <a id="ref23"></a>[Elasticsearch](https://www.elastic.co/elasticsearch), dostęp 7 grudnia 2024.
-24. <a id="ref24"></a>[Elastic Cloud](https://www.elastic.co/cloud), dostęp 7 grudnia 2024.
-25. <a id="ref25"></a>[Gain insights into Kubernetes errors with Elastic Observability logs and OpenAI](https://www.elastic.co/observability-labs/blog/kubernetes-errors-observability-logs-openai), dostęp 9 grudnia 2024.
-26. <a id="ref26"></a>[LogEval: A Comprehensive Benchmark Suite for Large Language Models In Log Analysis](https://arxiv.org/pdf/2407.01896).
-27. <a id="ref27"></a>[Log Analyzer](https://chatgpt.com/g/g-JBmeWsY2w-log-analyzer), dostęp 7 grudnia 2024.
-28. <a id="ref28"></a>[Helm install](https://helm.sh/docs/helm/helm_install/), dostęp 15 grudnia 2024.
+1. [The Kubernetes Authors, Home](https://kubernetes.io), dostęp 24 listopada 2024.  
+2. [Docker, Home](https://www.docker.com), dostęp 24 listopada 2024.  
+3. [The Go Authors, Home](https://go.dev), dostęp 24 listopada 2024.  
+4. [Uber Technologies, Fx](https://github.com/uber-go/fx), dostęp 24 listopada 2024.  
+5. [Oracle, Java](https://www.oracle.com/java/), dostęp 24 listopada 2024.  
+6. [Pivotal Software, Spring Boot](https://spring.io/projects/spring-boot), dostęp 24 listopada 2024.  
+7. [Microsoft, TypeScript](https://www.typescriptlang.org), dostęp 24 listopada 2024.  
+8. [Meta, React](https://react.dev), dostęp 24 listopada 2024.  
+9. [Hampton Catlin, Sass](https://sass-lang.com), dostęp 24 listopada 2024.  
+10. [Evan You, Vite](https://vitejs.dev), dostęp 24 listopada 2024.  
+11. [PostgreSQL Global Development Group, PostgreSQL](https://www.postgresql.org), dostęp 24 listopada 2024.  
+12. [MongoDB Inc., MongoDB](https://www.mongodb.com), dostęp 24 listopada 2024.  
+13. [Apache Software Foundation, Kafka](https://kafka.apache.org), dostęp 24 listopada 2024.  
+14. [Elastic N.V., ElasticSearch](https://www.elastic.co/elasticsearch), dostęp 24 listopada 2024.  
+15. [Redis Ltd., Redis](https://redis.io), dostęp 24 listopada 2024.  
+16. [Nginx, Inc., NGINX](https://nginx.org), dostęp 24 listopada 2024.  
+17. [Dynatrace](https://www.dynatrace.com), dostęp 7 grudnia 2024.  
+18. [Datadog](https://www.datadoghq.com), dostęp 7 grudnia 2024.  
+19. [Logz.io](https://logz.io), dostęp 7 grudnia 2024.  
+20. [Azure Monitor](https://azure.microsoft.com/pl-pl/products/monitor), dostęp 7 grudnia 2024.  
+21. [Amazon CloudWatch](https://aws.amazon.com/cloudwatch), dostęp 7 grudnia 2024.  
+22. [Science Logic](https://sciencelogic.com), dostęp 7 grudnia 2024.  
+23. [Elasticsearch](https://www.elastic.co/elasticsearch), dostęp 7 grudnia 2024.  
+24. [Elastic Cloud](https://www.elastic.co/cloud), dostęp 7 grudnia 2024.  
+25. [Gain insights into Kubernetes errors with Elastic Observability logs and OpenAI](https://www.elastic.co/observability-labs/blog/kubernetes-errors-observability-logs-openai), dostęp 9 grudnia 2024.  
+26. [LogEval: A Comprehensive Benchmark Suite for Large Language Models In Log Analysis](https://arxiv.org/pdf/2407.01896).  
+27. [Log Analyzer](https://chatgpt.com/g/g-JBmeWsY2w-log-analyzer), dostęp 7 grudnia 2024.  
+28. [Helm install](https://helm.sh/docs/helm/helm_install/), dostęp 15 grudnia 2024.
