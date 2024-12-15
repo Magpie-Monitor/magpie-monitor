@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T17:30:24.602Z
+date: 2024-12-15T17:35:41.356Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2847,6 +2847,7 @@ Testami zostały pokryte kluczowe metody zawierające niebanalną logikę biznes
 1. Wysłanie wiadomości z logami z aplikacji na brokera wiadomości
 2. Oczekiwanie na odebranie wiadomości przez serwis
 3. Sprawdzanie stanu bazy logów w poszukiwaniu nowych logów z aplikacji
+
 <figure>
     <img src="/logs-ingestion/logs-ingestion-application-stream-reader-test.png">
     <figcaption> Test nasłuchiwania na wiadomości z logami aplikacji [źródło opracowanie własne]</figcaption>
