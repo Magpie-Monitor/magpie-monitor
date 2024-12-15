@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T16:30:32.050Z
+date: 2024-12-15T16:30:52.922Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -136,7 +136,7 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [8.16. Zabezpieczenia aplikacji (management service)](#zabezpieczenia-aplikacji-(management-service))
 
-[9\. Testy produktu programowego/Wyniki i analiza badań](#testy-produktu-programowego/wyniki-i-analiza-badań)https://wikijs.rolo-labs.xyz/e/en/home#testy-agenta
+[9\. Testy produktu programowego/Wyniki i analiza badań](#testy-produktu-programowego/wyniki-i-analiza-badań)
 
 [9.1. Testy Reports Service](#testy-reports-service)
 
