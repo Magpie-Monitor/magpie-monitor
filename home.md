@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T17:26:43.808Z
+date: 2024-12-15T17:29:13.266Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -69,8 +69,6 @@ dateCreated: 2024-12-02T23:31:18.691Z
 [7.2.7. Model C3 \- poziom 3 \- Metadata Service](#model-c3---poziom-3---metadata-service)
 
 [7.2.8. Model C3 \- poziom 3 \- Management API](#model-c3---poziom-3---management-api)
-
-[7.2.9. Model C3 \- poziom 3 \- Client](#model-c3---poziom-3---client)
 
 [7.3. Bazy danych mikroserwisów](#bazy-danych-mikroserwisów)
 
