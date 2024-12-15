@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T14:41:56.807Z
+date: 2024-12-15T14:42:35.209Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -4001,7 +4001,9 @@ Po zalogowaniu do systemu widok główny zawsze zawiera ostatni wygenerowany rap
 <figure>
     <img src="/user-interface/main-page.png">
     <figcaption> Widok główny [źródło opracowanie własne]</figcaption>
-</figure>Przedstawiona instrukcja stanowi solidną podstawę do zapoznania się z najważniejszymi funkcjami Magpie Monitora, umożliwiając efektywne wykorzystanie jego możliwości w codziennym monitorowaniu logów.
+</figure>
+
+Przedstawiona instrukcja stanowi solidną podstawę do zapoznania się z najważniejszymi funkcjami Magpie Monitora, umożliwiając efektywne wykorzystanie jego możliwości w codziennym monitorowaniu logów.
 
 Alternatywnie możemy również otworzyć ostatni raport z widoku raportów. Po kliknięciu zakładki “Reports”, użytkownik zostanie przeniesiony do tego widoku:
 
