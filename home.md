@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T10:31:10.895Z
+date: 2024-12-15T10:48:29.284Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3911,6 +3911,8 @@ Po zainstalowaniu, agent zacznie wysyłać logi oraz metadane do chmury Magpie M
 
 #### 11.2.2.1 Logowanie do aplikacji {#logowanie-do-aplikacji}
 
+Wymaganie funkcjonalne: REQ01
+
 W celu zalogowania się do systemu należy otworzyć stronę Magpie Monitor. Następnie wybrać opcję “Sign in with Google”:
 
 <figure>
@@ -3952,6 +3954,8 @@ Raporty są posortowane malejąco według daty rozpoczęcia procesu generacji. N
 
 ### 11.2.2.3 Planowanie generowania raportów {#planowanie-generowania-raportów}
 
+Wymagania funkcjonalne: REQ05, REQ06, REQ07, REQ09, REQ10, REQ11, REQ12   
+
 Po zalogowaniu należy przejść do zakładki “Clusters”:
 
 <figure>
@@ -3970,6 +3974,8 @@ Aby wygenerować raport cykliczny, w sekcji „Generation type” należy wybra�
 
 ### 11.2.2.4 Generacja raportu na życzenie {#generacja-raportu-na-życzenie}
 
+Wymagania funkcjonalne: REQ08
+
 Proces generacji raportu jest analogiczny do opisywanego procesu generacji raportu na żądanie. W momencie widoku konfiguracji raportu należy zmienić wartość w sekcji “Generation type” na “ON_DEMAND”:
 
 <figure>
@@ -3980,6 +3986,8 @@ Proces generacji raportu jest analogiczny do opisywanego procesu generacji rapor
 Po zmianie wartości wspomnianego pola pojawi się sekcja „Data Range”, w której użytkownik może określić okres, z którego mają pochodzić logi wykorzystane do generacji raportu. Pozostała konfiguracja nie różni się od konfiguracji raportów cyklicznych. Po zakończeniu wszystkich ustawień wystarczy kliknąć przycisk „Generate”.
 
 ### 11.2.2.5 Konfiguracja kanałów powiadomień {#konfiguracja-kanałów-powiadomień}
+
+Wymagania funkcjonalne: REQ13, REQ14
 
 Konfiguracja kanałów powiadomień jest dostępna z poziomu widoku „Notifications”. Aby przejść do tego widoku, użytkownik musi zalogować się do systemu, a następnie wybrać zakładkę „Notifications”.
 
