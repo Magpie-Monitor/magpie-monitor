@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T10:07:28.294Z
+date: 2024-12-15T10:10:37.157Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -98,7 +98,7 @@ dateCreated: 2024-12-02T23:31:18.691Z
 
 [7.5.6. Widok konfiguracji raportów](#widok-konfiguracji-raportów)
 
-[7.5.7. Widok konfiguracji powiadomień](#projekt-interfejsu)
+[7.5.7. Widok konfiguracji powiadomień](#widok-konfiguracji-powiadomień)
 
 [7.6 Diagramy procesów](#diagramy-procesów)
 
