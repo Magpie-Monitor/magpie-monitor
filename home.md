@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T15:15:10.777Z
+date: 2024-12-15T15:15:27.267Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -2364,7 +2364,7 @@ W związku z tym, że w jednej wiadomości może być wiele dokumentów, to aby 
 
 ### 8.13.1 **Wczytywanie logów do pamięci**
 
-Istotnym problemem, występującym podczas pracy z dużej ilością danych jest unikanie sytuacji, w których musimy mieć wszystkie dane w pamięci jednocześnie. Ze względu na wysoki rozmiar logów, z których użytkownik może sobie zażyczyć raportu, kluczowe było aby przetwarzać je w paczkach, później nazywanych batchami.
+Istotnym problemem, występującym podczas pracy z dużą ilością danych jest unikanie sytuacji, w których musimy mieć wszystkie dane w pamięci jednocześnie. Ze względu na wysoki rozmiar logów, z których użytkownik może sobie zażyczyć raportu, kluczowe było aby przetwarzać je w paczkach, później nazywanych batchami.
 
 Proces ten rozpoczyna się przez pobieranie logów z instancji ElasticSearch w batchach wykorzystując dostarczone Scroll API. Interfejs ten pozwala na stworzenie zapytania, dla którego zostanie zwrócony identyfikator scrolla, który może służyć do pobierania kolejnych paczek z zapytania, realizując w ten sposób paginacje zapytań.
 
