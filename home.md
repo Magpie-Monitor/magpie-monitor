@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T12:56:16.207Z
+date: 2024-12-15T12:56:29.343Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -1818,7 +1818,7 @@ Metadane są zbierane z klastra Kubernetes przez Agenta, który następnie wysy�
 
 <figure>
     <img src="/sequence-diagrams/metadata-service-collection-sequence-diagram.svg">
-    <figcaption> Diagram sekwencji zbierania oraz emitowania zmian w metadanych[źródło opracowanie własne]</figcaption>
+    <figcaption> Diagram sekwencji zbierania oraz emitowania zmian w metadanych [źródło opracowanie własne]</figcaption>
 </figure>
 
 # 8. Implementacja {#implementacja}
