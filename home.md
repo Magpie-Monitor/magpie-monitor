@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T12:57:28.630Z
+date: 2024-12-15T12:58:10.050Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -611,7 +611,7 @@ Diagram kontekstu (C1) przedstawia ogólny obraz interakcji pomiędzy kluczowymi
 ### 7.2.2 Model C4 \- poziom 2 {#model-c4---poziom-2}
 
 <figure>
-    <img src="/container-diagram-latest.svg">
+    <img src="/container-diagram.svg">
     <figcaption> Diagram kontenerów [źródło opracowanie własne]</figcaption>
 </figure>
 
