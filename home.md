@@ -2,7 +2,7 @@
 title: Magpie Monitor
 description: 
 published: true
-date: 2024-12-15T15:32:21.225Z
+date: 2024-12-15T15:33:03.412Z
 tags: 
 editor: markdown
 dateCreated: 2024-12-02T23:31:18.691Z
@@ -3907,7 +3907,7 @@ Poniższy wykres przedstawia liczbę kontrybucji (commitów) do głównej gałę
 
 ### 10.2.1 Wnioski z konceptu projektu
 
-Projekt został zaplanowany jako dowód konceptu (Proof of concept) zintegrowanego systemu do zbierania i przetwarzania logów z dużych klastów komputerowych, i w ramach tego celu udało się zweryfikować, że rozwiązanie takie jest nie tylko możliwe technicznie, lecz również posiada sens biznesowy.
+Projekt został zaplanowany jako dowód konceptu (ang. proof of concept) zintegrowanego systemu do zbierania i przetwarzania logów z dużych klastów komputerowych, i w ramach tego celu udało się zweryfikować, że rozwiązanie takie jest nie tylko możliwe technicznie, lecz również posiada sens biznesowy.
 
 ### 10.2.2 Wnioski z implementacji projektu
 
