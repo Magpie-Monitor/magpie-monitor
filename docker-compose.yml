@@ -349,23 +349,6 @@ services:
     volumes:
       - kafkaui-data:/etc/kafkaui
 
-  prometheus:
-    image: prom/prometheus:v3.0.0
-    container_name: prometheus
-    ports:
-      - "9099:9099"
-    volumes:
-      - ./monitoring/prometheus/prometheus.yml:/etc/monitoring/prometheus/prometheus.yml
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "3001:3001"
-    restart: unless-stopped
-    volumes:
-      - ./monitoring/grafana/provisioning/datasources:/etc/monitoring/grafana/provisioning/datasources
-
 volumes:
   redisdata:
   db-reports-data:
