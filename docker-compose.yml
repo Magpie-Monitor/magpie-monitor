@@ -355,7 +355,7 @@ services:
     ports:
       - "9091:9091"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/prometheus.yml:/etc/monitoring/prometheus/prometheus.yml
 
   grafana:
     image: grafana/grafana:latest
@@ -364,7 +364,7 @@ services:
       - "3001:3001"
     restart: unless-stopped
     volumes:
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/provisioning/datasources:/etc/monitoring/grafana/provisioning/datasources
 
 volumes:
   redisdata:
