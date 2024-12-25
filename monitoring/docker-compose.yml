@@ -2,6 +2,10 @@ services:
   prometheus:
     image: prom/prometheus:v3.0.0
     container_name: prometheus
+    environment:
+      VIRTUAL_HOST: ${PROMETHEUS_PRODUCTION_HOST}
+      LETSENCRYPT_HOST: ${PROMETHEUS_PRODUCTION_HOST}
+      VIRTUAL_PORT: 9090
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 
