@@ -12,6 +12,10 @@ services:
     container_name: grafana
     ports:
       - "3001:3001"
+    environment:
+      VIRTUAL_HOST: ${GRAFANA_PRODUCTION_HOST}
+      LETSENCRYPT_HOST: ${GRAFANA_PRODUCTION_HOST}
+      VIRTUAL_PORT: 3001
     restart: unless-stopped
     volumes:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
