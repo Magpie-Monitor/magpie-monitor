@@ -19,3 +19,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+
+networks:
+  default:
+    name: magpie-network
+    external: true
