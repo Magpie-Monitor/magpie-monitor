@@ -40,7 +40,8 @@ public class SecurityConfig {
                             "/swagger-ui/**",
                             "/api/v1/auth/**",
                             "/login/oauth2/code/**",
-                            "/error"
+                            "/error",
+                            "/actuator/**"
                     ).permitAll();
                     request.anyRequest().authenticated();
                 })
