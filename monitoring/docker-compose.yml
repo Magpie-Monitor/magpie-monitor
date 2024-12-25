@@ -12,6 +12,8 @@ services:
     container_name: grafana
     ports:
       - "3001:3001"
+    env_file:
+      - ../.env
     environment:
       VIRTUAL_HOST: ${GRAFANA_PRODUCTION_HOST}
       LETSENCRYPT_HOST: ${GRAFANA_PRODUCTION_HOST}
