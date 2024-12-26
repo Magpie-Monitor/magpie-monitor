@@ -8,6 +8,8 @@ services:
       VIRTUAL_PORT: 9090
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/data:/prometheus
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana:latest
@@ -16,9 +18,10 @@ services:
       VIRTUAL_HOST: ${GRAFANA_PRODUCTION_HOST}
       LETSENCRYPT_HOST: ${GRAFANA_PRODUCTION_HOST}
       VIRTUAL_PORT: 3000
-    restart: unless-stopped
     volumes:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/data:/var/lib/grafana
+    restart: unless-stopped
 
 networks:
   default:
