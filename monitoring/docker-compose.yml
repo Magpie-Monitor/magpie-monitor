@@ -23,6 +23,10 @@ services:
       - ./grafana/data:/var/lib/grafana
     restart: unless-stopped
 
+volumes:
+  prometheus-data:
+  grafana-data:
+
 networks:
   default:
     name: magpie-network
