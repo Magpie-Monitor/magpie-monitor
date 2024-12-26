@@ -7,7 +7,7 @@ services:
       LETSENCRYPT_HOST: ${PROMETHEUS_PRODUCTION_HOST}
       VIRTUAL_PORT: 9090
     volumes:
-      - prometheus-config:/etc/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     restart: unless-stopped
 
@@ -19,14 +19,12 @@ services:
       LETSENCRYPT_HOST: ${GRAFANA_PRODUCTION_HOST}
       VIRTUAL_PORT: 3000
     volumes:
-      - grafana-config:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - grafana-data:/var/lib/grafana
     restart: unless-stopped
 
 volumes:
-  prometheus-config:
   prometheus-data:
-  grafana-config:
   grafana-data:
 
 networks:
