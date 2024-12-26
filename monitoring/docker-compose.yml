@@ -1,0 +1,33 @@
+services:
+  prometheus:
+    image: prom/prometheus:v3.0.0
+    container_name: prometheus
+    environment:
+      VIRTUAL_HOST: ${PROMETHEUS_PRODUCTION_HOST}
+      LETSENCRYPT_HOST: ${PROMETHEUS_PRODUCTION_HOST}
+      VIRTUAL_PORT: 9090
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      VIRTUAL_HOST: ${GRAFANA_PRODUCTION_HOST}
+      LETSENCRYPT_HOST: ${GRAFANA_PRODUCTION_HOST}
+      VIRTUAL_PORT: 3000
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  default:
+    name: magpie-network
+    external: true
